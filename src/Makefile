@@ -1,14 +1,14 @@
 
 CC = gcc
 
-PCT_VERSION = $(shell grep -w VERSION ../include/collections.h | awk '{print $$4}' | cut -d \" -f 2)
 MAJOR_VERSION = $(shell grep MAJOR_VERSION ../include/collections.h | awk '{print $$4}')
 MINOR_VERSION = $(shell grep MINOR_VERSION ../include/collections.h | awk '{print $$4}')
+BUILD = $(shell grep BUILD ../include/collections.h | awk '{print $$4}')
 
 USR_DIR = /usr/local/lib
 LIBNAME = libcollections.so
-SONAME = $(LIBNAME).$(PCT_VERSION).$(MAJOR_VERSION)
-DEST_LIBNAME = $(SONAME).$(MINOR_VERSION)
+SONAME = $(LIBNAME).$(MAJOR_VERSION)
+DEST_LIBNAME = $(SONAME).$(MINOR_VERSION).$(BUILD)
 
 TARGET = ../bin/$(SONAME)
 TARGET_DEST = ../bin/$(DEST_LIBNAME)

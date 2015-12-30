@@ -27,9 +27,9 @@
 #define _COLLECTIONS_H          1
 
 #ifdef LIBCOLLECTIONS_COMPILE
-# define VERSION                "1.0"
 # define MAJOR_VERSION          0
-# define MINOR_VERSION          0.0
+# define MINOR_VERSION          1
+# define BUILD                  1
 #endif
 
 #include <cl/cl_types.h>
