@@ -133,7 +133,7 @@ static struct cfg_file_s *new_cfg_file_s(const char *filename)
         return NULL;
     }
 
-    p->filename = cstring_new("%", filename);
+    p->filename = cstring_new("%s", filename);
     p->section = NULL;
 
     return p;
