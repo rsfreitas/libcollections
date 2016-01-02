@@ -65,17 +65,29 @@ enum cboolean {
 #define CL_PP_NARG(...)                  \
      CL_PP_NARG_(__VA_ARGS__, CL_PP_RSEQ_N())
 
+/** param flags */
+enum cl_param_flags {
+    CL_PRIVATE = (1 << 0),
+    CL_READABLE = (1 << 1),
+    CL_WRITABLE = (1 << 2)
+};
+
 /** types */
 enum cl_type {
     CL_VOID,
     CL_CHAR,
+    CL_UCHAR,
     CL_INT,
+    CL_UINT,
     CL_FLOAT,
     CL_DOUBLE,
     CL_LONG,
+    CL_ULONG,
     CL_LLONG,
-    CL_VOIDP,
-    CL_STRING
+    CL_ULLONG,
+    CL_POINTER,
+    CL_STRING,
+    CL_BOOLEAN
 };
 
 /** boolean type */
@@ -118,8 +130,11 @@ typedef union sigval        ctimer_arg_t;
 /** chat type */
 typedef void                chat_t;
 
-/** object type */
-typedef void                cobject_t;
+/** value type */
+typedef void                cvalue_t;
+
+/** generic parameters specifications */
+typedef void                cspec_t;
 
 #endif
 

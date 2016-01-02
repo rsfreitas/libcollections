@@ -43,7 +43,7 @@ struct cfg_line_s {
     clist_t             *next;
     struct cfg_key_s    *child;
     cstring_t           *name;
-    cstring_t           *value;
+    cvalue_t           *value;
     cstring_t           *comment;
     enum cfg_line_type  line_type;
     char                delim;
@@ -77,10 +77,11 @@ static cbool_t is_section(const char *line)
     return ret;
 }
 
-static struct cfg_line_s *new_cfg_line_s(const char *name, const char *value,
-    const char *comment, char delim, enum cfg_line_type type)
+static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
+    cstring_t *comment, char delim, enum cfg_line_type type)
 {
     struct cfg_line_s *l = NULL;
+    cstring_t *tmp;
 
     l = calloc(1, sizeof(struct cfg_line_s));
 
@@ -88,13 +89,16 @@ static struct cfg_line_s *new_cfg_line_s(const char *name, const char *value,
         return NULL;
 
     if (name != NULL)
-        l->name = cstring_new("%s", name);
+        l->name = name;
 
-    if (value != NULL)
-        l->value = cstring_new("%s", value);
+    if (value != NULL) {
+        tmp = cstring_new(value);
+        l->value = cvalue_from_string(tmp);
+        cstring_destroy(tmp);
+    }
 
     if (comment != NULL)
-        l->comment = cstring_new("%s", comment);
+        l->comment = comment;
 
     l->delim = delim;
     l->line_type = type;
@@ -111,7 +115,7 @@ static void destroy_cfg_line_s(void *a)
         cstring_destroy(l->comment);
 
     if (l->value != NULL)
-        cstring_destroy(l->value);
+        cvalue_destroy(l->value);
 
     if (l->name != NULL)
         cstring_destroy(l->name);
@@ -272,25 +276,19 @@ static struct cfg_line_s *cvt_line_to_cfg_line(const char *line)
     }
 
 end_block:
-    cline = new_cfg_line_s((name != NULL) ? cstring_valueof(name) : NULL,
-                            (value != NULL) ? cstring_valueof(value) : NULL,
-                            (comment != NULL) ? cstring_valueof(comment) : NULL,
-                            cdelim, line_type);
+    cline = new_cfg_line_s((name != NULL) ? name : NULL,
+                           (value != NULL) ? cstring_valueof(value) : NULL,
+                           (comment != NULL) ? comment : NULL,
+                           cdelim, line_type);
 
     if (value != NULL)
         cstring_destroy(value);
-
-    if (name != NULL)
-        cstring_destroy(name);
 
     if (data != NULL)
         cstring_destroy(data);
 
     if (list != NULL)
         cstring_list_destroy(list);
-
-    if (comment != NULL)
-        cstring_destroy(comment);
 
     if (s != NULL)
         cstring_destroy(s);
@@ -387,9 +385,9 @@ static int search_key(void *a, void *b)
 static int write_line_to_file(void *a, void *b)
 {
     struct cfg_line_s *l = (struct cfg_line_s *)a;
-    FILE *fp = (FILE *)b;
+    cstring_t *s = (cstring_t *)b;
     enum cfg_line_type type;
-    char *v = NULL;
+    cstring_t *v = NULL;
 
     type = (l->line_type != CFG_LINE_COMMENT) 
                 ? l->line_type & ~CFG_LINE_COMMENT 
@@ -397,61 +395,60 @@ static int write_line_to_file(void *a, void *b)
 
     switch (type) {
         case CFG_LINE_EMPTY:
-            fprintf(fp, "\n");
+            cstring_cat(s, "\n");
             break;
 
         case CFG_LINE_COMMENT:
-            fprintf(fp, "%c %s\n", l->delim, cstring_valueof(l->comment));
+            cstring_cat(s, "%c %s\n", l->delim, cstring_valueof(l->comment));
             break;
 
         case CFG_LINE_SECTION:
             if (l->line_type & CFG_LINE_COMMENT) {
-                fprintf(fp, "%s %c %s\n", cstring_valueof(l->name), l->delim,
-                        cstring_valueof(l->comment));
+                cstring_cat(s, "%s %c %s\n", cstring_valueof(l->name), l->delim,
+                            cstring_valueof(l->comment));
             } else
-                fprintf(fp, "%s\n", cstring_valueof(l->name));
+                cstring_cat(s, "%s\n", cstring_valueof(l->name));
 
             break;
 
         case CFG_LINE_KEY:
-            v = (char *)cstring_valueof(l->value);
+            v = cvalue_to_string(l->value);
 
             if (l->line_type & CFG_LINE_COMMENT) {
-                fprintf(fp, "%s=%s %c %s\n", cstring_valueof(l->name),
-                        (NULL == v) ? "" : v, l->delim,
-                        cstring_valueof(l->comment));
+                cstring_cat(s, "%s=%s %c %s\n", cstring_valueof(l->name),
+                            (NULL == v) ? "" : cstring_valueof(v), l->delim,
+                            cstring_valueof(l->comment));
             } else
-                fprintf(fp, "%s=%s\n", cstring_valueof(l->name),
-                        (NULL == v) ? "" : v);
+                cstring_cat(s, "%s=%s\n", cstring_valueof(l->name),
+                            (NULL == v) ? "" : cstring_valueof(v));
+
+            if (v != NULL)
+                cstring_destroy(v);
 
             break;
     }
 
     if (l->child != NULL)
-        cdll_map(l->child, write_line_to_file, fp);
+        cdll_map(l->child, write_line_to_file, s);
 
     return 0;
 }
 
-static int __cfg_sync(const struct cfg_file_s *file, const char *out)
+static cstring_t *print_cfg(const struct cfg_file_s *file)
 {
-    FILE *fp;
-    const char *p;
+    cstring_t *s = NULL;
 
-    p = (out == NULL) ? cstring_valueof(file->filename) : out;
-    fp = fopen(p, "w+");
+    if (NULL == file->section)
+        return cstring_new("");
 
-    if (NULL == fp)
-        return -1;
+    s = cstring_new("");
+    cdll_map(file->section, write_line_to_file, s);
 
-    cdll_map(file->section, write_line_to_file, fp);
-    fclose(fp);
-
-    return 0;
+    return s;
 }
 
 /*
- * Loads a INI configuration file to a cfg_file_t object.
+ * Loads a INI configuration file to a cfg_file_t value.
  */
 cfg_file_t LIBEXPORT *cfg_load(const char *filename)
 {
@@ -470,7 +467,7 @@ cfg_file_t LIBEXPORT *cfg_load(const char *filename)
 }
 
 /*
- * Frees all memory previously allocated on a cfg_file_t object.
+ * Frees all memory previously allocated on a cfg_file_t value.
  */
 int LIBEXPORT cfg_unload(cfg_file_t *file)
 {
@@ -487,11 +484,16 @@ int LIBEXPORT cfg_unload(cfg_file_t *file)
 }
 
 /*
- * Write the contents of a cfg_file_t object to a file. All file content will
+ * Write the contents of a cfg_file_t value to a file. All file content will
  * be overwritten.
  */
 int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
 {
+    struct cfg_file_s *f = (struct cfg_file_s *)file;
+    FILE *fp;
+    const char *p;
+    cstring_t *s;
+
     cerrno_clear();
 
     if (NULL == file) {
@@ -499,7 +501,26 @@ int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
         return -1;
     }
 
-    return __cfg_sync(file, filename);
+    p = (filename == NULL) ? cstring_valueof(f->filename) : filename;
+    fp = fopen(p, "w+");
+
+    if (NULL == fp) {
+        cset_errno(CL_FILE_OPEN_ERROR);
+        return -1;
+    }
+
+    s = print_cfg(f);
+
+    if (NULL == s) {
+        fclose(fp);
+        return -1;
+    }
+
+    fprintf(fp, "%s", cstring_valueof(s));
+    cstring_destroy(s);
+    fclose(fp);
+
+    return 0;
 }
 
 /*
@@ -528,12 +549,14 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     s = cdll_map(f->section, search_section, (void *)section);
 
     if (NULL == s) {
-        s = new_cfg_line_s(section, NULL, NULL, 0, CFG_LINE_SECTION);
+        s = new_cfg_line_s(cstring_new(section), NULL, NULL, 0,
+                           CFG_LINE_SECTION);
 
         if (NULL == s)
             return -1;
 
-        k = new_cfg_line_s(key, b, NULL, 0, CFG_LINE_KEY);
+        k = new_cfg_line_s(cstring_new(key), b, NULL, 0,
+                           CFG_LINE_KEY);
 
         if (NULL == k) {
             destroy_cfg_line_s(s);
@@ -549,7 +572,8 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     k = cdll_map(s->child, search_key, (void *)key);
 
     if (NULL == k) {
-        k = new_cfg_line_s(key, b, NULL, 0, CFG_LINE_KEY);
+        k = new_cfg_line_s(cstring_new(key), b, NULL, 0,
+                           CFG_LINE_KEY);
 
         if (NULL == k)
             return -1;
@@ -561,7 +585,8 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
         if (k->value != NULL)
             cstring_destroy(k->value);
 
-        k->value = t;
+        k->value = cvalue_from_string(t);
+        cstring_destroy(t);
     }
 
 end_block:
@@ -673,7 +698,7 @@ cstring_t LIBEXPORT *cfg_key_name(const cfg_key_t *key)
 /*
  * Gets the actual value from a cfg_key_t object.
  */
-cstring_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
+cvalue_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
 {
     struct cfg_line_s *k = (struct cfg_line_s *)key;
 
@@ -684,6 +709,22 @@ cstring_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
         return NULL;
     }
 
-    return k->value;
+    return cvalue_ref(k->value);
+}
+
+cstring_t LIBEXPORT *cfg_to_string(const cfg_file_t *file)
+{
+    cstring_t *s = NULL;
+
+    cerrno_clear();
+
+    if (NULL == file) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    s = print_cfg(file);
+
+    return s;
 }
 

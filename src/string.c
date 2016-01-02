@@ -971,3 +971,67 @@ double LIBEXPORT cstring_value_as_double(const cstring_t *s)
     return v;
 }
 
+cbool_t LIBEXPORT cstring_is_number(const cstring_t *value)
+{
+    int i, l;
+
+    cerrno_clear();
+
+    if (NULL == value) {
+        cset_errno(CL_NULL_ARG);
+        return CL_FALSE;
+    }
+
+    l = cstring_length(value);
+
+    for (i = 0; i < l; i++)
+        if (isdigit(cstring_at(value, i)) == 0)
+            return CL_FALSE;
+
+    return CL_TRUE;
+}
+
+cbool_t LIBEXPORT cstring_is_float_number(const cstring_t *value)
+{
+    int i, l;
+
+    cerrno_clear();
+
+    if (NULL == value) {
+        cset_errno(CL_NULL_ARG);
+        return CL_FALSE;
+    }
+
+    l = cstring_length(value);
+
+    for (i = 0; i < l; i++) {
+        if ((isdigit(cstring_at(value, i)) == 0) ||
+            (cstring_at(value, i) != '.'))
+        {
+            return CL_FALSE;
+        }
+    }
+
+    return CL_TRUE;
+}
+
+cbool_t LIBEXPORT cstring_is_alphanumeric(const cstring_t *value)
+{
+    int i, l;
+
+    cerrno_clear();
+
+    if (NULL == value) {
+        cset_errno(CL_NULL_ARG);
+        return CL_FALSE;
+    }
+
+    l = cstring_length(value);
+
+    for (i = 0; i < l; i++)
+        if (isalnum(cstring_at(value, i)) == 0)
+            return CL_FALSE;
+
+    return CL_TRUE;
+}
+

@@ -154,10 +154,20 @@ cstring_t *cfg_key_name(const cfg_key_t *key);
  *
  * @param [in] key: cfg_key_t object.
  *
- * @return On success returns a cstring_t object containing the key value.
- *         Returns NULL otherwise.
+ * @return On success returns a reference to a cvalue_t object containing the key
+ *         value or NULL otherwise.
  */
-cstring_t *cfg_key_value(const cfg_key_t *key);
+cvalue_t *cfg_key_value(const cfg_key_t *key);
+
+/**
+ * @name cfg_to_string
+ * @brief Converts a cfg_file_t object into a human readable string.
+ *
+ * @param [in] file: The cfg_file_t object.
+ *
+ * @return On success returns a cstring_t containing the cfg_file_t object.
+ */
+cstring_t *cfg_to_string(const cfg_file_t *file);
 
 #endif
 

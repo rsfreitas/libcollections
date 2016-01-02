@@ -45,14 +45,16 @@ OBJS =	\
 	io.o		\
 	json.o		\
 	mem.o		\
-	object.o	\
 	plugin.o	\
 	process.o	\
 	random.o	\
+	ref.o		\
+	specs.o		\
 	string.o	\
 	stringlist.o	\
 	thread.o	\
-	timer.o
+	timer.o		\
+	value.o
 
 $(TARGET): $(OBJS)
 	rm -f ../bin/$(LIBNAME)*

@@ -1,9 +1,9 @@
 
 /*
- * Description:
+ * Description: A generic reference count for internal objects.
  *
  * Author: Rodrigo Freitas
- * Created at: Sat Nov  7 21:46:43 2015
+ * Created at: Sat Jan  2 11:36:44 2016
  * Project: libcollections
  *
  * Copyright (C) 2015 Rodrigo Freitas
@@ -23,38 +23,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _COLLECTIONS_H
-#define _COLLECTIONS_H          1
+#include "collections.h"
 
-#ifdef LIBCOLLECTIONS_COMPILE
-# define MAJOR_VERSION          0
-# define MINOR_VERSION          1
-# define BUILD                  3
-#endif
+inline void ref_inc(const struct ref_s *ref)
+{
+    if (NULL == ref)
+        return;
 
-#include <cl/cl_types.h>
-#include <cl/cl_cfg.h>
-#include <cl/cl_chat.h>
-#include <cl/cl_datetime.h>
-#include <cl/cl_dll.h>
-#include <cl/cl_error.h>
-#include <cl/cl_event.h>
-#include <cl/cl_file.h>
-#include <cl/cl_io.h>
-#include <cl/cl_json.h>
-#include <cl/cl_mem.h>
-#include <cl/cl_process.h>
-#include <cl/cl_random.h>
-#include <cl/cl_specs.h>
-#include <cl/cl_string.h>
-#include <cl/cl_stringlist.h>
-#include <cl/cl_thread.h>
-#include <cl/cl_timer.h>
-#include <cl/cl_value.h>
+    __sync_add_and_fetch((int *)&ref->count, 1);
+}
 
-#ifdef LIBCOLLECTIONS_COMPILE
-# include <cl/cl_internal.h>
-#endif
-
-#endif
+inline void ref_dec(const struct ref_s *ref)
+{
+    if (__sync_sub_and_fetch((int *)&ref->count, 1) == 0)
+        (ref->free)(ref);
+}
 

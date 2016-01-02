@@ -363,7 +363,7 @@ int cjson_replace_item_in_object(cjson_t *root, const char *name,
  * @param [in] friendly_output: Boolean flag to format or not the output string
  *                              in a user friendly format.
  *
- * @return On success returns a cstring_T containing the cjson_t object.
+ * @return On success returns a cstring_t containing the cjson_t object.
  */
 cstring_t *cjson_to_string(const cjson_t *j, cbool_t friendly_output);
 

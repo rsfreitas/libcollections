@@ -68,7 +68,10 @@ static const char *__cdescriptions[] = {
     "Error when trying to establish connection",
     "Connection received with errors",
     "Cannot prepare data to send",
-    "Not able to process received data"
+    "Not able to process received data",
+    "Wrong type",
+    "Set value failed",
+    "Invalid value"
 };
 
 static const char *__cunknown_error = "Unknown error";
