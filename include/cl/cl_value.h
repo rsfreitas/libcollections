@@ -156,7 +156,7 @@ unsigned long long cvalue_get_ullong(const cvalue_t *value);
  *
  * @return On success returns the cvalue_t value or NULL otherwise.
  */
-const cstring_t *cvalue_get_string(const cvalue_t *value);
+cstring_t *cvalue_get_string(const cvalue_t *value);
 
 /**
  * @name cvalue_get_long

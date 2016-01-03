@@ -89,7 +89,7 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
         return NULL;
 
     if (name != NULL)
-        l->name = name;
+        l->name = cstring_ref(name);
 
     if (value != NULL) {
         tmp = cstring_new(value);
@@ -98,7 +98,7 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
     }
 
     if (comment != NULL)
-        l->comment = comment;
+        l->comment = cstring_ref(comment);
 
     l->delim = delim;
     l->line_type = type;
@@ -112,13 +112,13 @@ static void destroy_cfg_line_s(void *a)
     struct cfg_line_s *l = (struct cfg_line_s *)a;
 
     if (l->comment != NULL)
-        cstring_destroy(l->comment);
+        cstring_unref(l->comment);
 
     if (l->value != NULL)
         cvalue_destroy(l->value);
 
     if (l->name != NULL)
-        cstring_destroy(l->name);
+        cstring_unref(l->name);
 
     if (l->child != NULL)
         cdll_free(l->child, destroy_cfg_line_s);
@@ -174,6 +174,7 @@ static cstring_t *get_comment(const cstring_t *s, char delim,
 {
     char tmp[2] = {0};
     int list_size = 0;
+    cstring_t *ref, *comment;
 
     sprintf(tmp, "%c", delim);
     *list = cstring_split(s, tmp);
@@ -193,35 +194,48 @@ static cstring_t *get_comment(const cstring_t *s, char delim,
      * @list_size will always be > 1. So the comment will be in the
      * @list_size - 1 index at the list
      */
-    return cstring_alltrim(cstring_list_get(*list, list_size - 1));
+    ref = cstring_list_get(*list, list_size - 1);
+    comment = cstring_alltrim(ref);
+    cstring_unref(ref);
+
+    return comment;
 }
 
 static cstring_t *get_line_content(const cstring_t *s, char delim,
     const cstring_list_t *list)
 {
-    cstring_t *p;
+    cstring_t *p, *content;
+    int l;
 
     if (NULL == list)
         return cstring_dup(s);
 
-    if (delim != 0) {
-        p = cstring_list_get(list, 0);
+    p = cstring_list_get(list, 0);
 
+    if (delim != 0) {
         /* Has only comment */
-        if (cstring_length(p) == 0)
+        l = cstring_length(p);
+        cstring_unref(p);
+
+        if (l == 0)
             return NULL;
     }
 
-    return cstring_alltrim(cstring_list_get(list, 0));
+    content = cstring_alltrim(p);
+    cstring_unref(p);
+
+    return content;
 }
 
 static cstring_t *get_data(const cstring_t *s, int index)
 {
     cstring_list_t *l = NULL;
-    cstring_t *r = NULL;
+    cstring_t *r = NULL, *ref;
 
     l = cstring_split(s, "=");
-    r = cstring_alltrim(cstring_list_get(l, index));
+    ref = cstring_list_get(l, index);
+    r = cstring_alltrim(ref);
+    cstring_unref(ref);
     cstring_list_destroy(l);
 
     return r;
@@ -281,17 +295,20 @@ end_block:
                            (comment != NULL) ? comment : NULL,
                            cdelim, line_type);
 
+    cstring_unref(name);
+    cstring_unref(comment);
+
     if (value != NULL)
-        cstring_destroy(value);
+        cstring_unref(value);
 
     if (data != NULL)
-        cstring_destroy(data);
+        cstring_unref(data);
 
     if (list != NULL)
         cstring_list_destroy(list);
 
     if (s != NULL)
-        cstring_destroy(s);
+        cstring_unref(s);
 
     return cline;
 }

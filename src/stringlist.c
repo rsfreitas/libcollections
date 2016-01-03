@@ -49,7 +49,7 @@ static struct cstring_list_node_s *new_list_node_s(cstring_t *v)
         return NULL;
     }
 
-    l->s = v;
+    l->s = cstring_ref(v);
 
     return l;
 }
@@ -61,7 +61,7 @@ static void destroy_list_node_s(void *ptr)
     if (NULL == ptr)
         return;
 
-    cstring_destroy(l->s);
+    cstring_unref(l->s);
     free(l);
 }
 
@@ -157,6 +157,6 @@ cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
 
     n = cdll_at(p->list, index);
 
-    return n->s;
+    return cstring_ref(n->s);
 }
 

@@ -97,7 +97,7 @@ static void destroy_cvalue_s(const struct ref_s *ref)
         return;
 
     if ((o->type == CL_STRING) && (o->s != NULL))
-        cstring_destroy(o->s);
+        cstring_unref(o->s);
 
     if (o->dup_data == CL_TRUE)
         free_value_data(o);
@@ -248,9 +248,9 @@ void cvalue_set_string(cvalue_t *value, cstring_t *s)
         return;
 
     if (v->s != NULL)
-        cstring_destroy(v->s);
+        cstring_unref(v->s);
 
-    v->s = cstring_dup(s);
+    v->s = cstring_ref(s);
 }
 
 static void set_cvalue_value(struct cvalue_s *o, va_list ap)
@@ -564,14 +564,14 @@ unsigned long long LIBEXPORT cvalue_get_ullong(const cvalue_t *value)
     return o->ull;
 }
 
-const cstring_t LIBEXPORT *cvalue_get_string(const cvalue_t *value)
+cstring_t LIBEXPORT *cvalue_get_string(const cvalue_t *value)
 {
     struct cvalue_s *o = (struct cvalue_s *)value;
 
     if (get_value_check(value, CL_STRING) < 0)
         return NULL;
 
-    return o->s;
+    return cstring_ref(o->s);
 }
 
 long LIBEXPORT cvalue_get_long(const cvalue_t *value)
@@ -746,6 +746,7 @@ cstring_t LIBEXPORT *cvalue_to_string(const cvalue_t *value)
 cvalue_t LIBEXPORT *cvalue_from_string(const cstring_t *value)
 {
     cvalue_t *o = NULL;
+    cstring_t *ref = NULL;
 
     cerrno_clear();
 
@@ -754,12 +755,16 @@ cvalue_t LIBEXPORT *cvalue_from_string(const cstring_t *value)
         return NULL;
     }
 
-    if (cstring_is_number(value) == CL_TRUE)
-        o = cvalue_new(CL_INT, cstring_value_as_int(value));
-    else if (cstring_is_float_number(value) == CL_TRUE)
-        o = cvalue_new(CL_FLOAT, cstring_value_as_float(value));
+    ref = cstring_ref((cstring_t *)value);
+
+    if (cstring_is_number(ref) == CL_TRUE)
+        o = cvalue_new(CL_INT, cstring_value_as_int(ref));
+    else if (cstring_is_float_number(ref) == CL_TRUE)
+        o = cvalue_new(CL_FLOAT, cstring_value_as_float(ref));
     else
-        o = cvalue_new(CL_STRING, value);
+        o = cvalue_new(CL_STRING, ref);
+
+    cstring_unref(ref);
 
     return o;
 }

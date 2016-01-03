@@ -355,7 +355,7 @@ cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
         return NULL;
     }
 
-    return cstring_new("%string", p->str);
+    return cstring_new("%s", p->str);
 }
 
 cstring_t LIBEXPORT *cstring_upper(const cstring_t *string)
@@ -596,7 +596,7 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
     if (NULL == ptr)
         return NULL;
 
-    o = cstring_new("%string", ptr);
+    o = cstring_new("%s", ptr);
 
     if (NULL == o)
         return NULL;
@@ -633,7 +633,8 @@ int LIBEXPORT cstring_rplchr(cstring_t *string, char c1, char c2)
     return 0;
 }
 
-int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old, const char *new_)
+int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old,
+    const char *new_)
 {
     struct cstring_s *p = (struct cstring_s *)string;
     size_t l_old, l_new, l;
@@ -829,11 +830,13 @@ static char *__strtok(const char *string, const char *delim, char **next_s)
 /*
  * Splits the cstring_t object around matches of the given tokens.
  */
-cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string, const char *delim)
+cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
+    const char *delim)
 {
     struct cstring_s *p = (struct cstring_s *)string;
     cstring_list_t *l = NULL;
     char *t = NULL, *tmp = NULL;
+    cstring_t *data;
 
     cerrno_clear();
 
@@ -852,11 +855,15 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string, const char *del
     if (NULL == t)
         return l;
 
-    cstring_list_add(l, cstring_new(t));
+    data = cstring_new(t);
+    cstring_list_add(l, data);
+    cstring_unref(data);
     free(t);
 
     while ((t = __strtok(NULL, delim, &tmp)) != NULL) {
-        cstring_list_add(l, cstring_new(t));
+        data = cstring_new(t);
+        cstring_list_add(l, data);
+        cstring_unref(data);
         free(t);
     }
 
