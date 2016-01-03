@@ -264,7 +264,7 @@ cvalue_t *cvalue_ref(cvalue_t *value);
 
 /**
  * @name cvalue_unref
- * @brief Decreases the reference count fot a cvalue_t item.
+ * @brief Decreases the reference count for a cvalue_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).

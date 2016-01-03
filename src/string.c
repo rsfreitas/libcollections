@@ -35,9 +35,25 @@
 #include "collections.h"
 
 struct cstring_s {
-    uint32_t    size;
-    char        *str;
+    uint32_t        size;
+    char            *str;
+
+    /* reference count */
+    struct ref_s    ref;
 };
+
+static void destroy_string(const struct ref_s *ref)
+{
+    struct cstring_s *string = container_of(ref, struct cstring_s, ref);
+
+    if (NULL == string)
+        return;
+
+    if (string->str != NULL)
+        free(string->str);
+
+    free(string);
+}
 
 static struct cstring_s *cstring_new_empty(void)
 {
@@ -52,7 +68,51 @@ static struct cstring_s *cstring_new_empty(void)
 
     p->str = NULL;
 
+    /* reference count initialization */
+    p->ref.free = destroy_string;
+    p->ref.count = 1;
+
     return p;
+}
+
+cstring_t LIBEXPORT *cstring_ref(cstring_t *string)
+{
+    struct cstring_s *p = (struct cstring_s *)string;
+
+    cerrno_clear();
+
+    if (NULL == string) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    ref_inc(&p->ref);
+
+    return string;
+}
+
+int LIBEXPORT cstring_unref(cstring_t *string)
+{
+    struct cstring_s *p = (struct cstring_s *)string;
+
+    cerrno_clear();
+
+    if (NULL == string) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    ref_dec(&p->ref);
+
+    return 0;
+}
+
+/*
+ * Frees a cstring_t object from memory.
+ */
+int LIBEXPORT cstring_destroy(cstring_t *string)
+{
+    return cstring_unref(string);
 }
 
 /*
@@ -60,28 +120,28 @@ static struct cstring_s *cstring_new_empty(void)
  */
 cstring_t LIBEXPORT *cstring_new(const char *fmt, ...)
 {
-    struct cstring_s *s = NULL;
+    struct cstring_s *string = NULL;
     va_list ap;
 
     cerrno_clear();
-    s = cstring_new_empty();
+    string = cstring_new_empty();
 
-    if (NULL == s)
+    if (NULL == string)
         return NULL;
 
     if (NULL == fmt)
-        return s;
+        return string;
 
     va_start(ap, fmt);
-    s->size = vasprintf(&s->str, fmt, ap);
+    string->size = vasprintf(&string->str, fmt, ap);
     va_end(ap);
 
-    return s;
+    return string;
 }
 
 cstring_t LIBEXPORT *cstring_new_ex(unsigned int size)
 {
-    struct cstring_s *s = NULL;
+    struct cstring_s *string = NULL;
 
     cerrno_clear();
 
@@ -90,20 +150,20 @@ cstring_t LIBEXPORT *cstring_new_ex(unsigned int size)
         return NULL;
     }
 
-    s = cstring_new_empty();
+    string = cstring_new_empty();
 
-    if (NULL == s)
+    if (NULL == string)
         return NULL;
 
-    s->str = calloc(size, sizeof(char));
+    string->str = calloc(size, sizeof(char));
 
-    if (NULL == s->str) {
+    if (NULL == string->str) {
         cset_errno(CL_NO_MEM);
-        cstring_destroy(s);
+        cstring_destroy(string);
         return NULL;
     }
 
-    return s;
+    return string;
 }
 
 /*
@@ -131,38 +191,15 @@ cstring_t LIBEXPORT *cstring_random(unsigned int size)
 }
 
 /*
- * Frees a cstring_t object from memory.
- */
-int LIBEXPORT cstring_destroy(cstring_t *s)
-{
-    struct cstring_s *p = (struct cstring_s *)s;
-
-    cerrno_clear();
-
-    if (NULL == s) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    if (p->str != NULL)
-        free(p->str);
-
-    free(p);
-    p = NULL;
-
-    return 0;
-}
-
-/*
  * Gets the length of a cstring_t object.
  */
-int LIBEXPORT cstring_length(const cstring_t *s)
+int LIBEXPORT cstring_length(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -173,13 +210,13 @@ int LIBEXPORT cstring_length(const cstring_t *s)
 /*
  * Gets the value of a cstring_t object.
  */
-const char LIBEXPORT *cstring_valueof(const cstring_t *s)
+const char LIBEXPORT *cstring_valueof(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -190,13 +227,13 @@ const char LIBEXPORT *cstring_valueof(const cstring_t *s)
 /*
  * Returns the char value at the specified index.
  */
-char LIBEXPORT cstring_at(const cstring_t *s, unsigned int index)
+char LIBEXPORT cstring_at(const cstring_t *string, unsigned int index)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -212,13 +249,13 @@ char LIBEXPORT cstring_at(const cstring_t *s, unsigned int index)
 /*
  * Changes the value of a specified index to a new value.
  */
-int LIBEXPORT cstring_set(cstring_t *s, char c, unsigned int index)
+int LIBEXPORT cstring_set(cstring_t *string, char c, unsigned int index)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -236,16 +273,16 @@ int LIBEXPORT cstring_set(cstring_t *s, char c, unsigned int index)
 /*
  * Concatenate two strings.
  */
-int LIBEXPORT cstring_cat(cstring_t *s, const char *fmt, ...)
+int LIBEXPORT cstring_cat(cstring_t *string, const char *fmt, ...)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     va_list ap;
     char *buff = NULL;
     int l=0;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -307,29 +344,29 @@ int LIBEXPORT cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
     return strncmp(p1->str, p2->str, n);
 }
 
-cstring_t LIBEXPORT *cstring_dup(const cstring_t *s)
+cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    return cstring_new("%s", p->str);
+    return cstring_new("%string", p->str);
 }
 
-cstring_t LIBEXPORT *cstring_upper(const cstring_t *s)
+cstring_t LIBEXPORT *cstring_upper(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     struct cstring_s *o = NULL;
     unsigned int i;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -346,15 +383,15 @@ cstring_t LIBEXPORT *cstring_upper(const cstring_t *s)
     return o;
 }
 
-cstring_t LIBEXPORT *cstring_lower(const const cstring_t *s)
+cstring_t LIBEXPORT *cstring_lower(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     struct cstring_s *o = NULL;
     unsigned int i;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -371,14 +408,14 @@ cstring_t LIBEXPORT *cstring_lower(const const cstring_t *s)
     return o;
 }
 
-cstring_t LIBEXPORT *cstring_capitalize(const cstring_t *s)
+cstring_t LIBEXPORT *cstring_capitalize(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     struct cstring_s *o = NULL;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -393,14 +430,14 @@ cstring_t LIBEXPORT *cstring_capitalize(const cstring_t *s)
     return o;
 }
 
-int LIBEXPORT cstring_find(const cstring_t *s, char c)
+int LIBEXPORT cstring_find(const cstring_t *string, char c)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     int i;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -412,14 +449,14 @@ int LIBEXPORT cstring_find(const cstring_t *s, char c)
     return -1; /* character not found */
 }
 
-int LIBEXPORT cstring_rfind(const cstring_t *s, char c)
+int LIBEXPORT cstring_rfind(const cstring_t *string, char c)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     int i;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -431,14 +468,14 @@ int LIBEXPORT cstring_rfind(const cstring_t *s, char c)
     return -1; /* character not found */
 }
 
-int LIBEXPORT cstring_cchr(const cstring_t *s, char c)
+int LIBEXPORT cstring_cchr(const cstring_t *string, char c)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     int i, match = 0;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -450,15 +487,15 @@ int LIBEXPORT cstring_cchr(const cstring_t *s, char c)
     return match;
 }
 
-cstring_t LIBEXPORT *cstring_ltrim(const cstring_t *s)
+cstring_t LIBEXPORT *cstring_ltrim(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     struct cstring_s *o = NULL;
     int size, i;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -483,15 +520,15 @@ cstring_t LIBEXPORT *cstring_ltrim(const cstring_t *s)
     return o;
 }
 
-cstring_t LIBEXPORT *cstring_rtrim(const cstring_t *s)
+cstring_t LIBEXPORT *cstring_rtrim(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     struct cstring_s *o = NULL;
     int size, i;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -515,14 +552,14 @@ cstring_t LIBEXPORT *cstring_rtrim(const cstring_t *s)
     return o;
 }
 
-cstring_t LIBEXPORT *cstring_alltrim(const cstring_t *s)
+cstring_t LIBEXPORT *cstring_alltrim(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     struct cstring_s *o = NULL;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -541,15 +578,15 @@ cstring_t LIBEXPORT *cstring_alltrim(const cstring_t *s)
     return p;
 }
 
-cstring_t LIBEXPORT *cstring_substr(const cstring_t *s, const char *needle)
+cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     struct cstring_s *o = NULL;
     char *ptr = NULL;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -559,7 +596,7 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *s, const char *needle)
     if (NULL == ptr)
         return NULL;
 
-    o = cstring_new("%s", ptr);
+    o = cstring_new("%string", ptr);
 
     if (NULL == o)
         return NULL;
@@ -567,14 +604,14 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *s, const char *needle)
     return o;
 }
 
-int LIBEXPORT cstring_rplchr(cstring_t *s, char c1, char c2)
+int LIBEXPORT cstring_rplchr(cstring_t *string, char c1, char c2)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     int i, c = 0, index;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -585,27 +622,27 @@ int LIBEXPORT cstring_rplchr(cstring_t *s, char c1, char c2)
         return 0;
 
     for (i = 0; i < c; i++) {
-        index = cstring_find(s, c1);
+        index = cstring_find(string, c1);
 
         if (index < 0)
             break;
 
-        cstring_set(s, c2, index);
+        cstring_set(string, c2, index);
     }
 
     return 0;
 }
 
-int LIBEXPORT cstring_rplsubstr(cstring_t *s, const char *old, const char *new_)
+int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old, const char *new_)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     size_t l_old, l_new, l;
     char *s_in1, *s_in2, *s_out, *n;
     int n_old = 0;
 
     cerrno_clear();
 
-    if ((NULL == s) || (NULL == old) || (NULL == new_)) {
+    if ((NULL == string) || (NULL == old) || (NULL == new_)) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -660,13 +697,13 @@ int LIBEXPORT cstring_rplsubstr(cstring_t *s, const char *old, const char *new_)
 /*
  * Checks if a cstring_t object has any valid data.
  */
-cbool_t LIBEXPORT cstring_isempty(const cstring_t *s)
+cbool_t LIBEXPORT cstring_isempty(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return CL_FALSE;
     }
@@ -677,13 +714,13 @@ cbool_t LIBEXPORT cstring_isempty(const cstring_t *s)
 /*
  * Clears the content of a cstring_t object.
  */
-int LIBEXPORT cstring_clear(cstring_t *s)
+int LIBEXPORT cstring_clear(cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -711,17 +748,17 @@ static char is_delimiter_char(char c, const char *delim)
 }
 
 /*
- * Gets a substring of @s until the first token is found.
+ * Gets a substring of @string until the first token is found.
  */
-static char *token_strcpy(const char *s, char token)
+static char *token_strcpy(const char *string, char token)
 {
     int i=0;
     char *tmp, *p;
 
-    tmp = strdup(s);
+    tmp = strdup(string);
 
-    while (*s) {
-        if (*s++ == token) {
+    while (*string) {
+        if (*string++ == token) {
             p = strndup(tmp, i);
             free(tmp);
             return p;
@@ -739,19 +776,19 @@ static char *token_strcpy(const char *s, char token)
  * original string from a series of tokens. Instead of strtok C function,
  * this one does not changes the original string.
  *
- * @param [in] s: Original string.
+ * @param [in] string: Original string.
  * @param [in] delim: String containing token list of chars.
  * @param [out] next_s: Pointer to store the remaining string.
  *
  * @return Returns NULL when no substring is found or a new substring that
  *         must be freed by the user.
  */
-static char *__strtok(const char *s, const char *delim, char **next_s)
+static char *__strtok(const char *string, const char *delim, char **next_s)
 {
     char *str, c_delim, *st, *sc;
 
-    if (s)
-        st = (char *)s;
+    if (string)
+        st = (char *)string;
     else if (*next_s && (strlen(*next_s) > 0))
         st = *next_s;
     else {
@@ -792,15 +829,15 @@ static char *__strtok(const char *s, const char *delim, char **next_s)
 /*
  * Splits the cstring_t object around matches of the given tokens.
  */
-cstring_list_t LIBEXPORT *cstring_split(const cstring_t *s, const char *delim)
+cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string, const char *delim)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     cstring_list_t *l = NULL;
     char *t = NULL, *tmp = NULL;
 
     cerrno_clear();
 
-    if ((NULL == s) || (NULL == delim)) {
+    if ((NULL == string) || (NULL == delim)) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -826,15 +863,15 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *s, const char *delim)
     return l;
 }
 
-int LIBEXPORT cstring_value_as_int(const cstring_t *s)
+int LIBEXPORT cstring_value_as_int(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     char *endptr = NULL;
     int v;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -855,15 +892,15 @@ int LIBEXPORT cstring_value_as_int(const cstring_t *s)
     return v;
 }
 
-long LIBEXPORT cstring_value_as_long(const cstring_t *s)
+long LIBEXPORT cstring_value_as_long(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     char *endptr = NULL;
     long v;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -884,15 +921,15 @@ long LIBEXPORT cstring_value_as_long(const cstring_t *s)
     return v;
 }
 
-long long LIBEXPORT cstring_value_as_long_long(const cstring_t *s)
+long long LIBEXPORT cstring_value_as_long_long(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     char *endptr = NULL;
     long long v;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -913,15 +950,15 @@ long long LIBEXPORT cstring_value_as_long_long(const cstring_t *s)
     return v;
 }
 
-float LIBEXPORT cstring_value_as_float(const cstring_t *s)
+float LIBEXPORT cstring_value_as_float(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     char *endptr = NULL;
     float v;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -942,15 +979,15 @@ float LIBEXPORT cstring_value_as_float(const cstring_t *s)
     return v;
 }
 
-double LIBEXPORT cstring_value_as_double(const cstring_t *s)
+double LIBEXPORT cstring_value_as_double(const cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)s;
+    struct cstring_s *p = (struct cstring_s *)string;
     char *endptr = NULL;
     double v;
 
     cerrno_clear();
 
-    if (NULL == s) {
+    if (NULL == string) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }

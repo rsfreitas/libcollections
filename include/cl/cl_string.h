@@ -73,175 +73,175 @@ cstring_t *cstring_random(unsigned int size);
  * @name cstring_destroy
  * @brief Frees a cstring_t object from memory.
  *
- * @param [in,out] s: The cstring_t object that will be released.
+ * @param [in,out] string The cstring_t object that will be released.
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cstring_destroy(cstring_t *s);
+int cstring_destroy(cstring_t *string);
 
 /**
  * @name cstring_length
  * @brief Gets the length of a cstring_t object.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return Returns the cstring_t object length on success or -1 otherwise.
  */
-int cstring_length(const cstring_t *s);
+int cstring_length(const cstring_t *string);
 
 /**
  * @name cstring_valueof
  * @brief Gets the value of a cstring_t object.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return Returns the cstring_t object value as a 'const char *' on success
  *         or NULL otherwise.
  */
-const char *cstring_valueof(const cstring_t *s);
+const char *cstring_valueof(const cstring_t *string);
 
 /**
  * @name cstring_dup
  * @brief Duplicates a cstring_t object.
  *
- * @param [in] s: The cstring_t object which will be duplicated.
+ * @param [in] string: The cstring_t object which will be duplicated.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_dup(const cstring_t *s);
+cstring_t *cstring_dup(const cstring_t *string);
 
 /**
  * @name cstring_at
  * @brief Returns the char value at the specified index.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  * @param [in] index: The index of the char value.
  *
  * @return Returns the char value at the specified index of a cstring_t object.
  */
-char cstring_at(const cstring_t *s, unsigned int index);
+char cstring_at(const cstring_t *string, unsigned int index);
 
 /**
  * @name cstring_set
  * @brief Changes the value of a specified index to a new value.
  *
- * @param [in,out] s: The cstring_t object.
+ * @param [in,out] string: The cstring_t object.
  * @param [in] c: The new value.
  * @param [in] index: The index of the value to be replaced.
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cstring_set(cstring_t *s, char c, unsigned int index);
+int cstring_set(cstring_t *string, char c, unsigned int index);
 
 /**
  * @name cstring_cat
  * @brief Concatenate two strings.
  *
- * @param [in,out] s: The cstring_t object.
+ * @param [in,out] string: The cstring_t object.
  * @param [in] fmt: The format of the string to be concatenated.
  * @param [in] ...: The values of the format string.
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cstring_cat(cstring_t *s, const char *fmt, ...);
+int cstring_cat(cstring_t *string, const char *fmt, ...);
 
 /**
  * @name cstring_upper
  * @brief Converts all letters from a cstring_t object to uppercase.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_upper(const cstring_t *s);
+cstring_t *cstring_upper(const cstring_t *string);
 
 /**
  * @name cstring_lower
  * @brief Converts all letters from a cstring_t object to lowercase.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_lower(const cstring_t *s);
+cstring_t *cstring_lower(const cstring_t *string);
 
 /**
  * @name cstring_capitalize
  * @brief Convert the first letter of a cstring_t object to uppercase.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_capitalize(const cstring_t *s);
+cstring_t *cstring_capitalize(const cstring_t *string);
 
 /**
  * @name cstring_find
  * @brief Searches for a specific char inside a cstring_t object.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  * @param [in] c: The searched char.
  *
  * @return On success returns the char index inside the cstring_t object or
  *         -1 otherwise.
  */
-int cstring_find(const cstring_t *s, char c);
+int cstring_find(const cstring_t *string, char c);
 
 /**
  * @name cstring_rfind
  * @brief Searches for a specific char inside a cstring_t object from the end.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  * @param [in] c: The searched char.
  *
  * @return On success returns the char index inside the cstring_t object or
  *         -1 otherwise.
  */
-int cstring_rfind(const cstring_t *s, char c);
+int cstring_rfind(const cstring_t *string, char c);
 
 /**
  * @name cstring_cchr
  * @brief Searches and count the number of occurrences of a char inside a
  *        cstring_t object.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  * @param [in] c: The searched char.
  *
  * @return On success returns the number of occurrences of the char inside the
  *         cstring_t object or -1 otherwise.
  */
-int cstring_cchr(const cstring_t *s, char c);
+int cstring_cchr(const cstring_t *string, char c);
 
 /**
  * @name cstring_ltrim
  * @brief Removes all white spaces from the beginning of a cstring_t object.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_ltrim(const cstring_t *s);
+cstring_t *cstring_ltrim(const cstring_t *string);
 
 /**
  * @name cstring_rtrim
  * @brief Removes all white spaces from the end of a cstring_t object.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_rtrim(const cstring_t *s);
+cstring_t *cstring_rtrim(const cstring_t *string);
 
 /**
  * @name cstring_alltrim
  * @brief Removes all white spaces from the beginning and from the end of a
  *        cstring_t object.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_alltrim(const cstring_t *s);
+cstring_t *cstring_alltrim(const cstring_t *string);
 
 /**
  * @name cstring_cmp
@@ -274,126 +274,126 @@ int cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n);
  * @brief Replaces all occurrences of char \a c1 by \a c2 in a cstring_t
  *        object.
  *
- * @param [in,out] s: The cstring_t object.
+ * @param [in,out] string: The cstring_t object.
  * @param [in] c1: The char which will be replaced.
  * @param [in] c2: The new char.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstring_rplchr(cstring_t *s, char c1, char c2);
+int cstring_rplchr(cstring_t *string, char c1, char c2);
 
 /**
  * @name cstring_rplsubstr
  * @brief Replaces all occurrences of a specific substring inside a cstring_t
  *        object.
  *
- * @param [in,out] s: The cstring_t object.
+ * @param [in,out] string: The cstring_t object.
  * @param [in] old: The old substring.
  * @param [in] new_: The new substring.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstring_rplsubstr(cstring_t *s, const char *old, const char *new_);
+int cstring_rplsubstr(cstring_t *string, const char *old, const char *new_);
 
 /**
  * @name cstring_isempty
  * @brief Checks if a cstring_t object has any valid data.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return Returns CL_TRUE if cstring_t object has valid data or CL_FALSE
  *         otherwise.
  */
-cbool_t cstring_isempty(const cstring_t *s);
+cbool_t cstring_isempty(const cstring_t *string);
 
 /**
  * @name cstring_clear
  * @brief Clears the content of a cstring_t object.
  *
- * @param [in,out] s: The cstring_t object.
+ * @param [in,out] string: The cstring_t object.
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cstring_clear(cstring_t *s);
+int cstring_clear(cstring_t *string);
 
 /**
  * @name cstring_substr
  * @brief Searches for a specific substring inside a cstring_t object and
  *        extract it.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  * @param [in] needle: The substring.
  *
  * @return On success returns the new cstring_t object or NULL otherwise.
  */
-cstring_t *cstring_substr(const cstring_t *s, const char *needle);
+cstring_t *cstring_substr(const cstring_t *string, const char *needle);
 
 /**
  * @name cstring_value_as_int
  * @brief Converts the value of a cstring_t object to int.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the int value of a cstring_t object or -1
  *         otherwise.
  */
-int cstring_value_as_int(const cstring_t *s);
+int cstring_value_as_int(const cstring_t *string);
 
 /**
  * @name cstring_value_as_long
  * @brief Converts the value of a cstring_t object to long.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the long value of a cstring_t object or
  *         -1 otherwise.
  */
-long cstring_value_as_long(const cstring_t *s);
+long cstring_value_as_long(const cstring_t *string);
 
 /**
  * @name cstring_value_as_long_long
  * @brief Converts the value of a cstring_t object to long long.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the long long value of a cstring_t object or
  *         -1 otherwise.
  */
-long long cstring_value_as_long_long(const cstring_t *s);
+long long cstring_value_as_long_long(const cstring_t *string);
 
 /**
  * @name cstring_value_as_float
  * @brief Converts the value of a cstring_t object to float.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the float value of a cstring_t object or -1
  *         otherwise.
  */
-float cstring_value_as_float(const cstring_t *s);
+float cstring_value_as_float(const cstring_t *string);
 
 /**
  * @name cstring_value_as_double
  * @brief Converts the value of a cstring_t object to double.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return On success returns the double value of a cstring_t object ot -1
  *         otherwise.
  */
-double cstring_value_as_double(const cstring_t *s);
+double cstring_value_as_double(const cstring_t *string);
 
 /**
  * @name cstring_split
  * @brief Splits the cstring_t object around matches of the given tokens.
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  * @param [in] delim: The list of tokens.
  *
  * @return Returns a cstring_list_t object containing all substrings splitted
  *         on success or NULL otherwise
  */
-cstring_list_t *cstring_split(const cstring_t *s, const char *delim);
+cstring_list_t *cstring_split(const cstring_t *string, const char *delim);
 
 /**
  * @name cstring_is_number
@@ -427,6 +427,30 @@ cbool_t cstring_is_float_number(const cstring_t *value);
  *         CL_TRUE otherwise returns CL_FALSE.
  */
 cbool_t cstring_is_alphanumeric(const cstring_t *value);
+
+/**
+ * @name cstring_ref
+ * @brief Increases the reference count for a cstring_t item.
+ *
+ * @param [in,out] string: The cstring_t item.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+cstring_t *cstring_ref(cstring_t *string);
+
+/**
+ * @name cstring_unref
+ * @brief Decreases the reference count for a cstring_t item.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] string: The cstring_t item.
+ *
+ * @return On sucess returns 0 or -1 otherwise.
+ */
+int cstring_unref(cstring_t *string);
 
 #endif
 
