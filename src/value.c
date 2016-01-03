@@ -335,7 +335,7 @@ static void set_cvalue_value(struct cvalue_s *o, va_list ap)
 
 int LIBEXPORT cvalue_set(cvalue_t *value, ...)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
     va_list ap;
 
     cerrno_clear();
@@ -450,30 +450,40 @@ static int get_cvalue_sizeof(struct cvalue_s *o)
 
 int LIBEXPORT cvalue_sizeof(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    int s;
 
     cerrno_clear();
 
     if (NULL == value) {
+        cvalue_unref(o);
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    return get_cvalue_sizeof(o);
+    s = get_cvalue_sizeof(o);
+    cvalue_unref(o);
+
+    return s;
 }
 
 enum cl_type LIBEXPORT cvalue_type(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    enum cl_type type;
 
     cerrno_clear();
 
     if (NULL == value) {
+        cvalue_unref(o);
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    return o->type;
+    type = o->type;
+    cvalue_unref(o);
+
+    return type;
 }
 
 static int get_value_check(const cvalue_t *value, enum cl_type type)
@@ -506,160 +516,208 @@ static int get_value_check(const cvalue_t *value, enum cl_type type)
 
 int LIBEXPORT cvalue_get_int(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    int v = -1;
 
-    if (get_value_check(value, CL_INT) < 0)
-        return -1;
+    if (get_value_check(value, CL_INT) == 0)
+        v = o->i;
 
-    return o->i;
+    cvalue_unref(o);
+
+    return v;
 }
 
 unsigned int LIBEXPORT cvalue_get_uint(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    unsigned int v = 0;
 
-    if (get_value_check(value, CL_UINT) < 0)
-        return -1;
+    if (get_value_check(value, CL_UINT) == 0)
+        v = o->ui;
 
-    return o->ui;
+    cvalue_unref(o);
+
+    return v;
 }
 
 float LIBEXPORT cvalue_get_float(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    float f = -1;
 
-    if (get_value_check(value, CL_FLOAT) < 0)
-        return -1;
+    if (get_value_check(value, CL_FLOAT) == 0)
+        f = o->f;
 
-    return o->f;
+    cvalue_unref(o);
+
+    return f;
 }
 
 double LIBEXPORT cvalue_get_double(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    double d = -1;
 
-    if (get_value_check(value, CL_DOUBLE) < 0)
-        return -1;
+    if (get_value_check(value, CL_DOUBLE) == 0)
+        d = o->d;
 
-    return o->d;
+    cvalue_unref(o);
+
+    return d;
 }
 
 long long LIBEXPORT cvalue_get_llong(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    long long ll = -1;
 
-    if (get_value_check(value, CL_LLONG) < 0)
-        return -1;
+    if (get_value_check(value, CL_LLONG) == 0)
+        ll = o->ll;
 
-    return o->ll;
+    cvalue_unref(o);
+
+    return ll;
 }
 
 unsigned long long LIBEXPORT cvalue_get_ullong(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    unsigned long long ull = 0;
 
-    if (get_value_check(value, CL_ULLONG) < 0)
-        return -1;
+    if (get_value_check(value, CL_ULLONG) == 0)
+        ull = o->ull;
 
-    return o->ull;
+    cvalue_unref(o);
+
+    return ull;
 }
 
 cstring_t LIBEXPORT *cvalue_get_string(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cstring_t *s = NULL;
 
-    if (get_value_check(value, CL_STRING) < 0)
-        return NULL;
+    if (get_value_check(value, CL_STRING) == 0)
+        s = cstring_ref(o->s);
 
-    return cstring_ref(o->s);
+    cvalue_unref(o);
+
+    return s;
 }
 
 long LIBEXPORT cvalue_get_long(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    long l = -1;
 
-    if (get_value_check(value, CL_LONG) < 0)
-        return -1;
+    if (get_value_check(value, CL_LONG) == 0)
+        l = o->l;
 
-    return o->l;
+    cvalue_unref(o);
+
+    return l;
 }
 
 unsigned long LIBEXPORT cvalue_get_ulong(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    unsigned long ul = 0;
 
-    if (get_value_check(value, CL_ULONG) < 0)
-        return -1;
+    if (get_value_check(value, CL_ULONG) == 0)
+        ul = o->ul;
 
-    return o->ul;
+    cvalue_unref(o);
+
+    return ul;
 }
 
 char LIBEXPORT cvalue_get_char(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    char c = -1;
 
-    if (get_value_check(value, CL_CHAR) < 0)
-        return -1;
+    if (get_value_check(value, CL_CHAR) == 0)
+        c = o->c;
 
-    return o->c;
+    cvalue_unref(o);
+
+    return c;
 }
 
 unsigned char LIBEXPORT cvalue_get_uchar(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    unsigned char uc = 0;
 
-    if (get_value_check(value, CL_UCHAR) < 0)
-        return -1;
+    if (get_value_check(value, CL_UCHAR) == 0)
+        uc = o->uc;
 
-    return o->uc;
+    cvalue_unref(o);
+
+    return uc;
 }
 
 void LIBEXPORT *cvalue_get_pointer(const cvalue_t *value, unsigned int *size)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    void *p = NULL;
 
     cerrno_clear();
 
     if (NULL == value) {
+        cvalue_unref(o);
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
     if (cvalue_is_of_type(o, CL_POINTER) == CL_FALSE) {
+        cvalue_unref(o);
         cset_errno(CL_WRONG_TYPE);
         return NULL;
     }
 
     *size = o->psize;
+    p = o->p;
+    cvalue_unref(o);
 
-    return o->p;
+    return p;
 }
 
 cbool_t LIBEXPORT cvalue_get_boolean(const cvalue_t *value)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cbool_t b = -1;
 
-    if (get_value_check(value, CL_BOOLEAN) < 0)
-        return -1;
+    if (get_value_check(value, CL_BOOLEAN) == 0)
+        b = o->b;
 
-    return o->b;
+    cvalue_unref(o);
+
+    return b;
 }
 
 cbool_t LIBEXPORT cvalue_is_of_type(const cvalue_t *value, unsigned int type)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cbool_t b;
 
     cerrno_clear();
 
     if (NULL == value) {
+        cvalue_unref(o);
         cset_errno(CL_NULL_ARG);
         return CL_FALSE;
     }
 
-    if (validate_cl_type(type) == CL_FALSE)
+    if (validate_cl_type(type) == CL_FALSE) {
+        cvalue_unref(o);
         return CL_FALSE;
+    }
 
-    return o->type == type ? CL_TRUE : CL_FALSE;
+    b = (o->type == type) ? CL_TRUE : CL_FALSE;
+    cvalue_unref(o);
+
+    return b;
 }
 
 static cstring_t *print_value(const struct cvalue_s *o)
@@ -729,16 +787,19 @@ static cstring_t *print_value(const struct cvalue_s *o)
 
 cstring_t LIBEXPORT *cvalue_to_string(const cvalue_t *value)
 {
+    cvalue_t *ref = cvalue_ref((cvalue_t *)value);
     cstring_t *s = NULL;
 
     cerrno_clear();
 
     if (NULL == value) {
+        cvalue_unref(ref);
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    s = print_value(value);
+    s = print_value(ref);
+    cvalue_unref(ref);
 
     return s;
 }

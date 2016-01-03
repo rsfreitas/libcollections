@@ -409,25 +409,33 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
 cbool_t LIBEXPORT cspec_validate(const cspec_t *spec, cvalue_t *value,
     cbool_t set_value, va_list ap)
 {
+    cvalue_t *ref = cvalue_ref((cvalue_t *)value);
     cbool_t ret;
 
     cerrno_clear();
 
     if ((NULL == spec) || (NULL == value)) {
+        cvalue_unref(ref);
         cset_errno(CL_NULL_ARG);
         return CL_FALSE;
     }
 
     ret = validate_accessibility(spec, set_value);
 
-    if (ret == CL_FALSE)
+    if (ret == CL_FALSE) {
+        cvalue_unref(ref);
         return CL_FALSE;
-    else {
+    } else {
         /* Doesn't need to parse while checking for trying to read value */
-        if (set_value == CL_FALSE)
+        if (set_value == CL_FALSE) {
+            cvalue_unref(ref);
             return ret;
+        }
     }
 
-    return validate_value(spec, value, ap);
+    ret = validate_value(spec, ref, ap);
+    cvalue_unref(ref);
+
+    return ret;
 }
 

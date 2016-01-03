@@ -390,12 +390,12 @@ cdatetime_t *cdt_mktime(unsigned int year, unsigned int month, unsigned int day,
  * DD-MM-YYYY HH:MM:SS
  * DD/MM/YYYY HH:MM:SS
  *
- * @param [in] s: The cstring_t object.
+ * @param [in] datetime: The cstring_t object.
  *
  * @return On success a new cdatetime_t object will be returned or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_string_mktime(const cstring_t *s);
+cdatetime_t *cdt_string_mktime(const cstring_t *datetime);
 
 /**
  * @name cdt_minus_years

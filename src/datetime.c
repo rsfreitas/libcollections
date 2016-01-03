@@ -795,15 +795,16 @@ cdatetime_t LIBEXPORT *cdt_mktime(unsigned int year, unsigned int month,
     return dt;
 }
 
-cdatetime_t LIBEXPORT *cdt_string_mktime(const cstring_t *s)
+cdatetime_t LIBEXPORT *cdt_string_mktime(const cstring_t *datetime)
 {
-    cstring_t *d, *p;
+    cstring_t *d, *p, *s = cstring_ref((cstring_t *)datetime);;
     cstring_list_t *l, *ld, *lt;
     int day, month, year, hour, min, sec;
 
     cerrno_clear();
 
     if (NULL == s) {
+        cstring_unref(s);
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -833,6 +834,7 @@ cdatetime_t LIBEXPORT *cdt_string_mktime(const cstring_t *s)
     cstring_list_destroy(ld);
     cstring_list_destroy(l);
     cstring_destroy(d);
+    cstring_unref(s);
 
     return cdt_mktime(year, month, day, hour, min, sec);
 }

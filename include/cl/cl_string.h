@@ -399,34 +399,34 @@ cstring_list_t *cstring_split(const cstring_t *string, const char *delim);
  * @name cstring_is_number
  * @brief Checks if a cstring_t content represents a number.
  *
- * @param [in] value: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return If the content of the object is a number returns CL_TRUE otherwise
  *         returns CL_FALSE.
  */
-cbool_t cstring_is_number(const cstring_t *value);
+cbool_t cstring_is_number(const cstring_t *string);
 
 /**
  * @name cstring_is_float_number
  * @brief Checks if a cstring_t content represents a float number.
  *
- * @param [in] value: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return If the content of the object is a float number returns CL_TRUE
  *         otherwise returns CL_FALSE.
  */
-cbool_t cstring_is_float_number(const cstring_t *value);
+cbool_t cstring_is_float_number(const cstring_t *string);
 
 /**
  * @name cstring_is_alphanumeric
  * @brief Checks if a cstring_t content represents an alphanumeric text.
  *
- * @param [in] value: The cstring_t object.
+ * @param [in] string: The cstring_t object.
  *
  * @return If the content of the object has an alphanumeric content returns
  *         CL_TRUE otherwise returns CL_FALSE.
  */
-cbool_t cstring_is_alphanumeric(const cstring_t *value);
+cbool_t cstring_is_alphanumeric(const cstring_t *string);
 
 /**
  * @name cstring_ref

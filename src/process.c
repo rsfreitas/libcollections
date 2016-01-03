@@ -91,7 +91,7 @@ static char *__fixed_args[] = {
 
 static char **cvt_cmd(const char *cmd)
 {
-    cstring_t *s = NULL;
+    cstring_t *s = NULL, *ref;
     cstring_list_t *l = NULL;
     char **app_argv;
     unsigned int size, i;
@@ -105,9 +105,11 @@ static char **cvt_cmd(const char *cmd)
     for (i = 0; i < FIXED_ARGS; i++)
         app_argv[i] = strdup(__fixed_args[i]);
 
-    for (i = 0; i < size; i++)
-        app_argv[FIXED_ARGS + i] =
-                    strdup(cstring_valueof(cstring_list_get(l, i)));
+    for (i = 0; i < size; i++) {
+        ref = cstring_list_get(l, i);
+        app_argv[FIXED_ARGS + i] = strdup(cstring_valueof(ref));
+        cstring_unref(ref);
+    }
 
     app_argv[size + FIXED_ARGS + 1] = NULL;
     cstring_list_destroy(l);
