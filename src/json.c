@@ -1285,6 +1285,7 @@ static cstring_t *output_array(cstring_list_t *sl, cbool_t fmt)
     for (i = 0; i < cstring_list_size(sl); i++) {
         v = cstring_list_get(sl, i);
         cstring_cat(out, cstring_valueof(v));
+        cstring_unref(v);
 
         if (i != (cstring_list_size(sl) - 1)) {
             cstring_cat(out, ",");
@@ -1317,7 +1318,9 @@ static char *print_array(struct cjson_s *item, int depth, cbool_t fmt)
             return NULL;
         }
 
-        cstring_list_add(sl, cstring_new("%s", ptr));
+        v = cstring_new("%s", ptr);
+        cstring_list_add(sl, v);
+        cstring_unref(v);
         free(ptr);
         child = child->next;
     }
@@ -1349,6 +1352,7 @@ static cstring_t *output_object(cstring_list_t *sl_names,
 
         v = cstring_list_get(sl_names, i);
         cstring_cat(out, cstring_valueof(v));
+        cstring_unref(v);
         cstring_cat(out, ":");
 
         if (fmt == CL_TRUE)
@@ -1356,6 +1360,7 @@ static cstring_t *output_object(cstring_list_t *sl_names,
 
         v = cstring_list_get(sl_values, i);
         cstring_cat(out, cstring_valueof(v));
+        cstring_unref(v);
 
         if (i != (cstring_list_size(sl_names) - 1))
             cstring_cat(out, ",");
@@ -1390,7 +1395,9 @@ static char *print_object(struct cjson_s *item, int depth, cbool_t fmt)
         if (NULL == ptr)
             goto end_block;
 
-        cstring_list_add(sl_names, cstring_new("%s", ptr));
+        v = cstring_new("%s", ptr);
+        cstring_list_add(sl_names, v);
+        cstring_unref(v);
         free(ptr);
 
         ptr = print_value(child, depth, fmt);
@@ -1398,7 +1405,9 @@ static char *print_object(struct cjson_s *item, int depth, cbool_t fmt)
         if (NULL == ptr)
             goto end_block;
 
-        cstring_list_add(sl_values, cstring_new("%s", ptr));
+        v = cstring_new("%s", ptr);
+        cstring_list_add(sl_values, v);
+        cstring_unref(v);
         free(ptr);
 
         child = child->next;
@@ -1406,7 +1415,7 @@ static char *print_object(struct cjson_s *item, int depth, cbool_t fmt)
 
     v = output_object(sl_names, sl_values, depth, fmt);
     ptr = strdup(cstring_valueof(v));
-    cstring_destroy(v);
+    cstring_unref(v);
 
 end_block:
     cstring_list_destroy(sl_names);
@@ -1454,6 +1463,7 @@ static char *print_value(struct cjson_s *j, int depth, cbool_t fmt)
 cstring_t LIBEXPORT *cjson_to_string(const cjson_t *j, cbool_t friendly_output)
 {
     char *p = NULL;
+    cstring_t *out;
 
     cerrno_clear();
 
@@ -1467,6 +1477,9 @@ cstring_t LIBEXPORT *cjson_to_string(const cjson_t *j, cbool_t friendly_output)
     if (NULL == p)
         return NULL;
 
-    return cstring_new("%s", p);
+    out = cstring_new("%s", p);
+    free(p);
+
+    return out;
 }
 
