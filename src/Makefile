@@ -61,6 +61,7 @@ $(TARGET): $(OBJS)
 	$(CC) -shared -Wl,-soname,$(SONAME) -o $(TARGET_DEST) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean:
+	rm -f ../bin/$(LIBNAME)*
 	rm -rf $(OBJS) $(TARGET) $(TARGET_DEST) *~ ../include/*~
 
 dest_clean:
@@ -69,13 +70,17 @@ dest_clean:
 purge: clean $(TARGET)
 
 install:
-	$(shell [ ! -d /usr/local/include/cl ] && mkdir -p /usr/local/include/cl)
-	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
-	cp -f ../include/collections.h /usr/local/include
 	cp -f $(TARGET_DEST) $(USR_DIR)
 	rm -rf $(USR_DIR)/$(LIBNAME) $(USR_DIR)/$(SONAME)
 	ln -s $(USR_DIR)/$(DEST_LIBNAME) $(USR_DIR)/$(LIBNAME)
 	ln -s $(USR_DIR)/$(DEST_LIBNAME) $(USR_DIR)/$(SONAME)
+
+install_headers:
+	$(shell [ ! -d /usr/local/include/cl ] && mkdir -p /usr/local/include/cl)
+	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
+	cp -f ../include/collections.h /usr/local/include
+
+dev_install: install_headers install
 
 uninstall: dest_clean
 	rm -rf /usr/local/include/cl

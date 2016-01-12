@@ -73,11 +73,11 @@ int chat_free(chat_t *chat);
  *        connection.
  *
  * The variadic arguments changes according \a chat work mode. If it is
- * CHAT_SERVER must inform the IP (a char *) and the port (an int). If
- * it is CHAT_CLIENT must inform the IP (also a char *).
+ * CHAT_SERVER must inform the port (an int). If it is CHAT_CLIENT must inform
+ * port number (an int) and the IP (a char *).
  *
  * @param [in] chat: The chat_t object.
- * @param [in] ...: Informacoes que serao atribuidas ao objeto.
+ * @param [in] ...: Informations that will be assigned to the object.
  *
  * @return On success returns 0 or -1 otherwise.
  */

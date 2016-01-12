@@ -109,6 +109,26 @@ int cvalue_get_int(const cvalue_t *value);
 unsigned int cvalue_get_uint(const cvalue_t *value);
 
 /**
+ * @name cvalue_get_sint
+ * @brief Gets the 'short int' value of a cvalue_t.
+ *
+ * @param [in] value: The cvalue_t.
+ *
+ * @return On success returns the cvalue_t value or -1 otherwise.
+ */
+short int cvalue_get_sint(const cvalue_t *value);
+
+/**
+ * @name cvalue_get_usint
+ * @brief Gets the 'unsigned short int' value of a cvalue_t.
+ *
+ * @param [in] value: The cvalue_t.
+ *
+ * @return On success returns the cvalue_t value or 0 otherwise.
+ */
+unsigned short int cvalue_get_usint(const cvalue_t *value);
+
+/**
  * @name cvalue_get_float
  * @brief Gets the 'float' value of a cvalue_t.
  *
@@ -278,6 +298,8 @@ int cvalue_unref(cvalue_t *value);
 /** Macros to get the item value */
 #define CVALUE_INT(o)           cvalue_get_int((o))
 #define CVALUE_UINT(o)          cvalue_get_uint((o))
+#define CVALUE_SINT(o)          cvalue_get_sint((o))
+#define CVALUE_USINT(o)         cvalue_get_usint((o))
 #define CVALUE_FLOAT(o)         cvalue_get_float((o))
 #define CVALUE_DOUBLE(o)        cvalue_get_double((o))
 #define CVALUE_LONG(o)          cvalue_get_long((o))
@@ -296,6 +318,8 @@ int cvalue_unref(cvalue_t *value);
 #define CVALUE_isuchar(o)       cvalue_is_of_type((o), CL_UCHAR)
 #define CVALUE_isint(o)         cvalue_is_of_type((o), CL_INT)
 #define CVALUE_isuint(o)        cvalue_is_of_type((o), CL_UINT)
+#define CVALUE_issint(o)        cvalue_is_of_type((o), CL_SINT)
+#define CVALUE_isusint(o)       cvalue_is_of_type((o), CL_USINT)
 #define CVALUE_isfloat(o)       cvalue_is_of_type((o), CL_FLOAT)
 #define CVALUE_isdouble(o)      cvalue_is_of_type((o), CL_DOUBLE)
 #define CVALUE_islong(o)        cvalue_is_of_type((o), CL_LONG)

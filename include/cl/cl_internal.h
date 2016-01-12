@@ -57,6 +57,8 @@ void cvalue_set_char(cvalue_t *value, char c);
 void cvalue_set_uchar(cvalue_t *value, unsigned char uc);
 void cvalue_set_int(cvalue_t *value, int i);
 void cvalue_set_uint(cvalue_t *value, unsigned int ui);
+void cvalue_set_sint(cvalue_t *value, short int si);
+void cvalue_set_usint(cvalue_t *value, unsigned short int usi);
 void cvalue_set_float(cvalue_t *value, float f);
 void cvalue_set_double(cvalue_t *value, double d);
 void cvalue_set_long(cvalue_t *value, long l);

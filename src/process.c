@@ -166,3 +166,21 @@ void LIBEXPORT cmsleep(long mseconds)
     nanosleep(&tv,&tv);
 }
 
+int LIBEXPORT ctrap(int signum, void (*f)(int))
+{
+    struct sigaction s;
+
+    /*
+     * TODO: Save oldact for user somehow.
+     *       Validate signumber.
+     */
+
+    memset(&s, 0, sizeof(struct sigaction));
+    s.sa_handler = f;
+
+    if (sigaction(signum, &s, NULL) != 0)
+        return -1;
+
+    return 0;
+}
+

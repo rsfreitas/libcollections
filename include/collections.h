@@ -29,7 +29,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          1
-# define BUILD                  3
+# define BUILD                  4
 #endif
 
 #include <cl/cl_types.h>

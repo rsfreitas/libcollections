@@ -60,5 +60,19 @@ int csystem(cbool_t close_parent_files, const char *fmt, ...);
  */
 void cmsleep(long mseconds);
 
+/**
+ * @name ctrap
+ * @brief Trap signals.
+ *
+ * Defines a function to be called when an application receives a specific
+ * signal.
+ *
+ * @param [in] signum: The signal number.
+ * @param [in] f: The function which will be called when a signal occurs.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int ctrap(int signum, void (*f)(int));
+
 #endif
 

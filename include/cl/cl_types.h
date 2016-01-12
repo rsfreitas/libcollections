@@ -79,6 +79,8 @@ enum cl_type {
     CL_UCHAR,
     CL_INT,
     CL_UINT,
+    CL_SINT,
+    CL_USINT,
     CL_FLOAT,
     CL_DOUBLE,
     CL_LONG,

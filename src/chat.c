@@ -31,6 +31,10 @@
 #include "collections.h"
 #include "chat/chat.h"
 
+/*
+ * TODO: Save client info on the server side
+ */
+
 /* IPCs methods */
 static struct chat_ipc_methods_s __ipc_methods[] = {
     /* socket TCP */
@@ -51,6 +55,7 @@ static struct chat_ipc_methods_s __ipc_methods[] = {
         .ipc_type = CHAT_IPC_UDP,
         .init = udp_init,
         .uninit = udp_uninit,
+        .set_up = udp_set_up,
         .connect = NULL,
         .accept = NULL,
         .send = udp_send,
@@ -323,7 +328,7 @@ static int chat_ipc_connect(struct chat_s *c)
     if (NULL == cim)
         return -1;
 
-    if (NULL == (cim->recv))
+    if (NULL == (cim->connect))
         return 0; /* Optional method */
 
     if ((cim->connect)(c->ipc_data) < 0) {
@@ -641,7 +646,7 @@ int LIBEXPORT chat_set_info(chat_t *chat, ...)
     va_start(ap, NULL);
 
     /* Call function to set up some socket details */
-    if (chat_ipc_set_up(c->ipc_data, c->mode, ap) < 0)
+    if (chat_ipc_set_up(c, c->mode, ap) < 0)
         return -1;
 
     va_end(ap);
@@ -661,7 +666,7 @@ int LIBEXPORT chat_client_start(chat_t *chat)
     }
 
     /* Call function to establish connection */
-    if (chat_ipc_connect(c->ipc_data) < 0)
+    if (chat_ipc_connect(c) < 0)
         return -1;
 
     /* Call driver event function after a successfully established connection */
@@ -685,7 +690,7 @@ chat_t LIBEXPORT *chat_server_start(chat_t *chat, unsigned int accept_timeout)
     }
 
     /* Call function to wait connections */
-    d = chat_ipc_accept(c->ipc_data, accept_timeout);
+    d = chat_ipc_accept(c, accept_timeout);
 
     if (NULL == d)
         return NULL;
@@ -732,7 +737,7 @@ int LIBEXPORT chat_send(chat_t *chat, void *data, unsigned int data_size)
         return -1;
 
     /* Call sending function */
-    if (chat_ipc_send(c->ipc_data, cd) < 0) {
+    if (chat_ipc_send(c, cd) < 0) {
         ret = -1;
         goto end_block;
     }
@@ -759,7 +764,7 @@ void LIBEXPORT *chat_recv(chat_t *chat, unsigned int recv_timeout,
     }
 
     /* Call receive function */
-    cd = chat_ipc_recv(c->ipc_data, recv_timeout);
+    cd = chat_ipc_recv(c, recv_timeout);
 
     if (NULL == cd)
         return NULL;

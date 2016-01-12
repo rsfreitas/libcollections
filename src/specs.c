@@ -165,6 +165,33 @@ static cbool_t validate_uint(const struct spec_s *spec, unsigned int value)
     return CL_FALSE;
 }
 
+static cbool_t validate_sint(const struct spec_s *spec, short int value)
+{
+    short int min, max;
+
+    min = cvalue_get_sint(spec->min);
+    max = cvalue_get_sint(spec->max);
+
+    if ((value >= min) && (value <= max))
+        return CL_TRUE;
+
+    return CL_FALSE;
+}
+
+static cbool_t validate_usint(const struct spec_s *spec,
+     unsigned short int value)
+{
+    unsigned short int min, max;
+
+    min = cvalue_get_usint(spec->min);
+    max = cvalue_get_usint(spec->max);
+
+    if ((value >= min) && (value <= max))
+        return CL_TRUE;
+
+    return CL_FALSE;
+}
+
 static cbool_t validate_long(const struct spec_s *spec, long value)
 {
     long min, max;
@@ -268,6 +295,8 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
     unsigned char uc;
     int i;
     unsigned int ui;
+    short int si;
+    unsigned short int usi;
     long l;
     unsigned long ul;
     long long ll;
@@ -317,6 +346,26 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
 
             if (validate_uint(spec, ui) == CL_TRUE) {
                 cvalue_set_uint(value, ui);
+                ret = CL_TRUE;
+            }
+
+            break;
+
+        case CL_SINT:
+            si = (short int)va_arg(ap, int);
+
+            if (validate_sint(spec, si) == CL_TRUE) {
+                cvalue_set_int(value, si);
+                ret = CL_TRUE;
+            }
+
+            break;
+
+        case CL_USINT:
+            usi = (unsigned short int)va_arg(ap, unsigned int);
+
+            if (validate_usint(spec, usi) == CL_TRUE) {
+                cvalue_set_uint(value, usi);
                 ret = CL_TRUE;
             }
 

@@ -42,6 +42,8 @@ struct cvalue_s {
     unsigned char       uc;
     int                 i;
     unsigned int        ui;
+    short int           si;
+    unsigned short int  usi;
     float               f;
     double              d;
     long                l;
@@ -61,6 +63,8 @@ static cbool_t validate_cl_type(enum cl_type type)
     if ((type == CL_VOID) ||
         (type == CL_CHAR) ||
         (type == CL_UCHAR) ||
+        (type == CL_SINT) ||
+        (type == CL_USINT) ||
         (type == CL_INT) ||
         (type == CL_UINT) ||
         (type == CL_FLOAT) ||
@@ -170,6 +174,26 @@ void cvalue_set_uint(cvalue_t *value, unsigned int ui)
     v->ui = ui;
 }
 
+void cvalue_set_sint(cvalue_t *value, short int si)
+{
+    struct cvalue_s *v = (struct cvalue_s *)value;
+
+    if (NULL == value)
+        return;
+
+    v->si = si;
+}
+
+void cvalue_set_usint(cvalue_t *value, unsigned short int usi)
+{
+    struct cvalue_s *v = (struct cvalue_s *)value;
+
+    if (NULL == value)
+        return;
+
+    v->usi = usi;
+}
+
 void cvalue_set_float(cvalue_t *value, float f)
 {
     struct cvalue_s *v = (struct cvalue_s *)value;
@@ -276,6 +300,14 @@ static void set_cvalue_value(struct cvalue_s *o, va_list ap)
 
         case CL_UINT:
             cvalue_set_uint(o, va_arg(ap, unsigned int));
+            break;
+
+        case CL_SINT:
+            cvalue_set_sint(o, (short int)va_arg(ap, int));
+            break;
+
+        case CL_USINT:
+            cvalue_set_usint(o, (unsigned short int)va_arg(ap, unsigned int));
             break;
 
         case CL_FLOAT:
@@ -424,6 +456,10 @@ static int get_cvalue_sizeof(struct cvalue_s *o)
         case CL_BOOLEAN:
             return sizeof(int);
 
+        case CL_SINT:
+        case CL_USINT:
+            return sizeof(short int);
+
         case CL_FLOAT:
             return sizeof(float);
 
@@ -534,6 +570,32 @@ unsigned int LIBEXPORT cvalue_get_uint(const cvalue_t *value)
 
     if (get_value_check(value, CL_UINT) == 0)
         v = o->ui;
+
+    cvalue_unref(o);
+
+    return v;
+}
+
+short int LIBEXPORT cvalue_get_sint(const cvalue_t *value)
+{
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    short int v = -1;
+
+    if (get_value_check(value, CL_SINT) == 0)
+        v = o->si;
+
+    cvalue_unref(o);
+
+    return v;
+}
+
+unsigned short int LIBEXPORT cvalue_get_usint(const cvalue_t *value)
+{
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    unsigned short int v = 0;
+
+    if (get_value_check(value, CL_USINT) == 0)
+        v = o->usi;
 
     cvalue_unref(o);
 
@@ -743,6 +805,14 @@ static cstring_t *print_value(const struct cvalue_s *o)
 
         case CL_UINT:
             s = cstring_new("%u", o->ui);
+            break;
+
+        case CL_SINT:
+            s = cstring_new("%d", o->si);
+            break;
+
+        case CL_USINT:
+            s = cstring_new("%u", o->usi);
             break;
 
         case CL_FLOAT:

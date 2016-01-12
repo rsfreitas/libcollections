@@ -24,6 +24,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -93,17 +94,22 @@ int udp_set_up(ipc_data_t *ipc_data, enum chat_mode mode, va_list ap)
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
     struct sockaddr_in sc_in;
 
-    if (mode == CHAT_SERVER) {
-        /* Receives server mode parameters */
-        d->port = va_arg(ap, int);
+    /* Receives server mode parameters */
+    d->port = va_arg(ap, int);
 
-        /* bind */
-        sc_in.sin_family = AF_INET;
-        sc_in.sin_port = htons(d->port);
+    memset(&sc_in, 0, sizeof(sc_in));
+    sc_in.sin_family = AF_INET;
+    sc_in.sin_port = htons(d->port);
+
+    if (mode == CHAT_SERVER) {
         sc_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
+        /* bind */
         if (bind(d->fd, (struct sockaddr *)&sc_in, sizeof(sc_in)) == -1)
             return -1;
+    } else {
+        inet_aton(va_arg(ap, char *), &sc_in.sin_addr);
+        memcpy(&d->sc_in, &sc_in, sizeof(struct sockaddr_in));
     }
 
     return 0;
@@ -117,8 +123,7 @@ int udp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send)
         return -1;
 
     return sendto(d->fd, dt_send->data, dt_send->data_size, 0,
-                    (struct sockaddr *)&d->sc_in,
-                    sizeof(d->sc_in));
+                  (struct sockaddr *)&d->sc_in, sizeof(d->sc_in));
 }
 
 struct chat_data_s *udp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
