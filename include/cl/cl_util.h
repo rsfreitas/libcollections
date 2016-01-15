@@ -32,8 +32,8 @@
 # endif
 #endif
 
-cstring_t *cbool_to_cstring(cbool_t flag);
-char *cbool_to_char(cbool_t flag);
+cstring_t *cbool_to_cstring(bool flag);
+char *cbool_to_c_string(bool flag);
 
 #endif
 

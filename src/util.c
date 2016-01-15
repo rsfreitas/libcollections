@@ -27,19 +27,19 @@
 
 #include "collections.h"
 
-cstring_t LIBEXPORT *cbool_to_cstring(cbool_t flag)
+cstring_t LIBEXPORT *boolo_cstring(bool flag)
 {
     cerrno_clear();
 
-    if ((flag != CL_TRUE) && (flag != CL_FALSE)) {
+    if ((flag != true) && (flag != false)) {
         cset_errno(CL_INVALID_VALUE);
         return NULL;
     }
 
-    return cstring_new("%s", (flag == CL_TRUE) ? "true" : "false");
+    return cstring_new("%s", (flag == true) ? "true" : "false");
 }
 
-char LIBEXPORT *cbool_to_char(cbool_t flag)
+char LIBEXPORT *cbool_to_c_string(bool flag)
 {
     cstring_t *s = NULL;
     char *t = NULL;

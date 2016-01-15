@@ -48,7 +48,7 @@ enum counter_precision {
  * needs to known how many times something occours by counting it.
  *
  * The counter's value goes from \a min to \a max, and if \a circular is
- * CL_FALSE it'll stop in its limits when reached it.
+ * false it'll stop in its limits when reached it.
  *
  * @param [in] precision: The counter bits precision.
  * @param [in] min: The minimum value of the counter.
@@ -61,7 +61,7 @@ enum counter_precision {
  */
 counter_t *counter_create(enum counter_precision precision, long long min,
                           long long max, long long start_value,
-                          cbool_t circular);
+                          bool circular);
 
 /**
  * @name counter_destroy
@@ -99,7 +99,7 @@ int counter_unref(counter_t *c);
 
 /**
  * @name counter_increase
- * @brief Increases the counter value.
+ * @brief Increases the counter value by 1.
  *
  * @param [in,out] c: The counter.
  *
@@ -108,14 +108,36 @@ int counter_unref(counter_t *c);
 int counter_increase(counter_t *c);
 
 /**
+ * @name counter_increase_by
+ * @brief Increases the counter value by the specified value.
+ *
+ * @param [in,out] c: The counter.
+ * @param [in] gap: The added value to the counter.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int counter_increase_by(counter_t *c, long long gap);
+
+/**
  * @name counter_decrease
- * @brief Decreases the counter value.
+ * @brief Decreases the counter value by 1.
  *
  * @param [in,out] c: The counter.
  *
  * @return On success returns 0 or -1 otherwise.
  */
 int counter_decrease(counter_t *c);
+
+/**
+ * @name counter_decrease_by
+ * @brief Decreases the counter value by the specified value.
+ *
+ * @param [in,out] c: The counter.
+ * @param [in] gap: The subtracted value to the counter.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int counter_decrease_by(counter_t *c, long long gap);
 
 /**
  * @name counter_reset
@@ -170,12 +192,100 @@ int counter_set_max(counter_t *c, long long max);
  * @return On success returns 0 or -1 otherwise.
  */
 int counter_set_range(counter_t *c, long long min, long long max);
-cbool_t counter_lt(const counter_t *c, long long value);
-cbool_t counter_le(const counter_t *c, long long value);
-cbool_t counter_gt(const counter_t *c, long long value);
-cbool_t counter_ge(const counter_t *c, long long value);
-cbool_t counter_eq(const counter_t *c, long long value);
-cbool_t counter_neq(const counter_t *c, long long value);
+
+/**
+ * @name counter_lt
+ * @brief Compares if a counter value is less than other value.
+ *
+ * @param [in] c: The counter.
+ * @param [in] value: The value.
+ *
+ * @return If the counter value is less than value returns true otherwise
+ *         returns false.
+ */
+bool counter_lt(const counter_t *c, long long value);
+
+/**
+ * @name counter_le
+ * @brief Compares if a counter value is less than or equal other value.
+ *
+ * @param [in] c: The counter.
+ * @param [in] value: The value.
+ *
+ * @return If the counter value is less than or equal the value returns true
+ *         otherwise returns false.
+ */
+bool counter_le(const counter_t *c, long long value);
+
+/**
+ * @name counter_lt
+ * @brief Compares if a counter value is greater than other value.
+ *
+ * @param [in] c: The counter.
+ * @param [in] value: The value.
+ *
+ * @return If the counter value is greater than value returns true otherwise
+ *         returns false.
+ */
+bool counter_gt(const counter_t *c, long long value);
+
+/**
+ * @name counter_le
+ * @brief Compares if a counter value is greater than or equal other value.
+ *
+ * @param [in] c: The counter.
+ * @param [in] value: The value.
+ *
+ * @return If the counter value is greater than or equal the value returns true
+ *         otherwise returns false.
+ */
+bool counter_ge(const counter_t *c, long long value);
+
+/**
+ * @name counter_eq
+ * @brief Compares if a counter value is equal other value.
+ *
+ * @param [in] c: The counter.
+ * @param [in] value: The value.
+ *
+ * @return If the counter value is equal value returns true otherwise
+ *         returns false.
+ */
+bool counter_eq(const counter_t *c, long long value);
+
+/**
+ * @name counter_ne
+ * @brief Compares if a counter value is not equal other value.
+ *
+ * @param [in] c: The counter.
+ * @param [in] value: The value.
+ *
+ * @return If the counter value is not equal value returns true otherwise
+ *         returns false.
+ */
+bool counter_ne(const counter_t *c, long long value);
+
+/**
+ * @name counter_get_and_set
+ * @brief Gets the current value of a counter and update its value.
+ *
+ * @param [in,out] c: The counter.
+ * @param [in] new_value: The counter new value.
+ *
+ * @return On success returns the counter value before updating or -1 otherwise.
+ */
+long long counter_get_and_set(counter_t *c, long long new_value);
+
+/**
+ * @name counter_set
+ * @brief Updates the counter value to a specified value.
+ *
+ * @param [in,out] c: The counter.
+ * @param [in] new_value: The counter new value.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int counter_set(counter_t *c, long long new_value);
 
 #endif
 

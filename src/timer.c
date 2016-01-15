@@ -33,7 +33,7 @@
 
 #define DEFAULT_TIMER_FINISH_TIMEOUT                200 /* milliseconds */
 
-/* Structure to constante information about a timer for the user */
+/* Structure to constant informations about a timer for the user */
 struct ctimer_info_s {
     char    **info;
     void    *data;
