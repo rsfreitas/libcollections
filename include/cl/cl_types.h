@@ -138,5 +138,8 @@ typedef void                cvalue_t;
 /** generic parameters specifications */
 typedef void                cspec_t;
 
+/** counter type */
+typedef void            counter_t;
+
 #endif
 

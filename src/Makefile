@@ -25,9 +25,9 @@ CHAT_PATH = ./chat
 VPATH = ../include:.:$(CHAT_PATH)
 
 CHAT_OBJS =	\
-	chat_misc.o		\
+	chat_misc.o			\
 	drv_raw_socket.o	\
-	ipc_tcp.o		\
+	ipc_tcp.o			\
 	ipc_udp.o
 
 PLUGIN_OBJS =
@@ -35,25 +35,27 @@ PLUGIN_OBJS =
 OBJS =	\
 	$(CHAT_OBJS)	\
 	$(PLUGIN_OBJS)	\
-	cfg.o		\
-	chat.o		\
-	datetime.o	\
-	dll.o		\
-	error.o		\
-	event.o		\
-	file.o		\
-	io.o		\
-	json.o		\
-	mem.o		\
-	plugin.o	\
-	process.o	\
-	random.o	\
-	ref.o		\
-	specs.o		\
-	string.o	\
+	cfg.o			\
+	chat.o			\
+	counter.o		\
+	datetime.o		\
+	dll.o			\
+	error.o			\
+	event.o			\
+	file.o			\
+	io.o			\
+	json.o			\
+	mem.o			\
+	plugin.o		\
+	process.o		\
+	random.o		\
+	ref.o			\
+	specs.o			\
+	string.o		\
 	stringlist.o	\
-	thread.o	\
-	timer.o		\
+	thread.o		\
+	timer.o			\
+	util.o			\
 	value.o
 
 $(TARGET): $(OBJS)

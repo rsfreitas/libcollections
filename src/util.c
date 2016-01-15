@@ -3,7 +3,7 @@
  * Description:
  *
  * Author: Rodrigo Freitas
- * Created at: Sat Nov  7 21:46:43 2015
+ * Created at: Fri Jan 15 09:11:59 2016
  * Project: libcollections
  *
  * Copyright (C) 2015 Rodrigo Freitas
@@ -23,40 +23,35 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _COLLECTIONS_H
-#define _COLLECTIONS_H          1
+#include <string.h>
 
-#ifdef LIBCOLLECTIONS_COMPILE
-# define MAJOR_VERSION          0
-# define MINOR_VERSION          1
-# define BUILD                  4
-#endif
+#include "collections.h"
 
-#include <cl/cl_types.h>
-#include <cl/cl_cfg.h>
-#include <cl/cl_chat.h>
-#include <cl/cl_counter.h>
-#include <cl/cl_datetime.h>
-#include <cl/cl_dll.h>
-#include <cl/cl_error.h>
-#include <cl/cl_event.h>
-#include <cl/cl_file.h>
-#include <cl/cl_io.h>
-#include <cl/cl_json.h>
-#include <cl/cl_mem.h>
-#include <cl/cl_process.h>
-#include <cl/cl_random.h>
-#include <cl/cl_specs.h>
-#include <cl/cl_string.h>
-#include <cl/cl_stringlist.h>
-#include <cl/cl_thread.h>
-#include <cl/cl_timer.h>
-#include <cl/cl_util.h>
-#include <cl/cl_value.h>
+cstring_t LIBEXPORT *cbool_to_cstring(cbool_t flag)
+{
+    cerrno_clear();
 
-#ifdef LIBCOLLECTIONS_COMPILE
-# include <cl/cl_internal.h>
-#endif
+    if ((flag != CL_TRUE) && (flag != CL_FALSE)) {
+        cset_errno(CL_INVALID_VALUE);
+        return NULL;
+    }
 
-#endif
+    return cstring_new("%s", (flag == CL_TRUE) ? "true" : "false");
+}
+
+char LIBEXPORT *cbool_to_char(cbool_t flag)
+{
+    cstring_t *s = NULL;
+    char *t = NULL;
+
+    s = cbool_to_cstring(flag);
+
+    if (NULL == s)
+        return NULL;
+
+    t = strdup(cstring_valueof(s));
+    cstring_destroy(s);
+
+    return t;
+}
 
