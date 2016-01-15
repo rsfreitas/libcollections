@@ -258,9 +258,9 @@ void *cdll_mergesort(void *root, int (*cmp)(void *, void *));
  * @param [in] foo: A function used to compare elements from the list. \a p will
  *                  be passed as the second argument.
  *
- * @return Returns CL_TRUE if the element is found or CL_FALSE otherwise.
+ * @return Returns true if the element is found or false otherwise.
  */
-cbool_t cdll_contains(void *root, void *p, int (*foo)(void *, void *));
+bool cdll_contains(void *root, void *p, int (*foo)(void *, void *));
 
 /**
  * @name cdll_indexof

@@ -230,13 +230,13 @@ void *cvalue_get_pointer(const cvalue_t *value, unsigned int *size);
 
 /**
  * @name cvalue_get_boolean
- * @brief Gets the value of a cvalue_t as 'cbool_t'.
+ * @brief Gets the value of a cvalue_t as 'bool'.
  *
  * @param [in] value: The cvalue_t.
  *
  * @return On success returns the cvalue_t value or -1 otherwise.
  */
-cbool_t cvalue_get_boolean(const cvalue_t *value);
+bool cvalue_get_boolean(const cvalue_t *value);
 
 /**
  * @name cvalue_is_of_type
@@ -245,10 +245,10 @@ cbool_t cvalue_get_boolean(const cvalue_t *value);
  * @param [in] value: The cvalue_t.
  * @param [in] type: The type to check.
  *
- * @return Returns CL_TRUE if \a value is of \a type type or CL_FALSE
+ * @return Returns true if \a value is of \a type type or false
  *         otherwise.
  */
-cbool_t cvalue_is_of_type(const cvalue_t *value, unsigned int type);
+bool cvalue_is_of_type(const cvalue_t *value, unsigned int type);
 
 /**
  * @name cvalue_to_string

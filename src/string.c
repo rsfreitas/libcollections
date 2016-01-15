@@ -772,20 +772,20 @@ int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old,
 /*
  * Checks if a cstring_t object has any valid data.
  */
-cbool_t LIBEXPORT cstring_isempty(const cstring_t *string)
+bool LIBEXPORT cstring_isempty(const cstring_t *string)
 {
     struct cstring_s *p = cstring_ref((cstring_t *)string);
-    cbool_t b;
+    bool b;
 
     cerrno_clear();
 
     if (NULL == string) {
         cstring_unref(p);
         cset_errno(CL_NULL_ARG);
-        return CL_FALSE;
+        return false;
     }
 
-    b = (cstring_length(p) > 0) ? CL_TRUE : CL_FALSE;
+    b = (cstring_length(p) > 0) ? true : false;
     cstring_unref(p);
 
     return b;
@@ -1128,25 +1128,25 @@ double LIBEXPORT cstring_value_as_double(const cstring_t *string)
     return v;
 }
 
-cbool_t LIBEXPORT cstring_is_number(const cstring_t *string)
+bool LIBEXPORT cstring_is_number(const cstring_t *string)
 {
     cstring_t *value = cstring_ref((cstring_t *)string);
     int i, l;
-    cbool_t ret = CL_TRUE;
+    bool ret = true;
 
     cerrno_clear();
 
     if (NULL == value) {
         cstring_unref(value);
         cset_errno(CL_NULL_ARG);
-        return CL_FALSE;
+        return false;
     }
 
     l = cstring_length(value);
 
     for (i = 0; i < l; i++)
         if (isdigit(cstring_at(value, i)) == 0) {
-            ret = CL_FALSE;
+            ret = false;
             break;
         }
 
@@ -1155,18 +1155,18 @@ cbool_t LIBEXPORT cstring_is_number(const cstring_t *string)
     return ret;
 }
 
-cbool_t LIBEXPORT cstring_is_float_number(const cstring_t *string)
+bool LIBEXPORT cstring_is_float_number(const cstring_t *string)
 {
     cstring_t *value = cstring_ref((cstring_t *)string);
     int i, l;
-    cbool_t ret = CL_TRUE;
+    bool ret = true;
 
     cerrno_clear();
 
     if (NULL == value) {
         cstring_unref(value);
         cset_errno(CL_NULL_ARG);
-        return CL_FALSE;
+        return false;
     }
 
     l = cstring_length(value);
@@ -1175,7 +1175,7 @@ cbool_t LIBEXPORT cstring_is_float_number(const cstring_t *string)
         if ((isdigit(cstring_at(value, i)) == 0) ||
             (cstring_at(value, i) != '.'))
         {
-            ret = CL_FALSE;
+            ret = false;
             break;
         }
     }
@@ -1185,25 +1185,25 @@ cbool_t LIBEXPORT cstring_is_float_number(const cstring_t *string)
     return ret;
 }
 
-cbool_t LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
+bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
 {
     cstring_t *value = cstring_ref((cstring_t *)string);
     int i, l;
-    cbool_t ret = CL_TRUE;
+    bool ret = true;
 
     cerrno_clear();
 
     if (NULL == value) {
         cstring_unref(value);
         cset_errno(CL_NULL_ARG);
-        return CL_FALSE;
+        return false;
     }
 
     l = cstring_length(value);
 
     for (i = 0; i < l; i++)
         if (isalnum(cstring_at(value, i)) == 0) {
-            ret = CL_FALSE;
+            ret = false;
             break;
         }
 

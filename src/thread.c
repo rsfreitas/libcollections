@@ -65,12 +65,12 @@ static void destroy_thread_data(struct cthread_s *td)
     free(td);
 }
 
-static cbool_t validate_thread_state(enum cthread_state state)
+static bool validate_thread_state(enum cthread_state state)
 {
     if (state >= CL_THREAD_ST_MAX_STATE)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
 void LIBEXPORT *cthread_get_user_data(cthread_data_t *arg)
@@ -100,7 +100,7 @@ int LIBEXPORT cthread_set_state(cthread_t *t, enum cthread_state state)
         return -1;
     }
 
-    if (validate_thread_state(state) == CL_FALSE) {
+    if (validate_thread_state(state) == false) {
         cset_errno(CL_INVALID_STATE);
         return -1;
     }

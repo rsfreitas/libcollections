@@ -154,7 +154,7 @@ ipc_data_t *tcp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout)
 
     /* Awaits the data becomes available */
     if (accept_timeout > 0)
-        if (has_data_to_receive(d->fd, accept_timeout) == CL_FALSE)
+        if (has_data_to_receive(d->fd, accept_timeout) == false)
             return NULL;
 
     /* accept */
@@ -194,7 +194,7 @@ struct chat_data_s *tcp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
 
     /* Awaits the data becomes available */
     if (recv_timeout > 0)
-        if (has_data_to_receive(d->fd, recv_timeout) == CL_FALSE)
+        if (has_data_to_receive(d->fd, recv_timeout) == false)
             return NULL;
 
     cd = new_chat_data_s(DEFAULT_RECV_DATA_SIZE);

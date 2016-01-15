@@ -71,9 +71,9 @@ cstring_t *cstdin_getline(void);
  * @name cstdin_select
  * @brief Checks for something to be read from standard input.
  *
- * @return Returns CL_TRUE if is something to be read ou CL_FALSE otherwise.
+ * @return Returns true if is something to be read ou false otherwise.
  */
-cbool_t cstdin_select(void);
+bool cstdin_select(void);
 
 /**
  * @name cgetkey
@@ -83,10 +83,10 @@ cbool_t cstdin_select(void);
  *                    or not.
  *
  * @return On success returns the ascii value of the captured key or -1
- *         otherwise. If \a block is CL_FALSE it may return CL_NO_KEY if no
+ *         otherwise. If \a block is false it may return CL_NO_KEY if no
  *         input is found.
  */
-int cgetkey(cbool_t block);
+int cgetkey(bool block);
 
 /**
  * @name cdisable_echo

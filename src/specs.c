@@ -100,20 +100,20 @@ int LIBEXPORT cspec_destroy(cspec_t *spec)
     return 0;
 }
 
-static cbool_t validate_accessibility(const struct spec_s *spec, cbool_t set)
+static bool validate_accessibility(const struct spec_s *spec, bool set)
 {
     /* May write? */
-    if ((set == CL_TRUE) && (!(spec->properties & CL_WRITABLE)))
-        return CL_FALSE;
+    if ((set == true) && (!(spec->properties & CL_WRITABLE)))
+        return false;
 
     /* May read? */
-    if ((set == CL_FALSE) && (!(spec->properties & CL_READABLE)))
-        return CL_FALSE;
+    if ((set == false) && (!(spec->properties & CL_READABLE)))
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-static cbool_t validate_char(const struct spec_s *spec, char value)
+static bool validate_char(const struct spec_s *spec, char value)
 {
     char min, max;
 
@@ -121,12 +121,12 @@ static cbool_t validate_char(const struct spec_s *spec, char value)
     max = cvalue_get_char(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_uchar(const struct spec_s *spec, unsigned char value)
+static bool validate_uchar(const struct spec_s *spec, unsigned char value)
 {
     unsigned char min, max;
 
@@ -134,12 +134,12 @@ static cbool_t validate_uchar(const struct spec_s *spec, unsigned char value)
     max = cvalue_get_uchar(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_int(const struct spec_s *spec, int value)
+static bool validate_int(const struct spec_s *spec, int value)
 {
     int min, max;
 
@@ -147,12 +147,12 @@ static cbool_t validate_int(const struct spec_s *spec, int value)
     max = cvalue_get_int(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_uint(const struct spec_s *spec, unsigned int value)
+static bool validate_uint(const struct spec_s *spec, unsigned int value)
 {
     unsigned int min, max;
 
@@ -160,12 +160,12 @@ static cbool_t validate_uint(const struct spec_s *spec, unsigned int value)
     max = cvalue_get_uint(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_sint(const struct spec_s *spec, short int value)
+static bool validate_sint(const struct spec_s *spec, short int value)
 {
     short int min, max;
 
@@ -173,12 +173,12 @@ static cbool_t validate_sint(const struct spec_s *spec, short int value)
     max = cvalue_get_sint(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_usint(const struct spec_s *spec,
+static bool validate_usint(const struct spec_s *spec,
      unsigned short int value)
 {
     unsigned short int min, max;
@@ -187,12 +187,12 @@ static cbool_t validate_usint(const struct spec_s *spec,
     max = cvalue_get_usint(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_long(const struct spec_s *spec, long value)
+static bool validate_long(const struct spec_s *spec, long value)
 {
     long min, max;
 
@@ -200,12 +200,12 @@ static cbool_t validate_long(const struct spec_s *spec, long value)
     max = cvalue_get_long(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_ulong(const struct spec_s *spec, unsigned long value)
+static bool validate_ulong(const struct spec_s *spec, unsigned long value)
 {
     unsigned long min, max;
 
@@ -213,12 +213,12 @@ static cbool_t validate_ulong(const struct spec_s *spec, unsigned long value)
     max = cvalue_get_ulong(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_llong(const struct spec_s *spec, long long value)
+static bool validate_llong(const struct spec_s *spec, long long value)
 {
     long long min, max;
 
@@ -226,12 +226,12 @@ static cbool_t validate_llong(const struct spec_s *spec, long long value)
     max = cvalue_get_llong(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_ullong(const struct spec_s *spec,
+static bool validate_ullong(const struct spec_s *spec,
     unsigned long long value)
 {
     unsigned long long min, max;
@@ -240,12 +240,12 @@ static cbool_t validate_ullong(const struct spec_s *spec,
     max = cvalue_get_ullong(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_float(const struct spec_s *spec, float value)
+static bool validate_float(const struct spec_s *spec, float value)
 {
     float min, max;
 
@@ -253,12 +253,12 @@ static cbool_t validate_float(const struct spec_s *spec, float value)
     max = cvalue_get_float(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_double(const struct spec_s *spec, double value)
+static bool validate_double(const struct spec_s *spec, double value)
 {
     double min, max;
 
@@ -266,31 +266,31 @@ static cbool_t validate_double(const struct spec_s *spec, double value)
     max = cvalue_get_double(spec->max);
 
     if ((value >= min) && (value <= max))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t validate_boolean(cbool_t value)
+static bool validate_boolean(bool value)
 {
-    if ((value != CL_TRUE) && (value != CL_FALSE))
-        return CL_FALSE;
+    if ((value != true) && (value != false))
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-static cbool_t validate_string(const struct spec_s *spec, cstring_t *s)
+static bool validate_string(const struct spec_s *spec, cstring_t *s)
 {
     if ((unsigned int)cstring_length(s) > spec->max_length)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
+static bool validate_value(const struct spec_s *spec, cvalue_t *value,
     va_list ap)
 {
-    cbool_t b, ret = CL_FALSE;
+    bool b, ret = false;
     char c;
     unsigned char uc;
     int i;
@@ -314,9 +314,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_CHAR:
             c = (char)va_arg(ap, int);
 
-            if (validate_char(spec, c) == CL_TRUE) {
+            if (validate_char(spec, c) == true) {
                 cvalue_set_char(value, c);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -324,9 +324,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_UCHAR:
             uc = (unsigned char)va_arg(ap, int);
 
-            if (validate_uchar(spec, uc) == CL_TRUE) {
+            if (validate_uchar(spec, uc) == true) {
                 cvalue_set_uchar(value, uc);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -334,9 +334,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_INT:
             i = va_arg(ap, int);
 
-            if (validate_int(spec, i) == CL_TRUE) {
+            if (validate_int(spec, i) == true) {
                 cvalue_set_int(value, i);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -344,9 +344,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_UINT:
             ui = va_arg(ap, unsigned int);
 
-            if (validate_uint(spec, ui) == CL_TRUE) {
+            if (validate_uint(spec, ui) == true) {
                 cvalue_set_uint(value, ui);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -354,9 +354,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_SINT:
             si = (short int)va_arg(ap, int);
 
-            if (validate_sint(spec, si) == CL_TRUE) {
+            if (validate_sint(spec, si) == true) {
                 cvalue_set_int(value, si);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -364,9 +364,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_USINT:
             usi = (unsigned short int)va_arg(ap, unsigned int);
 
-            if (validate_usint(spec, usi) == CL_TRUE) {
+            if (validate_usint(spec, usi) == true) {
                 cvalue_set_uint(value, usi);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -374,9 +374,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_FLOAT:
             f = (float)va_arg(ap, double);
 
-            if (validate_float(spec, f) == CL_TRUE) {
+            if (validate_float(spec, f) == true) {
                 cvalue_set_float(value, f);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -384,9 +384,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_DOUBLE:
             d = va_arg(ap, double);
 
-            if (validate_double(spec, d) == CL_TRUE) {
+            if (validate_double(spec, d) == true) {
                 cvalue_set_double(value, d);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -394,9 +394,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_LONG:
             l = va_arg(ap, long);
 
-            if (validate_long(spec, l) == CL_TRUE) {
+            if (validate_long(spec, l) == true) {
                 cvalue_set_long(value, l);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -404,9 +404,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_ULONG:
             ul = va_arg(ap, unsigned long);
 
-            if (validate_ulong(spec, ul) == CL_TRUE) {
+            if (validate_ulong(spec, ul) == true) {
                 cvalue_set_ulong(value, ul);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -414,9 +414,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_LLONG:
             ll = va_arg(ap, long long);
 
-            if (validate_llong(spec, ll) == CL_TRUE) {
+            if (validate_llong(spec, ll) == true) {
                 cvalue_set_llong(value, ll);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -424,9 +424,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_ULLONG:
             ull = va_arg(ap, unsigned long long);
 
-            if (validate_ullong(spec, ull) == CL_TRUE) {
+            if (validate_ullong(spec, ull) == true) {
                 cvalue_set_ullong(value, ull);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -434,9 +434,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_STRING:
             p = va_arg(ap, void *);
 
-            if (validate_string(spec, p) == CL_TRUE) {
+            if (validate_string(spec, p) == true) {
                 cvalue_set_string(value, p);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -444,9 +444,9 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
         case CL_BOOLEAN:
             b = va_arg(ap, int);
 
-            if (validate_boolean(b) == CL_TRUE) {
+            if (validate_boolean(b) == true) {
                 cvalue_set_boolean(value, b);
-                ret = CL_TRUE;
+                ret = true;
             }
 
             break;
@@ -455,28 +455,28 @@ static cbool_t validate_value(const struct spec_s *spec, cvalue_t *value,
     return ret;
 }
 
-cbool_t LIBEXPORT cspec_validate(const cspec_t *spec, cvalue_t *value,
-    cbool_t set_value, va_list ap)
+bool LIBEXPORT cspec_validate(const cspec_t *spec, cvalue_t *value,
+    bool set_value, va_list ap)
 {
     cvalue_t *ref = cvalue_ref((cvalue_t *)value);
-    cbool_t ret;
+    bool ret;
 
     cerrno_clear();
 
     if ((NULL == spec) || (NULL == value)) {
         cvalue_unref(ref);
         cset_errno(CL_NULL_ARG);
-        return CL_FALSE;
+        return false;
     }
 
     ret = validate_accessibility(spec, set_value);
 
-    if (ret == CL_FALSE) {
+    if (ret == false) {
         cvalue_unref(ref);
-        return CL_FALSE;
+        return false;
     } else {
         /* Doesn't need to parse while checking for trying to read value */
-        if (set_value == CL_FALSE) {
+        if (set_value == false) {
             cvalue_unref(ref);
             return ret;
         }

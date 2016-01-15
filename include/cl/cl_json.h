@@ -365,7 +365,7 @@ int cjson_replace_item_in_object(cjson_t *root, const char *name,
  *
  * @return On success returns a cstring_t containing the cjson_t object.
  */
-cstring_t *cjson_to_string(const cjson_t *j, cbool_t friendly_output);
+cstring_t *cjson_to_string(const cjson_t *j, bool friendly_output);
 
 #endif
 

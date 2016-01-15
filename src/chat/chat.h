@@ -102,7 +102,7 @@ struct chat_s {
     enum chat_driver            driver_id;
     struct chat_driver_info_s   *driver_info;
     struct chat_ipc_methods_s   *ipc_methods;
-    cbool_t                     sigpipe;
+    bool                        sigpipe;
     struct sigaction            sa_pipe;
 
     /* IPC internal informations */
@@ -115,7 +115,7 @@ struct chat_s {
 /* common.h */
 struct chat_data_s *new_chat_data_s(unsigned int data_size);
 void destroy_chat_data_s(struct chat_data_s *data);
-cbool_t has_data_to_receive(int fd, int seconds);
+bool has_data_to_receive(int fd, int seconds);
 
 /** Communication driver */
 /* drv_raw_socket.h */

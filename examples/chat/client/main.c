@@ -32,7 +32,7 @@
 
 #include <collections.h>
 
-static cbool_t __finish = CL_FALSE;
+static bool __finish = false;
 
 static void help(void)
 {
@@ -53,7 +53,7 @@ void signal_handler(int signum)
 {
     switch (signum) {
         case SIGINT:
-            __finish = CL_TRUE;
+            __finish = true;
             break;
     }
 }
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 {
     const char *opt = "htup:i:\0";
     int option, port = 0;
-    cbool_t tcp = CL_TRUE;
+    bool tcp = true;
     char *ip = NULL;
     chat_t *c = NULL;
 //    char *text = "An example... simple... just to test";
@@ -80,11 +80,11 @@ int main(int argc, char **argv)
                 return 1;
 
             case 't':
-                tcp = CL_TRUE;
+                tcp = true;
                 break;
 
             case 'u':
-                tcp = CL_FALSE;
+                tcp = false;
                 break;
 
             case 'p':
@@ -105,8 +105,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    c = chat_new((tcp == CL_TRUE) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
-                 CHAT_CLIENT, CL_TRUE);
+    c = chat_new((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
+                 CHAT_CLIENT, true);
 
     if (NULL == c) {
         fprintf(stderr, "Error (1): %s.\n", cstrerror(cget_last_error()));
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
         goto end_block;
     }
 
-    while (__finish == CL_FALSE) {
+    while (__finish == false) {
         cmsleep(1000);
         text_length = asprintf(&text, "An example... simple... just to test %03d", i);
         i++;

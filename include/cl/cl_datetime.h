@@ -160,9 +160,9 @@ int cdt_second(const cdatetime_t *dt);
  *
  * @param [in] dt: The cdatetime_t object.
  *
- * @return Returns CL_TRUE or CL_FALSE if DST is set or not inside \a dt.
+ * @return Returns true or false if DST is set or not inside \a dt.
  */
-cbool_t cdt_isdst(const cdatetime_t *dt);
+bool cdt_isdst(const cdatetime_t *dt);
 
 /**
  * @name cdt_leap_year
@@ -170,9 +170,9 @@ cbool_t cdt_isdst(const cdatetime_t *dt);
  *
  * @param [in] dt: The cdatetime_t object.
  *
- * @return Returns CL_TRUE or CL_FALSE is \a dt corresponds to a leap year.
+ * @return Returns true or false is \a dt corresponds to a leap year.
  */
-cbool_t cdt_leap_year(const cdatetime_t *dt);
+bool cdt_leap_year(const cdatetime_t *dt);
 
 /**
  * @name cdt_weekday
@@ -227,7 +227,7 @@ unsigned long long cdt_get_useconds(const cdatetime_t *dt);
  * @return On success returns a cstring_t object with the month description or
  *         NULL otherwise.
  */
-cstring_t *cdt_month_of_year(const cdatetime_t *dt, cbool_t full);
+cstring_t *cdt_month_of_year(const cdatetime_t *dt, bool full);
 
 /**
  * @name cdt_day_of_week
@@ -240,7 +240,7 @@ cstring_t *cdt_month_of_year(const cdatetime_t *dt, cbool_t full);
  * @return On success returns a cstring_t object with the weekday description
  *         or NULL otherwise.
  */
-cstring_t *cdt_day_of_week(const cdatetime_t *dt, cbool_t full);
+cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
 
 /**
  * @name cdt_printf
@@ -332,9 +332,9 @@ int cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2);
  * @param [in] dt: The cdatetime_t object.
  * @param [in] other: The other cdatetime_t object.
  *
- * @return Returns CL_TRUE or CL_FALSE if \a dt is after or not of \a other.
+ * @return Returns true or false if \a dt is after or not of \a other.
  */
-cbool_t cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other);
+bool cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other);
 
 /**
  * @name cdt_isbefore
@@ -344,9 +344,9 @@ cbool_t cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other);
  * @param [in] dt: The cdatetime_t object.
  * @param [in] other: The other cdatetime_t object.
  *
- * @return Returns CL_TRUE or CL_FALSE if \a dt is before or not of \a other.
+ * @return Returns true or false if \a dt is before or not of \a other.
  */
-cbool_t cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other);
+bool cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other);
 
 /**
  * @name cdt_isequal
@@ -356,9 +356,9 @@ cbool_t cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other);
  * @param [in] dt: The cdatetime_t object.
  * @param [in] other: The other cdatetime_t object.
  *
- * @return Returns CL_TRUE or CL_FALSE if \a dt is equal or not of \a other.
+ * @return Returns true or false if \a dt is equal or not of \a other.
  */
-cbool_t cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other);
+bool cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other);
 
 /**
  * @name cdt_mktime
@@ -535,20 +535,20 @@ enum cmonth cdt_current_month(void);
 
 /**
  * @name cdt_is_local_dst
- * @brief Returns CL_TRUE or CL_FALSE if DST is active or not.
+ * @brief Returns true or false if DST is active or not.
  *
- * @return Returns CL_TRUE or CL_FALSE if DST is active or not.
+ * @return Returns true or false if DST is active or not.
  */
-cbool_t cdt_is_local_dst(void);
+bool cdt_is_local_dst(void);
 
 /**
  * @name cdt_is_leap_year
- * @brief Returns CL_TRUE or CL_FALSE if the current year is a leap year or not.
+ * @brief Returns true or false if the current year is a leap year or not.
  *
- * @return Returns CL_TRUE or CL_FALSE if the current year is a leap year or
+ * @return Returns true or false if the current year is a leap year or
  *         not.
  */
-cbool_t cdt_is_leap_year(void);
+bool cdt_is_leap_year(void);
 
 /**
  * @name cdt_inic_timeout
@@ -591,9 +591,9 @@ int cdt_reset_timeout(ctimeout_t *t, unsigned int interval,
  *
  * @param [in] t: The ctimeout_t object.
  *
- * @return Returns CL_TRUE or CL_FALSE if the timeout had expired or not.
+ * @return Returns true or false if the timeout had expired or not.
  */
-cbool_t cdt_expired_timeout(const ctimeout_t *t);
+bool cdt_expired_timeout(const ctimeout_t *t);
 
 #endif
 

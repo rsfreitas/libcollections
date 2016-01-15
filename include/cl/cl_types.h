@@ -36,10 +36,9 @@
 # include <signal.h>
 #endif
 
-enum cboolean {
-    CL_FALSE,
-    CL_TRUE
-};
+#ifndef _STDBOOL_H
+# include <stdbool.h>
+#endif
 
 #define CL_PP_RSEQ_N()                  \
     63,62,61,60,                        \
@@ -91,9 +90,6 @@ enum cl_type {
     CL_STRING,
     CL_BOOLEAN
 };
-
-/** boolean type */
-typedef enum cboolean       cbool_t;
 
 /** error type */
 typedef int                 cerrno;

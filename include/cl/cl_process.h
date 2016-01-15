@@ -50,7 +50,7 @@ void cprcs_deamon_start(void);
  * @return On success returns the returned value from the executed command or
  *         -1 otherwise.
  */
-int csystem(cbool_t close_parent_files, const char *fmt, ...);
+int csystem(bool close_parent_files, const char *fmt, ...);
 
 /**
  * @name cmsleep
