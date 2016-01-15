@@ -43,7 +43,7 @@ struct cdatetime_s {
     unsigned int    minute;
     unsigned int    second;
     enum cweekday   weekday;
-    cbool_t         isdst;
+    bool            isdst;
 
     struct timeval  tv;         /* seconds and useconds */
     cstring_t       *tzone;
@@ -73,7 +73,7 @@ static const char *__moy_full[] = {
     "September", "October", "November", "December"
 };
 
-static cbool_t is_leap_year(unsigned int year);
+static bool is_leap_year(unsigned int year);
 
 static struct cdatetime_s *new_cdatetime_s(void)
 {
@@ -102,26 +102,26 @@ static void destroy_cdatetime_s(struct cdatetime_s *dt)
     free(dt);
 }
 
-static cbool_t is_GMT(struct cdatetime_s *dt)
+static bool is_GMT(struct cdatetime_s *dt)
 {
     cstring_t *s;
-    cbool_t ret = CL_FALSE;
+    bool ret = false;
 
     s = cstring_new("GMT");
 
     if (cstring_cmp(dt->tzone, s) == 0)
-        ret = CL_TRUE;
+        ret = true;
 
     cstring_destroy(s);
 
     return ret;
 }
 
-static void cvt_time(struct cdatetime_s *dt, cbool_t UTC)
+static void cvt_time(struct cdatetime_s *dt, bool UTC)
 {
     struct tm tm;
 
-    if (UTC == CL_TRUE)
+    if (UTC == true)
         gmtime_r(&dt->tv.tv_sec, &tm);
     else
         localtime_r(&dt->tv.tv_sec, &tm);
@@ -134,7 +134,7 @@ static void cvt_time(struct cdatetime_s *dt, cbool_t UTC)
     dt->minute = tm.tm_min;
     dt->second = tm.tm_sec;
 
-    dt->isdst = (tm.tm_isdst == 0) ? CL_FALSE : CL_TRUE;
+    dt->isdst = (tm.tm_isdst == 0) ? false : true;
     dt->weekday = tm.tm_wday;
 
     if (dt->tzone != NULL)
@@ -173,7 +173,7 @@ cdatetime_t LIBEXPORT *cdt_localtime(void)
         return NULL;
     }
 
-    cvt_time(dt, CL_FALSE);
+    cvt_time(dt, false);
 
     return dt;
 }
@@ -262,7 +262,7 @@ int LIBEXPORT cdt_second(const cdatetime_t *dt)
     return t->second;
 }
 
-cbool_t LIBEXPORT cdt_isdst(const cdatetime_t *dt)
+bool LIBEXPORT cdt_isdst(const cdatetime_t *dt)
 {
     struct cdatetime_s *t = (struct cdatetime_s *)dt;
 
@@ -276,7 +276,7 @@ cbool_t LIBEXPORT cdt_isdst(const cdatetime_t *dt)
     return t->isdst;
 }
 
-cbool_t LIBEXPORT cdt_leap_year(const cdatetime_t *dt)
+bool LIBEXPORT cdt_leap_year(const cdatetime_t *dt)
 {
     struct cdatetime_s *t = (struct cdatetime_s *)dt;
 
@@ -346,7 +346,7 @@ unsigned long long LIBEXPORT cdt_get_useconds(const cdatetime_t *dt)
     return ((unsigned long long)t->tv.tv_sec * 1000000) + t->tv.tv_usec;
 }
 
-cstring_t LIBEXPORT *cdt_month_of_year(const cdatetime_t *dt, cbool_t full)
+cstring_t LIBEXPORT *cdt_month_of_year(const cdatetime_t *dt, bool full)
 {
     struct cdatetime_s *t = (struct cdatetime_s *)dt;
     int moy;
@@ -360,11 +360,11 @@ cstring_t LIBEXPORT *cdt_month_of_year(const cdatetime_t *dt, cbool_t full)
 
     moy = t->month;
 
-    return cstring_new("%s", (full == CL_TRUE) ? __moy_full[moy]
-                                               : __moy_abbrv[moy]);
+    return cstring_new("%s", (full == true) ? __moy_full[moy]
+                                            : __moy_abbrv[moy]);
 }
 
-cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, cbool_t full)
+cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
 {
     struct cdatetime_s *t = (struct cdatetime_s *)dt;
     int dow;
@@ -378,8 +378,8 @@ cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, cbool_t full)
 
     dow = t->weekday;
 
-    return cstring_new("%s", (full == CL_TRUE) ? __dow_full[dow]
-                                               : __dow_abbrv[dow]);
+    return cstring_new("%s", (full == true) ? __dow_full[dow]
+                                            : __dow_abbrv[dow]);
 }
 
 /*
@@ -572,7 +572,7 @@ int LIBEXPORT cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2)
     return 0;
 }
 
-cbool_t LIBEXPORT cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
+bool LIBEXPORT cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
 {
     unsigned int s1, s2;
 
@@ -587,12 +587,12 @@ cbool_t LIBEXPORT cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
     s2 = cdt_get_seconds(other);
 
     if (s1 > s2)
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-cbool_t LIBEXPORT cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
+bool LIBEXPORT cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
 {
     unsigned int s1, s2;
 
@@ -607,12 +607,12 @@ cbool_t LIBEXPORT cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
     s2 = cdt_get_seconds(other);
 
     if (s1 < s2)
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-cbool_t LIBEXPORT cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
+bool LIBEXPORT cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
 {
     unsigned int s1, s2;
 
@@ -627,15 +627,15 @@ cbool_t LIBEXPORT cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
     s2 = cdt_get_seconds(other);
 
     if (s1 == s2)
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
 cdatetime_t LIBEXPORT *cdt_dup(const cdatetime_t *dt)
 {
     struct cdatetime_s *t = NULL, *tt = (struct cdatetime_s *)dt;
-    cbool_t UTC = CL_FALSE;
+    bool UTC = false;
 
     cerrno_clear();
 
@@ -649,8 +649,8 @@ cdatetime_t LIBEXPORT *cdt_dup(const cdatetime_t *dt)
     if (NULL == t)
         return NULL;
 
-    if (is_GMT(tt) == CL_TRUE)
-        UTC = CL_TRUE;
+    if (is_GMT(tt) == true)
+        UTC = true;
 
     /* dup internal data */
     t->tv.tv_sec = tt->tv.tv_sec;
@@ -675,7 +675,7 @@ cdatetime_t LIBEXPORT *cdt_gmtime(void)
         return NULL;
     }
 
-    cvt_time(dt, CL_TRUE);
+    cvt_time(dt, true);
 
     return dt;
 }
@@ -694,11 +694,11 @@ cdatetime_t LIBEXPORT *cdt_to_localtime(const cdatetime_t *dt)
     ddt = cdt_dup(t);
 
     /* Already localtime, returns a copy */
-    if (is_GMT(t) == CL_FALSE)
+    if (is_GMT(t) == false)
         return ddt;
 
     /* Convert to localtime */
-    cvt_time(ddt, CL_FALSE);
+    cvt_time(ddt, false);
 
     return ddt;
 }
@@ -717,45 +717,45 @@ cdatetime_t LIBEXPORT *cdt_to_gmtime(const cdatetime_t *dt)
     ddt = cdt_dup(t);
 
     /* Already GMT, returns a copy */
-    if (is_GMT(t) == CL_TRUE)
+    if (is_GMT(t) == true)
         return ddt;
 
     /* Convert to GMT */
-    cvt_time(ddt, CL_TRUE);
+    cvt_time(ddt, true);
 
     return ddt;
 }
 
-static cbool_t is_month(unsigned int month)
+static bool is_month(unsigned int month)
 {
     if (month >= 12)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-static cbool_t is_day(unsigned int day)
+static bool is_day(unsigned int day)
 {
     if ((day == 0) || (day > 31))
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-static cbool_t is_hour(unsigned int hour)
+static bool is_hour(unsigned int hour)
 {
     if (hour > 23)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-static cbool_t is_minute_or_second(unsigned int value)
+static bool is_minute_or_second(unsigned int value)
 {
     if (value > 59)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
 cdatetime_t LIBEXPORT *cdt_mktime(unsigned int year, unsigned int month,
@@ -767,11 +767,11 @@ cdatetime_t LIBEXPORT *cdt_mktime(unsigned int year, unsigned int month,
 
     cerrno_clear();
 
-    if ((is_month(month) == CL_FALSE) ||
-        (is_day(day) == CL_FALSE) ||
-        (is_hour(hour) == CL_FALSE) ||
-        (is_minute_or_second(minute) == CL_FALSE) ||
-        (is_minute_or_second(second) == CL_FALSE))
+    if ((is_month(month) == false) ||
+        (is_day(day) == false) ||
+        (is_hour(hour) == false) ||
+        (is_minute_or_second(minute) == false) ||
+        (is_minute_or_second(second) == false))
     {
         return NULL;
     }
@@ -790,7 +790,7 @@ cdatetime_t LIBEXPORT *cdt_mktime(unsigned int year, unsigned int month,
         return NULL;
 
     dt->tv.tv_sec = mktime(&tm);
-    cvt_time(dt, CL_FALSE);
+    cvt_time(dt, false);
 
     return dt;
 }
@@ -839,12 +839,12 @@ cdatetime_t LIBEXPORT *cdt_string_mktime(const cstring_t *datetime)
     return cdt_mktime(year, month, day, hour, min, sec);
 }
 
-static cbool_t is_leap_year(unsigned int year)
+static bool is_leap_year(unsigned int year)
 {
     if ((year & 3) == 0 && ((year % 25) != 0 || (year & 15) == 0))
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
 static int get_number_of_leap_years(unsigned int year1, unsigned int year2)
@@ -853,7 +853,7 @@ static int get_number_of_leap_years(unsigned int year1, unsigned int year2)
     int n=0;
 
     for (i = (year1 + 1); i < year2; i++)
-        if (is_leap_year(i) == CL_TRUE)
+        if (is_leap_year(i) == true)
             n++;
 
     return n;
@@ -864,7 +864,7 @@ cdatetime_t LIBEXPORT *cdt_minus_years(const cdatetime_t *dt, unsigned int years
     struct cdatetime_s *ddt = NULL;
     unsigned int n;
     int leap_years=0;
-    cbool_t UTC = CL_FALSE;
+    bool UTC = false;
 
     cerrno_clear();
 
@@ -878,8 +878,8 @@ cdatetime_t LIBEXPORT *cdt_minus_years(const cdatetime_t *dt, unsigned int years
     if (NULL == ddt)
         return NULL;
 
-    if (is_GMT(ddt) == CL_TRUE)
-        UTC = CL_TRUE;
+    if (is_GMT(ddt) == true)
+        UTC = true;
 
     leap_years = get_number_of_leap_years(ddt->year - years, ddt->year);
     n = (leap_years * LEAP_YEAR_IN_SECS) + ((years - leap_years) * YEAR_IN_SECS);
@@ -894,7 +894,7 @@ cdatetime_t LIBEXPORT *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
 {
     struct cdatetime_s *ddt = NULL;
     unsigned int n;
-    cbool_t UTC = CL_FALSE;
+    bool UTC = false;
 
     cerrno_clear();
 
@@ -908,8 +908,8 @@ cdatetime_t LIBEXPORT *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
     if (NULL == ddt)
         return NULL;
 
-    if (is_GMT(ddt) == CL_TRUE)
-        UTC = CL_TRUE;
+    if (is_GMT(ddt) == true)
+        UTC = true;
 
     n = days * DAY_IN_SECS;
     ddt->tv.tv_sec -= n;
@@ -993,7 +993,7 @@ cdatetime_t LIBEXPORT *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
 {
     struct cdatetime_s *ddt = NULL;
     unsigned int n;
-    cbool_t UTC = CL_FALSE;
+    bool UTC = false;
 
     cerrno_clear();
 
@@ -1007,8 +1007,8 @@ cdatetime_t LIBEXPORT *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
     if (NULL == ddt)
         return NULL;
 
-    if (is_GMT(ddt) == CL_TRUE)
-        UTC = CL_TRUE;
+    if (is_GMT(ddt) == true)
+        UTC = true;
 
     n = days * DAY_IN_SECS;
     ddt->tv.tv_sec += n;
@@ -1026,7 +1026,7 @@ cdatetime_t LIBEXPORT *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
     struct cdatetime_s *ddt = NULL;
     unsigned int n;
     int leap_years=0;
-    cbool_t UTC = CL_FALSE;
+    bool UTC = false;
 
     cerrno_clear();
 
@@ -1040,8 +1040,8 @@ cdatetime_t LIBEXPORT *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
     if (NULL == ddt)
         return NULL;
 
-    if (is_GMT(ddt) == CL_TRUE)
-        UTC = CL_TRUE;
+    if (is_GMT(ddt) == true)
+        UTC = true;
 
     leap_years = get_number_of_leap_years(ddt->year, ddt->year + years);
     n = (leap_years * LEAP_YEAR_IN_SECS) + ((years - leap_years) * YEAR_IN_SECS);
@@ -1134,7 +1134,7 @@ enum cmonth LIBEXPORT cdt_current_month(void)
     return m;
 }
 
-cbool_t LIBEXPORT cdt_is_local_dst(void)
+bool LIBEXPORT cdt_is_local_dst(void)
 {
     time_t t;
     struct tm tm;
@@ -1144,12 +1144,12 @@ cbool_t LIBEXPORT cdt_is_local_dst(void)
     localtime_r(&t, &tm);
 
     if (tm.tm_isdst)
-        return CL_TRUE;
+        return true;
 
-    return CL_FALSE;
+    return false;
 }
 
-cbool_t LIBEXPORT cdt_is_leap_year(void)
+bool LIBEXPORT cdt_is_leap_year(void)
 {
     time_t t;
     struct tm tm;
@@ -1254,7 +1254,7 @@ int LIBEXPORT cdt_reset_timeout(ctimeout_t *t, unsigned int interval,
     return 0;
 }
 
-cbool_t LIBEXPORT cdt_expired_timeout(const ctimeout_t *t)
+bool LIBEXPORT cdt_expired_timeout(const ctimeout_t *t)
 {
     struct ctimeout_s *ct = (struct ctimeout_s *)t;
     struct timeval tv;
@@ -1275,7 +1275,7 @@ cbool_t LIBEXPORT cdt_expired_timeout(const ctimeout_t *t)
             i = cdt_get_seconds(ct->dt) + ct->interval;
 
             if (tv.tv_sec > (time_t)i)
-                return CL_TRUE;
+                return true;
 
             break;
 
@@ -1283,7 +1283,7 @@ cbool_t LIBEXPORT cdt_expired_timeout(const ctimeout_t *t)
             i = cdt_get_mseconds(ct->dt) + ct->interval;
 
             if ((unsigned int)((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) > i)
-                return CL_TRUE;
+                return true;
 
             break;
 
@@ -1291,11 +1291,11 @@ cbool_t LIBEXPORT cdt_expired_timeout(const ctimeout_t *t)
             l = cdt_get_useconds(ct->dt) + ct->interval;
 
             if ((unsigned long long)((tv.tv_sec * 1000000) + tv.tv_usec) > l)
-                return CL_TRUE;
+                return true;
 
             break;
     }
 
-    return CL_FALSE;
+    return false;
 }
 

@@ -135,7 +135,7 @@ struct chat_data_s *udp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
 
     /* Awaits the data becomes available */
     if (recv_timeout > 0)
-        if (has_data_to_receive(d->fd, recv_timeout) == CL_FALSE)
+        if (has_data_to_receive(d->fd, recv_timeout) == false)
             return NULL;
 
     cd = new_chat_data_s(DEFAULT_RECV_DATA_SIZE);

@@ -55,7 +55,7 @@ enum chat_driver {
  *
  * @return On success returns a chat_t object or NULL otherwise.
  */
-chat_t *chat_new(enum chat_driver cd, enum chat_mode mode, cbool_t sigpipe_block);
+chat_t *chat_new(enum chat_driver cd, enum chat_mode mode, bool sigpipe_block);
 
 /**
  * @name chat_free

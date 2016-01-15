@@ -131,7 +131,7 @@ int cevent_condition_unregister(cevent_t *e, enum event_comparison_type cmp_type
  * @name cevent_install
  * @brief Puts the event to run.
  *
- * If \a sort_by_id argument is CL_TRUE, the conditions list will be sorted so
+ * If \a sort_by_id argument is true, the conditions list will be sorted so
  * that the with the lowest identification number has a higher priority and be
  * executed first.
  *
@@ -141,7 +141,7 @@ int cevent_condition_unregister(cevent_t *e, enum event_comparison_type cmp_type
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cevent_install(cevent_t *e, cbool_t sort_by_id);
+int cevent_install(cevent_t *e, bool sort_by_id);
 
 /**
  * @name event_uninstall

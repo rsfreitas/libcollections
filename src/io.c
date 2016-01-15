@@ -116,9 +116,9 @@ static int __stdin_timeout(void)
     return n;
 }
 
-cbool_t LIBEXPORT cstdin_select(void)
+bool LIBEXPORT cstdin_select(void)
 {
-    return (__stdin_timeout() <= 0 ? CL_FALSE : CL_TRUE);
+    return (__stdin_timeout() <= 0 ? false : true);
 }
 
 static int __search_ext_key(char *k)
@@ -140,7 +140,7 @@ static int __search_ext_key(char *k)
     return p;
 }
 
-int LIBEXPORT cgetkey(cbool_t block)
+int LIBEXPORT cgetkey(bool block)
 {
     unsigned char ch;
     char keys[32];
@@ -164,7 +164,7 @@ int LIBEXPORT cgetkey(cbool_t block)
         return -1;
     }
 
-    if (block == CL_FALSE) {
+    if (block == false) {
         if ((n = __stdin_timeout()) < 0) {
             retval = -3;
             goto end_block;

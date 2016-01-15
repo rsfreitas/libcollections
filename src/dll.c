@@ -317,7 +317,7 @@ void LIBEXPORT *cdll_delete_indexed(void *root, unsigned int index,
     struct cdll_node *q = NULL, *r = NULL;
     int size = 0;
     unsigned int i;
-    cbool_t first = CL_FALSE, last = CL_FALSE;
+    bool first = false, last = false;
 
     size = cdll_size(p);
 
@@ -325,11 +325,11 @@ void LIBEXPORT *cdll_delete_indexed(void *root, unsigned int index,
     if (index >= (unsigned int)size)
         return NULL;
     else if (index == 0)
-        first = CL_TRUE;
+        first = true;
     else if (index == (unsigned int)(size - 1))
-        last = CL_TRUE;
+        last = true;
 
-    if (first == CL_TRUE) {
+    if (first == true) {
         r = p;
         p = p->next;
         p->prev = NULL;
@@ -341,7 +341,7 @@ void LIBEXPORT *cdll_delete_indexed(void *root, unsigned int index,
         if (i == index) {
             r = q;
 
-            if (last == CL_TRUE)
+            if (last == true)
                 q->prev->next = NULL;
             else {
                 q->prev->next = q->next;
@@ -429,7 +429,7 @@ void LIBEXPORT *cdll_mergesort(void *root, int (*cmp)(void *, void *))
     return root;
 }
 
-cbool_t LIBEXPORT cdll_contains(void *root, void *p,
+bool LIBEXPORT cdll_contains(void *root, void *p,
     int (*foo)(void *, void *))
 {
     struct cdll_node *q = NULL;
@@ -437,9 +437,9 @@ cbool_t LIBEXPORT cdll_contains(void *root, void *p,
     q = cdll_map(root, foo, p);
 
     if (NULL == q)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
 int LIBEXPORT cdll_indexof(void *root, void *n, int (*foo)(void *, void *))

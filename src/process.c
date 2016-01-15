@@ -117,7 +117,7 @@ static char **cvt_cmd(const char *cmd)
     return app_argv;
 }
 
-int LIBEXPORT csystem(cbool_t close_parent_files, const char *fmt, ...)
+int LIBEXPORT csystem(bool close_parent_files, const char *fmt, ...)
 {
     pid_t p;
     int child_status, i;
@@ -131,7 +131,7 @@ int LIBEXPORT csystem(cbool_t close_parent_files, const char *fmt, ...)
         cset_errno(CL_FORK_FAILED);
         return -1;
     } else if (p == 0) {
-        if (close_parent_files == CL_TRUE)
+        if (close_parent_files == true)
             close_all_opened_files();
 
         va_start(ap, fmt);

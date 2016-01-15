@@ -68,15 +68,15 @@ int cspec_destroy(cspec_t *spec);
  * @brief Performs validations on a cvalue_t using a cspec_t content.
  *
  * The validations are executed according to the cvalue_t type and, if the
- * return is CL_TRUE, the cvalue_t internal value is updated.
+ * return is true, the cvalue_t internal value is updated.
  *
  * @param [in] spec: The cspec_t object parameters.
  * @param [in,out] value: The cvalue_t object.
  * @param [in] ap: Values that may be the cvalue_t if validations were true.
  *
- * @return On sucess returns CL_TRUE or CL_FALSE otherwise.
+ * @return On sucess returns true or false otherwise.
  */
-cbool_t cspec_validate(const cspec_t *spec, cvalue_t *value, cbool_t set_value,
+bool cspec_validate(const cspec_t *spec, cvalue_t *value, bool set_value,
                        va_list ap);
 
 #endif

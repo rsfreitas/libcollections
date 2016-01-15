@@ -182,15 +182,15 @@ ctimer_t LIBEXPORT *ctimer_get_timer(const ctimer_t *timers_list,
     return t;
 }
 
-static cbool_t validate_imode(enum ctimer_interval_mode imode)
+static bool validate_imode(enum ctimer_interval_mode imode)
 {
     if ((imode == TIMER_IMODE_DEFAULT) ||
         (imode == TIMER_IMODE_DISCOUNT_RUNTIME))
     {
-        return CL_TRUE;
+        return true;
     }
 
-    return CL_FALSE;
+    return false;
 }
 
 static const char *translate_imode(enum ctimer_interval_mode imode)
@@ -467,7 +467,7 @@ int LIBEXPORT ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
         return -1;
     }
 
-    if ((exec_interval == 0) || (validate_imode(imode) == CL_FALSE)) {
+    if ((exec_interval == 0) || (validate_imode(imode) == false)) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return -1;
     }
@@ -514,7 +514,7 @@ static int wait_for_timer_to_end(struct ctimer_s *timer)
             break;
         }
 
-        if (cdt_expired_timeout(t) == CL_TRUE) {
+        if (cdt_expired_timeout(t) == true) {
             ret = 1;
             break;
         }

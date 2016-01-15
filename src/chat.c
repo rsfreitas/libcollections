@@ -89,15 +89,15 @@ static struct chat_driver_info_s __drv_info[] = {
     }
 };
 
-static cbool_t validate_chat_driver(enum chat_driver scd)
+static bool validate_chat_driver(enum chat_driver scd)
 {
     if ((scd == CHAT_DRV_RAW_TCP) ||
         (scd == CHAT_DRV_RAW_UDP))
     {
-        return CL_TRUE;
+        return true;
     }
 
-    return CL_FALSE;
+    return false;
 }
 
 static void blocks_sigpipe(struct chat_s *c)
@@ -544,7 +544,7 @@ static void *chat_drv_process_recv_data(struct chat_s *c, struct chat_data_s *cd
  */
 
 chat_t LIBEXPORT *chat_new(enum chat_driver cd, enum chat_mode mode,
-    cbool_t sigpipe_block)
+    bool sigpipe_block)
 {
     struct chat_s *c = NULL;
     struct chat_driver_info_s *cdi;
@@ -552,7 +552,7 @@ chat_t LIBEXPORT *chat_new(enum chat_driver cd, enum chat_mode mode,
 
     cerrno_clear();
 
-    if (validate_chat_driver(cd) == CL_FALSE) {
+    if (validate_chat_driver(cd) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return NULL;
     }
@@ -594,7 +594,7 @@ chat_t LIBEXPORT *chat_new(enum chat_driver cd, enum chat_mode mode,
     if (NULL == c->drv_data)
         goto error_block;
 
-    if (sigpipe_block == CL_TRUE)
+    if (sigpipe_block == true)
         blocks_sigpipe(c);
 
     return c;
@@ -615,7 +615,7 @@ int LIBEXPORT chat_free(chat_t *chat)
         return -1;
     }
 
-    if (c->sigpipe == CL_TRUE)
+    if (c->sigpipe == true)
         restores_sigpipe(c);
 
     /* Call driver closing function */
@@ -707,7 +707,7 @@ chat_t LIBEXPORT *chat_server_start(chat_t *chat, unsigned int accept_timeout)
 
     client_c->mode = CHAT_CLIENT;
     client_c->ipc_data = d;
-    client_c->sigpipe = CL_FALSE;
+    client_c->sigpipe = false;
     client_c->drv_data = c->drv_data;
 
     return client_c;

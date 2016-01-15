@@ -32,7 +32,7 @@
 struct cvalue_s {
     enum cl_type        type;
     unsigned int        size;
-    cbool_t             dup_data;
+    bool                dup_data;
     void                (*free_value)(void *);
     size_t              psize;
     cspec_t             *specs;
@@ -51,14 +51,14 @@ struct cvalue_s {
     long long           ll;
     unsigned long long  ull;
     cstring_t           *s;
-    cbool_t             b;
+    bool                b;
     void                *p;
 
     /* ref count */
     struct ref_s        ref;
 };
 
-static cbool_t validate_cl_type(enum cl_type type)
+static bool validate_cl_type(enum cl_type type)
 {
     if ((type == CL_VOID) ||
         (type == CL_CHAR) ||
@@ -77,12 +77,12 @@ static cbool_t validate_cl_type(enum cl_type type)
         (type == CL_STRING) ||
         (type == CL_BOOLEAN))
     {
-        return CL_TRUE;
+        return true;
     }
 
     cset_errno(CL_UNSUPPORTED_TYPE);
 
-    return CL_FALSE;
+    return false;
 }
 
 static void free_value_data(struct cvalue_s *o)
@@ -103,7 +103,7 @@ static void destroy_cvalue_s(const struct ref_s *ref)
     if ((o->type == CL_STRING) && (o->s != NULL))
         cstring_unref(o->s);
 
-    if (o->dup_data == CL_TRUE)
+    if (o->dup_data == true)
         free_value_data(o);
 
     if (o->specs != NULL)
@@ -124,7 +124,7 @@ static struct cvalue_s *new_cvalue_s(enum cl_type type)
     }
 
     o->type = type;
-    o->dup_data = CL_FALSE;
+    o->dup_data = false;
     o->specs = NULL;
 
     /* ref count initialization */
@@ -254,7 +254,7 @@ void cvalue_set_ullong(cvalue_t *value, unsigned long long ull)
     v->ull = ull;
 }
 
-void cvalue_set_boolean(cvalue_t *value, cbool_t b)
+void cvalue_set_boolean(cvalue_t *value, bool b)
 {
     struct cvalue_s *v = (struct cvalue_s *)value;
 
@@ -340,7 +340,7 @@ static void set_cvalue_value(struct cvalue_s *o, va_list ap)
             p = va_arg(ap, void *);
             o->psize = va_arg(ap, int);
 
-            if (o->dup_data == CL_TRUE) {
+            if (o->dup_data == true) {
                 if (o->p != NULL)
                     free_value_data(o);
 
@@ -380,7 +380,7 @@ int LIBEXPORT cvalue_set(cvalue_t *value, ...)
     va_start(ap, NULL);
 
     if (o->specs != NULL) {
-        if (cspec_validate(o->specs, o, CL_TRUE, ap) == CL_FALSE)
+        if (cspec_validate(o->specs, o, true, ap) == false)
             return -1;
     } else
         set_cvalue_value(o, ap);
@@ -396,7 +396,7 @@ cvalue_t LIBEXPORT *cvalue_new(enum cl_type type, ...)
 
     cerrno_clear();
 
-    if (validate_cl_type(type) == CL_FALSE)
+    if (validate_cl_type(type) == false)
         return NULL;
 
     o = new_cvalue_s(type);
@@ -417,7 +417,7 @@ cvalue_t LIBEXPORT *cvalue_new_with_spec(enum cl_type type, cspec_t *spec)
 
     cerrno_clear();
 
-    if (validate_cl_type(type) == CL_FALSE)
+    if (validate_cl_type(type) == false)
         return NULL;
 
     if (NULL == spec) {
@@ -533,14 +533,14 @@ static int get_value_check(const cvalue_t *value, enum cl_type type)
         return -1;
     }
 
-    if (cvalue_is_of_type(value, type) == CL_FALSE) {
+    if (cvalue_is_of_type(value, type) == false) {
         cset_errno(CL_WRONG_TYPE);
         return -1;
     }
 
     if (o->specs != NULL) {
-        if (cspec_validate(o->specs, (cvalue_t *)value, CL_FALSE,
-                           0) == CL_FALSE)
+        if (cspec_validate(o->specs, (cvalue_t *)value, false,
+                           0) == false)
         {
             cset_errno(CL_INVALID_VALUE);
             return -1;
@@ -732,7 +732,7 @@ void LIBEXPORT *cvalue_get_pointer(const cvalue_t *value, unsigned int *size)
         return NULL;
     }
 
-    if (cvalue_is_of_type(o, CL_POINTER) == CL_FALSE) {
+    if (cvalue_is_of_type(o, CL_POINTER) == false) {
         cvalue_unref(o);
         cset_errno(CL_WRONG_TYPE);
         return NULL;
@@ -745,10 +745,10 @@ void LIBEXPORT *cvalue_get_pointer(const cvalue_t *value, unsigned int *size)
     return p;
 }
 
-cbool_t LIBEXPORT cvalue_get_boolean(const cvalue_t *value)
+bool LIBEXPORT cvalue_get_boolean(const cvalue_t *value)
 {
     struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    cbool_t b = -1;
+    bool b = -1;
 
     if (get_value_check(value, CL_BOOLEAN) == 0)
         b = o->b;
@@ -758,25 +758,25 @@ cbool_t LIBEXPORT cvalue_get_boolean(const cvalue_t *value)
     return b;
 }
 
-cbool_t LIBEXPORT cvalue_is_of_type(const cvalue_t *value, unsigned int type)
+bool LIBEXPORT cvalue_is_of_type(const cvalue_t *value, unsigned int type)
 {
     struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    cbool_t b;
+    bool b;
 
     cerrno_clear();
 
     if (NULL == value) {
         cvalue_unref(o);
         cset_errno(CL_NULL_ARG);
-        return CL_FALSE;
+        return false;
     }
 
-    if (validate_cl_type(type) == CL_FALSE) {
+    if (validate_cl_type(type) == false) {
         cvalue_unref(o);
-        return CL_FALSE;
+        return false;
     }
 
-    b = (o->type == type) ? CL_TRUE : CL_FALSE;
+    b = (o->type == type) ? true : false;
     cvalue_unref(o);
 
     return b;
@@ -848,7 +848,7 @@ static cstring_t *print_value(const struct cvalue_s *o)
             break;
 
         case CL_BOOLEAN:
-            s = cstring_new("%s", (o->b == CL_TRUE ? "true" : "false"));
+            s = cstring_new("%s", (o->b == true ? "true" : "false"));
             break;
     }
 
@@ -888,9 +888,9 @@ cvalue_t LIBEXPORT *cvalue_from_string(const cstring_t *value)
 
     ref = cstring_ref((cstring_t *)value);
 
-    if (cstring_is_number(ref) == CL_TRUE)
+    if (cstring_is_number(ref) == true)
         o = cvalue_new(CL_INT, cstring_value_as_int(ref));
-    else if (cstring_is_float_number(ref) == CL_TRUE)
+    else if (cstring_is_float_number(ref) == true)
         o = cvalue_new(CL_FLOAT, cstring_value_as_float(ref));
     else
         o = cvalue_new(CL_STRING, ref);

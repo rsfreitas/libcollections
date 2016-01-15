@@ -69,7 +69,7 @@ void destroy_chat_data_s(struct chat_data_s *data)
  * CL_DATA_TIMEOUT in case the pselect timeout expires or CL_PSELECT_FAILED
  * in case pselect detect any internal error.
  */
-cbool_t has_data_to_receive(int fd, int seconds)
+bool has_data_to_receive(int fd, int seconds)
 {
     struct timespec ts;
     int ndfs = 0, ret;
@@ -87,13 +87,13 @@ cbool_t has_data_to_receive(int fd, int seconds)
     ret = pselect(ndfs + 1, &rdfs, NULL, NULL, &ts, &tmask);
 
     if (ret > 0)
-        return CL_TRUE; /* Has data available to be read */
+        return true; /* Has data available to be read */
     else if (ret == -1)
         cset_errno(CL_PSELECT_FAILED);
     else
         cset_errno(CL_ENDED_WITH_TIMEOUT);
 
     /* Error or timeout */
-    return CL_FALSE;
+    return false;
 }
 

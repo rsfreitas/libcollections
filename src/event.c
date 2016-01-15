@@ -47,8 +47,8 @@ struct cevent_s {
     pthread_mutex_t             m_evc;
     enum event_execution        exec_type;
     char                        *name;
-    cbool_t                     sort;
-    cbool_t                     end_thread;
+    bool                     sort;
+    bool                     end_thread;
     int                         total_or_cond;
     int                         total_and_cond;
 
@@ -61,40 +61,40 @@ struct cevent_s {
     void                        *reset_arg;
 };
 
-cbool_t validate_execution_type(enum event_execution exec_type)
+bool validate_execution_type(enum event_execution exec_type)
 {
     if (exec_type > EVENT_EXEC_UNLIMITED)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-cbool_t validate_validation_type(enum event_validation val)
+bool validate_validation_type(enum event_validation val)
 {
     if (val > EVENT_VAL_CUSTOM)
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-cbool_t validate_comparison_type(enum event_comparison_type cmp_type)
+bool validate_comparison_type(enum event_comparison_type cmp_type)
 {
     if ((cmp_type != EVENT_CMP_AND) && (cmp_type != EVENT_CMP_OR))
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
-cbool_t validate_conditions(struct cevent_s *ev)
+bool validate_conditions(struct cevent_s *ev)
 {
     /*
      * If they are being used together, the condition lists must have,
      * mandatorily, more than one element.
      */
     if ((ev->total_or_cond == 1) || (ev->total_and_cond == 1))
-        return CL_FALSE;
+        return false;
 
-    return CL_TRUE;
+    return true;
 }
 
 static struct event_condition_s *new_event_condition(void)
@@ -159,20 +159,20 @@ static int call_validation_function(void *a, void *b __attribute__((unused)))
     return (evc->v_function)(evc->ptr, evc->value);
 }
 
-static cbool_t or_validation(struct cevent_s *ev)
+static bool or_validation(struct cevent_s *ev)
 {
     struct event_condition_s *p = NULL;
 
     for (p = ev->evc_or; p; p = p->next)
         if (call_validation_function(p, NULL) == EVENT_VAL_RETURN_OK) {
-            /* Returns CL_TRUE on the first function that returns Ok value. */
-            return CL_TRUE;
+            /* Returns true on the first function that returns Ok value. */
+            return true;
         }
 
-    return CL_FALSE;
+    return false;
 }
 
-static cbool_t and_validation(struct cevent_s *ev)
+static bool and_validation(struct cevent_s *ev)
 {
     struct event_condition_s *ret = NULL;
 
@@ -183,15 +183,15 @@ static cbool_t and_validation(struct cevent_s *ev)
      */
     ret = cdll_map(ev->evc_and, call_validation_function, NULL);
 
-    return (ret == NULL) ? CL_TRUE : CL_FALSE;
+    return (ret == NULL) ? true : false;
 }
 
 /*
  * Call validation functions previously registered.
  */
-static cbool_t may_call_event(struct cevent_s *ev)
+static bool may_call_event(struct cevent_s *ev)
 {
-    cbool_t st_or = CL_FALSE, st_and = CL_FALSE;
+    bool st_or = false, st_and = false;
 
     pthread_mutex_lock(&ev->m_evc);
 
@@ -206,13 +206,13 @@ static cbool_t may_call_event(struct cevent_s *ev)
     /*
      * XXX: Is this the best way???
      */
-    if ((ev->total_and_cond && (st_and == CL_TRUE)) ||
-        (ev->total_or_cond && (st_or == CL_TRUE)))
+    if ((ev->total_and_cond && (st_and == true)) ||
+        (ev->total_or_cond && (st_or == true)))
     {
-        return CL_TRUE;
+        return true;
     }
 
-    return CL_FALSE;
+    return false;
 }
 
 static void call_event(struct cevent_s *ev)
@@ -229,27 +229,27 @@ static void reset_event_conditions(struct cevent_s *ev)
 static void *cevent_thread(void *param)
 {
     struct cevent_s *event;
-    cbool_t event_executed = CL_FALSE;
+    bool event_executed = false;
 
     event = (struct cevent_s *)param;
 
-    while (event_executed == CL_FALSE) {
+    while (event_executed == false) {
         cmsleep(1);
 
-        if (may_call_event(event) == CL_TRUE) {
+        if (may_call_event(event) == true) {
             call_event(event);
             reset_event_conditions(event);
-            event_executed = CL_TRUE;
+            event_executed = true;
         }
 
         /* If the event is of EVENT_EXEC_UNLIMITED type waits again. */
-        if ((event_executed == CL_TRUE) &&
+        if ((event_executed == true) &&
             (event->exec_type == EVENT_EXEC_UNLIMITED))
         {
-            event_executed = CL_FALSE;
+            event_executed = false;
         }
 
-        if (event->end_thread == CL_TRUE)
+        if (event->end_thread == true)
             break;
     }
 
@@ -370,7 +370,7 @@ cevent_t LIBEXPORT *cevent_init(enum event_execution exec, const char *name,
 
     cerrno_clear();
 
-    if (validate_execution_type(exec) == CL_FALSE) {
+    if (validate_execution_type(exec) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return NULL;
     }
@@ -389,7 +389,7 @@ cevent_t LIBEXPORT *cevent_init(enum event_execution exec, const char *name,
     ev->arg = arg;
     ev->exec_type = exec;
     ev->name = strdup(name);
-    ev->end_thread = CL_FALSE;
+    ev->end_thread = false;
     ev->reset_cond = reset_conditions;
     ev->reset_arg = reset_arg;
 
@@ -411,12 +411,12 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
         return -1;
     }
 
-    if (validate_validation_type(val) == CL_FALSE) {
+    if (validate_validation_type(val) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return -1;
     }
 
-    if (validate_comparison_type(cmp_type) == CL_FALSE) {
+    if (validate_comparison_type(cmp_type) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return -1;
     }
@@ -468,7 +468,7 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
 
     update_total_conditions(ev);
 
-    if (ev->sort == CL_TRUE)
+    if (ev->sort == true)
         sort_event_conditions(ev);
 
     return 0;
@@ -488,7 +488,7 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
         return -1;
     }
 
-    if (validate_comparison_type(cmp_type) == CL_FALSE) {
+    if (validate_comparison_type(cmp_type) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return -1;
     }
@@ -513,7 +513,7 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
     return 0;
 }
 
-int LIBEXPORT cevent_install(cevent_t *e, cbool_t sort_by_id)
+int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
 {
     struct cevent_s *ev = (struct cevent_s *)e;
     pthread_attr_t t_attr;
@@ -527,7 +527,7 @@ int LIBEXPORT cevent_install(cevent_t *e, cbool_t sort_by_id)
     }
 
     /* Checks if the conditions were correctly inserted. */
-    if (validate_conditions(ev) == CL_FALSE) {
+    if (validate_conditions(ev) == false) {
         cset_errno(CL_EVENT_CONDITIONS_WRONGLY_INITIALIZED);
         return -1;
     }
@@ -536,7 +536,7 @@ int LIBEXPORT cevent_install(cevent_t *e, cbool_t sort_by_id)
      * All condition added after calling this function will make us sort
      * the conditions list again.
      */
-    if (sort_by_id == CL_TRUE)
+    if (sort_by_id == true)
         sort_event_conditions(ev);
 
     ev->sort = sort_by_id;
@@ -571,7 +571,7 @@ int LIBEXPORT cevent_uninstall(cevent_t *e)
     }
 
     if (ev->exec_type == EVENT_EXEC_UNLIMITED) {
-        ev->end_thread = CL_TRUE;
+        ev->end_thread = true;
         pthread_join(ev->t_id, NULL);
     }
 

@@ -30,7 +30,7 @@
 
 #include <collections.h>
 
-static cbool_t __finish = CL_FALSE;
+static bool __finish = false;
 
 static void help(void)
 {
@@ -50,7 +50,7 @@ void signal_handler(int signum)
 {
     switch (signum) {
         case SIGINT:
-            __finish = CL_TRUE;
+            __finish = true;
             break;
     }
 }
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 {
     const char *opt = "htup:\0";
     int option, port = 0;
-    cbool_t tcp = CL_TRUE;
+    bool tcp = true;
     chat_t *c = NULL, *n = NULL;
     char *ptr = NULL;
     unsigned int length = 0;
@@ -73,11 +73,11 @@ int main(int argc, char **argv)
                 return 1;
 
             case 't':
-                tcp = CL_TRUE;
+                tcp = true;
                 break;
 
             case 'u':
-                tcp = CL_FALSE;
+                tcp = false;
                 break;
 
             case 'p':
@@ -94,8 +94,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    c = chat_new((tcp == CL_TRUE) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
-                 CHAT_SERVER, CL_TRUE);
+    c = chat_new((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
+                 CHAT_SERVER, true);
 
     if (NULL == c) {
         fprintf(stderr, "Error (1): %s.\n", cstrerror(cget_last_error()));
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
         goto end_block;
     }
 
-    if (tcp == CL_TRUE)
+    if (tcp == true)
         n = chat_server_start(c, 0);
     else
         n = c;
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 
     fprintf(stdout, "Client connected.\n");
 
-    while (__finish == CL_FALSE) {
+    while (__finish == false) {
         cmsleep(1);
         ptr = (char *)chat_recv(n, 0, &length);
 
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
     }
 
 end_block:
-    if ((n != NULL) && (tcp == CL_TRUE))
+    if ((n != NULL) && (tcp == true))
         chat_free(n);
 
     chat_free(c);

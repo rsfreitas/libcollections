@@ -43,7 +43,7 @@ struct cfg_line_s {
     clist_t             *next;
     struct cfg_key_s    *child;
     cstring_t           *name;
-    cvalue_t           *value;
+    cvalue_t            *value;
     cstring_t           *comment;
     enum cfg_line_type  line_type;
     char                delim;
@@ -55,9 +55,9 @@ struct cfg_file_s {
     struct cfg_line_s       *section;
 };
 
-static cbool_t is_section(const char *line)
+static bool is_section(const char *line)
 {
-    cbool_t ret = CL_TRUE;
+    bool ret = true;
     cstring_t *p, *t;
 
     p = cstring_new("%s", line);
@@ -69,7 +69,7 @@ static cbool_t is_section(const char *line)
         (cstring_at(t, 0) != '[') ||
         (cstring_at(t, cstring_length(t) - 1) != ']'))
     {
-        ret = CL_FALSE;
+        ret = false;
     }
 
     cstring_destroy(t);
@@ -371,7 +371,7 @@ static int search_section(void *a, void *b)
     if (!(s->line_type & CFG_LINE_SECTION))
         return 0;
 
-    if (is_section(n) == CL_TRUE)
+    if (is_section(n) == true)
         p = cstring_new(n);
     else
         p = cstring_new("[%s]", n);
