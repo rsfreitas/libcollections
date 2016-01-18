@@ -7,8 +7,8 @@ BUILD = $(shell grep BUILD ../include/collections.h | awk '{print $$4}')
 
 USR_DIR = /usr/local/lib
 LIBNAME = libcollections.so
-SONAME = $(LIBNAME).$(MAJOR_VERSION)
-DEST_LIBNAME = $(SONAME).$(MINOR_VERSION).$(BUILD)
+SONAME = $(LIBNAME)
+DEST_LIBNAME = $(LIBNAME).$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD)
 
 TARGET = ../bin/$(SONAME)
 TARGET_DEST = ../bin/$(DEST_LIBNAME)

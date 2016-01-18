@@ -27,7 +27,7 @@
 
 #include "collections.h"
 
-cstring_t LIBEXPORT *boolo_cstring(bool flag)
+cstring_t LIBEXPORT *cbool_to_cstring(bool flag)
 {
     cerrno_clear();
 
