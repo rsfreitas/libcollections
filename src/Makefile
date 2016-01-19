@@ -6,7 +6,8 @@ MINOR_VERSION = $(shell grep MINOR_VERSION ../include/collections.h | awk '{prin
 BUILD = $(shell grep BUILD ../include/collections.h | awk '{print $$4}')
 
 USR_DIR = /usr/local/lib
-LIBNAME = libcollections.so
+PREFIX = libcollections
+LIBNAME = $(PREFIX).so
 SONAME = $(LIBNAME)
 DEST_LIBNAME = $(LIBNAME).$(MAJOR_VERSION).$(MINOR_VERSION).$(BUILD)
 
@@ -18,8 +19,8 @@ INCLUDEDIR = -I../include
 LIBDIR = -L/usr/local/lib
 LIBS = -lpthread -lm -lrt
 
-CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -fvisibility=hidden \
-        -DLIBCOLLECTIONS_COMPILE -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
+CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
+		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
 
 CHAT_PATH = ./chat
 VPATH = ../include:.:$(CHAT_PATH)
@@ -60,7 +61,7 @@ OBJS =	\
 
 $(TARGET): $(OBJS)
 	rm -f ../bin/$(LIBNAME)*
-	$(CC) -shared -Wl,-soname,$(SONAME) -o $(TARGET_DEST) $(OBJS) $(LIBDIR) $(LIBS)
+	$(CC) -shared -Wl,-soname,$(SONAME),--version-script,$(PREFIX).sym -o $(TARGET_DEST) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean:
 	rm -f ../bin/$(LIBNAME)*
@@ -74,8 +75,8 @@ purge: clean $(TARGET)
 install:
 	cp -f $(TARGET_DEST) $(USR_DIR)
 	rm -rf $(USR_DIR)/$(LIBNAME) $(USR_DIR)/$(SONAME)
-	ln -s $(USR_DIR)/$(DEST_LIBNAME) $(USR_DIR)/$(LIBNAME)
-	ln -s $(USR_DIR)/$(DEST_LIBNAME) $(USR_DIR)/$(SONAME)
+	ln -sf $(USR_DIR)/$(DEST_LIBNAME) $(USR_DIR)/$(LIBNAME)
+	ln -sf $(USR_DIR)/$(DEST_LIBNAME) $(USR_DIR)/$(SONAME)
 
 install_headers:
 	$(shell [ ! -d /usr/local/include/cl ] && mkdir -p /usr/local/include/cl)

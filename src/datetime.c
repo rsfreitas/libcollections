@@ -97,7 +97,7 @@ static void destroy_cdatetime_s(struct cdatetime_s *dt)
         return;
 
     if (dt->tzone != NULL)
-        cstring_destroy(dt->tzone);
+        cstring_free(dt->tzone);
 
     free(dt);
 }
@@ -112,7 +112,7 @@ static bool is_GMT(struct cdatetime_s *dt)
     if (cstring_cmp(dt->tzone, s) == 0)
         ret = true;
 
-    cstring_destroy(s);
+    cstring_free(s);
 
     return ret;
 }
@@ -138,12 +138,12 @@ static void cvt_time(struct cdatetime_s *dt, bool UTC)
     dt->weekday = tm.tm_wday;
 
     if (dt->tzone != NULL)
-        cstring_destroy(dt->tzone);
+        cstring_free(dt->tzone);
 
     dt->tzone = cstring_new("%s", tm.tm_zone);
 }
 
-int LIBEXPORT cdt_destroy(cdatetime_t *dt)
+int LIBEXPORT cdt_free(cdatetime_t *dt)
 {
     struct cdatetime_s *t = (struct cdatetime_s *)dt;
 
@@ -830,10 +830,10 @@ cdatetime_t LIBEXPORT *cdt_string_mktime(const cstring_t *datetime)
         day = cstring_value_as_int(cstring_list_get(ld, 2));
     }
 
-    cstring_list_destroy(lt);
-    cstring_list_destroy(ld);
-    cstring_list_destroy(l);
-    cstring_destroy(d);
+    cstring_list_free(lt);
+    cstring_list_free(ld);
+    cstring_list_free(l);
+    cstring_free(d);
     cstring_unref(s);
 
     return cdt_mktime(year, month, day, hour, min, sec);
@@ -1112,7 +1112,7 @@ enum cweekday LIBEXPORT cdt_current_weekday(void)
         return -1;
 
     w = cdt_weekday(dt);
-    cdt_destroy(dt);
+    cdt_free(dt);
 
     return w;
 }
@@ -1129,7 +1129,7 @@ enum cmonth LIBEXPORT cdt_current_month(void)
         return -1;
 
     m = cdt_month(dt);
-    cdt_destroy(dt);
+    cdt_free(dt);
 
     return m;
 }
@@ -1175,7 +1175,7 @@ static struct ctimeout_s *new_ctimeout_s(unsigned int interval,
     t = calloc(1, sizeof(struct ctimeout_s));
 
     if (NULL == t) {
-        cdt_destroy(dt);
+        cdt_free(dt);
         cset_errno(CL_NO_MEM);
         return NULL;
     }
@@ -1193,12 +1193,12 @@ static void destroy_ctimeout_s(struct ctimeout_s *t)
         return;
 
     if (t->dt != NULL)
-        cdt_destroy(t->dt);
+        cdt_free(t->dt);
 
     free(t);
 }
 
-ctimeout_t LIBEXPORT *cdt_inic_timeout(unsigned int interval,
+ctimeout_t LIBEXPORT *cdt_timeout_new(unsigned int interval,
    enum ctimeout precision)
 {
     struct ctimeout_s *t;
@@ -1212,7 +1212,7 @@ ctimeout_t LIBEXPORT *cdt_inic_timeout(unsigned int interval,
     return t;
 }
 
-int LIBEXPORT cdt_destroy_timeout(ctimeout_t *t)
+int LIBEXPORT cdt_timeout_free(ctimeout_t *t)
 {
     struct ctimeout_s *ct = (struct ctimeout_s *)t;
 
@@ -1228,7 +1228,7 @@ int LIBEXPORT cdt_destroy_timeout(ctimeout_t *t)
     return 0;
 }
 
-int LIBEXPORT cdt_reset_timeout(ctimeout_t *t, unsigned int interval,
+int LIBEXPORT cdt_timeout_reset(ctimeout_t *t, unsigned int interval,
     enum ctimeout precision)
 {
     struct ctimeout_s *ct = (struct ctimeout_s *)t;
@@ -1241,7 +1241,7 @@ int LIBEXPORT cdt_reset_timeout(ctimeout_t *t, unsigned int interval,
     }
 
     if (ct->dt != NULL)
-        cdt_destroy(ct->dt);
+        cdt_free(ct->dt);
 
     ct->dt = cdt_localtime();
 
@@ -1254,7 +1254,7 @@ int LIBEXPORT cdt_reset_timeout(ctimeout_t *t, unsigned int interval,
     return 0;
 }
 
-bool LIBEXPORT cdt_expired_timeout(const ctimeout_t *t)
+bool LIBEXPORT cdt_timeout_expired(const ctimeout_t *t)
 {
     struct ctimeout_s *ct = (struct ctimeout_s *)t;
     struct timeval tv;

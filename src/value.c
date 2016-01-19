@@ -107,7 +107,7 @@ static void destroy_cvalue_s(const struct ref_s *ref)
         free_value_data(o);
 
     if (o->specs != NULL)
-        cspec_destroy(o->specs);
+        cspec_free(o->specs);
 
     free(o);
 }
@@ -435,7 +435,7 @@ cvalue_t LIBEXPORT *cvalue_new_with_spec(enum cl_type type, cspec_t *spec)
     return o;
 }
 
-int LIBEXPORT cvalue_destroy(cvalue_t *value)
+int LIBEXPORT cvalue_free(cvalue_t *value)
 {
     return cvalue_unref(value);
 }

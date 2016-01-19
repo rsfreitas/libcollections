@@ -85,14 +85,14 @@ cdatetime_t *cdt_localtime(void);
 cdatetime_t *cdt_gmtime(void);
 
 /**
- * @name cdt_destroy
+ * @name cdt_free
  * @brief Releases a cdatetime_t object from memory.
  *
  * @param [in,out] dt: The cdatetime_t object which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cdt_destroy(cdatetime_t *dt);
+int cdt_free(cdatetime_t *dt);
 
 /**
  * @name cdt_day
@@ -243,7 +243,7 @@ cstring_t *cdt_month_of_year(const cdatetime_t *dt, bool full);
 cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
 
 /**
- * @name cdt_printf
+ * @name cdt_to_string
  * @brief Gets the date and time in a specific string format.
  *
  * Supported formats:
@@ -278,7 +278,7 @@ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
  * @return On success returns a cstring_t object containing date and time with
  *         the requested format.
  */
-cstring_t *cdt_printf(const cdatetime_t *dt, const char *fmt);
+cstring_t *cdt_to_string(const cdatetime_t *dt, const char *fmt);
 
 /**
  * @name cdt_dup
@@ -551,7 +551,7 @@ bool cdt_is_local_dst(void);
 bool cdt_is_leap_year(void);
 
 /**
- * @name cdt_inic_timeout
+ * @name cdt_timeout_new
  * @brief Starts a timeout verification with a specific precision.
  *
  * @param [in] interval: Timeout expiration interval.
@@ -560,20 +560,20 @@ bool cdt_is_leap_year(void);
  * @return On success returns a ctimeout_t object with the timeout info or
  *         NULL otherwise.
  */
-ctimeout_t *cdt_inic_timeout(unsigned int interval, enum ctimeout precision);
+ctimeout_t *cdt_timeout_new(unsigned int interval, enum ctimeout precision);
 
 /**
- * @name cdt_destroy_timeout
+ * @name cdt_timeout_free
  * @brief Releases a ctimeout_t object from memory.
  *
  * @param [in] t: The ctimeout_t object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cdt_destroy_timeout(ctimeout_t *t);
+int cdt_timeout_free(ctimeout_t *t);
 
 /**
- * @name cdt_reset_timeout
+ * @name cdt_timeout_reset
  * @brief Resets a ctimeout_t object info.
  *
  * @param [in,out] t: The ctimeout_t object.
@@ -582,18 +582,18 @@ int cdt_destroy_timeout(ctimeout_t *t);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cdt_reset_timeout(ctimeout_t *t, unsigned int interval,
+int cdt_timeout_reset(ctimeout_t *t, unsigned int interval,
                       enum ctimeout precision);
 
 /**
- * @name cdt_expired_timeout
+ * @name cdt_timeout_expired
  * @brief Checks whether a timeout has expired or not.
  *
  * @param [in] t: The ctimeout_t object.
  *
  * @return Returns true or false if the timeout had expired or not.
  */
-bool cdt_expired_timeout(const ctimeout_t *t);
+bool cdt_timeout_expired(const ctimeout_t *t);
 
 #endif
 

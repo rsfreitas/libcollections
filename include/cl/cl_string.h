@@ -59,7 +59,7 @@ cstring_t *cstring_new(const char *fmt, ...);
 cstring_t *cstring_new_ex(unsigned int size);
 
 /**
- * @name cstring_random
+ * @name cstring_new_random
  * @brief Creates a cstring_t object containing random letters.
  *
  * @param [in] size: Size of the newly created string.
@@ -67,17 +67,17 @@ cstring_t *cstring_new_ex(unsigned int size);
  * @return On success the cstring_t object will be returned. Returns NULL
  *         otherwise.
  */
-cstring_t *cstring_random(unsigned int size);
+cstring_t *cstring_new_random(unsigned int size);
 
 /**
- * @name cstring_destroy
+ * @name cstring_free
  * @brief Frees a cstring_t object from memory.
  *
  * @param [in,out] string The cstring_t object that will be released.
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cstring_destroy(cstring_t *string);
+int cstring_free(cstring_t *string);
 
 /**
  * @name cstring_length

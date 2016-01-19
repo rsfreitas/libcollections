@@ -54,14 +54,14 @@ cspec_t *cspec_new(enum cl_param_flags properties, cvalue_t *min, cvalue_t *max,
                    unsigned int max_length);
 
 /**
- * @name cspec_destroy
+ * @name cspec_free
  * @brief Releases a cspec_t object from memory.
  *
  * @param [in,out] spec: The cspec_t object which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cspec_destroy(cspec_t *spec);
+int cspec_free(cspec_t *spec);
 
 /**
  * @name cspec_validate

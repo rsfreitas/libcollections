@@ -112,13 +112,13 @@ static void destroy_counter_s(const struct ref_s *ref)
         return;
 
     if (c->cnt != NULL)
-        cvalue_destroy(c->cnt);
+        cvalue_free(c->cnt);
 
     if (c->min != NULL)
-        cvalue_destroy(c->min);
+        cvalue_free(c->min);
 
     if (c->max != NULL)
-        cvalue_destroy(c->max);
+        cvalue_free(c->max);
 }
 
 static struct counter_s *new_counter_s(enum counter_precision precision, long long min,
@@ -179,13 +179,13 @@ int LIBEXPORT counter_unref(counter_t *c)
     return 0;
 }
 
-counter_t LIBEXPORT *counter_create(enum counter_precision precision,
+counter_t LIBEXPORT *counter_new(enum counter_precision precision,
     long long min, long long max, long long start_value, bool circular)
 {
     return new_counter_s(precision, min, max, start_value, circular);
 }
 
-int LIBEXPORT counter_destroy(counter_t *c)
+int LIBEXPORT counter_free(counter_t *c)
 {
     return counter_unref(c);
 }

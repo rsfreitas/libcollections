@@ -86,7 +86,7 @@ cspec_t LIBEXPORT *cspec_new(enum cl_param_flags properties,
     return new_spec_s(properties, min, max, max_length);
 }
 
-int LIBEXPORT cspec_destroy(cspec_t *spec)
+int LIBEXPORT cspec_free(cspec_t *spec)
 {
     cerrno_clear();
 

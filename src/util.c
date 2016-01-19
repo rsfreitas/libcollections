@@ -50,7 +50,7 @@ char LIBEXPORT *cbool_to_c_string(bool flag)
         return NULL;
 
     t = strdup(cstring_valueof(s));
-    cstring_destroy(s);
+    cstring_free(s);
 
     return t;
 }

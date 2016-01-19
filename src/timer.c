@@ -506,7 +506,7 @@ static int wait_for_timer_to_end(struct ctimer_s *timer)
     ctimeout_t *t;
     int ret = 0;
 
-    t = cdt_inic_timeout(timer->tid.finish_timeout, CL_TM_MSECONDS);
+    t = cdt_timeout_new(timer->tid.finish_timeout, CL_TM_MSECONDS);
 
     while (1) {
         if (timer->state == TIMER_ST_WAITING) {
@@ -514,13 +514,13 @@ static int wait_for_timer_to_end(struct ctimer_s *timer)
             break;
         }
 
-        if (cdt_expired_timeout(t) == true) {
+        if (cdt_timeout_expired(t) == true) {
             ret = 1;
             break;
         }
     }
 
-    cdt_destroy_timeout(t);
+    cdt_timeout_free(t);
 
     return ret;
 }

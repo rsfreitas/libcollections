@@ -123,10 +123,10 @@ static void __cjson_delete(void *a)
         cdll_free(c->child, __cjson_delete);
 
     if (!(c->type & CJSON_IS_REFERENCE) && c->value)
-        cstring_destroy(c->value);
+        cstring_free(c->value);
 
     if (c->name)
-        cstring_destroy(c->name);
+        cstring_free(c->name);
 
     free(c);
 }
@@ -589,7 +589,7 @@ cjson_t LIBEXPORT *cjson_read_file(const char *filename)
     s = cstring_new("%s", b);
     cfunload(b);
     j = cjson_parse(s);
-    cstring_destroy(s);
+    cstring_free(s);
 
     return j;
 }
@@ -614,7 +614,7 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
     ret = cfsave(filename, (unsigned char *)cstring_valueof(s),
                  cstring_length(s));
 
-    cstring_destroy(s);
+    cstring_free(s);
 
     return ret;
 }
@@ -1002,7 +1002,7 @@ int LIBEXPORT cjson_add_item_to_object(cjson_t *root, const char *name,
     }
 
     if (n->name != NULL)
-        cstring_destroy(n->name);
+        cstring_free(n->name);
 
     n->name = cstring_new(name);
     r->child = cdll_unshift(r->child, n);
@@ -1016,7 +1016,7 @@ static cjson_t *create_reference(struct cjson_s *item)
 
     ref = __dup(item);
 
-    cstring_destroy(ref->name);
+    cstring_free(ref->name);
     ref->type |= CJSON_IS_REFERENCE;
     ref->next = ref->prev = 0;
 
@@ -1314,7 +1314,7 @@ static char *print_array(struct cjson_s *item, int depth, bool fmt)
         ptr = print_value(child, depth + 1, fmt);
 
         if (NULL == ptr) {
-            cstring_list_destroy(sl);
+            cstring_list_free(sl);
             return NULL;
         }
 
@@ -1327,8 +1327,8 @@ static char *print_array(struct cjson_s *item, int depth, bool fmt)
 
     v = output_array(sl, fmt);
     ptr = strdup(cstring_valueof(v));
-    cstring_destroy(v);
-    cstring_list_destroy(sl);
+    cstring_free(v);
+    cstring_list_free(sl);
 
     return ptr;
 }
@@ -1418,8 +1418,8 @@ static char *print_object(struct cjson_s *item, int depth, bool fmt)
     cstring_unref(v);
 
 end_block:
-    cstring_list_destroy(sl_names);
-    cstring_list_destroy(sl_values);
+    cstring_list_free(sl_names);
+    cstring_list_free(sl_values);
 
     return ptr;
 

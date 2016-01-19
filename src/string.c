@@ -110,7 +110,7 @@ int LIBEXPORT cstring_unref(cstring_t *string)
 /*
  * Frees a cstring_t object from memory.
  */
-int LIBEXPORT cstring_destroy(cstring_t *string)
+int LIBEXPORT cstring_free(cstring_t *string)
 {
     return cstring_unref(string);
 }
@@ -159,7 +159,7 @@ cstring_t LIBEXPORT *cstring_new_ex(unsigned int size)
 
     if (NULL == string->str) {
         cset_errno(CL_NO_MEM);
-        cstring_destroy(string);
+        cstring_free(string);
         return NULL;
     }
 
@@ -169,7 +169,7 @@ cstring_t LIBEXPORT *cstring_new_ex(unsigned int size)
 /*
  * Creates a cstring_t object containing random letters.
  */
-cstring_t LIBEXPORT *cstring_random(unsigned int size)
+cstring_t LIBEXPORT *cstring_new_random(unsigned int size)
 {
     struct cstring_s *p = NULL;
     unsigned int i;
@@ -632,7 +632,7 @@ cstring_t LIBEXPORT *cstring_alltrim(const cstring_t *string)
         return NULL;
 
     p = cstring_rtrim(o);
-    cstring_destroy(o);
+    cstring_free(o);
 
     if (NULL == p)
         return NULL;

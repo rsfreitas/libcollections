@@ -48,14 +48,14 @@
 cvalue_t *cvalue_new(enum cl_type type, ...);
 
 /**
- * @name cvalue_destroy
+ * @name cvalue_free
  * @brief Releases a cvalue_t from memory.
  *
  * @param [in,out] value: The cvalue_t which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cvalue_destroy(cvalue_t *value);
+int cvalue_free(cvalue_t *value);
 
 /**
  * @name cvalue_sizeof

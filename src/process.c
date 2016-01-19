@@ -98,7 +98,7 @@ static char **cvt_cmd(const char *cmd)
 
     s = cstring_new("%s", cmd);
     l = cstring_split(s, " ");
-    cstring_destroy(s);
+    cstring_free(s);
     size = cstring_list_size(l);
     app_argv = calloc(size + FIXED_ARGS + 1, sizeof(char *));
 
@@ -112,7 +112,7 @@ static char **cvt_cmd(const char *cmd)
     }
 
     app_argv[size + FIXED_ARGS + 1] = NULL;
-    cstring_list_destroy(l);
+    cstring_list_free(l);
 
     return app_argv;
 }

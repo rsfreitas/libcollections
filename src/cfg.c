@@ -62,7 +62,7 @@ static bool is_section(const char *line)
 
     p = cstring_new("%s", line);
     t = cstring_alltrim(p);
-    cstring_destroy(p);
+    cstring_free(p);
 
     if ((cstring_cchr(t, '[') != 1) ||
         (cstring_cchr(t, ']') != 1) ||
@@ -72,7 +72,7 @@ static bool is_section(const char *line)
         ret = false;
     }
 
-    cstring_destroy(t);
+    cstring_free(t);
 
     return ret;
 }
@@ -94,7 +94,7 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
     if (value != NULL) {
         tmp = cstring_new(value);
         l->value = cvalue_from_string(tmp);
-        cstring_destroy(tmp);
+        cstring_free(tmp);
     }
 
     if (comment != NULL)
@@ -115,7 +115,7 @@ static void destroy_cfg_line_s(void *a)
         cstring_unref(l->comment);
 
     if (l->value != NULL)
-        cvalue_destroy(l->value);
+        cvalue_free(l->value);
 
     if (l->name != NULL)
         cstring_unref(l->name);
@@ -149,7 +149,7 @@ static void destroy_cfg_file_s(struct cfg_file_s *file)
         return;
 
     if (file->filename != NULL)
-        cstring_destroy(file->filename);
+        cstring_free(file->filename);
 
     if (file->section != NULL)
         cdll_free(file->section, destroy_cfg_line_s);
@@ -186,7 +186,7 @@ static cstring_t *get_comment(const cstring_t *s, char delim,
 
     if (list_size < 1) {
         /* Never falls here */
-        cstring_list_destroy(*list);
+        cstring_list_free(*list);
         return NULL;
     }
 
@@ -236,7 +236,7 @@ static cstring_t *get_data(const cstring_t *s, int index)
     ref = cstring_list_get(l, index);
     r = cstring_alltrim(ref);
     cstring_unref(ref);
-    cstring_list_destroy(l);
+    cstring_list_free(l);
 
     return r;
 }
@@ -305,7 +305,7 @@ end_block:
         cstring_unref(data);
 
     if (list != NULL)
-        cstring_list_destroy(list);
+        cstring_list_free(list);
 
     if (s != NULL)
         cstring_unref(s);
@@ -377,7 +377,7 @@ static int search_section(void *a, void *b)
         p = cstring_new("[%s]", n);
 
     ret = cstring_cmp(s->name, p);
-    cstring_destroy(p);
+    cstring_free(p);
 
     return (ret == 0) ? 1 : 0;
 }
@@ -394,7 +394,7 @@ static int search_key(void *a, void *b)
 
     p = cstring_new(n);
     ret = cstring_cmp(k->name, p);
-    cstring_destroy(p);
+    cstring_free(p);
 
     return (ret == 0) ? 1 : 0;
 }
@@ -440,7 +440,7 @@ static int write_line_to_file(void *a, void *b)
                             (NULL == v) ? "" : cstring_valueof(v));
 
             if (v != NULL)
-                cstring_destroy(v);
+                cstring_free(v);
 
             break;
     }
@@ -534,7 +534,7 @@ int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
     }
 
     fprintf(fp, "%s", cstring_valueof(s));
-    cstring_destroy(s);
+    cstring_free(s);
     fclose(fp);
 
     return 0;
@@ -600,10 +600,10 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
         t = cstring_new(b);
 
         if (k->value != NULL)
-            cstring_destroy(k->value);
+            cstring_free(k->value);
 
         k->value = cvalue_from_string(t);
-        cstring_destroy(t);
+        cstring_free(t);
     }
 
 end_block:
