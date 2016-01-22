@@ -9,7 +9,7 @@ LIBDIR = -L/usr/local/lib
 LIBS = -lcollections
 
 OBJECTS =	\
-			main.o
+			example.o
 
 $(TARGET): $(OBJECTS)
 	$(CC) -o $(TARGET) $(OBJECTS) $(LIBDIR) $(LIBS)

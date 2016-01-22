@@ -74,7 +74,6 @@ LIBCOLLECTIONS_0.1 {
         cdt_minus_minutes;
         cdt_minus_hours;
         cdt_plus_days;
-        cdt_plus_months;
         cdt_plus_years;
         cdt_plus_seconds;
         cdt_plus_minutes;
@@ -156,6 +155,7 @@ LIBCOLLECTIONS_0.1 {
         cjson_replace_item_in_object;
         cjson_to_string;
         cmemdup;
+        collections_version;
         cprcs_daemon_start;
         csystem;
         cmsleep;

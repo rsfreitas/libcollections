@@ -918,29 +918,6 @@ cdatetime_t LIBEXPORT *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
     return ddt;
 }
 
-/*cdatetime_t LIBEXPORT *cdt_minus_months(const cdatetime_t *dt,
-    unsigned int months)
-{
-    struct cdatetime_s *ddt = NULL;
-    unsigned int n;
-
-    cerrno_clear();
-
-    if (NULL == dt) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    ddt = cdt_dup(dt);
-
-    if (NULL == ddt)
-        return NULL;
-*/
-    /* TODO */
-/*
-    return ddt;
-}*/
-
 cdatetime_t LIBEXPORT *cdt_minus_seconds(const cdatetime_t *dt,
     unsigned int seconds)
 {
@@ -1016,10 +993,6 @@ cdatetime_t LIBEXPORT *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
 
     return ddt;
 }
-
-/*cdatetime_t LIBEXPORT *cdt_plus_months(const cdatetime_t *dt, unsigned int months)
-{
-}*/
 
 cdatetime_t LIBEXPORT *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
 {

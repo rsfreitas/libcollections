@@ -1,6 +1,6 @@
 
 /*
- * Description: Example showing the 'cfg' API on libcollections.
+ * Description: Example showing the 'cfg' API from libcollections.
  *
  * Author: Rodrigo Freitas
  * Created at: Sun Dec 20 20:05:48 2015

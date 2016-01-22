@@ -55,3 +55,13 @@ char LIBEXPORT *cbool_to_c_string(bool flag)
     return t;
 }
 
+char LIBEXPORT *collections_version(void)
+{
+    char *s = NULL;
+
+    if (asprintf(&s, "%d.%d.%d", MAJOR_VERSION, MINOR_VERSION, BUILD) < 0)
+        return NULL;
+
+    return s;
+}
+

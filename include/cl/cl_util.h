@@ -32,8 +32,36 @@
 # endif
 #endif
 
+/**
+ * @name cbool_to_cstring
+ * @brief Converts a bool type to a cstring_t text object.
+ *
+ * @param [in] flag: The bool value.
+ *
+ * @return On success returns a cstring_t object containing a string with 'true'
+ *         or 'false' according to \a flag value or NULL otherwise.
+ */
 cstring_t *cbool_to_cstring(bool flag);
+
+/**
+ * @name cbool_to_c_string
+ * @brief Converts a bool type to a C string type (char *).
+ *
+ * @param [in] flag: The bool value.
+ *
+ * @return On success returns a char * containing a string with 'true' or 'false'
+ *         according to \a flag value or NULL otherwise.
+ */
 char *cbool_to_c_string(bool flag);
+
+/**
+ * @name collections_version
+ * @brief Gets a string with the library version.
+ *
+ * @return On success returns a char * containing the library version or NULL
+ *         otherwise.
+ */
+char *collections_version(void);
 
 #endif
 
