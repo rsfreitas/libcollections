@@ -33,7 +33,8 @@
 #include "chat/chat.h"
 
 /*
- * TODO: Save client info on the server side
+ * TODO: Save client info on the server side.
+ *       Export fd info to use with polling functions.
  */
 
 /* IPCs methods */

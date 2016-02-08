@@ -52,6 +52,7 @@ struct ref_s {
 
 inline void ref_inc(const struct ref_s *ref);
 inline void ref_dec(const struct ref_s *ref);
+inline bool ref_bool_compare(const struct ref_s *ref, int old, int new);
 
 /* value.c */
 void cvalue_set_char(cvalue_t *value, char c);

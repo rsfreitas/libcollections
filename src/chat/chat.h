@@ -113,13 +113,13 @@ struct chat_s {
     drv_data_t                  *drv_data;
 };
 
-/* common.h */
+/* chat_misc.c */
 struct chat_data_s *new_chat_data_s(unsigned int data_size);
 void destroy_chat_data_s(struct chat_data_s *data);
 bool has_data_to_receive(int fd, int seconds);
 
 /** Communication driver */
-/* drv_raw_socket.h */
+/* drv_raw_socket.c */
 struct chat_data_s *raw_socket_prepare_to_send(drv_data_t *drv_data, void *data,
                                                unsigned int data_size);
 

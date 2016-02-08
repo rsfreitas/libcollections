@@ -23,15 +23,23 @@ CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
 
 CHAT_PATH = ./chat
-VPATH = ../include:.:$(CHAT_PATH)
+PLUGIN_PATH = ./plugin
+VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH)
 
 CHAT_OBJS =	\
-	chat_misc.o			\
+	chat_misc.o		\
 	drv_raw_socket.o	\
-	ipc_tcp.o			\
+	ipc_tcp.o		\
 	ipc_udp.o
 
-PLUGIN_OBJS =
+PLUGIN_OBJS =	\
+	api_parser.o		\
+	call.o			\
+	dl.o			\
+	dl_c.o			\
+	info.o			\
+	plugin_misc.o		\
+	rv.o
 
 OBJS =	\
 	$(CHAT_OBJS)	\

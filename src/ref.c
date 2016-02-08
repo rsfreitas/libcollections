@@ -40,3 +40,8 @@ inline void ref_dec(const struct ref_s *ref)
         (ref->free)(ref);
 }
 
+inline bool ref_bool_compare(const struct ref_s *ref, int old, int new)
+{
+    return __sync_bool_compare_and_swap((int *)&ref->count, old, new);
+}
+

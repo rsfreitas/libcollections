@@ -1,0 +1,299 @@
+
+/*
+ * Description:
+ *
+ * Author: Rodrigo Freitas
+ * Created at: Sat Dec 12 18:34:01 BRST 2015
+ * Project: libcollections
+ *
+ * Copyright (C) 2015 Rodrigo Freitas
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "collections.h"
+#include "plugin.h"
+
+struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,
+    uint32_t caller_id)
+{
+    struct cplugin_fdata_s *f = NULL;
+
+    f = calloc(1, sizeof(struct cplugin_fdata_s));
+
+    if (NULL == f) {
+        cset_errno(CL_NO_MEM);
+        return NULL;
+    }
+
+    if (name != NULL)
+        f->name = strdup(name);
+
+    f->type = type;
+    f->caller_id = caller_id;
+    f->value = NULL;
+
+    return f;
+}
+
+void destroy_cplugin_fdata_s(void *a)
+{
+    struct cplugin_fdata_s *fdata = (struct cplugin_fdata_s *)a;
+
+    if (NULL == fdata)
+        return;
+
+    if (fdata->value != NULL)
+        cvalue_free(fdata->value);
+
+    if (fdata->name != NULL)
+        free(fdata->name);
+
+    free(fdata);
+}
+
+struct cplugin_function_s *new_cplugin_function_s(const char *name,
+    enum cl_type return_value, enum cplugin_arg arg_type,
+    struct cplugin_fdata_s *args)
+{
+    struct cplugin_function_s *f = NULL;
+
+    f = calloc(1, sizeof(struct cplugin_function_s));
+
+    if (NULL == f) {
+        cset_errno(CL_NO_MEM);
+        return NULL;
+    }
+
+    f->name = strdup(name);
+    f->return_value = return_value;
+    f->type_of_args = arg_type;
+    f->args = args;
+    f->values = NULL;
+
+    pthread_mutex_init(&f->m_return_value, NULL);
+
+    return f;
+}
+
+static void destroy_cplugin_function_s(void *a)
+{
+    struct cplugin_function_s *f = (struct cplugin_function_s *)a;
+
+    if (f->args != NULL)
+        cdll_free(f->args, destroy_cplugin_fdata_s);
+
+    if (f->values != NULL)
+        cdll_free(f->values, destroy_cplugin_fdata_s);
+
+    free(f->name);
+    free(f);
+}
+
+void destroy_cplugin_function_s_list(struct cplugin_function_s *flist)
+{
+    cdll_free(flist, destroy_cplugin_function_s);
+}
+
+struct cplugin_s *new_cplugin_s(void)
+{
+    struct cplugin_s *p = NULL;
+
+    p = calloc(1, sizeof(struct cplugin_s));
+
+    if (NULL == p) {
+        cset_errno(CL_NO_MEM);
+        return NULL;
+    }
+
+    p->functions = NULL;
+
+    return p;
+}
+
+int destroy_cplugin_s(struct cplugin_s *cpl)
+{
+    if (NULL == cpl) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    if (cpl->functions != NULL)
+        cdll_free(cpl->functions, destroy_cplugin_function_s);
+
+    /* Need to free the info struct of the plugin. */
+    destroy_cplugin_info_s(cpl->info);
+
+    free(cpl);
+
+    return 0;
+}
+
+/*
+ * Compares if a specific struct 'struct cplugin_function_s' matches a
+ * function name indicated in @b.
+ */
+int search_cplugin_function_s(void *a, void *b)
+{
+    struct cplugin_function_s *f = (struct cplugin_function_s *)a;
+    char *function_name = (char *)b;
+
+    if (strcmp(f->name, function_name) == 0)
+        return 1;
+
+    return 0;
+}
+
+/*
+ * Compares if a specific struct 'struct cplugin_fdata_s' matches an argument
+ * name indicated in @b.
+ */
+int search_cplugin_fdata_s(void *a, void *b)
+{
+    struct cplugin_fdata_s *arg = (struct cplugin_fdata_s *)a;
+    char *arg_name = (char *)b;
+
+    if (strcmp(arg->name, arg_name) == 0)
+        return 1;
+
+    return 0;
+}
+
+/*
+ * Compares if a specific struct 'struct cplugin_fdata_s' matches an argument
+ * indicated in @b.
+ */
+int search_cplugin_fdata_s_by_caller_id(void *a, void *b)
+{
+    struct cplugin_fdata_s *v = (struct cplugin_fdata_s *)a;
+    unsigned int *caller_id = (unsigned int *)b;
+
+    if (v->caller_id == *caller_id)
+        return 1;
+
+    return 0;
+}
+
+struct cplugin_info_s *new_cplugin_info_s(const char *name, const char *version,
+    const char *description, const char *creator)
+{
+    struct cplugin_info_s *i = NULL;
+
+    i = calloc(1, sizeof(struct cplugin_info_s));
+
+    if (NULL == i) {
+        cset_errno(CL_NO_MEM);
+        return NULL;
+    }
+
+    i->name = strdup(name);
+    i->version = strdup(version);
+    i->description = strdup(description);
+    i->creator = strdup(creator);
+    i->api = NULL;
+
+    return i;
+}
+
+void destroy_cplugin_info_s(struct cplugin_info_s *info)
+{
+    if (info->api != NULL)
+        api_unload(info->api);
+
+    free(info->creator);
+    free(info->description);
+    free(info->version);
+    free(info->name);
+    free(info);
+}
+
+/*
+ * Raffles a random number so it can be used as a return value identification
+ * from a function, satisfied that there is no other repetead number inside.
+ */
+uint32_t random_caller_id(struct cplugin_function_s *foo)
+{
+    struct cplugin_fdata_s *p;
+    uint32_t n = 0;
+    int loop = 0;
+
+    if (NULL == foo->values)
+        return random();
+
+    do {
+        loop = 0;
+        n = random();
+
+        for (p = foo->values; p; p = p->next)
+            if (p->caller_id == n) {
+                loop = 1;
+                break;
+            }
+    } while (loop);
+
+    return n;
+}
+
+enum cplugin_plugin_type guess_plugin_type(const char *pathname __attribute__((unused)))
+{
+    /*
+     * TODO: Implement a function to define if the file pointed by
+     *       @filename is of a specific type, using maybe the 'file'
+     *       command.
+     */
+    return CPLUGIN_C;
+}
+
+enum cl_type cvt_str_to_cv(const char *rv)
+{
+    if (strcmp(rv, "int") == 0)
+        return CL_INT;
+    else if (strcmp(rv, "char") == 0)
+        return CL_CHAR;
+    else if (strcmp(rv, "float") == 0)
+        return CL_FLOAT;
+    else if (strcmp(rv, "voidp") == 0) /* FIXME: rename it */
+        return CL_POINTER;
+    else if (strcmp(rv, "uint") == 0)
+        return CL_UINT;
+
+    return CL_VOID;
+}
+
+cvalue_t *get_arg_value(const cplugin_arg_t *arg, const char *arg_name)
+{
+    struct cplugin_fdata_s *p = NULL;
+
+    cerrno_clear();
+
+    if ((NULL == arg) || (NULL == arg_name)) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    p = cdll_map((void *)arg, search_cplugin_fdata_s, (char *)arg_name);
+
+    if (NULL == p) {
+        cset_errno(CL_NULL_DATA);
+        return NULL;
+    }
+
+    return p->value;
+}
+

@@ -3,7 +3,7 @@ A C library with some generic collections, strings and a few more...
 
 ## License
 
-GPLv2
+LGPLv2
 
 ## Contents
 

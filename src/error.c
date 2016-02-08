@@ -72,7 +72,16 @@ static const char *__cdescriptions[] = {
     "Not able to process received data",
     "Wrong type",
     "Set value failed",
-    "Invalid value"
+    "Invalid value",
+    "File not found",
+    "Plugin information loading error",
+    "Plugin information uninit error",
+    "Function not found",
+    "Function symbol not found",
+    "Plugin informations not found",
+    "Plugin information symbole not found",
+    "Plugin startup error",
+    "Plugin shutdown error"
 };
 
 static const char *__cunknown_error = "Unknown error";

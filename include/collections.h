@@ -30,7 +30,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          1
-# define BUILD                  5
+# define BUILD                  6
 #endif
 
 #include <cl/cl_types.h>
@@ -45,6 +45,8 @@
 #include <cl/cl_io.h>
 #include <cl/cl_json.h>
 #include <cl/cl_mem.h>
+#include <cl/cl_plugin_macros.h>
+#include <cl/cl_plugin.h>
 #include <cl/cl_process.h>
 #include <cl/cl_random.h>
 #include <cl/cl_specs.h>
