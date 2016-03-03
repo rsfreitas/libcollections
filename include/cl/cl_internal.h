@@ -55,6 +55,7 @@ inline void ref_dec(const struct ref_s *ref);
 inline bool ref_bool_compare(const struct ref_s *ref, int old, int new);
 
 /* value.c */
+bool validate_cl_type(enum cl_type type);
 void cvalue_set_char(cvalue_t *value, char c);
 void cvalue_set_uchar(cvalue_t *value, unsigned char uc);
 void cvalue_set_int(cvalue_t *value, int i);

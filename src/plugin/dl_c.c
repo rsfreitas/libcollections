@@ -47,7 +47,7 @@ void c_library_uninit(void)
     /* noop */
 }
 
-struct cplugin_info_s *c_dl_load_info(void *handle)
+static struct cplugin_entry_s *call_entry_symbol(void *handle)
 {
     struct cplugin_entry_s *(*pl_foo)(void), *entry = NULL;
     char *error = NULL;
@@ -65,6 +65,18 @@ struct cplugin_info_s *c_dl_load_info(void *handle)
         cset_errno(CL_NO_PLUGIN_INFO);
         return NULL;
     }
+
+    return entry;
+}
+
+cplugin_info_t *c_load_info(void *handle)
+{
+    struct cplugin_entry_s *entry;
+
+    entry = call_entry_symbol(handle);
+
+    if (NULL == entry)
+        return NULL;
 
     return info_create_from_entry(entry);
 }
@@ -96,7 +108,7 @@ int c_load_functions(struct cplugin_function_s *flist, void *handle)
     return 0;
 }
 
-void *c_dl_open(const char *pathname)
+void *c_open(const char *pathname)
 {
 #ifdef DEBUG_LIBCOLLECTIONS
     void *p;
@@ -112,39 +124,50 @@ void *c_dl_open(const char *pathname)
 #endif
 }
 
-int c_dl_close(void *handle)
+int c_close(void *handle)
 {
     return dlclose(handle);
 }
 
-void c_dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
+void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
     struct cplugin_s *cpl)
 {
     (foo->p)(caller_id, cpl, foo->args);
 }
 
-cplugin_internal_data_t *c_plugin_startup(struct cplugin_info_s *info)
+cplugin_internal_data_t *c_plugin_startup(void *handle)
 {
     cplugin_internal_data_t *(*foo)(CPLUGIN_STARTUP_ARGS)=NULL;
+    struct cplugin_entry_s *entry;
 
-    foo = info->startup;
+    entry = call_entry_symbol(handle);
+
+    if (NULL == entry)
+        return NULL;
+
+    foo = entry->startup;
 
     /*
      * If the startup function is not found returns a valid pointer so we
      * prevent later errors, since this is not a mandatory function.
      */
     if (NULL == foo)
-        return info;
+        return handle;
 
     return (foo)();
 }
 
-int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata,
-    struct cplugin_info_s *info)
+int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata, void *handle)
 {
     int (*foo)(CPLUGIN_SHUTDOWN_ARGS)=NULL;
+    struct cplugin_entry_s *entry;
 
-    foo = info->shutdown;
+    entry = call_entry_symbol(handle);
+
+    if (NULL == entry)
+        return -1;
+
+    foo = entry->shutdown;
 
     if (NULL == foo)
         return 0;

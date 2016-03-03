@@ -138,7 +138,7 @@ int destroy_cplugin_s(struct cplugin_s *cpl)
         cdll_free(cpl->functions, destroy_cplugin_function_s);
 
     /* Need to free the info struct of the plugin. */
-    destroy_cplugin_info_s(cpl->info);
+    info_unref(cpl->info);
 
     free(cpl);
 
@@ -190,39 +190,6 @@ int search_cplugin_fdata_s_by_caller_id(void *a, void *b)
     return 0;
 }
 
-struct cplugin_info_s *new_cplugin_info_s(const char *name, const char *version,
-    const char *description, const char *creator)
-{
-    struct cplugin_info_s *i = NULL;
-
-    i = calloc(1, sizeof(struct cplugin_info_s));
-
-    if (NULL == i) {
-        cset_errno(CL_NO_MEM);
-        return NULL;
-    }
-
-    i->name = strdup(name);
-    i->version = strdup(version);
-    i->description = strdup(description);
-    i->creator = strdup(creator);
-    i->api = NULL;
-
-    return i;
-}
-
-void destroy_cplugin_info_s(struct cplugin_info_s *info)
-{
-    if (info->api != NULL)
-        api_unload(info->api);
-
-    free(info->creator);
-    free(info->description);
-    free(info->version);
-    free(info->name);
-    free(info);
-}
-
 /*
  * Raffles a random number so it can be used as a return value identification
  * from a function, satisfied that there is no other repetead number inside.
@@ -258,22 +225,6 @@ enum cplugin_plugin_type guess_plugin_type(const char *pathname __attribute__((u
      *       command.
      */
     return CPLUGIN_C;
-}
-
-enum cl_type cvt_str_to_cv(const char *rv)
-{
-    if (strcmp(rv, "int") == 0)
-        return CL_INT;
-    else if (strcmp(rv, "char") == 0)
-        return CL_CHAR;
-    else if (strcmp(rv, "float") == 0)
-        return CL_FLOAT;
-    else if (strcmp(rv, "voidp") == 0) /* FIXME: rename it */
-        return CL_POINTER;
-    else if (strcmp(rv, "uint") == 0)
-        return CL_UINT;
-
-    return CL_VOID;
 }
 
 cvalue_t *get_arg_value(const cplugin_arg_t *arg, const char *arg_name)

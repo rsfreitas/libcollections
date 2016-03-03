@@ -64,7 +64,7 @@ void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type)
 
     switch (plugin_type) {
         case CPLUGIN_C:
-            p = c_dl_open(pathname);
+            p = c_open(pathname);
             break;
     }
 
@@ -83,7 +83,7 @@ int dl_close(void *handle, enum cplugin_plugin_type plugin_type)
 
     switch (plugin_type) {
         case CPLUGIN_C:
-            ret = c_dl_close(handle);
+            ret = c_close(handle);
             break;
     }
 
@@ -116,7 +116,7 @@ struct cplugin_info_s *dl_load_info(void *handle,
 
     switch (plugin_type) {
         case CPLUGIN_C:
-            info = c_dl_load_info(handle);
+            info = c_load_info(handle);
             break;
     }
 
@@ -127,12 +127,12 @@ struct cplugin_info_s *dl_load_info(void *handle,
  * Call the plugin startup function. It should return 0 on success or something
  * different otherwise.
  */
-cplugin_internal_data_t *dl_plugin_startup(void *handle __attribute__((unused)),
-    enum cplugin_plugin_type plugin_type, struct cplugin_info_s *info)
+cplugin_internal_data_t *dl_plugin_startup(void *handle,
+    enum cplugin_plugin_type plugin_type)
 {
     switch (plugin_type) {
         case CPLUGIN_C:
-            return c_plugin_startup(info);
+            return c_plugin_startup(handle);
     }
 
     return NULL;
@@ -146,7 +146,7 @@ int dl_plugin_shutdown(struct cplugin_s *cpl)
 {
     switch (cpl->type) {
         case CPLUGIN_C:
-            return c_plugin_shutdown(cpl->idata, cpl->info);
+            return c_plugin_shutdown(cpl->idata, cpl->handle);
     }
 
     return -1;
@@ -157,7 +157,7 @@ void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
 {
     switch (cpl->type) {
         case CPLUGIN_C:
-            c_dl_call(foo, caller_id, cpl);
+            c_call(foo, caller_id, cpl);
             break;
     }
 }

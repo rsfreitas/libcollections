@@ -43,6 +43,8 @@
 # define CPLUGIN_EXTERN_C()
 #endif
 
+#define OBJEXPORT               __attribute__((visibility("default")))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,15 +58,14 @@ extern "C" {
 
 /* Macro to identify an exported plugin function */
 #define CPLUGIN_OBJECT_EXPORT(foo)              \
-    CPLUGIN_EXTERN_C() void LIBEXPORT foo(uint32_t caller_id, cplugin_t *cpl, \
+    CPLUGIN_EXTERN_C() void OBJEXPORT foo(uint32_t caller_id, cplugin_t *cpl, \
                                           cplugin_arg_t *args)
 
-/* TODO: Rename to CPLUGIN_SET_RETURN_VALUE ??? */
 /*
  * Macro to set the return value from an exported plugin function. To be used
  * instead of a 'return' call.
  */
-#define CPLUGIN_RETURN_VALUE(type, arg...)      \
+#define CPLUGIN_SET_RETURN_VALUE(type, arg...)      \
     cplugin_set_return_value(cpl, __FUNCTION__, caller_id, type, ## arg)
 
 /*
@@ -72,7 +73,7 @@ extern "C" {
  * it.
  */
 #define CPLUGIN_SET_PLUGIN_ENTRY_NAME(name)                \
-    CPLUGIN_EXTERN_C() struct cplugin_entry_s LIBEXPORT *cplugin_set_plugin_entry_name(void)\
+    CPLUGIN_EXTERN_C() struct cplugin_entry_s OBJEXPORT *cplugin_set_plugin_entry_name(void)\
     {\
         return &name##_plugin_entry;\
     }\
@@ -82,36 +83,36 @@ extern "C" {
  * function.
  */
 /* int */
-#define CPLUGIN_GET_ARG_i(arg_name)             \
-    cplugin_get_arg_i(args, arg_name)
+#define CPLUGIN_ARG_i(arg_name)             \
+    cplugin_arg_i(args, arg_name)
 
 /* unsigned int */
-#define CPLUGIN_GET_ARG_ui(arg_name)            \
-    cplugin_get_arg_ui(args, arg_name)
+#define CPLUGIN_ARG_ui(arg_name)            \
+    cplugin_arg_ui(args, arg_name)
 
 /* char */
-#define CPLUGIN_GET_ARG_c(arg_name)             \
-    cplugin_get_arg_c(args, arg_name)
+#define CPLUGIN_ARG_c(arg_name)             \
+    cplugin_arg_c(args, arg_name)
 
 /* unsigned char */
-#define CPLUGIN_GET_ARG_uc(arg_name)            \
-    cplugin_get_arg_uc(args, arg_name)
+#define CPLUGIN_ARG_uc(arg_name)            \
+    cplugin_arg_uc(args, arg_name)
 
 /* char * */
-#define CPLUGIN_GET_ARG_cp(arg_name)            \
-    cplugin_get_arg_cp(args, arg_name)
+#define CPLUGIN_ARG_cp(arg_name)            \
+    cplugin_arg_cp(args, arg_name)
 
 /* unsigned char * */
-#define CPLUGIN_GET_ARG_ucp(arg_name)           \
-    cplugin_get_arg_ucp(args, arg_name)
+#define CPLUGIN_ARG_ucp(arg_name)           \
+    cplugin_arg_ucp(args, arg_name)
 
 /* void * */
-#define CPLUGIN_GET_ARG_p(arg_name)             \
-    cplugin_get_arg_p(args, arg_name)
+#define CPLUGIN_ARG_p(arg_name)             \
+    cplugin_arg_p(args, arg_name)
 
 /* float */
-#define CPLUGIN_GET_ARG_f(arg_name)             \
-    cplugin_get_arg_f(args, arg_name)
+#define CPLUGIN_ARG_f(arg_name)             \
+    cplugin_arg_f(args, arg_name)
 
 /* Macro to get the number of arguments from an exported plugin function */
 #define CPLUGIN_ARG_COUNT()                     \

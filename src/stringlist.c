@@ -24,6 +24,10 @@
  * USA
  */
 
+/*
+ * TODO: Map, foreach function to use on a cstring_list_t.
+ */
+
 #include <stdlib.h>
 
 #include "collections.h"

@@ -33,6 +33,10 @@
 # endif
 #endif
 
+/*
+ * TODO: Add function to search item in array using a key.
+ */
+
 enum cjson_type {
     CJSON_STRING,
     CJSON_NUMBER,

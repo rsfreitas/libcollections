@@ -17,7 +17,7 @@ TARGET_DEST = ../bin/$(DEST_LIBNAME)
 INCLUDEDIR = -I../include
 
 LIBDIR = -L/usr/local/lib
-LIBS = -lpthread -lm -lrt
+LIBS = -lpthread -lm -lrt -ldl
 
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)

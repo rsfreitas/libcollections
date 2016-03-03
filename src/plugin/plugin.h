@@ -57,7 +57,7 @@ enum cplugin_info {
     CPLUGIN_INFO_DESCRIPTION,
     CPLUGIN_INFO_FUNCTION_LIST,
     CPLUGIN_INFO_FUNCTION_ARG_LIST,
-    CPLUGIN_INFO_CREATOR
+    CPLUGIN_INFO_AUTHOR
 };
 
 /** Structures */
@@ -102,16 +102,34 @@ struct cplugin_s {
     struct cplugin_function_s       *functions;
 
     /* Plugin information */
-    struct cplugin_info_s           *info;
+    cplugin_info_t                  *info;
 
     /* Plugin custom internal data */
     cplugin_internal_data_t         *idata;
+
+    /* Optional startup and shutdown plugin functions */
+    cplugin_internal_data_t         *(*startup)(CPLUGIN_STARTUP_ARGS);
+    int                             (*shutdown)(CPLUGIN_SHUTDOWN_ARGS);
 };
 
 /* api_parser.c */
 cjson_t *api_load(const char *api_data);
 void api_unload(cjson_t *api);
-struct cplugin_function_s *api_parse(cjson_t *api);
+struct cplugin_function_s *api_parse(cplugin_info_t *info);
+cstring_t *api_to_string(cjson_t *api);
+cstring_list_t *api_functions(const cplugin_info_t *info);
+cstring_list_t *api_function_arguments(const cplugin_info_t *info,
+                                       const char *function_name);
+
+enum cl_type api_function_return_type(const cplugin_info_t *info,
+                                      const char *function_name);
+
+enum cplugin_arg api_function_arg_mode(const cplugin_info_t *info,
+                                       const char *function_name);
+
+enum cl_type api_function_arg_type(const cplugin_info_t *info,
+                                   const char *function_name,
+                                   const char *argument_name);
 
 /* call.c */
 int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap);
@@ -119,16 +137,15 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap);
 /* dl_c.c */
 void c_library_init(void);
 void c_library_uninit(void);
-struct cplugin_info_s *c_dl_load_info(void *handle);
+cplugin_info_t *c_load_info(void *handle);
 int c_load_functions(struct cplugin_function_s *flist, void *handle);
-void *c_dl_open(const char *pathname);
-int c_dl_close(void *handle);
-void c_dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
-               struct cplugin_s *cpl);
+void *c_open(const char *pathname);
+int c_close(void *handle);
+void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
+            struct cplugin_s *cpl);
 
-cplugin_internal_data_t *c_plugin_startup(struct cplugin_info_s *info);
-int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata,
-                      struct cplugin_info_s *info);
+cplugin_internal_data_t *c_plugin_startup(void *handle);
+int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata, void *handle);
 
 /* dl.c */
 void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type);
@@ -143,23 +160,23 @@ void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
              struct cplugin_s *cpl);
 
 cplugin_internal_data_t *dl_plugin_startup(void *handle,
-                                           enum cplugin_plugin_type plugin_type,
-                                           struct cplugin_info_s *info);
+                                           enum cplugin_plugin_type plugin_type);
 
 int dl_plugin_shutdown(struct cplugin_s *cpl);
 
 /* info.c */
-struct cplugin_info_s *info_create_from_data(const char *name,
-                                             const char *version,
-                                             const char *creator,
-                                             const char *description,
-                                             const char *api);
+cplugin_info_t *info_ref(cplugin_info_t *info);
+void info_unref(cplugin_info_t *info);
+cjson_t *info_get_api(const cplugin_info_t *info);
+char *info_get_name(const cplugin_info_t *info);
+char *info_get_version(const cplugin_info_t *info);
+char *info_get_description(const cplugin_info_t *info);
+char *info_get_author(const cplugin_info_t *info);
+cplugin_info_t *info_create_from_data(const char *name, const char *version,
+                                      const char *author, const char *description,
+                                      const char *api);
 
-struct cplugin_info_s *info_create_from_entry(struct cplugin_entry_s *entry);
-char *get_info(enum cplugin_info info, struct cplugin_s *cpl,
-               const char *function_name, char token);
-
-cjson_t *get_function_object(cjson_t *api, const char *function_name);
+cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry);
 
 /* plugin_misc.c */
 struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,
@@ -182,17 +199,11 @@ struct cplugin_list_s *new_cplugin_list_s(const char *name,
                                           enum cl_type type);
 
 void destroy_cplugin_list_s(struct cplugin_list_s *l);
-struct cplugin_info_s *new_cplugin_info_s(const char *name, const char *version,
-                                          const char *description,
-                                          const char *creator);
-
-void destroy_cplugin_info_s(struct cplugin_info_s *info);
 uint32_t random_caller_id(struct cplugin_function_s *foo);
 enum cplugin_plugin_type guess_plugin_type(const char *pathname);
 
 struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
-enum cl_type cvt_str_to_cv(const char *rv);
 cvalue_t *get_arg_value(const cplugin_arg_t *arg, const char *arg_name);
 
 /* rv.c */

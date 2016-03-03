@@ -32,6 +32,10 @@
 # endif
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * TODO: Substitute cplugin_internal_data_t for a cvalue_t.
  *       Rename cplugin_value_t to cplugin_return_value_t.
@@ -50,24 +54,13 @@ typedef struct cplugin_s            cplugin_t;
 typedef struct cplugin_fdata_s      cplugin_value_t;
 typedef struct cplugin_fdata_s      cplugin_arg_t;
 typedef void                        cplugin_internal_data_t;
-typedef struct cplugin_info_s       cplugin_info_t;
-
-/** C/C++ plugin info */
-struct cplugin_info_s {
-    char                    *name;
-    char                    *version;
-    char                    *creator;
-    char                    *description;
-    cjson_t                 *api;
-    cplugin_internal_data_t *(*startup)(CPLUGIN_STARTUP_ARGS);
-    int                     (*shutdown)(CPLUGIN_SHUTDOWN_ARGS);
-};
+typedef void                        cplugin_info_t;
 
 /** Identification of a C/C++ plugin */
 struct cplugin_entry_s {
     const char                      *name;
     const char                      *version;
-    const char                      *creator;
+    const char                      *author;
     const char                      *description;
     const char                      *api;
     cplugin_internal_data_t         *(*startup)(CPLUGIN_STARTUP_ARGS);
@@ -157,6 +150,237 @@ int cplugin_get_value_i(cplugin_value_t *v);
 void *cplugin_get_value_p(cplugin_value_t *v);
 float cplugin_get_value_f(cplugin_value_t *v);
 int cplugin_destroy_value(cplugin_value_t *v);
+
+
+// ---
+
+/**
+ * @name cplugin_load
+ * @brief Loads a plugin to the memory.
+ *
+ * The function will load a plugin to memory, pulling informations from it. If
+ * the plugin is a C or C++ plugin, it will use an internal information structure
+ * to load some informations, otherwise it will use a specific plugin API (either
+ * Python or Java) to extract these.
+ *
+ * It will look on some default Linux path to load the plugin. But the full path
+ * may also be informed with its name.
+ *
+ * By performing a successful initialization, an initialization function will be
+ * called and executed.
+ *
+ * @param [in] pathname: The plugin name (with or without its path).
+ *
+ * @return On success returns a cplugin_t object with the loaded plugin or NULL
+ *         otherwise.
+ */
+cplugin_t *cplugin_load(const char *pathname);
+
+/**
+ * @name cplugin_unload
+ * @brief Releases a plugin from memory.
+ *
+ * @param [in] cpl: The cplugin_t object from the plugin which will be
+ *                  released.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cplugin_unload(cplugin_t *cpl);
+
+/**
+ * @name cplugin_get_startup_data
+ * @brief Gets the startup function return value.
+ *
+ * This function gets a pointer to the data returned by the plugin startup
+ * function so it can be used from other plugin functions.
+ *
+ * It is recommended to use the CPLUGIN_GET_STARTUP_DATA instead of a direct
+ * call to this function.
+ *
+ * @param [in] cpl: The cplugin_t object from the loaded plugin.
+ *
+ * @return On success returns a pointer to the data that was returned by the
+ *         plugin startup function or NULL otherwise.
+ */
+cplugin_internal_data_t *cplugin_get_startup_data(cplugin_t *cpl);
+
+/**
+ * @name cplugin_get_shutdown_arg
+ * @brief Gets the value passed as argument to the shutdown plugin function.
+ *
+ * This function gets a pointer to the data passed as argument to the shutdown
+ * plugin function. The same data that was returned from the startup plugin
+ * function.
+ *
+ * It is recommended to use de CPLUGIN_GET_SHUTDOWN_ARG macro instead of a
+ * direct call to this function. And it should be called from the plugin
+ * shutdown function.
+ *
+ * @param [in] arg: The cplugin_internal_data_t object passed as argument
+ *                  to the shutdown function.
+ *
+ * @return Returns the argument from the plugin shutdown function.
+ */
+cplugin_internal_data_t *cplugin_get_shutdown_arg(cplugin_internal_data_t *arg);
+
+/**
+ * @name cplugin_info
+ * @brief Gets a pointer to an object representing all informations a plugin
+ *        may have.
+ *
+ * @param [in] cpl: The loaded plugin object.
+ *
+ * @return On success returns a cplugin_info_t object with all plugin
+ *         informations or NULL otherwise.
+ */
+cplugin_info_t *cplugin_info(const cplugin_t *cpl);
+
+/**
+ * @name cplugin_info_from_file
+ * @brief Gets a pointer to an object representing all informations a plugin
+ *        may have, directly from its file, without loading it.
+ *
+ * @param [in] pathname: The complete path and name to the plugin.
+ *
+ * @return On success returns a cplugin_info_t object with all plugin
+ *         informations or NULL otherwise.
+ */
+cplugin_info_t *cplugin_info_from_file(const char *pathname);
+
+/**
+ * @name cplugin_info_unref
+ * @brief Release a plugin info object from memory.
+ *
+ * @param [in,out] info: The plugin info object which will be released.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cplugin_info_unref(cplugin_info_t *info);
+
+/**
+ * @name cplugin_name
+ * @brief Gets the internal plugin name.
+ *
+ * @param [in] info: The plugin info object.
+ *
+ * @return On success returns a constant string with the internal plugin name
+ *         or NULL otherwise.
+ */
+const char *cplugin_name(const cplugin_info_t *info);
+
+/**
+ * @name cplugin_version
+ * @brief Gets the internal plugin version.
+ *
+ * @param [in] info: The plugin info object.
+ *
+ * @return On success returns a constant string with the internal plugin version
+ *         or NULL otherwise.
+ */
+const char *cplugin_version(const cplugin_info_t *info);
+
+/**
+ * @name cplugin_author
+ * @brief Gets the internal plugin author.
+ *
+ * @param [in] info: The plugin info object.
+ *
+ * @return On success returns a constant string with the internal plugin author
+ *         name or NULL otherwise.
+ */
+const char *cplugin_author(const cplugin_info_t *info);
+
+/**
+ * @name cplugin_description
+ * @brief Gets the internal plugin description.
+ *
+ * @param [in] info: The plugin info object.
+ *
+ * @return On success returns a constant string with the internal plugin
+ *         description or NULL otherwise.
+ */
+const char *cplugin_description(const cplugin_info_t *info);
+
+/**
+ * @name cplugin_API
+ * @brief Gets the plugin API.
+ *
+ * @param [in] info: The plugin info object.
+ *
+ * @return On success returns a cstring_t with the internal plugin API in its
+ *         original JSON format or NULL otherwise.
+ */
+cstring_t *cplugin_API(const cplugin_info_t *info);
+
+/**
+ * @name cplugin_functions
+ * @brief Gets the plugin exported function names.
+ *
+ * @param [in] info: The plugin info object.
+ *
+ * @return On success returns a cstring_list_t object with all the exported
+ *         function names from the plugin or NULL otherwise.
+ */
+cstring_list_t *cplugin_functions(const cplugin_info_t *info);
+
+/**
+ * @name cplugin_function_return_type
+ * @brief Gets the return type from an exported function.
+ *
+ * @param [in] info: The plugin info object.
+ * @param [in] function_name: The name of the function which will be sought.
+ *
+ * @return On success return the return type (as a number) from the requested
+ *         function or -1 otherwise.
+ */
+enum cl_type cplugin_function_return_type(const cplugin_info_t *info,
+                                          const char *function_name);
+
+/**
+ * @name cplugin_function_arguments
+ * @brief Gets the argument names from an exported function.
+ *
+ * @param [in] info: The plugin info object.
+ * @param [in] function_name: The name of the function which will be sought.
+ *
+ * @return On success returns a cstring_list_t object with all the argument
+ *         names from the requested function or NULL otherwise.
+ */
+cstring_list_t *cplugin_function_arguments(const cplugin_info_t *info,
+                                           const char *function_name);
+
+/**
+ * @name cplugin_function_arg_mode
+ * @brief Gets the argument mode from an exported function.
+ *
+ * @param [in] info: The plugin info object.
+ * @param [in] function_name: The name of the function which will be sought.
+ *
+ * @return On success returns the argument mode (as a number) from the requested
+ *         function or -1 otherwise.
+ */
+enum cplugin_arg cplugin_function_arg_mode(const cplugin_info_t *info,
+                                           const char *function_name);
+
+/**
+ * @name cplugin_function_arg_type
+ * @brief Gets the argument type from a specific argument from an exported
+ *        function.
+ *
+ * @param [in] info: The plugin info object.
+ * @param [in] function_name: The name of the function which will be sought.
+ * @param [in] argument_name: The argument name which will be sought.
+ *
+ * @return On success returns the argument type (as a number) from the
+ *         requested function or -1 otherwise.
+ */
+enum cl_type cplugin_function_arg_type(const cplugin_info_t *info,
+                                       const char *function_name,
+                                       const char *argument_name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

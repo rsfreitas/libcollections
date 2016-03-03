@@ -24,149 +24,92 @@
  * USA
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 #include "collections.h"
 #include "plugin.h"
 
-#define DEFAULT_TOKEN           ','
-
-/*
- * Internal structure to pass as argument while manipulating internal lists.
- */
-struct list_data {
-    cstring_t   *s;
-    char        token;
-    cjson_t     *j;
+struct info_s {
+    char                    *name;
+    char                    *version;
+    char                    *author;
+    char                    *description;
+    cjson_t                 *api;
+    struct ref_s            ref;
 };
 
-static int strcat_function_name(void *a, void *b)
+static void __destroy_info_s(const struct ref_s *ref)
 {
-    struct cplugin_function_s *foo = (struct cplugin_function_s *)a;
-    struct list_data *ld = (struct list_data *)b;
+    struct info_s *info = container_of(ref, struct info_s, ref);
 
-    cstring_cat(ld->s, "%s%c", foo->name, ld->token);
+    if (NULL == info)
+        return;
 
-    return 0;
+    if (info->api != NULL)
+        api_unload(info->api);
+
+    free(info->author);
+    free(info->description);
+    free(info->version);
+    free(info->name);
+    free(info);
 }
 
-static bool is_invalid_token(char token)
+static struct info_s *new_info_s(const char *name,
+    const char *version, const char *description, const char *author)
 {
-    if (isalnum(token) || isblank(token))
-        return false;
+    struct info_s *i = NULL;
 
-    return true;
-}
+    i = calloc(1, sizeof(struct info_s));
 
-static char *functions_list_str(struct cplugin_s *cpl, char token)
-{
-    struct list_data ld;
-
-    if (is_invalid_token(token) == true)
-        token = DEFAULT_TOKEN;
-
-    ld.s = NULL;
-    ld.token = token;
-    cdll_map(cpl->functions, strcat_function_name, &ld);
-
-    return ld.s;
-}
-
-static int strcat_function_arg(void *a, void *b)
-{
-    struct cplugin_fdata_s *arg = (struct cplugin_fdata_s *)a;
-    struct list_data *ld = (struct list_data *)b;
-
-    cstring_cat(ld->s, "%s,", arg->name);
-
-    return 0;
-}
-
-static char *function_arg_list_str(struct cplugin_s *cpl,
-    const char *function_name, char token)
-{
-    struct cplugin_function_s *foo = NULL;
-    struct list_data ld;
-    char *p;
-
-    if (is_invalid_token(token) == true)
-        token = DEFAULT_TOKEN;
-
-    ld.s = NULL;
-    ld.token = token;
-    foo = cdll_map(cpl->functions, search_cplugin_function_s,
-                   (char *)function_name);
-
-    if (NULL == foo) {
-        cset_errno(CL_FUNCTION_NOT_FOUND);
+    if (NULL == i) {
+        cset_errno(CL_NO_MEM);
         return NULL;
     }
 
-    /* No arguments. No error. */
-    if (NULL == foo->args)
-        return NULL;
+    i->name = strdup(name);
+    i->version = strdup(version);
+    i->description = strdup(description);
+    i->author = strdup(author);
+    i->api = NULL;
 
-    cdll_map(foo->args, strcat_function_arg, &ld);
-    p = strdup(cstring_valueof(ld.s));
-    cstring_free(ld.s);
+    i->ref.count = 1;
+    i->ref.free = __destroy_info_s;
 
-    return p;
+    return i;
 }
 
-char *get_info(enum cplugin_info info, struct cplugin_s *cpl,
-    const char *function_name, char token)
+cplugin_info_t *info_ref(cplugin_info_t *info)
 {
-    struct cplugin_info_s *pl_info = NULL;
+    struct info_s *i = (struct info_s *)info;
 
-    cerrno_clear();
-
-    if (NULL == cpl) {
-        cset_errno(CL_NULL_ARG);
+    if (NULL == i)
         return NULL;
-    }
 
-    pl_info = cpl->info;
+    ref_inc(&i->ref);
 
-    if (NULL == pl_info) {
-        cset_errno(CL_NO_PLUGIN_INFO);
-        return NULL;
-    }
-
-    switch (info) {
-        case CPLUGIN_INFO_NAME:
-            return pl_info->name;
-
-        case CPLUGIN_INFO_VERSION:
-            return pl_info->version;
-
-        case CPLUGIN_INFO_DESCRIPTION:
-            return pl_info->description;
-
-        case CPLUGIN_INFO_CREATOR:
-            return pl_info->creator;
-
-        case CPLUGIN_INFO_FUNCTION_LIST:
-            return functions_list_str(cpl, token);
-
-        case CPLUGIN_INFO_FUNCTION_ARG_LIST:
-            return function_arg_list_str(cpl, function_name, token);
-
-        default:
-            cset_errno(CL_INVALID_VALUE);
-            return NULL;
-    }
-
-    return NULL;
+    return info;
 }
 
-struct cplugin_info_s *info_create_from_data(const char *name,
-    const char *version, const char *creator, const char *description,
+void info_unref(cplugin_info_t *info)
+{
+    struct info_s *i = (struct info_s *)info;
+
+    if (NULL == i)
+        return;
+
+    ref_dec(&i->ref);
+}
+
+cplugin_info_t *info_create_from_data(const char *name,
+    const char *version, const char *author, const char *description,
     const char *api)
 {
-    struct cplugin_info_s *info = NULL;
+    struct info_s *info = NULL;
 
-    info = new_cplugin_info_s(name, version, description, creator);
+    info = new_info_s(name, version, description, author);
 
     if (NULL == info)
         return NULL;
@@ -174,54 +117,80 @@ struct cplugin_info_s *info_create_from_data(const char *name,
     info->api = api_load(api);
 
     if (NULL == info->api) {
-        destroy_cplugin_info_s(info);
+        info_unref((cplugin_info_t *)info);
         return NULL;
     }
 
-    return info;
+    return (cplugin_info_t *)info;
 }
 
-struct cplugin_info_s *info_create_from_entry(struct cplugin_entry_s *entry)
+cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry)
 {
-    struct cplugin_info_s *info = NULL;
+    struct info_s *info = NULL;
 
-    info = new_cplugin_info_s(entry->name, entry->version, entry->description,
-                              entry->creator);
+    info = new_info_s(entry->name, entry->version, entry->description,
+                              entry->author);
 
     if (NULL == info)
         return NULL;
 
-    info->startup = entry->startup;
-    info->shutdown = entry->shutdown;
     info->api = api_load(entry->api);
 
     if (NULL == info->api) {
-        destroy_cplugin_info_s(info);
+        info_unref((cplugin_info_t *)info);
         return NULL;
     }
 
-    return info;
+    return (cplugin_info_t *)info;
 }
 
-/* TODO: Move to api_parse.c */
-cjson_t *get_function_object(cjson_t *api, const char *function_name)
+cjson_t *info_get_api(const cplugin_info_t *info)
 {
-    cjson_t *f, *o, *p;
-    int i, t = 0;
-    cstring_t *name;
+    struct info_s *i = (struct info_s *)info;
 
-    f = cjson_get_object_item(api, "API");
-    t = cjson_get_array_size(f);
+    if (NULL == i)
+        return NULL;
 
-    for (i = 0; i < t; i++) {
-        o = cjson_get_array_item(f, i);
-        p = cjson_get_object_item(o, "name");
-        name = cjson_get_object_value(p);
+    return i->api;
+}
 
-        if (!strcmp(cstring_valueof(name), function_name))
-            return o;
-    }
+char *info_get_name(const cplugin_info_t *info)
+{
+    struct info_s *i = (struct info_s *)info;
 
-    return NULL;
+    if (NULL == i)
+        return NULL;
+
+    return i->name;
+}
+
+char *info_get_version(const cplugin_info_t *info)
+{
+    struct info_s *i = (struct info_s *)info;
+
+    if (NULL == i)
+        return NULL;
+
+    return i->version;
+}
+
+char *info_get_description(const cplugin_info_t *info)
+{
+    struct info_s *i = (struct info_s *)info;
+
+    if (NULL == i)
+        return NULL;
+
+    return i->description;
+}
+
+char *info_get_author(const cplugin_info_t *info)
+{
+    struct info_s *i = (struct info_s *)info;
+
+    if (NULL == i)
+        return NULL;
+
+    return i->author;
 }
 

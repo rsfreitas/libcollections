@@ -252,6 +252,23 @@ LIBCOLLECTIONS_0.1 {
         cvalue_from_string;
         cvalue_ref;
         cvalue_unref;
+        cplugin_load;
+        cplugin_unload;
+        cplugin_get_startup_data;
+        cplugin_get_shutdown_arg;
+        cplugin_info;
+        cplugin_info_from_file;
+        cplugin_info_unref;
+        cplugin_name;
+        cplugin_version;
+        cplugin_description;
+        cplugin_author;
+        cplugin_API;
+        cplugin_functions;
+        cplugin_function_return_type;
+        cplugin_function_arguments;
+        cplugin_function_arg_mode;
+        cplugin_function_arg_type;
     local:
         *;
 };

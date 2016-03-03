@@ -32,51 +32,11 @@
 #include "plugin/plugin.h"
 
 /*
- * -- EXPORTED API
- */
-
-cstring_list_t LIBEXPORT cplugin_info_API_functions(cplugin_info_t *info)
-{
-}
-
-/**
- * @name cplugin_get_plugin_functions
- * @brief Gets plugin exported API function's names, directly from it.
- *
- * @param [in] cpl: The previously loaded plugin.
- * @param [in] token: Custom token.
- *
- * @return On success returns a string with all exported function names separated
- *         with a custom character (token) or NULL otherwise.
- */
-char LIBEXPORT *cplugin_get_plugin_functions(cplugin_t *cpl, char token)
-{
-    return get_info(CPLUGIN_INFO_FUNCTION_LIST, cpl, NULL, token);
-}
-
-/**
- * @name cplugin_get_plugin_function_args
- * @brief Gets a specific function argument's names, directly from it.
- *
- * @param [in] cpl: The previously loaded plugin.
- * @param [in] function_name: The function name.
- * @param [in] token: Custom token.
- *
- * @return On success returns a string with all agument's names from a function
- *         separated with a custom character (token) or NULL otherwise.
- */
-char LIBEXPORT *cplugin_get_plugin_function_args(cplugin_t *cpl,
-    const char *function_name, char token)
-{
-    return get_info(CPLUGIN_INFO_FUNCTION_ARG_LIST, cpl, function_name, token);
-}
-
-/*
  * -- ARGUMENTS
  */
 
 /**
- * @name cplugin_get_arg_c
+ * @name cplugin_arg_c
  * @brief Gets current argument value of 'char' type.
  *
  * It is recomended to use CPLUGIN_GET_ARG_c macro instead of a direct call to
@@ -87,7 +47,7 @@ char LIBEXPORT *cplugin_get_plugin_function_args(cplugin_t *cpl,
  *
  * @return On success return the 'char' value of the argument or -1 otherwise.
  */
-char LIBEXPORT cplugin_get_arg_c(const cplugin_arg_t *args, const char *arg_name)
+char LIBEXPORT cplugin_arg_c(const cplugin_arg_t *args, const char *arg_name)
 {
     cvalue_t *p = NULL;
 
@@ -100,7 +60,7 @@ char LIBEXPORT cplugin_get_arg_c(const cplugin_arg_t *args, const char *arg_name
 }
 
 /**
- * @name cplugin_get_arg_i
+ * @name cplugin_arg_i
  * @brief Gets current argument value of 'int' type.
  *
  * It is recomended to use CPLUGIN_GET_ARG_i macro instead of a direct call to
@@ -111,7 +71,7 @@ char LIBEXPORT cplugin_get_arg_c(const cplugin_arg_t *args, const char *arg_name
  *
  * @return On success return the 'int' value of the argument or -1 otherwise.
  */
-int LIBEXPORT cplugin_get_arg_i(const cplugin_arg_t *args, const char *arg_name)
+int LIBEXPORT cplugin_arg_i(const cplugin_arg_t *args, const char *arg_name)
 {
     cvalue_t *p = NULL;
 
@@ -124,7 +84,7 @@ int LIBEXPORT cplugin_get_arg_i(const cplugin_arg_t *args, const char *arg_name)
 }
 
 /**
- * @name cplugin_get_arg_p
+ * @name cplugin_arg_p
  * @brief Gets current argument value of 'void *' type.
  *
  * It is recomended to use CPLUGIN_GET_ARG_p macro instead of a direct call to
@@ -136,7 +96,7 @@ int LIBEXPORT cplugin_get_arg_i(const cplugin_arg_t *args, const char *arg_name)
  * @return On success return the 'void *' value of the argument or NULL
  *         otherwise.
  */
-void LIBEXPORT *cplugin_get_arg_p(const cplugin_arg_t *args, const char *arg_name)
+void LIBEXPORT *cplugin_arg_p(const cplugin_arg_t *args, const char *arg_name)
 {
     cvalue_t *p = NULL;
     unsigned int size = 0;
@@ -150,7 +110,7 @@ void LIBEXPORT *cplugin_get_arg_p(const cplugin_arg_t *args, const char *arg_nam
 }
 
 /**
- * @name cplugin_get_arg_f
+ * @name cplugin_arg_f
  * @brief Gets current argument value of 'float' type.
  *
  * It is recomended to use CPLUGIN_GET_ARG_f macro instead of a direct call to
@@ -161,7 +121,7 @@ void LIBEXPORT *cplugin_get_arg_p(const cplugin_arg_t *args, const char *arg_nam
  *
  * @return On success return the 'float' value of the argument or -1 otherwise.
  */
-float LIBEXPORT cplugin_get_arg_f(const cplugin_arg_t *args, const char *arg_name)
+float LIBEXPORT cplugin_arg_f(const cplugin_arg_t *args, const char *arg_name)
 {
     cvalue_t *p = NULL;
 
@@ -442,59 +402,10 @@ int LIBEXPORT cplugin_destroy_value(cplugin_value_t *return_value)
 }
 
 /*
- * -- INFORMATIONS
+ * -- PLUGIN INFORMATION API
  */
 
-/**
- * @name cplugin_get_plugin_name
- * @brief Gets the plugin name, directly from it.
- *
- * @param [in] cpl: The previously loaded plugin.
- *
- * @return On success returns a string with the plugin name or NULL otherwise.
- */
-const char LIBEXPORT *cplugin_get_plugin_name(cplugin_t *cpl)
-{
-    return get_info(CPLUGIN_INFO_NAME, cpl, NULL, 0);
-}
-
-/**
- * @name cplugin_get_plugin_version
- * @brief Gets the plugin version, directly from it.
- *
- * @param [in] cpl: The previously loaded plugin.
- *
- * @return On success returns a string with the plugin version or NULL
- *         otherwise.
- */
-const char LIBEXPORT *cplugin_get_plugin_version(cplugin_t *cpl)
-{
-    return get_info(CPLUGIN_INFO_VERSION, cpl, NULL, 0);
-}
-
-/**
- * @name cplugin_get_plugin_description
- * @brief Gets plugin description, directly from it.
- *
- * @param [in] cpl: The previously loaded plugin.
- *
- * @return On success returns a string with the plugin description or NULL
- *         otherwise.
- */
-const char LIBEXPORT *cplugin_get_plugin_description(cplugin_t *cpl)
-{
-    return get_info(CPLUGIN_INFO_DESCRIPTION, cpl, NULL, 0);
-}
-
-/**
- * @name cplugin_get_info
- * @brief
- *
- * @param [in] cpl:
- *
- * @return
- */
-cplugin_info_t LIBEXPORT *cplugin_get_info(cplugin_t *cpl)
+cplugin_info_t LIBEXPORT *cplugin_info(const cplugin_t *cpl)
 {
     cerrno_clear();
 
@@ -506,15 +417,7 @@ cplugin_info_t LIBEXPORT *cplugin_get_info(cplugin_t *cpl)
     return cpl->info;
 }
 
-/**
- * @name cplugin_load_info_from_plugin
- * @brief
- *
- * @param [in] pathname:
- *
- * @return
- */
-cplugin_info_t LIBEXPORT *cplugin_load_info_from_plugin(const char *pathname)
+cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
 {
     void *handle = NULL;
     struct cplugin_info_s *info = NULL;
@@ -544,15 +447,7 @@ cplugin_info_t LIBEXPORT *cplugin_load_info_from_plugin(const char *pathname)
     return info;
 }
 
-/**
- * @name cplugin_unload_info
- * @brief
- *
- * @param [in,out] info:
- *
- * @return
- */
-int LIBEXPORT cplugin_unload_info(cplugin_info_t *info)
+int LIBEXPORT cplugin_info_unref(cplugin_info_t *info)
 {
     cerrno_clear();
 
@@ -561,14 +456,62 @@ int LIBEXPORT cplugin_unload_info(cplugin_info_t *info)
         return -1;
     }
 
-    destroy_cplugin_info_s(info);
+    info_unref(info);
 
     return 0;
 }
 
-const char LIBEXPORT *cplugin_get_name(cplugin_info_t *info)
+const char LIBEXPORT *cplugin_name(const cplugin_info_t *info)
 {
-    struct cplugin_info_s *i = (struct cplugin_info_s *)info;
+    cerrno_clear();
+
+    if (NULL == info) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    return info_get_name(info);
+}
+
+const char LIBEXPORT *cplugin_version(const cplugin_info_t *info)
+{
+    cerrno_clear();
+
+    if (NULL == info) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    return info_get_version(info);
+}
+
+const char LIBEXPORT *cplugin_author(const cplugin_info_t *info)
+{
+    cerrno_clear();
+
+    if (NULL == info) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    return info_get_author(info);
+}
+
+const char LIBEXPORT *cplugin_description(const cplugin_info_t *info)
+{
+    cerrno_clear();
+
+    if (NULL == info) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    return info_get_description(info);
+}
+
+cstring_t LIBEXPORT *cplugin_API(const cplugin_info_t *info)
+{
+    cjson_t *api;
 
     cerrno_clear();
 
@@ -577,13 +520,16 @@ const char LIBEXPORT *cplugin_get_name(cplugin_info_t *info)
         return NULL;
     }
 
-    return i->name;
+    api = info_get_api(info);
+
+    if (NULL == api)
+        return NULL;
+
+    return api_to_string(api);
 }
 
-const char LIBEXPORT *cplugin_get_version(cplugin_info_t *info)
+cstring_list_t LIBEXPORT *cplugin_functions(const cplugin_info_t *info)
 {
-    struct cplugin_info_s *i = (struct cplugin_info_s *)info;
-
     cerrno_clear();
 
     if (NULL == info) {
@@ -591,57 +537,10 @@ const char LIBEXPORT *cplugin_get_version(cplugin_info_t *info)
         return NULL;
     }
 
-    return i->version;
+    return api_functions(info);
 }
 
-const char LIBEXPORT *cplugin_get_creator(cplugin_info_t *info)
-{
-    struct cplugin_info_s *i = (struct cplugin_info_s *)info;
-
-    cerrno_clear();
-
-    if (NULL == info) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    return i->creator;
-}
-
-const char LIBEXPORT *cplugin_get_description(cplugin_info_t *info)
-{
-    struct cplugin_info_s *i = (struct cplugin_info_s *)info;
-
-    cerrno_clear();
-
-    if (NULL == info) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    return i->description;
-}
-
-enum cl_type LIBEXPORT
-    cplugin_get_function_return_type(cplugin_info_t *info,
-                                     const char *function_name)
-{
-    cjson_t *foo, *p;
-
-    cerrno_clear();
-
-    if ((NULL == info) || (NULL == function_name)) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    foo = get_function_object(info->api, function_name);
-    p = cjson_get_object_item(foo, "return_type");
-
-    return cvt_str_to_cv(cstring_valueof(p));
-}
-
-enum cplugin_arg LIBEXPORT cplugin_get_function_arg_mode(cplugin_info_t *info,
+enum cl_type LIBEXPORT cplugin_function_return_type(const cplugin_info_t *info,
     const char *function_name)
 {
     cerrno_clear();
@@ -651,11 +550,36 @@ enum cplugin_arg LIBEXPORT cplugin_get_function_arg_mode(cplugin_info_t *info,
         return -1;
     }
 
-    /* TODO */
-    return CPLUGIN_NO_ARGS;
+    return api_function_return_type(info, function_name);
 }
 
-enum cl_type LIBEXPORT cplugin_get_function_arg_type(cplugin_info_t *info,
+cstring_list_t LIBEXPORT *cplugin_function_arguments(const cplugin_info_t *info,
+    const char *function_name)
+{
+    cerrno_clear();
+
+    if ((NULL == info) || (NULL == function_name)) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    return api_function_arguments(info, function_name);
+}
+
+enum cplugin_arg LIBEXPORT cplugin_function_arg_mode(const cplugin_info_t *info,
+    const char *function_name)
+{
+    cerrno_clear();
+
+    if ((NULL == info) || (NULL == function_name)) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    return api_function_arg_mode(info, function_name);
+}
+
+enum cl_type LIBEXPORT cplugin_function_arg_type(const cplugin_info_t *info,
     const char *function_name, const char *argument_name)
 {
     cerrno_clear();
@@ -665,9 +589,7 @@ enum cl_type LIBEXPORT cplugin_get_function_arg_type(cplugin_info_t *info,
         return -1;
     }
 
-    /* TODO */
-
-    return CL_VOID;
+    return api_function_arg_type(info, function_name, argument_name);
 }
 
 /*
@@ -678,11 +600,11 @@ enum cl_type LIBEXPORT cplugin_get_function_arg_type(cplugin_info_t *info,
  * @name cplugin_call_ex
  * @brief Makes a call to a function inside a plugin.
  *
- * This function is capable of make the call from a function inside a
- * plugin. Its arguments are inserted in a list so they may be accessed
+ * This function is responsible for making the call of a function inside a
+ * plugin. Its arguments are inserted into a list so they can be accessed
  * inside of it.
  *
- * The called function arguments must be passad according with the type
+ * The called function arguments must be passed according with the type
  * defined on the plugin API.
  *
  * To the case of a function with the CPLUGIN_ARG_FIXED arguments type,
@@ -779,31 +701,11 @@ cplugin_value_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
     return cplv;
 }
 
-/**
- * @name cplugin_load
- * @brief Loads a plugin to the memory.
- *
- * The function will load a plugin to memory, pulling informations from it. If
- * the plugin is a C or C++ plugin, it will use an internal information structure
- * to load some informations, otherwise it will use a specific plugin API (either
- * Python or Java) to extract these.
- *
- * It will look on some default Linux path to load the plugin. But the full path
- * may also be informed with its name.
- *
- * By performing a successful initialization, an initialization function will be
- * called and executed.
- *
- * @param [in] pathname: The plugin name (with or without its path).
- *
- * @return On success returns a cplugin_t object with the loaded plugin or NULL
- *         otherwise.
- */
 cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
 {
     struct cplugin_function_s *flist = NULL;
     struct cplugin_s *cpl = NULL;
-    struct cplugin_info_s *info = NULL;
+    cplugin_info_t *info = NULL;
     void *handle = NULL;
     cplugin_internal_data_t *plugin_idata = NULL;
     enum cplugin_plugin_type plugin_type;
@@ -836,7 +738,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
         goto error_block;
 
     /* Transform the JSON API to a list of functions and arguments */
-    flist = api_parse(info->api);
+    flist = api_parse(info);
 
     if (NULL == flist)
         goto error_block;
@@ -849,7 +751,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
         goto error_block;
 
     /* Runs the plugin initialization function */
-    plugin_idata = dl_plugin_startup(handle, plugin_type, info);
+    plugin_idata = dl_plugin_startup(handle, plugin_type);
 
     if (NULL == plugin_idata) {
         cset_errno(CL_PLUGIN_STARTUP);
@@ -859,7 +761,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
          * If the plugin does not have an initialization function makes
          * sure that the @idata is set to NULL.
          */
-        if (plugin_idata == info)
+        if (plugin_idata == handle)
             plugin_idata = NULL;
     }
 
@@ -886,15 +788,6 @@ error_block:
     return NULL;
 }
 
-/**
- * @name cplugin_unload
- * @brief Releases a plugin from memory.
- *
- * @param [in] cpl: The cplugin_t object from the plugin which will be
- *                  released.
- *
- * @return On success returns 0 or -1 otherwise.
- */
 int LIBEXPORT cplugin_unload(cplugin_t *cpl)
 {
     cerrno_clear();
@@ -919,21 +812,6 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
     return 0;
 }
 
-/**
- * @name cplugin_get_startup_data
- * @brief Gets the startup function return value.
- *
- * This function gets a pointer to the data returned by the plugin startup
- * function so it can be used from other plugin functions.
- *
- * It is recommended to use the CPLUGIN_GET_STARTUP_DATA instead of a direct
- * call to this function.
- *
- * @param [in] cpl: The cplugin_t object from the loaded plugin.
- *
- * @return On success returns a pointer to the data that was returned by the
- *         plugin startup function or NULL otherwise.
- */
 cplugin_internal_data_t LIBEXPORT *cplugin_get_startup_data(cplugin_t *cpl)
 {
     cerrno_clear();
@@ -946,23 +824,6 @@ cplugin_internal_data_t LIBEXPORT *cplugin_get_startup_data(cplugin_t *cpl)
     return cpl->idata;
 }
 
-/**
- * @name cplugin_get_shutdown_arg
- * @brief Gets the value passed as argument to the shutdown plugin function.
- *
- * This function gets a pointer to the data passed as argument to the shutdown
- * plugin function. The same data that was returned from the startup plugin
- * function.
- *
- * It is recommended to use de CPLUGIN_GET_SHUTDOWN_ARG macro instead of a
- * direct call to this function. And it should be called from the plugin
- * shutdown function.
- *
- * @param [in] arg: The cplugin_internal_data_t object passed as argument
- *                  to the shutdown function.
- *
- * @return Returns the argument from the plugin shutdown function.
- */
 cplugin_internal_data_t LIBEXPORT
     *cplugin_get_shutdown_arg(cplugin_internal_data_t *arg)
 {

@@ -59,7 +59,7 @@ struct cvalue_s {
     struct ref_s        ref;
 };
 
-static bool validate_cl_type(enum cl_type type)
+bool validate_cl_type(enum cl_type type)
 {
     if ((type == CL_VOID) ||
         (type == CL_CHAR) ||
