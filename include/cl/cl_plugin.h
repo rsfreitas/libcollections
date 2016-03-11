@@ -38,7 +38,6 @@ extern "C" {
 
 /*
  * TODO: Substitute cplugin_internal_data_t for a cvalue_t.
- *       Rename cplugin_value_t to cplugin_return_value_t.
  */
 
 /** Functions argument mode */
@@ -47,14 +46,6 @@ enum cplugin_arg {
     CPLUGIN_ARG_VAR,
     CPLUGIN_NO_ARGS
 };
-
-/** plugin types */
-/* TODO: Remove from here */
-typedef struct cplugin_s            cplugin_t;
-typedef struct cplugin_fdata_s      cplugin_value_t;
-typedef struct cplugin_fdata_s      cplugin_arg_t;
-typedef void                        cplugin_internal_data_t;
-typedef void                        cplugin_info_t;
 
 /** Identification of a C/C++ plugin */
 struct cplugin_entry_s {
@@ -66,93 +57,6 @@ struct cplugin_entry_s {
     cplugin_internal_data_t         *(*startup)(CPLUGIN_STARTUP_ARGS);
     int                             (*shutdown)(CPLUGIN_SHUTDOWN_ARGS);
 };
-
-/**
- * @name cplugin_get_arg_c
- * @brief Gets current argument value of 'char' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_c instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'char' value of the argument or -1 otherwise.
- */
-char cplugin_get_arg_c(const cplugin_arg_t *args, const char *arg_name);
-
-/**
- * @name cplugin_get_arg_i
- * @brief Gets current argument value of 'int' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_i instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'int' value of the argument or -1 otherwise.
- */
-int cplugin_get_arg_i(const cplugin_arg_t *args, const char *arg_name);
-
-/**
- * @name cplugin_get_arg_p
- * @brief Gets current argument value of 'void *' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_p instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'void *' value of the argument or NULL
- *         otherwise.
- */
-void *cplugin_get_arg_p(const cplugin_arg_t *args, const char *arg_name);
-
-/**
- * @name cplugin_get_arg_f
- * @brief Gets current argument value of 'float' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_f instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'float' value of the argument or -1 otherwise.
- */
-float cplugin_get_arg_f(const cplugin_arg_t *args, const char *arg_name);
-
-/**
- * @name cplugin_arg_count
- * @brief Gets the number of arguments of a function.
- *
- * It is recomended to use CPLUGIN_ARG_COUNTinstead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- *
- * @return On success returns the function number of arguments or -1
- *         otherwise.
- */
-int cplugin_arg_count(const cplugin_arg_t *args);
-
-cplugin_value_t *cplugin_call_ex(int argc, cplugin_t *cpl,
-                                 const char *function_name, ...);
-
-int cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
-                             unsigned int caller_id, enum cl_type type,
-                             ...);
-
-char cplugin_get_value_c(cplugin_value_t *v);
-int cplugin_get_value_i(cplugin_value_t *v);
-void *cplugin_get_value_p(cplugin_value_t *v);
-float cplugin_get_value_f(cplugin_value_t *v);
-int cplugin_destroy_value(cplugin_value_t *v);
-
-
-// ---
 
 /**
  * @name cplugin_load
@@ -377,6 +281,102 @@ enum cplugin_arg cplugin_function_arg_mode(const cplugin_info_t *info,
 enum cl_type cplugin_function_arg_type(const cplugin_info_t *info,
                                        const char *function_name,
                                        const char *argument_name);
+
+/**
+ * @name cplugin_call_ex
+ * @brief Makes a call to a function inside a plugin.
+ *
+ * This function is responsible for making the call of a function inside a
+ * plugin. Its arguments are inserted into a list so they can be accessed
+ * inside of it.
+ *
+ * The called function arguments must be passed according with the type
+ * defined on the plugin API.
+ *
+ * To the case of a function with the CPLUGIN_ARG_FIXED arguments type,
+ * they must be passed this way: "argument_name", value, "argument_name",
+ * "value", NULL. Such as:
+ *
+ * cplugin_call(7, cpl, "foo", "arg1", value, "arg2", value, NULL);
+ *
+ * To the case of CPLUGIN_ARG_VAR arguments type, they must be passed in
+ * this way: "argument_name", type, value, "argument_name", type, value,
+ * NULL. Such as:
+ *
+ * cplugin_call_ex(9, cpl, "foo", "arg1", type, value, "arg2", type, value,
+ *                 NULL);
+ *
+ * It is recomended to use cplugin_call macro instead of a direct call to
+ * this function.
+ *
+ * @param [in] argc: The total number of arguments passed to the function.
+ * @param [in] cpl: The cplugin_t object from the loaded plugin.
+ * @param [in] function_name: The function name which will be called.
+ * @param [in] ...: Function arguments.
+ *
+ * @return On success returns a cvalue_t with the called function return
+ *         value or NULL otherwise.
+ */
+cvalue_t *cplugin_call_ex(int argc, cplugin_t *cpl,
+                          const char *function_name, ...);
+
+/**
+ * @name cplugin_set_return_value
+ * @brief Sets up the return value from an exported plugin function.
+ *
+ * This functions must be called within an exported plugin function. It should be
+ * called as a C return statement, so a value may returned to the caller.
+ *
+ * It will block using a mutex to add the returned value into an internal list
+ * of return values.
+ *
+ * It is recommended that the CPLUGIN_RETURN_VALUE macro is called instead of a
+ * direct call to this function.
+ *
+ * If the return value is a pointer, its size must also be informed, so the
+ * library is able to dup it inside. Also a custom function to release memory
+ * from this data may be informed.
+ *
+ * @param [in] cpl: The cplugin_t object.
+ * @param [in] function_name: The function name which will have its return
+ *                            value set.
+ * @param [in] caller_id: Identification function number.
+ * @param [in] type: The return type.
+ * @param [in] ...: The return value.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
+                             unsigned int caller_id, enum cl_type type, ...);
+
+/**
+ * @name cplugin_argument
+ * @brief Gets the current argument value from an exported function.
+ *
+ * It is recomended to use CPLUGIN_ARGUMENT macro instead of a direct call to
+ * this function.
+ *
+ * @param [in] args: The cplugin_arg_t object with function arguments.
+ * @param [in] arg_name: The argument name.
+ *
+ * @return On success return a cvalue_t object with the arguemtn value or NULL
+ *         otherwise.
+ */
+cvalue_t *cplugin_argument(const cplugin_arg_t *args, const char *arg_name);
+
+/**
+ * @name cplugin_arg_count
+ * @brief Gets the number of arguments of a function.
+ *
+ * It is recomended to use CPLUGIN_ARG_COUNTinstead of a direct call to
+ * this function.
+ *
+ * @param [in] args: The cplugin_arg_t object with function arguments.
+ *
+ * @return On success returns the function number of arguments or -1
+ *         otherwise.
+ */
+int cplugin_arg_count(const cplugin_arg_t *args);
 
 #ifdef __cplusplus
 }

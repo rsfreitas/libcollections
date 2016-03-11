@@ -227,24 +227,3 @@ enum cplugin_plugin_type guess_plugin_type(const char *pathname __attribute__((u
     return CPLUGIN_C;
 }
 
-cvalue_t *get_arg_value(const cplugin_arg_t *arg, const char *arg_name)
-{
-    struct cplugin_fdata_s *p = NULL;
-
-    cerrno_clear();
-
-    if ((NULL == arg) || (NULL == arg_name)) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    p = cdll_map((void *)arg, search_cplugin_fdata_s, (char *)arg_name);
-
-    if (NULL == p) {
-        cset_errno(CL_NULL_DATA);
-        return NULL;
-    }
-
-    return p->value;
-}
-

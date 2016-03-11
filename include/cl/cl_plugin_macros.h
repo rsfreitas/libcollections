@@ -68,6 +68,12 @@ extern "C" {
 #define CPLUGIN_SET_RETURN_VALUE(type, arg...)      \
     cplugin_set_return_value(cpl, __FUNCTION__, caller_id, type, ## arg)
 
+/* Macro to set the return value from an exported function as void */
+#define CPLUGIN_SET_RETURN_VALUE_AS_VOID()      \
+    {\
+        CPLUGIN_SET_RETURN_VALUE(CL_VOID, 0);\
+    }\
+
 /*
  * Macro to set the plugin name internally, so a plugin manager may known
  * it.
@@ -78,54 +84,16 @@ extern "C" {
         return &name##_plugin_entry;\
     }\
 
-/*
- * Macros to get the actual value from an argument of an exported plugin
- * function.
- */
-/* int */
-#define CPLUGIN_ARG_i(arg_name)             \
-    cplugin_arg_i(args, arg_name)
-
-/* unsigned int */
-#define CPLUGIN_ARG_ui(arg_name)            \
-    cplugin_arg_ui(args, arg_name)
-
-/* char */
-#define CPLUGIN_ARG_c(arg_name)             \
-    cplugin_arg_c(args, arg_name)
-
-/* unsigned char */
-#define CPLUGIN_ARG_uc(arg_name)            \
-    cplugin_arg_uc(args, arg_name)
-
-/* char * */
-#define CPLUGIN_ARG_cp(arg_name)            \
-    cplugin_arg_cp(args, arg_name)
-
-/* unsigned char * */
-#define CPLUGIN_ARG_ucp(arg_name)           \
-    cplugin_arg_ucp(args, arg_name)
-
-/* void * */
-#define CPLUGIN_ARG_p(arg_name)             \
-    cplugin_arg_p(args, arg_name)
-
-/* float */
-#define CPLUGIN_ARG_f(arg_name)             \
-    cplugin_arg_f(args, arg_name)
-
 /* Macro to get the number of arguments from an exported plugin function */
 #define CPLUGIN_ARG_COUNT()                     \
     cplugin_arg_count(args)
 
 /*
- * Macro to make the call to an exported plugin function, so the correct
- * number of arguments is passed to the @argc argument from 'cplugin_call_ex'
+ * Macro to get the actual value from an argument of an exported plugin
  * function.
  */
-#define cplugin_call(cpl, function_name, arg...)   \
-    cplugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
-                    cpl, function_name, ## arg)
+#define CPLUGIN_ARGUMENT(arg_name)              \
+    cplugin_argument(args, arg_name)
 
 /* Arguments to the startup plugin function */
 #define CPLUGIN_STARTUP_ARGS                    \
@@ -155,11 +123,14 @@ extern "C" {
         (void)args;\
     }\
 
-/* Macro to set the return value from an exported function as void */
-#define CPLUGIN_SET_RETURN_VALUE_AS_VOID()      \
-    {\
-        CPLUGIN_RETURN_VALUE(CL_VOID, 0);\
-    }\
+/*
+ * Macro to make the call to an exported plugin function, so the correct
+ * number of arguments is passed to the @argc argument from 'cplugin_call_ex'
+ * function.
+ */
+#define cplugin_call(cpl, function_name, arg...)   \
+    cplugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
+                    cpl, function_name, ## arg)
 
 #ifdef __cplusplus
 }

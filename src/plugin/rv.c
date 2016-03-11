@@ -42,7 +42,7 @@
  *         return value or NULL otherwise. The user is responsible for release
  *         the cplugin_value_t object.
  */
-cplugin_value_t *cplugin_get_return_value(cplugin_t *cpl,
+cvalue_t *cplugin_get_return_value(cplugin_t *cpl,
     const char *function_name, uint32_t caller_id)
 {
     struct cplugin_function_s *foo = NULL;
@@ -70,6 +70,6 @@ cplugin_value_t *cplugin_get_return_value(cplugin_t *cpl,
         return NULL;
     }
 
-    return return_value;
+    return cvalue_ref(return_value->value);
 }
 

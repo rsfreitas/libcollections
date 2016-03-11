@@ -79,7 +79,7 @@ static const char *__cdescriptions[] = {
     "Function not found",
     "Function symbol not found",
     "Plugin informations not found",
-    "Plugin information symbole not found",
+    "Plugin information symbol not found",
     "Plugin startup error",
     "Plugin shutdown error"
 };

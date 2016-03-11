@@ -24,10 +24,13 @@
  * USA
  */
 
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
 
 #include <collections.h>
+
+using namespace std;
 
 #define API     "{\
     \"API\": [\
@@ -37,26 +40,26 @@
 
 static cplugin_internal_data_t *plugin_init(CPLUGIN_STARTUP_ARGS)
 {
-    char *s = NULL;
+    string *s = new string();
 
-    printf("pass through %s\n", __FUNCTION__);
-    s = strdup(__FUNCTION__);
+    cout << "Pass through " << __FUNCTION__ << endl;
+    s->append(__FUNCTION__);
 
     return reinterpret_cast<cplugin_internal_data_t *>(s);
 }
 
 static int plugin_uninit(CPLUGIN_SHUTDOWN_ARGS)
 {
-    char *s;
+    string *s;
     cplugin_internal_data_t *p = CPLUGIN_GET_SHUTDOWN_ARG();
 
-    s = reinterpret_cast<char *>(p);
+    s = reinterpret_cast<string *>(p);
 
     if (s != NULL) {
-        printf("%s -> %s\n", __FUNCTION__, s);
-        free(s);
+        cout << __FUNCTION__ << " -> " << s->c_str() << endl;
+        delete s;
     } else
-        printf("%s: NULL\n", __FUNCTION__);
+        cout << __FUNCTION__ << ": NULL" << endl;
 
     return 0;
 }
@@ -77,7 +80,7 @@ CPLUGIN_OBJECT_EXPORT(foo_int)
 {
     CPLUGIN_SET_VOID_ARGS();
 
-    printf("%s\n", __FUNCTION__);
+    cout << __FUNCTION__ << endl;
     CPLUGIN_SET_RETURN_VALUE(CL_INT, 42);
 }
 

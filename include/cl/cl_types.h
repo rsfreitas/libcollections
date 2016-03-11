@@ -136,7 +136,13 @@ typedef void                cvalue_t;
 typedef void                cspec_t;
 
 /** counter type */
-typedef void            counter_t;
+typedef void                counter_t;
+
+/** plugin types */
+typedef struct cplugin_s            cplugin_t;
+typedef struct cplugin_fdata_s      cplugin_arg_t;
+typedef void                        cplugin_internal_data_t;
+typedef void                        cplugin_info_t;
 
 #endif
 

@@ -204,11 +204,10 @@ enum cplugin_plugin_type guess_plugin_type(const char *pathname);
 
 struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
-cvalue_t *get_arg_value(const cplugin_arg_t *arg, const char *arg_name);
 
 /* rv.c */
-cplugin_value_t *cplugin_get_return_value(cplugin_t *cpl,
-                                          const char *function_name,
-                                          uint32_t caller_id);
+cvalue_t *cplugin_get_return_value(cplugin_t *cpl, const char *function_name,
+                                   uint32_t caller_id);
+
 #endif
 

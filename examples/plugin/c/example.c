@@ -31,7 +31,11 @@
 
 #define API     "{\
     \"API\": [\
-        { \"name\": \"foo_int\", \"return_type\": \"int\" }\
+        { \"name\": \"foo_int\", \"return_type\": \"int\" },\
+        { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
+            { \"name\": \"arg1\", \"type\": \"int\" },\
+            { \"name\": \"arg2\", \"type\": \"int\" }\
+            ] }\
     ]\
 }"
 
@@ -78,5 +82,22 @@ CPLUGIN_OBJECT_EXPORT(foo_int)
 
     printf("%s\n", __FUNCTION__);
     CPLUGIN_SET_RETURN_VALUE(CL_INT, 42);
+}
+
+CPLUGIN_OBJECT_EXPORT(foo_args)
+{
+    cvalue_t *arg1, *arg2;
+
+    printf("Number of arguments: %d\n", CPLUGIN_ARG_COUNT());
+    arg1 = CPLUGIN_ARGUMENT("arg1");
+    arg2 = CPLUGIN_ARGUMENT("arg2");
+
+    printf("arg1 value %d\n", CVALUE_INT(arg1));
+    printf("arg2 value %d\n", CVALUE_INT(arg2));
+
+    cvalue_unref(arg2);
+    cvalue_unref(arg1);
+
+    CPLUGIN_SET_RETURN_VALUE_AS_VOID();
 }
 

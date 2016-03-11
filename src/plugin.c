@@ -35,116 +35,28 @@
  * -- ARGUMENTS
  */
 
-/**
- * @name cplugin_arg_c
- * @brief Gets current argument value of 'char' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_c macro instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'char' value of the argument or -1 otherwise.
- */
-char LIBEXPORT cplugin_arg_c(const cplugin_arg_t *args, const char *arg_name)
+cvalue_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
+    const char *arg_name)
 {
-    cvalue_t *p = NULL;
+    struct cplugin_fdata_s *p = NULL;
 
-    p = get_arg_value(args, arg_name);
+    cerrno_clear();
 
-    if (NULL == p)
-        return -1;
-
-    return CVALUE_CHAR(p);
-}
-
-/**
- * @name cplugin_arg_i
- * @brief Gets current argument value of 'int' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_i macro instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'int' value of the argument or -1 otherwise.
- */
-int LIBEXPORT cplugin_arg_i(const cplugin_arg_t *args, const char *arg_name)
-{
-    cvalue_t *p = NULL;
-
-    p = get_arg_value(args, arg_name);
-
-    if (NULL == p)
-        return -1;
-
-    return CVALUE_INT(p);
-}
-
-/**
- * @name cplugin_arg_p
- * @brief Gets current argument value of 'void *' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_p macro instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'void *' value of the argument or NULL
- *         otherwise.
- */
-void LIBEXPORT *cplugin_arg_p(const cplugin_arg_t *args, const char *arg_name)
-{
-    cvalue_t *p = NULL;
-    unsigned int size = 0;
-
-    p = get_arg_value(args, arg_name);
-
-    if (NULL == p)
+    if ((NULL == args) || (NULL == arg_name)) {
+        cset_errno(CL_NULL_ARG);
         return NULL;
+    }
 
-    return CVALUE_POINTER(p, &size);
+    p = cdll_map((void *)args, search_cplugin_fdata_s, (char *)arg_name);
+
+    if (NULL == p) {
+        cset_errno(CL_NULL_DATA);
+        return NULL;
+    }
+
+    return cvalue_ref(p->value);
 }
 
-/**
- * @name cplugin_arg_f
- * @brief Gets current argument value of 'float' type.
- *
- * It is recomended to use CPLUGIN_GET_ARG_f macro instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- * @param [in] arg_name: The argument name.
- *
- * @return On success return the 'float' value of the argument or -1 otherwise.
- */
-float LIBEXPORT cplugin_arg_f(const cplugin_arg_t *args, const char *arg_name)
-{
-    cvalue_t *p = NULL;
-
-    p = get_arg_value(args, arg_name);
-
-    if (NULL == p)
-        return -1.0F;
-
-    return CVALUE_FLOAT(p);
-}
-
-/**
- * @name cplugin_arg_count
- * @brief Gets the number of arguments of a function.
- *
- * It is recomended to use CPLUGIN_ARG_COUNT macro instead of a direct call to
- * this function.
- *
- * @param [in] args: The cplugin_arg_t object with function arguments.
- *
- * @return On success returns the function number of arguments or -1
- *         otherwise.
- */
 int LIBEXPORT cplugin_arg_count(const cplugin_arg_t *args)
 {
     cerrno_clear();
@@ -161,32 +73,6 @@ int LIBEXPORT cplugin_arg_count(const cplugin_arg_t *args)
  * -- RETURN VALUE
  */
 
-/**
- * @name cplugin_set_return_value
- * @brief Sets up the return value from an exported plugin function.
- *
- * This functions must be called within an exported plugin function. It should be
- * called as a C return statement, so a value may returned to the caller.
- *
- * It will block using a mutex to add the returned value into an internal list
- * of return values.
- *
- * It is recommended that the CPLUGIN_RETURN_VALUE macro is called instead of a
- * direct call to this function.
- *
- * If the return value is a pointer, its size must also be informed, so the
- * library is able to dup it inside. Also a custom function to release memory
- * from this data may be informed.
- *
- * @param [in] cpl: The cplugin_t object.
- * @param [in] function_name: The function name which will have its return
- *                            value set.
- * @param [in] caller_id: Identification function number.
- * @param [in] type: The return type.
- * @param [in] ...: The return value.
- *
- * @return On success returns 0 or -1 otherwise.
- */
 int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
     unsigned int caller_id, enum cl_type type, ...)
 {
@@ -262,141 +148,6 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
     pthread_mutex_lock(&foo->m_return_value);
     foo->values = cdll_unshift(foo->values, return_value);
     pthread_mutex_unlock(&foo->m_return_value);
-
-    return 0;
-}
-
-/**
- * @name cplugin_get_value_c
- * @brief Gets the function return value as a 'char'.
- *
- * @param [in] return_value: The function return object.
- *
- * @return On success returns the function return value as an 'char' or -1
- *         otherwise.
- */
-char LIBEXPORT cplugin_get_value_c(cplugin_value_t *return_value)
-{
-    struct cplugin_fdata_s *crv = (struct cplugin_fdata_s *)return_value;
-
-    cerrno_clear();
-
-    if (NULL == return_value) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    if (crv->type != CL_CHAR) {
-        cset_errno(CL_WRONG_TYPE);
-        return -1;
-    }
-
-    return CVALUE_CHAR(crv->value);
-}
-
-/**
- * @name cplugin_get_value_i
- * @brief Gets the function return value as an 'int'.
- *
- * @param [in] return_value: The function return object.
- *
- * @return On success returns the function return value as an 'int' or -1
- *         otherwise.
- */
-int LIBEXPORT cplugin_get_value_i(cplugin_value_t *return_value)
-{
-    struct cplugin_fdata_s *crv = (struct cplugin_fdata_s *)return_value;
-
-    cerrno_clear();
-
-    if (NULL == return_value) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    if (crv->type != CL_INT) {
-        cset_errno(CL_WRONG_TYPE);
-        return -1;
-    }
-
-    return CVALUE_INT(crv->value);
-}
-
-/**
- * @name cplugin_get_value_p
- * @brief Gets the function return value as a 'void *'.
- *
- * @param [in] return_value: The function return object.
- *
- * @return On success returns the function return value as a 'void *' or NULL
- *         otherwise.
- */
-void LIBEXPORT *cplugin_get_value_p(cplugin_value_t *return_value)
-{
-    struct cplugin_fdata_s *crv = (struct cplugin_fdata_s *)return_value;
-    unsigned int size = 0;
-
-    cerrno_clear();
-
-    if (NULL == return_value) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    if (crv->type != CL_POINTER) {
-        cset_errno(CL_WRONG_TYPE);
-        return NULL;
-    }
-
-    return CVALUE_POINTER(crv->value, &size);
-}
-
-/**
- * @name cplugin_get_value_f
- * @brief Gets the function return value as a 'float'.
- *
- * @param [in] return_value: The function return object.
- *
- * @return On success returns the function return value as a 'float' or -1
- *         otherwise.
- */
-float LIBEXPORT cplugin_get_value_f(cplugin_value_t *return_value)
-{
-    struct cplugin_fdata_s *crv = (struct cplugin_fdata_s *)return_value;
-
-    cerrno_clear();
-
-    if (NULL == return_value) {
-        cset_errno(CL_NULL_ARG);
-        return -1.0F;
-    }
-
-    if (crv->type != CL_FLOAT) {
-        cset_errno(CL_WRONG_TYPE);
-        return -1.0F;
-    }
-
-    return CVALUE_FLOAT(crv->value);
-}
-
-/**
- * @name cplugin_destroy_value
- * @brief Relases an object which stores the function return value.
- *
- * @param [in] return_value: The object which will be released.
- *
- * @return On success returns 0 or -1 otherwise.
- */
-int LIBEXPORT cplugin_destroy_value(cplugin_value_t *return_value)
-{
-    cerrno_clear();
-
-    if (NULL == return_value) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    destroy_cplugin_fdata_s(return_value);
 
     return 0;
 }
@@ -596,48 +347,13 @@ enum cl_type LIBEXPORT cplugin_function_arg_type(const cplugin_info_t *info,
  * -- PLUGIN MANIPULATION
  */
 
-/**
- * @name cplugin_call_ex
- * @brief Makes a call to a function inside a plugin.
- *
- * This function is responsible for making the call of a function inside a
- * plugin. Its arguments are inserted into a list so they can be accessed
- * inside of it.
- *
- * The called function arguments must be passed according with the type
- * defined on the plugin API.
- *
- * To the case of a function with the CPLUGIN_ARG_FIXED arguments type,
- * they must be passed this way: "argument_name", value, "argument_name",
- * "value", NULL. Such as:
- *
- * cplugin_call(7, cpl, "foo", "arg1", value, "arg2", value, NULL);
- *
- * To the case of CPLUGIN_ARG_VAR arguments type, they must be passed in
- * this way: "argument_name", type, value, "argument_name", type, value,
- * NULL. Such as:
- *
- * cplugin_call_ex(9, cpl, "foo", "arg1", type, value, "arg2", type, value,
- *                 NULL);
- *
- * It is recomended to use cplugin_call macro instead of a direct call to
- * this function.
- *
- * @param [in] argc: The total number of arguments passed to the function.
- * @param [in] cpl: The cplugin_t object from the loaded plugin.
- * @param [in] function_name: The function name which will be called.
- * @param [in] ...: Function arguments.
- *
- * @return On success returns a cplugin_value_t with the called function return
- *         value or NULL otherwise.
- */
-cplugin_value_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
+cvalue_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
     const char *function_name, ...)
 {
     struct cplugin_function_s *foo = NULL;
     va_list ap;
     int fargc = 0;
-    struct cplugin_fdata_s *cplv = NULL;
+    cvalue_t *cplv = NULL;
     uint32_t caller_id = 0;
 
     cerrno_clear();

@@ -100,7 +100,7 @@ static struct cplugin_fdata_s *api_parse_function_args(cjson_t *args)
         jtype = cjson_get_object_value(q);
 
         p = new_cplugin_fdata_s(cstring_valueof(jname),
-                                cstring_value_as_int(jtype), 0);
+                                cvt_str_to_cv(cstring_valueof(jtype)), 0);
 
         if (NULL == p)
             goto error_block;
@@ -159,6 +159,7 @@ struct cplugin_function_s *api_parse(cplugin_info_t *info)
             else
                 type_of_args = CPLUGIN_NO_ARGS;
         } else {
+            type_of_args = CPLUGIN_ARG_FIXED;
             args = api_parse_function_args(q);
 
             if (NULL == args)
@@ -271,10 +272,7 @@ cstring_list_t *api_function_arguments(const cplugin_info_t *info,
         a = cjson_get_array_item(args, i);
         p = cjson_get_object_item(a, ARGUMENT_NAME);
         data = cjson_get_object_value(p);
-        s = cstring_new("%s,", cstring_valueof(data));
-        p = cjson_get_object_item(a, ARGUMENT_TYPE);
-        data = cjson_get_object_value(p);
-        cstring_cat(s, "%s", cstring_valueof(data));
+        s = cstring_new("%s", cstring_valueof(data));
         cstring_list_add(list, s);
         cstring_free(s);
     }

@@ -269,6 +269,10 @@ LIBCOLLECTIONS_0.1 {
         cplugin_function_arguments;
         cplugin_function_arg_mode;
         cplugin_function_arg_type;
+        cplugin_call_ex;
+        cplugin_set_return_value;
+        cplugin_arg_count;
+        cplugin_argument;
     local:
         *;
 };

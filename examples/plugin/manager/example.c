@@ -134,6 +134,7 @@ int main(int argc, char **argv)
     char *filename = NULL;
     cplugin_t *cpl;
     bool info = false;
+    cvalue_t *ret;
 
     do {
         option = getopt(argc, argv, opt);
@@ -169,12 +170,22 @@ int main(int argc, char **argv)
     cpl = cplugin_load(filename);
 
     if (NULL == cpl) {
-        printf("Erro2 0: %s\n", cstrerror(cget_last_error()));
+        printf("Error 0: %s\n", cstrerror(cget_last_error()));
         return -1;
     }
 
     /* Show plugin informations */
     show_plugin_info(cpl);
+
+    /* XXX: call test function */
+    ret = cplugin_call(cpl, "foo_int", NULL);
+
+    if (ret != NULL) {
+        printf("foo_int return value: %d\n", CVALUE_INT(ret));
+        cvalue_unref(ret);
+    }
+
+    cplugin_call(cpl, "foo_args", "arg1", 20, "arg2", 30, NULL);
 
     cplugin_unload(cpl);
 
