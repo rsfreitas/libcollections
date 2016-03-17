@@ -322,7 +322,7 @@ enum cl_type api_function_arg_type(const cplugin_info_t *info,
     cjson_t *foo, *args, *a, *p;
     int i, t = 0;
     cstring_t *data;
-    enum cl_type type;
+    enum cl_type type = CL_VOID;
 
     if (api_function_arg_mode(info, function_name) != CPLUGIN_ARG_FIXED)
         return -1;

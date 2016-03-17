@@ -1,0 +1,60 @@
+
+CC = gcc
+TARGET= ../bin/_cplugin.so
+
+INCLUDEDIR = -I../include
+INCLUDEDIR += -I../../libcollections/include
+INCLUDEDIR += -I/usr/include/python2.7
+
+LIBDIR = -L/usr/local/lib
+LIBS = -ldl -lpython2.7 -lm
+
+CFLAGS = -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall \
+	 -Wstrict-prototypes -fPIC -DLIBCOLLECTIONS_COMPILE -DLINUX \
+	 -D_GNU_SOURCE $(INCLUDEDIR)
+
+PLUGIN_PATH = ./plugin
+PYTHON_PATH = ./python
+VPATH = ../include:.:$(PLUGIN_PATH):$(PYTHON_PATH)
+
+PLUGIN_OBJS =	\
+	api_parser.o	\
+	call.o			\
+	dl.o			\
+	dl_c.o			\
+	dl_python.o		\
+	info.o			\
+	plugin_misc.o	\
+	rv.o
+
+PYTHON_OBJS =	\
+	_cplugin.o
+
+OBJS = 		\
+	$(PLUGIN_OBJS)	\
+	$(PYTHON_OBJS)	\
+	dll.o			\
+	error.o			\
+	file.o			\
+	json.o			\
+	mem.o			\
+	plugin.o		\
+	random.o		\
+	ref.o			\
+	specs.o			\
+	string.o		\
+	stringlist.o	\
+	value.o
+
+LINK_FLAGS = -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions \
+			 -Wl,-Bsymbolic-functions -Wl,-z,relro
+
+$(TARGET): $(OBJS)
+	rm -f $(TARGET)*
+	$(CC) $(LINK_FLAGS) -o $(TARGET) $(OBJS) $(LIBDIR) $(LIBS)
+
+clean:
+	rm -rf $(OBJS) $(TARGET) *~ ../include/*~
+
+purge: clean $(TARGET)
+

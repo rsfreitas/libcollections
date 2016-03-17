@@ -48,7 +48,8 @@
 
 /* Supported plugin languages */
 enum cplugin_plugin_type {
-    CPLUGIN_C               /* C or C++ */
+    CPLUGIN_C,              /* C or C++ */
+    CPLUGIN_PYTHON          /* Python */
 };
 
 enum cplugin_info {
@@ -145,6 +146,19 @@ void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
 
 cplugin_internal_data_t *c_plugin_startup(void *handle);
 int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata, void *handle);
+
+/* dl_python.c */
+void py_library_init(void);
+void py_library_uninit(void);
+cplugin_info_t *py_load_info(void *ptr);
+int py_load_functions(struct cplugin_function_s *flist, void *handle);
+void *py_open(const char *pathname);
+int py_close(void *ptr);
+void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
+             struct cplugin_s *cpl);
+
+cplugin_internal_data_t *py_plugin_startup(void *handle);
+int py_plugin_shutdown(cplugin_internal_data_t *pl_idata, void *handle);
 
 /* dl.c */
 void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type);

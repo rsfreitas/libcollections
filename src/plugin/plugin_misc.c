@@ -225,5 +225,6 @@ enum cplugin_plugin_type guess_plugin_type(const char *pathname __attribute__((u
      *       command.
      */
     return CPLUGIN_C;
+//    return CPLUGIN_PYTHON;
 }
 

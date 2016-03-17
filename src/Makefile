@@ -15,9 +15,10 @@ TARGET = ../bin/$(SONAME)
 TARGET_DEST = ../bin/$(DEST_LIBNAME)
 
 INCLUDEDIR = -I../include
+INCLUDEDIR += -I/usr/include/python2.7
 
 LIBDIR = -L/usr/local/lib
-LIBS = -lpthread -lm -lrt -ldl
+LIBS = -lpthread -lm -lrt -ldl -lpython2.7
 
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
@@ -27,18 +28,19 @@ PLUGIN_PATH = ./plugin
 VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH)
 
 CHAT_OBJS =	\
-	chat_misc.o		\
+	chat_misc.o			\
 	drv_raw_socket.o	\
-	ipc_tcp.o		\
+	ipc_tcp.o			\
 	ipc_udp.o
 
 PLUGIN_OBJS =	\
-	api_parser.o		\
+	api_parser.o	\
 	call.o			\
 	dl.o			\
 	dl_c.o			\
+	dl_python.o		\
 	info.o			\
-	plugin_misc.o		\
+	plugin_misc.o	\
 	rv.o
 
 OBJS =	\
@@ -68,12 +70,12 @@ OBJS =	\
 	value.o
 
 $(TARGET): $(OBJS)
-	rm -f ../bin/$(LIBNAME)*
+	rm -f $(LIBNAME)*
 	$(CC) -shared -Wl,-soname,$(SONAME),--version-script,$(PREFIX).sym -o $(TARGET_DEST) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean:
 	rm -f ../bin/$(LIBNAME)*
-	rm -rf $(OBJS) $(TARGET) $(TARGET_DEST) *~ ../include/*~
+	rm -rf $(OBJS) $(TARGET) $(TARGET_DEST) *~ ../include/*~ ../bin/*.so
 
 dest_clean:
 	rm -f $(USR_DIR)/$(LIBNAME)*

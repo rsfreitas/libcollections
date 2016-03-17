@@ -368,7 +368,7 @@ cvalue_t *cplugin_argument(const cplugin_arg_t *args, const char *arg_name);
  * @name cplugin_arg_count
  * @brief Gets the number of arguments of a function.
  *
- * It is recomended to use CPLUGIN_ARG_COUNTinstead of a direct call to
+ * It is recomended to use CPLUGIN_ARG_COUNT instead of a direct call to
  * this function.
  *
  * @param [in] args: The cplugin_arg_t object with function arguments.
