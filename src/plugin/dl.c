@@ -112,10 +112,9 @@ int dl_load_functions(struct cplugin_function_s *flist, void *handle,
 /*
  * Load informations from a plugin.
  */
-struct cplugin_info_s *dl_load_info(void *handle,
-    enum cplugin_plugin_type plugin_type)
+cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
 {
-    struct cplugin_info_s *info = NULL;
+    cplugin_info_t *info = NULL;
 
     switch (plugin_type) {
         case CPLUGIN_C:

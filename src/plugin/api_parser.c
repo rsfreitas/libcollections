@@ -257,7 +257,6 @@ cstring_list_t *api_function_arguments(const cplugin_info_t *info,
     cjson_t *foo, *args, *a, *p;
     int i, t = 0;
     cstring_list_t *list = NULL;
-    cstring_t *data, *s;
 
     foo = get_function_object(info_get_api(info), function_name);
     args = cjson_get_object_item(foo, FUNCTION_ARGUMENTS);
@@ -271,10 +270,7 @@ cstring_list_t *api_function_arguments(const cplugin_info_t *info,
     for (i = 0; i < t; i++) {
         a = cjson_get_array_item(args, i);
         p = cjson_get_object_item(a, ARGUMENT_NAME);
-        data = cjson_get_object_value(p);
-        s = cstring_new("%s", cstring_valueof(data));
-        cstring_list_add(list, s);
-        cstring_free(s);
+        cstring_list_add(list, cjson_get_object_value(p));
     }
 
     return list;

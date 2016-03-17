@@ -88,9 +88,8 @@ struct cplugin_function_s {
     enum cplugin_arg            type_of_args;
     struct cplugin_fdata_s      *args;
 
-    /* Pointers to the real function */
-    void                        (*p)(uint32_t, cplugin_t *, cplugin_arg_t *);
-    void                        *p_ex;
+    /* Pointer to the real function */
+    void                        *symbol;
 };
 
 struct cplugin_s {
@@ -153,9 +152,7 @@ int dl_close(void *handle, enum cplugin_plugin_type plugin_type);
 int dl_load_functions(struct cplugin_function_s *flist, void *handle,
                       enum cplugin_plugin_type plugin_type);
 
-struct cplugin_info_s *dl_load_info(void *handle,
-                                    enum cplugin_plugin_type plugin_type);
-
+cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type);
 void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
              struct cplugin_s *cpl);
 
@@ -206,7 +203,8 @@ struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
 
 /* rv.c */
-cvalue_t *cplugin_get_return_value(cplugin_t *cpl, const char *function_name,
+cvalue_t *cplugin_get_return_value(struct cplugin_s *cpl,
+                                   const char *function_name,
                                    uint32_t caller_id);
 
 #endif
