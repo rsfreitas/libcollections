@@ -49,6 +49,7 @@ static struct chat_ipc_methods_s __ipc_methods[] = {
         .send = tcp_send,
         .recv = tcp_recv,
         .stop = tcp_stop,
+        .fd = tcp_fd,
     },
 
     /* socket UDP */
@@ -62,6 +63,7 @@ static struct chat_ipc_methods_s __ipc_methods[] = {
         .send = udp_send,
         .recv = udp_recv,
         .stop = udp_stop,
+        .fd = udp_fd,
     }
 };
 
