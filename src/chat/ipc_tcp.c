@@ -222,3 +222,10 @@ int tcp_stop(ipc_data_t *ipc_data)
     return close(d->fd);
 }
 
+int tcp_fd(ipc_data_t *ipc_data)
+{
+    struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
+
+    return d->fd;
+}
+

@@ -164,3 +164,10 @@ int udp_stop(ipc_data_t *ipc_data)
     return close(d->fd);
 }
 
+int udp_fd(ipc_data_t *ipc_data)
+{
+    struct udp_data_s *d = (struct udp_data_s *)ipc_data;
+
+    return d->fd;
+}
+

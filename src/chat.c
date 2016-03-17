@@ -34,7 +34,6 @@
 
 /*
  * TODO: Save client info on the server side.
- *       Export fd info to use with polling functions.
  */
 
 /* IPCs methods */
@@ -363,6 +362,23 @@ static ipc_data_t *chat_ipc_accept(struct chat_s *c, unsigned int accept_timeout
     }
 
     return ipc_data;
+}
+
+static int chat_ipc_fd(struct chat_s *c)
+{
+    struct chat_ipc_methods_s *cim = NULL;
+
+    cim = get_chat_ipc_methods_s_from_chat_t(c);
+
+    if (NULL == cim)
+        return -1;
+
+    if (NULL == (cim->fd)) {
+        cset_errno(CL_NULL_DATA);
+        return -1;
+    }
+
+    return (cim->fd)(c->ipc_data);
 }
 
 /*
@@ -800,5 +816,17 @@ int LIBEXPORT chat_stop(chat_t *c)
         return -1;
 
     return 0;
+}
+
+int LIBEXPORT chat_fd(chat_t *c)
+{
+    cerrno_clear();
+
+    if (NULL == c) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    return chat_ipc_fd(c);
 }
 

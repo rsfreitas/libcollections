@@ -12,6 +12,7 @@ LIBCOLLECTIONS_0.1 {
         cfg_key_value;
         cfg_to_string;
         chat_new;
+        chat_fd;
         chat_free;
         chat_set_info;
         chat_client_start;

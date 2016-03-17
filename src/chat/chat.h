@@ -71,6 +71,7 @@ struct chat_ipc_methods_s {
     int                     (*stop)(ipc_data_t *);
     int                     (*send)(ipc_data_t *, struct chat_data_s *);
     struct chat_data_s      *(*recv)(ipc_data_t *, unsigned int);
+    int                     (*fd)(ipc_data_t *);
 
     /* Optional IPC manipulation methods */
     int                     (*connect)(ipc_data_t *);
@@ -137,6 +138,7 @@ ipc_data_t *tcp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout);
 int tcp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send);
 struct chat_data_s *tcp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout);
 int tcp_stop(ipc_data_t *ipc_data);
+int tcp_fd(ipc_data_t *ipc_data);
 
 /* UDP */
 ipc_data_t *udp_init(void);
@@ -147,6 +149,7 @@ ipc_data_t *udp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout);
 int udp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send);
 struct chat_data_s *udp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout);
 int udp_stop(ipc_data_t *ipc_data);
+int udp_fd(ipc_data_t *ipc_data);
 
 #endif
 

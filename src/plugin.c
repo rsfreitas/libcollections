@@ -427,7 +427,6 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     enum cplugin_plugin_type plugin_type;
 
     cerrno_clear();
-    srandom(time(NULL) + cseed());
 
     if (NULL == pathname) {
         cset_errno(CL_NULL_ARG);

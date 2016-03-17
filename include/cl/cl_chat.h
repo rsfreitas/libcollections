@@ -142,5 +142,15 @@ int chat_send(chat_t *chat, void *data, unsigned int data_size);
  */
 void *chat_recv(chat_t *chat, unsigned int recv_timeout, unsigned int *data_size);
 
+/**
+ * @name chat_fd
+ * @brief Gets the IPC file descriptor.
+ *
+ * @param [in] chat: The chat_t object.
+ *
+ * @return On success returns the IPC file descriptor or NULL otherwise.
+ */
+int chat_fd(chat_t *c);
+
 #endif
 

@@ -129,7 +129,7 @@ cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry)
     struct info_s *info = NULL;
 
     info = new_info_s(entry->name, entry->version, entry->description,
-                              entry->author);
+                      entry->author);
 
     if (NULL == info)
         return NULL;

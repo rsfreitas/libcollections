@@ -25,6 +25,8 @@
  * USA
  */
 
+#include <stdlib.h>
+
 #include "collections.h"
 #include "plugin.h"
 
@@ -42,6 +44,7 @@ static void dl_library_init(void)
     int old = 0, new = 1;
 
     if (ref_bool_compare(&__lib_ref, old, new) == true) {
+        srandom(time(NULL) + cseed());
         __lib_ref.free = __dl_library_uninit;
         c_library_init();
     } else
