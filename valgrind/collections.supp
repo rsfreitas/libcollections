@@ -1,0 +1,3494 @@
+
+## Python valgrind suppressions
+
+{
+   <suppression_1>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_2>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_3>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_4>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_5>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_6>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_7>
+   Memcheck:Cond
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_8>
+   Memcheck:Value4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_9>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_10>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_11>
+   Memcheck:Cond
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_12>
+   Memcheck:Value4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_13>
+   Memcheck:Cond
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_14>
+   Memcheck:Value4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_15>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_16>
+   Memcheck:Cond
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_17>
+   Memcheck:Value4
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_18>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_19>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_20>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyInt_FromString
+   fun:PyNumber_Int
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_21>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:PyDict_SetItemString
+   fun:PySys_SetObject
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_22>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_23>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:*
+}
+{
+   <suppression_24>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+}
+{
+   <suppression_25>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_26>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyGrammar_AddAccelerators
+   fun:PyParser_New
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_27>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyNode_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_28>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_29>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:*
+}
+{
+   <suppression_30>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyAST_Compile
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_31>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyAST_Compile
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_32>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_33>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   <suppression_34>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+   fun:dl_close
+}
+{
+   <suppression_35>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_36>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_37>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_38>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_39>
+   Memcheck:Cond
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_40>
+   Memcheck:Value4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_41>
+   Memcheck:Cond
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_42>
+   Memcheck:Value4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_43>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_44>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_45>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+}
+{
+   <suppression_46>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_47>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:_PyImport_Fini
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+   fun:dl_close
+   fun:cplugin_unload
+}
+{
+   <suppression_48>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyGrammar_RemoveAccelerators
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+   fun:dl_close
+   fun:cplugin_unload
+   fun:main
+}
+{
+   <suppression_49>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyList_New
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:Py_BuildValue
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_50>
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_51>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyThread_allocate_lock
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_52>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_53>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_54>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_55>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_56>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_57>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_58>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_59>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_60>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_61>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_62>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_63>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_64>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyThread_allocate_lock
+   fun:_PyImport_AcquireLock
+   fun:PyImport_ImportModuleLevel
+   fun:PyImport_Import
+   fun:PyImport_ImportModule
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+}
+{
+   <suppression_65>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyList_New
+   fun:_PyWarnings_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_66>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyThread_allocate_lock
+   fun:PyThread_create_key
+   fun:_PyGILState_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_67>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyThread_allocate_lock
+   fun:Py_MakePendingCalls
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_68>
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   <suppression_69>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_CallFunction
+   fun:PyErr_NewException
+}
+{
+   <suppression_70>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyStructSequence_InitType
+   fun:_PyLong_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_71>
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_72>
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_73>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_74>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_75>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyStructSequence_InitType
+   fun:_PySys_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_76>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyMem_Malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:Py_GetProgramFullPath
+   fun:_PySys_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_77>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyStructSequence_InitType
+   fun:initposix
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_78>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyStructSequence_InitType
+   fun:_PyFloat_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_79>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_80>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_81>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyStructSequence_InitType
+   fun:initposix
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_82>
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyList_Append
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+}
+{
+   <suppression_83>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:PyStructSequence_InitType
+   fun:initposix
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_84>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_85>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_86>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyStructSequence_InitType
+   fun:_PySys_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_87>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_88>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyObject_ClearWeakRefs
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_89>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_90>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_91>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_92>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PySequence_Contains
+}
+{
+   <suppression_93>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_94>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+}
+{
+   <suppression_95>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyObject_IsSubclass
+}
+{
+   <suppression_96>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_GetIter
+}
+{
+   <suppression_97>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_98>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_99>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_100>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_101>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_102>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_103>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_104>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_105>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_106>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_107>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_108>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_109>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_110>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_111>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_112>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_113>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_114>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_115>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_116>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_117>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_118>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:PyObject_GenericGetAttr
+   fun:PyObject_GetAttr
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_119>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_120>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_121>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_122>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_123>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_124>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:PyObject_GenericGetAttr
+   fun:PyObject_GetAttr
+   fun:PyImport_Import
+   fun:PyImport_ImportModule
+   fun:_PyExc_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+}
+{
+   <suppression_125>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:initzipimport
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_126>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_GenericSetAttr
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_SetAttr
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_127>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:init_sre
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_128>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:init_sre
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_129>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_130>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_131>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+}
+{
+   <suppression_132>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_133>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_134>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:PyStructSequence_InitType
+   fun:initposix
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_135>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_136>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyTuple_New
+   fun:PyType_Ready
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+}
+{
+   <suppression_137>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_CallFunction
+   fun:PyErr_NewException
+   fun:initzipimport
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_138>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_CallFunction
+   fun:PyErr_NewException
+   fun:initsignal
+   fun:PyOS_InitInterrupts
+}
+{
+   <suppression_139>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_140>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:initzipimport
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_141>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_142>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_143>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_144>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_PyObject_GenericGetAttrWithDict
+   fun:PyObject_GenericGetAttr
+   fun:PyObject_GetAttr
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_145>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_146>
+   Memcheck:Leak
+   fun:malloc
+   fun:_PyInt_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_147>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyInt_FromLong
+   obj:*
+}
+{
+   <suppression_148>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+}
+{
+   <suppression_149>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_150>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+}
+{
+   <suppression_151>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:PyStructSequence_InitType
+   fun:_PySys_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_152>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:PyStructSequence_InitType
+   fun:_PySys_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_153>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_154>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_155>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_156>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_157>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_158>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_159>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_160>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_161>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_162>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_163>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_164>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_165>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_166>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_167>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_168>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_169>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_170>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_171>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_172>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_173>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_174>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyStructSequence_InitType
+   fun:_PyLong_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_175>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:PyStructSequence_InitType
+   fun:_PyFloat_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_176>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_177>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_178>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:PyStructSequence_InitType
+   fun:initposix
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_179>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   fun:PyStructSequence_InitType
+   fun:initposix
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_180>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_181>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:_PyObject_GenericSetAttrWithDict
+   fun:PyObject_GenericSetAttr
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_SetAttr
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_182>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:PyType_Ready
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_183>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_184>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_Merge
+   fun:PyDict_Copy
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_185>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_Merge
+   fun:PyDict_Copy
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+}
+{
+   <suppression_186>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromStringAndSize
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_187>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItemString
+   fun:_PyBuiltin_Init
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_188>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_189>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyCFunction_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_190>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:PyType_GenericAlloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+   fun:PyImport_ExecCodeModuleEx
+}
+{
+   <suppression_191>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyString_InternInPlace
+   obj:*
+}
+{
+   <suppression_192>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:_PyObject_GC_Malloc
+   fun:_PyObject_GC_NewVar
+   fun:PyTuple_New
+   fun:PyType_Ready
+   fun:PyType_Ready
+   fun:_Py_ReadyTypes
+   fun:Py_InitializeEx
+   fun:Py_Initialize
+   fun:dl_library_init
+   fun:dl_open
+}
+{
+   <suppression_193>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromString
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:initerrno
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_194>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+   fun:PyString_FromStringAndSize
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_195>
+   Memcheck:Value4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_196>
+   Memcheck:Cond
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_197>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:*
+}
+{
+   <suppression_198>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_199>
+   Memcheck:Value4
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_200>
+   Memcheck:Cond
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_201>
+   Memcheck:Value4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_202>
+   Memcheck:Cond
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_203>
+   Memcheck:Value4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_204>
+   Memcheck:Cond
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_205>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_206>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_207>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_208>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_209>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyAST_Compile
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_210>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:*
+}
+{
+   <suppression_211>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_212>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+}
+{
+   <suppression_213>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_214>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_215>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:_PyImport_Fini
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+   fun:dl_close
+   fun:cplugin_unload
+}
+{
+   <suppression_216>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_217>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_218>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalCode
+}
+{
+   <suppression_219>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_220>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyAST_Compile
+   fun:PyRun_StringFlags
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_221>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyNode_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_222>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_223>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:PyDict_SetItemString
+   fun:PySys_SetObject
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_224>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+}
+{
+   <suppression_225>
+   Memcheck:Value4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_226>
+   Memcheck:Cond
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_227>
+   Memcheck:Value4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_228>
+   Memcheck:Cond
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_229>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+}
+{
+   <suppression_230>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+   fun:dl_close
+}
+{
+   <suppression_231>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_232>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   fun:_PyObject_GC_Resize
+   fun:PyFrame_New
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_233>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyInt_FromString
+   fun:PyNumber_Int
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyObject_Call
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalFrameEx
+   fun:PyEval_EvalCodeEx
+}
+{
+   <suppression_234>
+   Memcheck:Addr4
+   fun:PyObject_Realloc
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_235>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_236>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:*
+}
+{
+   <suppression_237>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
+{
+   <suppression_238>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+}
+{
+   <suppression_239>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_240>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyObject_GC_Del
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+   fun:PyDict_SetItem
+   fun:_PyModule_Clear
+   fun:PyImport_Cleanup
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+}
+{
+   <suppression_241>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyGrammar_RemoveAccelerators
+   fun:Py_Finalize
+   fun:py_library_uninit
+   fun:__dl_library_uninit
+   fun:ref_dec
+   fun:dl_library_uninit
+   fun:dl_close
+   fun:cplugin_unload
+   fun:main
+}
+{
+   <suppression_242>
+   Memcheck:Addr4
+   fun:PyObject_Free
+   fun:PyGrammar_AddAccelerators
+   fun:PyParser_New
+   obj:/usr/lib/libpython2.7.so.1.0
+   obj:/usr/lib/libpython2.7.so.1.0
+}
