@@ -31,7 +31,7 @@
 unsigned int LIBEXPORT cseed(void)
 {
     FILE *f;
-    char tmp[64]={0};
+    char tmp[64] = {0}, *p;
 
     cerrno_clear();
     f = popen("cat /proc/sys/kernel/random/uuid | cut -d '-' -f 2", "r");
@@ -41,8 +41,13 @@ unsigned int LIBEXPORT cseed(void)
         return 0;
     }
 
-    fgets(tmp, sizeof(tmp) - 1, f);
+    p = fgets(tmp, sizeof(tmp) - 1, f);
     pclose(f);
+
+    if (NULL == p) {
+        cset_errno(CL_NULL_DATA);
+        return 0;
+    }
 
     return strtol(tmp, NULL, 16);
 }

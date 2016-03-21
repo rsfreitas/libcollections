@@ -76,6 +76,7 @@ int LIBEXPORT cplugin_arg_count(const cplugin_arg_t *args)
 int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
     unsigned int caller_id, enum cl_type type, ...)
 {
+    struct cplugin_s *pl = (struct cplugin_s *)cpl;
     struct cplugin_function_s *foo = NULL;
     struct cplugin_fdata_s *return_value = NULL;
     va_list ap;
@@ -89,7 +90,7 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
         return -1;
     }
 
-    foo = cdll_map(cpl->functions, search_cplugin_function_s,
+    foo = cdll_map(pl->functions, search_cplugin_function_s,
                    (char *)function_name);
 
     if (NULL == foo) {
@@ -158,6 +159,8 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
 
 cplugin_info_t LIBEXPORT *cplugin_info(const cplugin_t *cpl)
 {
+    struct cplugin_s *pl = (struct cplugin_s *)cpl;
+
     cerrno_clear();
 
     if (NULL == cpl) {
@@ -165,13 +168,13 @@ cplugin_info_t LIBEXPORT *cplugin_info(const cplugin_t *cpl)
         return NULL;
     }
 
-    return cpl->info;
+    return info_ref(pl->info);
 }
 
 cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
 {
     void *handle = NULL;
-    struct cplugin_info_s *info = NULL;
+    cplugin_info_t *info = NULL;
     enum cplugin_plugin_type plugin_type;
 
     cerrno_clear();
@@ -350,6 +353,7 @@ enum cl_type LIBEXPORT cplugin_function_arg_type(const cplugin_info_t *info,
 cvalue_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
     const char *function_name, ...)
 {
+    struct cplugin_s *pl = (struct cplugin_s *)cpl;
     struct cplugin_function_s *foo = NULL;
     va_list ap;
     int fargc = 0;
@@ -357,9 +361,15 @@ cvalue_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
     uint32_t caller_id = 0;
 
     cerrno_clear();
+
+    if (NULL == cpl) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
     va_start(ap, NULL);
     argc -= CPLUGIN_CALL_DEF_ARGUMENTS;
-    foo = cdll_map(cpl->functions, search_cplugin_function_s,
+    foo = cdll_map(pl->functions, search_cplugin_function_s,
                    (char *)function_name);
 
     if (NULL == foo) {
@@ -400,10 +410,10 @@ cvalue_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
      */
 
     /* Call the function */
-    dl_call(foo, caller_id, cpl);
+    dl_call(foo, caller_id, pl);
 
     if (foo->return_value != CL_VOID)
-        cplv = cplugin_get_return_value(cpl, function_name, caller_id);
+        cplv = cplugin_get_return_value(pl, function_name, caller_id);
 
     /* Unload arguments */
     if (foo->type_of_args == CPLUGIN_ARG_VAR) {
@@ -505,6 +515,8 @@ error_block:
 
 int LIBEXPORT cplugin_unload(cplugin_t *cpl)
 {
+    struct cplugin_s *pl = (struct cplugin_s *)cpl;
+
     cerrno_clear();
 
     if (NULL == cpl) {
@@ -518,8 +530,8 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
         return -1;
     }
 
-    if (cpl->handle != NULL)
-        dl_close(cpl->handle, cpl->type);
+    if (pl->handle != NULL)
+        dl_close(pl->handle, pl->type);
 
     if (destroy_cplugin_s(cpl) < 0)
         return -1;
@@ -529,6 +541,8 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
 
 cplugin_internal_data_t LIBEXPORT *cplugin_get_startup_data(cplugin_t *cpl)
 {
+    struct cplugin_s *pl = (struct cplugin_s *)cpl;
+
     cerrno_clear();
 
     if (NULL == cpl) {
@@ -536,7 +550,7 @@ cplugin_internal_data_t LIBEXPORT *cplugin_get_startup_data(cplugin_t *cpl)
         return NULL;
     }
 
-    return cpl->idata;
+    return pl->idata;
 }
 
 cplugin_internal_data_t LIBEXPORT

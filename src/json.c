@@ -1171,7 +1171,7 @@ static char *print_number(struct cjson_s *item)
     cstring_t *value = NULL;
     char *str = NULL;
     double d;
-    int i;
+    int i, b = 0;
 
     value = cjson_get_object_value(item);
     d = cstring_value_as_double(value);
@@ -1181,15 +1181,18 @@ static char *print_number(struct cjson_s *item)
         (d <= INT_MAX) &&
         (d >= INT_MIN))
     {
-        asprintf(&str, "%d", i);
+        b = asprintf(&str, "%d", i);
     } else {
         if (fabs(floor(d) - d) <= DBL_EPSILON)
-            asprintf(&str, "%.0f", d);
+            b = asprintf(&str, "%.0f", d);
         else if ((fabs(d) < 1.0e-6) || (fabs(d) > 1.0e9))
-            asprintf(&str, "%e", d);
+            b = asprintf(&str, "%e", d);
         else
-            asprintf(&str, "%f", d);
+            b = asprintf(&str, "%f", d);
     }
+
+    if (b == -1)
+        return NULL;
 
     return str;
 }

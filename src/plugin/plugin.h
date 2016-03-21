@@ -48,7 +48,8 @@
 
 /* Supported plugin languages */
 enum cplugin_plugin_type {
-    CPLUGIN_C               /* C or C++ */
+    CPLUGIN_C,              /* C or C++ */
+    CPLUGIN_PYTHON          /* Python */
 };
 
 enum cplugin_info {
@@ -88,9 +89,8 @@ struct cplugin_function_s {
     enum cplugin_arg            type_of_args;
     struct cplugin_fdata_s      *args;
 
-    /* Pointers to the real function */
-    void                        (*p)(uint32_t, cplugin_t *, cplugin_arg_t *);
-    void                        *p_ex;
+    /* Pointer to the real function */
+    void                        *symbol;
 };
 
 struct cplugin_s {
@@ -147,15 +147,26 @@ void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
 cplugin_internal_data_t *c_plugin_startup(void *handle);
 int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata, void *handle);
 
+/* dl_python.c */
+void py_library_init(void);
+void py_library_uninit(void);
+cplugin_info_t *py_load_info(void *ptr);
+int py_load_functions(struct cplugin_function_s *flist, void *handle);
+void *py_open(const char *pathname);
+int py_close(void *ptr);
+void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
+             struct cplugin_s *cpl);
+
+cplugin_internal_data_t *py_plugin_startup(void *handle);
+int py_plugin_shutdown(cplugin_internal_data_t *pl_idata, void *handle);
+
 /* dl.c */
 void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type);
 int dl_close(void *handle, enum cplugin_plugin_type plugin_type);
 int dl_load_functions(struct cplugin_function_s *flist, void *handle,
                       enum cplugin_plugin_type plugin_type);
 
-struct cplugin_info_s *dl_load_info(void *handle,
-                                    enum cplugin_plugin_type plugin_type);
-
+cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type);
 void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
              struct cplugin_s *cpl);
 
@@ -206,7 +217,8 @@ struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
 
 /* rv.c */
-cvalue_t *cplugin_get_return_value(cplugin_t *cpl, const char *function_name,
+cvalue_t *cplugin_get_return_value(struct cplugin_s *cpl,
+                                   const char *function_name,
                                    uint32_t caller_id);
 
 #endif

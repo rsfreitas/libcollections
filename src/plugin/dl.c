@@ -36,6 +36,7 @@ static struct ref_s __lib_ref = {
 
 static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 {
+    py_library_uninit();
     c_library_uninit();
 }
 
@@ -47,6 +48,7 @@ static void dl_library_init(void)
         srandom(time(NULL) + cseed());
         __lib_ref.free = __dl_library_uninit;
         c_library_init();
+        py_library_init();
     } else
         ref_inc(&__lib_ref);
 }
@@ -69,6 +71,10 @@ void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type)
         case CPLUGIN_C:
             p = c_open(pathname);
             break;
+
+        case CPLUGIN_PYTHON:
+            p = py_open(pathname);
+            break;
     }
 
     return p;
@@ -88,6 +94,10 @@ int dl_close(void *handle, enum cplugin_plugin_type plugin_type)
         case CPLUGIN_C:
             ret = c_close(handle);
             break;
+
+        case CPLUGIN_PYTHON:
+            ret = py_close(handle);
+            break;
     }
 
     dl_library_uninit();
@@ -104,6 +114,9 @@ int dl_load_functions(struct cplugin_function_s *flist, void *handle,
     switch (plugin_type) {
         case CPLUGIN_C:
             return c_load_functions(flist, handle);
+
+        case CPLUGIN_PYTHON:
+            return py_load_functions(flist, handle);
     }
 
     return 0;
@@ -112,15 +125,17 @@ int dl_load_functions(struct cplugin_function_s *flist, void *handle,
 /*
  * Load informations from a plugin.
  */
-struct cplugin_info_s *dl_load_info(void *handle,
-    enum cplugin_plugin_type plugin_type)
+cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
 {
-    struct cplugin_info_s *info = NULL;
+    cplugin_info_t *info = NULL;
 
     switch (plugin_type) {
         case CPLUGIN_C:
             info = c_load_info(handle);
             break;
+
+        case CPLUGIN_PYTHON:
+            info = py_load_info(handle);
     }
 
     return info;
@@ -136,6 +151,9 @@ cplugin_internal_data_t *dl_plugin_startup(void *handle,
     switch (plugin_type) {
         case CPLUGIN_C:
             return c_plugin_startup(handle);
+
+        case CPLUGIN_PYTHON:
+            return py_plugin_startup(handle);
     }
 
     return NULL;
@@ -150,6 +168,9 @@ int dl_plugin_shutdown(struct cplugin_s *cpl)
     switch (cpl->type) {
         case CPLUGIN_C:
             return c_plugin_shutdown(cpl->idata, cpl->handle);
+
+        case CPLUGIN_PYTHON:
+            return py_plugin_shutdown(cpl->idata, cpl->handle);
     }
 
     return -1;
@@ -161,6 +182,10 @@ void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
     switch (cpl->type) {
         case CPLUGIN_C:
             c_call(foo, caller_id, cpl);
+            break;
+
+        case CPLUGIN_PYTHON:
+            py_call(foo, caller_id, cpl);
             break;
     }
 }

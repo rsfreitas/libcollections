@@ -76,8 +76,10 @@ static void plugin_details(cplugin_info_t *info)
 
         a = cplugin_function_arguments(info, name);
 
-        if (NULL == a)
+        if (NULL == a) {
+            cstring_unref(p);
             continue;
+        }
 
         k = cstring_list_size(a);
         fprintf(stdout, "Arguments\n");

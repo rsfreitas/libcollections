@@ -31,8 +31,7 @@
 #include "plugin.h"
 
 /* Exported function prototype */
-#define C_EXPORTED_FUNCTION                     \
-    void (*)(uint32_t, cplugin_t *, cplugin_arg_t *)
+typedef void (*c_exported_function)(uint32_t, cplugin_t *, cplugin_arg_t *);
 
 /* Function name to get the internal plugin information */
 #define CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL    "cplugin_set_plugin_entry_name"
@@ -90,7 +89,7 @@ static int c_load_function(void *a, void *b)
     void *handle = b;
     char *error = NULL;
 
-    foo->p = dlsym(handle, foo->name);
+    foo->symbol = dlsym(handle, foo->name);
 
     if ((error = dlerror()) != NULL) {
         cset_errno(CL_FUNCTION_SYMBOL_NOT_FOUND);
@@ -132,12 +131,19 @@ int c_close(void *handle)
 void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
     struct cplugin_s *cpl)
 {
-    (foo->p)(caller_id, cpl, foo->args);
+    c_exported_function f;
+
+    if (NULL == foo->symbol)
+        /* do nothing */
+        return;
+
+    f = foo->symbol;
+    f(caller_id, cpl, foo->args);
 }
 
 cplugin_internal_data_t *c_plugin_startup(void *handle)
 {
-    cplugin_internal_data_t *(*foo)(CPLUGIN_STARTUP_ARGS)=NULL;
+    cplugin_internal_data_t *(*foo)(CPLUGIN_STARTUP_ARGS) = NULL;
     struct cplugin_entry_s *entry;
 
     entry = call_entry_symbol(handle);
@@ -159,7 +165,7 @@ cplugin_internal_data_t *c_plugin_startup(void *handle)
 
 int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata, void *handle)
 {
-    int (*foo)(CPLUGIN_SHUTDOWN_ARGS)=NULL;
+    int (*foo)(CPLUGIN_SHUTDOWN_ARGS) = NULL;
     struct cplugin_entry_s *entry;
 
     entry = call_entry_symbol(handle);

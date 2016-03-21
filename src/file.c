@@ -38,6 +38,7 @@ unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
     FILE *f;
     struct stat info;
     unsigned char *b=NULL;
+    size_t sread = 0;
 
     if (stat(filename, &info) < 0)
         return NULL;
@@ -54,8 +55,11 @@ unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
         return NULL;
     }
 
-    fread(b, info.st_size, 1, f);
+    sread = fread(b, info.st_size, 1, f);
     fclose(f);
+
+    if ((off_t)sread != info.st_size)
+        return NULL;
 
     *bsize = info.st_size;
 
