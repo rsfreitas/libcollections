@@ -34,12 +34,6 @@
 #include "collections.h"
 #include "plugin.h"
 
-/* FIXME: This should not be here... */
-/* Keys to access PyObject encapsulated info */
-#define PYARGS                              "pyargs"
-#define PYCPLUGIN_T                         "pycplugin_t"
-#define PYSHUTDOWN_ARGS                     "pyshutargs"
-
 void py_library_init(void)
 {
     setenv("PYTHONPATH", "/usr/local/lib", 1);
@@ -68,8 +62,10 @@ static char *py_strip_filename(const char *pathname)
     else {
         n = calloc(1, strlen(bname) - strlen(ext) + 1);
 
-        if (NULL == n)
+        if (NULL == n) {
+            cset_errno(CL_NO_MEM);
             return NULL;
+        }
 
         strncpy(n, bname, strlen(bname) - strlen(ext));
     }
@@ -103,18 +99,18 @@ cplugin_info_t *py_load_info(void *ptr)
     class = PyDict_GetItemString(dict, "cplugin_entry_s");
 
     if (NULL == class) {
-//        cset_errno(CL_ERROR_PY_GET_ITEM);
+        cset_errno(CL_ENTRY_SYMBOL_NOT_FOUND);
         return NULL;
     }
 
     if (!PyCallable_Check(class)) {
-//        cset_errno(CL_ERROR_PY_OBJECT_NOT_CALLABLE);
+        cset_errno(CL_NO_PLUGIN_INFO);
         return NULL;
     } else
         instance = PyObject_CallObject(class, NULL);
 
     if (NULL == instance) {
-//        cset_errno(CL_ERROR_PY_OBJECT_CALL);
+        cset_errno(CL_NO_PLUGIN_INFO);
         return NULL;
     }
 
@@ -125,7 +121,7 @@ cplugin_info_t *py_load_info(void *ptr)
         result = PyObject_CallMethod(instance, pyinfo[i].fname, NULL);
 
         if (NULL == result) {
-//            cset_errno(CL_ERROR_PY_OBJECT_CALL_METHOD);
+            cset_errno(CL_NO_PLUGIN_INFO);
             return NULL;
         }
 
@@ -151,8 +147,10 @@ static int py_load_function(void *a, void *b)
 
 int py_load_functions(struct cplugin_function_s *flist, void *handle)
 {
-    if (cdll_map(flist, py_load_function, handle) != NULL)
+    if (cdll_map(flist, py_load_function, handle) != NULL) {
+        cset_errno(CL_FUNCTION_SYMBOL_NOT_FOUND);
         return -1;
+    }
 
     return 0;
 }
@@ -168,16 +166,14 @@ void *py_open(const char *pathname)
      */
     tmp = py_strip_filename(pathname);
 
-    if (NULL == tmp) {
-//        cset_errno(CL_ERROR_STRIP_FILENAME);
+    if (NULL == tmp)
         return NULL;
-    }
 
     pname = PyString_FromString(tmp);
     free(tmp);
 
     if (NULL == pname) {
-//        cset_errno(CL_ERROR_PY_CVT_STRING);
+        cset_errno(CL_CVT_DATA_FAILED);
         return NULL;
     }
 
@@ -185,14 +181,14 @@ void *py_open(const char *pathname)
     PyErr_Print();
 
     if (NULL == module) {
-//        cset_errno(CL_ERROR_PY_IMPORT);
+        cset_errno(CL_PY_IMPORT_FAILED);
         return NULL;
     }
 
     handle = PyModule_GetDict(module);
 
     if (NULL == handle) {
-//        cset_errno(CL_ERROR_PY_GET_DICT);
+        cset_errno(CL_PY_GET_DICT_FAILED);
         return NULL;
     }
 

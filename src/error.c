@@ -81,7 +81,10 @@ static const char *__cdescriptions[] = {
     "Plugin informations not found",
     "Plugin information symbol not found",
     "Plugin startup error",
-    "Plugin shutdown error"
+    "Plugin shutdown error",
+    "Failed to load python plugin",
+    "Failed to get python object dictionary",
+    "Data convertion failed"
 };
 
 static const char *__cunknown_error = "Unknown error";

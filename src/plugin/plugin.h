@@ -46,8 +46,9 @@
 /* Default number of arguments to 'cplugin_call_ex' function */
 #define CPLUGIN_CALL_DEF_ARGUMENTS          3
 
-/* Supported plugin languages */
+/* Plugin languages */
 enum cplugin_plugin_type {
+    CPLUGIN_UNKNOWN,
     CPLUGIN_C,              /* C or C++ */
     CPLUGIN_PYTHON          /* Python */
 };
@@ -161,6 +162,7 @@ cplugin_internal_data_t *py_plugin_startup(void *handle);
 int py_plugin_shutdown(cplugin_internal_data_t *pl_idata, void *handle);
 
 /* dl.c */
+enum cplugin_plugin_type dl_get_plugin_type(const char *pathname);
 void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type);
 int dl_close(void *handle, enum cplugin_plugin_type plugin_type);
 int dl_load_functions(struct cplugin_function_s *flist, void *handle,
@@ -206,12 +208,10 @@ void destroy_cplugin_function_s_list(struct cplugin_function_s *flist);
 int search_cplugin_function_s(void *a, void *b);
 int search_cplugin_fdata_s(void *a, void *b);
 int search_cplugin_fdata_s_by_caller_id(void *a, void *b);
-struct cplugin_list_s *new_cplugin_list_s(const char *name,
-                                          enum cl_type type);
+struct cplugin_list_s *new_cplugin_list_s(const char *name, enum cl_type type);
 
 void destroy_cplugin_list_s(struct cplugin_list_s *l);
 uint32_t random_caller_id(struct cplugin_function_s *foo);
-enum cplugin_plugin_type guess_plugin_type(const char *pathname);
 
 struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);

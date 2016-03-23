@@ -184,7 +184,13 @@ cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
         return NULL;
     }
 
-    plugin_type = guess_plugin_type(pathname);
+    plugin_type = dl_get_plugin_type(pathname);
+
+    if (plugin_type == CPLUGIN_UNKNOWN) {
+        cset_errno(CL_UNSUPPORTED_TYPE);
+        return NULL;
+    }
+
     handle = dl_open(pathname, plugin_type);
 
     if (NULL == handle) {
@@ -448,7 +454,13 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
         return NULL;
     }
 
-    plugin_type = guess_plugin_type(pathname);
+    plugin_type = dl_get_plugin_type(pathname);
+
+    if (plugin_type == CPLUGIN_UNKNOWN) {
+        cset_errno(CL_UNSUPPORTED_TYPE);
+        return NULL;
+    }
+
     handle = dl_open(pathname, plugin_type);
 
     if (NULL == handle) {
@@ -462,7 +474,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     if (NULL == info)
         goto error_block;
 
-    /* Transform the JSON API to a list of functions and arguments */
+    /* Transform the JSON API into a list of functions and arguments */
     flist = api_parse(info);
 
     if (NULL == flist)

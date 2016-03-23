@@ -40,6 +40,12 @@
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - offsetof(type, member)))
 
+/* _cplugin.c */
+/* Keys to access PyObject encapsulated info */
+#define PYARGS                              "pyargs"
+#define PYCPLUGIN_T                         "pycplugin_t"
+#define PYSHUTDOWN_ARGS                     "pyshutargs"
+
 /* error.c */
 void cerrno_clear(void);
 void cset_errno(enum cerror_code error_code);

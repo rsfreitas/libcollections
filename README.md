@@ -22,4 +22,5 @@ LGPLv2
 * Pthreads
 * Realtime extensions library
 * python-enum34 for python extension
+* libmagic
 

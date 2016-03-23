@@ -18,10 +18,10 @@ INCLUDEDIR = -I../include
 INCLUDEDIR += -I/usr/include/python2.7
 
 LIBDIR = -L/usr/local/lib
-LIBS = -lpthread -lm -lrt -ldl -lpython2.7
+LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic
 
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
-		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
+		 -D_GNU_SOURCE -DLINUX -DUSE_LIBMAGIC $(INCLUDEDIR)
 
 CHAT_PATH = ./chat
 PLUGIN_PATH = ./plugin

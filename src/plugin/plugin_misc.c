@@ -217,14 +217,3 @@ uint32_t random_caller_id(struct cplugin_function_s *foo)
     return n;
 }
 
-enum cplugin_plugin_type guess_plugin_type(const char *pathname __attribute__((unused)))
-{
-    /*
-     * TODO: Implement a function to define if the file pointed by
-     *       @filename is of a specific type, using maybe the 'file'
-     *       command.
-     */
-    return CPLUGIN_C;
-//    return CPLUGIN_PYTHON;
-}
-

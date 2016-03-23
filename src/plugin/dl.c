@@ -27,35 +27,119 @@
 
 #include <stdlib.h>
 
+#ifdef USE_LIBMAGIC
+# include <magic.h>
+#endif
+
 #include "collections.h"
 #include "plugin.h"
 
-static struct ref_s __lib_ref = {
-    .count = 0,
+struct dl_info {
+#ifdef USE_LIBMAGIC
+    magic_t         cookie;
+#endif
+    struct ref_s    ref;
+};
+
+static struct dl_info __dl = {
+    .ref.count = 0,
 };
 
 static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 {
     py_library_uninit();
     c_library_uninit();
+
+    /* dl_uninit */
+    magic_close(__dl.cookie);
 }
 
 static void dl_library_init(void)
 {
     int old = 0, new = 1;
 
-    if (ref_bool_compare(&__lib_ref, old, new) == true) {
+    if (ref_bool_compare(&__dl.ref, old, new) == true) {
         srandom(time(NULL) + cseed());
-        __lib_ref.free = __dl_library_uninit;
+
+#ifdef USE_LIBMAGIC
+        __dl.cookie = magic_open(MAGIC_MIME_TYPE);
+
+        if (NULL == __dl.cookie)
+            return;
+
+        if (magic_load(__dl.cookie, NULL) != 0) {
+            magic_close(__dl.cookie);
+            return;
+        }
+#endif
+
+        __dl.ref.free = __dl_library_uninit;
         c_library_init();
         py_library_init();
     } else
-        ref_inc(&__lib_ref);
+        ref_inc(&__dl.ref);
 }
 
 static void dl_library_uninit(void)
 {
-    ref_dec(&__lib_ref);
+    ref_dec(&__dl.ref);
+}
+
+static cstring_t *get_file_info(const char *filename)
+{
+    cstring_t *s = NULL;
+
+#ifdef USE_LIBMAGIC
+    s = cstring_new("%s", magic_file(__dl.cookie, filename));
+#endif
+
+    return s;
+}
+
+static enum cplugin_plugin_type parse_plugin_type(cstring_t *s)
+{
+    enum cplugin_plugin_type t = CPLUGIN_UNKNOWN;
+    cstring_t *p = NULL;
+
+    p = cstring_new("application/x-sharedlib");
+
+    if (cstring_cmp(s, p) == 0) {
+        t = CPLUGIN_C;
+        goto ok;
+    }
+
+    cstring_clear(p);
+    cstring_cat(p, "text/x-python");
+
+    if (cstring_cmp(s, p) == 0) {
+        t = CPLUGIN_PYTHON;
+        goto ok;
+    }
+
+ok:
+    if (p != NULL)
+        cstring_unref(p);
+
+    return t;
+}
+
+enum cplugin_plugin_type dl_get_plugin_type(const char *pathname)
+{
+    cstring_t *info = NULL;
+    enum cplugin_plugin_type type;
+
+    dl_library_init();
+    info = get_file_info(pathname);
+
+    if (NULL == info)
+        return CPLUGIN_UNKNOWN;
+
+    /* DEBUG */
+    printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(info));
+    type = parse_plugin_type(info);
+    cstring_unref(info);
+
+    return type;
 }
 
 /*
@@ -65,8 +149,6 @@ void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type)
 {
     void *p = NULL;
 
-    dl_library_init();
-
     switch (plugin_type) {
         case CPLUGIN_C:
             p = c_open(pathname);
@@ -75,6 +157,9 @@ void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type)
         case CPLUGIN_PYTHON:
             p = py_open(pathname);
             break;
+
+        default:
+            return NULL;
     }
 
     return p;
@@ -98,6 +183,9 @@ int dl_close(void *handle, enum cplugin_plugin_type plugin_type)
         case CPLUGIN_PYTHON:
             ret = py_close(handle);
             break;
+
+        default:
+            return 0;
     }
 
     dl_library_uninit();
@@ -117,6 +205,9 @@ int dl_load_functions(struct cplugin_function_s *flist, void *handle,
 
         case CPLUGIN_PYTHON:
             return py_load_functions(flist, handle);
+
+        default:
+            return 0;
     }
 
     return 0;
@@ -136,6 +227,9 @@ cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
 
         case CPLUGIN_PYTHON:
             info = py_load_info(handle);
+
+        default:
+            break;
     }
 
     return info;
@@ -154,6 +248,9 @@ cplugin_internal_data_t *dl_plugin_startup(void *handle,
 
         case CPLUGIN_PYTHON:
             return py_plugin_startup(handle);
+
+        default:
+            break;
     }
 
     return NULL;
@@ -171,6 +268,9 @@ int dl_plugin_shutdown(struct cplugin_s *cpl)
 
         case CPLUGIN_PYTHON:
             return py_plugin_shutdown(cpl->idata, cpl->handle);
+
+        default:
+            break;
     }
 
     return -1;
@@ -186,6 +286,9 @@ void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
 
         case CPLUGIN_PYTHON:
             py_call(foo, caller_id, cpl);
+            break;
+
+        default:
             break;
     }
 }
