@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name cspec_new
+ * @name cspec_create
  * @brief Creates a cspec_t object.
  *
  * The cspec_t is an object to add parameters specification to other objects,
@@ -51,18 +51,18 @@
  *
  * @return On success returns an object of cspec_t type or NULL otherwise.
  */
-cspec_t *cspec_new(enum cl_param_flags properties, cvalue_t *min, cvalue_t *max,
-                   unsigned int max_length);
+cspec_t *cspec_create(enum cl_param_flags properties, cvalue_t *min,
+                      cvalue_t *max, unsigned int max_length);
 
 /**
- * @name cspec_free
+ * @name cspec_destroy
  * @brief Releases a cspec_t object from memory.
  *
  * @param [in,out] spec: The cspec_t object which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cspec_free(cspec_t *spec);
+int cspec_destroy(cspec_t *spec);
 
 /**
  * @name cspec_validate
@@ -78,7 +78,7 @@ int cspec_free(cspec_t *spec);
  * @return On sucess returns true or false otherwise.
  */
 bool cspec_validate(const cspec_t *spec, cvalue_t *value, bool set_value,
-                       va_list ap);
+                    va_list ap);
 
 #endif
 

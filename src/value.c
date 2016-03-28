@@ -108,7 +108,7 @@ static void destroy_cvalue_s(const struct ref_s *ref)
         free_value_data(o);
 
     if (o->specs != NULL)
-        cspec_free(o->specs);
+        cspec_destroy(o->specs);
 
     free(o);
 }
@@ -390,7 +390,8 @@ int LIBEXPORT cvalue_set(cvalue_t *value, ...)
 
     return 0;
 }
-cvalue_t LIBEXPORT *cvalue_new(enum cl_type type, ...)
+
+cvalue_t LIBEXPORT *cvalue_create(enum cl_type type, ...)
 {
     struct cvalue_s *o = NULL;
     va_list ap;
@@ -412,7 +413,7 @@ cvalue_t LIBEXPORT *cvalue_new(enum cl_type type, ...)
     return o;
 }
 
-cvalue_t LIBEXPORT *cvalue_new_with_spec(enum cl_type type, cspec_t *spec)
+cvalue_t LIBEXPORT *cvalue_create_with_spec(enum cl_type type, cspec_t *spec)
 {
     struct cvalue_s *o = NULL;
 
@@ -436,7 +437,7 @@ cvalue_t LIBEXPORT *cvalue_new_with_spec(enum cl_type type, cspec_t *spec)
     return o;
 }
 
-int LIBEXPORT cvalue_free(cvalue_t *value)
+int LIBEXPORT cvalue_destroy(cvalue_t *value)
 {
     return cvalue_unref(value);
 }
@@ -890,11 +891,11 @@ cvalue_t LIBEXPORT *cvalue_from_string(const cstring_t *value)
     ref = cstring_ref((cstring_t *)value);
 
     if (cstring_is_number(ref) == true)
-        o = cvalue_new(CL_INT, cstring_value_as_int(ref));
+        o = cvalue_create(CL_INT, cstring_value_as_int(ref));
     else if (cstring_is_float_number(ref) == true)
-        o = cvalue_new(CL_FLOAT, cstring_value_as_float(ref));
+        o = cvalue_create(CL_FLOAT, cstring_value_as_float(ref));
     else
-        o = cvalue_new(CL_STRING, ref);
+        o = cvalue_create(CL_STRING, ref);
 
     cstring_unref(ref);
 

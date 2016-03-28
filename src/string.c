@@ -925,7 +925,7 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
         return NULL;
     }
 
-    l = cstring_list_new();
+    l = cstring_list_create();
 
     if (NULL == l) {
         cstring_unref(p);

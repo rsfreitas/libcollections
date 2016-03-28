@@ -107,13 +107,13 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
 
     switch (type) {
         case CL_INT:
-            return_value->value = cvalue_new(CL_INT, va_arg(ap, int), NULL);
+            return_value->value = cvalue_create(CL_INT, va_arg(ap, int), NULL);
             break;
 
         case CL_UINT:
-            return_value->value = cvalue_new(CL_UINT,
-                                             (unsigned int)va_arg(ap, int),
-                                             NULL);
+            return_value->value = cvalue_create(CL_UINT,
+                                                (unsigned int)va_arg(ap, int),
+                                                NULL);
 
             break;
 
@@ -124,17 +124,21 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
         case CL_POINTER:
             p = va_arg(ap, void *);
             psize = va_arg(ap, int);
-            return_value->value = cvalue_new(CL_POINTER, true, p, psize, NULL);
+            return_value->value = cvalue_create(CL_POINTER, true, p, psize,
+                                                NULL);
+
             break;
 
         case CL_CHAR:
-            return_value->value = cvalue_new(CL_CHAR, (char)va_arg(ap, int),
-                                             NULL);
+            return_value->value = cvalue_create(CL_CHAR, (char)va_arg(ap, int),
+                                                NULL);
 
             break;
 
         case CL_FLOAT:
-            return_value->value = cvalue_new(CL_FLOAT, va_arg(ap, double), NULL);
+            return_value->value = cvalue_create(CL_FLOAT, va_arg(ap, double),
+                                                NULL);
+
             break;
 
         default:

@@ -70,7 +70,7 @@ static void destroy_list_node_s(void *ptr)
     free(l);
 }
 
-cstring_list_t LIBEXPORT *cstring_list_new(void)
+cstring_list_t LIBEXPORT *cstring_list_create(void)
 {
     struct cstring_list_s *l = NULL;
 
@@ -88,7 +88,7 @@ cstring_list_t LIBEXPORT *cstring_list_new(void)
     return l;
 }
 
-int LIBEXPORT cstring_list_free(cstring_list_t *l)
+int LIBEXPORT cstring_list_destroy(cstring_list_t *l)
 {
     struct cstring_list_s *p = (struct cstring_list_s *)l;
 

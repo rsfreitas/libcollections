@@ -1311,14 +1311,14 @@ static char *print_array(struct cjson_s *item, int depth, bool fmt)
     cstring_t *v = NULL;
     struct cjson_s *child = item->child;
 
-    sl = cstring_list_new();
+    sl = cstring_list_create();
 
     /* Get child values */
     while (child) {
         ptr = print_value(child, depth + 1, fmt);
 
         if (NULL == ptr) {
-            cstring_list_free(sl);
+            cstring_list_destroy(sl);
             return NULL;
         }
 
@@ -1332,7 +1332,7 @@ static char *print_array(struct cjson_s *item, int depth, bool fmt)
     v = output_array(sl, fmt);
     ptr = strdup(cstring_valueof(v));
     cstring_destroy(v);
-    cstring_list_free(sl);
+    cstring_list_destroy(sl);
 
     return ptr;
 }
@@ -1389,8 +1389,8 @@ static char *print_object(struct cjson_s *item, int depth, bool fmt)
     cstring_list_t *sl_names = NULL, *sl_values = NULL;
     cstring_t *v;
 
-    sl_names = cstring_list_new();
-    sl_values = cstring_list_new();
+    sl_names = cstring_list_create();
+    sl_values = cstring_list_create();
     depth++;
 
     while (child) {
@@ -1422,8 +1422,8 @@ static char *print_object(struct cjson_s *item, int depth, bool fmt)
     cstring_unref(v);
 
 end_block:
-    cstring_list_free(sl_names);
-    cstring_list_free(sl_values);
+    cstring_list_destroy(sl_names);
+    cstring_list_destroy(sl_values);
 
     return ptr;
 

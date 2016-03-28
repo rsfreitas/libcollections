@@ -113,7 +113,7 @@ static char **cvt_cmd(const char *cmd)
     }
 
     app_argv[size + FIXED_ARGS + 1] = NULL;
-    cstring_list_free(l);
+    cstring_list_destroy(l);
 
     return app_argv;
 }

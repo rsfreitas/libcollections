@@ -65,22 +65,22 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
 
         switch (arg->type) {
             case CL_INT:
-                arg->value = cvalue_new(CL_INT, va_arg(ap, int), NULL);
+                arg->value = cvalue_create(CL_INT, va_arg(ap, int), NULL);
                 break;
 
             case CL_POINTER:
-                arg->value = cvalue_new(CL_POINTER, false,
-                                         va_arg(ap, void *), 0, NULL);
+                arg->value = cvalue_create(CL_POINTER, false,
+                                           va_arg(ap, void *), 0, NULL);
 
                 break;
 
             case CL_CHAR:
-                arg->value = cvalue_new(CL_CHAR, va_arg(ap, int), NULL);
+                arg->value = cvalue_create(CL_CHAR, va_arg(ap, int), NULL);
                 break;
 
             case CL_FLOAT:
-                arg->value = cvalue_new(CL_FLOAT,
-                                         va_arg(ap, double), NULL);
+                arg->value = cvalue_create(CL_FLOAT,
+                                           va_arg(ap, double), NULL);
 
                 break;
 

@@ -45,33 +45,33 @@ struct counter_s {
 static void adjust_8bit_counter(struct counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_new(CL_LLONG, UCHAR_MAX, NULL);
+        c->max = cvalue_create(CL_LLONG, UCHAR_MAX, NULL);
     else
-        c->max = cvalue_new(CL_LLONG, max, NULL);
+        c->max = cvalue_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_16bit_counter(struct counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_new(CL_LLONG, USHRT_MAX, NULL);
+        c->max = cvalue_create(CL_LLONG, USHRT_MAX, NULL);
     else
-        c->max = cvalue_new(CL_LLONG, max, NULL);
+        c->max = cvalue_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_32bit_counter(struct counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_new(CL_LLONG, UINT_MAX, NULL);
+        c->max = cvalue_create(CL_LLONG, UINT_MAX, NULL);
     else
-        c->max = cvalue_new(CL_LLONG, max, NULL);
+        c->max = cvalue_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_64bit_counter(struct counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_new(CL_LLONG, ULLONG_MAX, NULL);
+        c->max = cvalue_create(CL_LLONG, ULLONG_MAX, NULL);
     else
-        c->max = cvalue_new(CL_LLONG, max, NULL);
+        c->max = cvalue_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_counter_limits(struct counter_s *c, long long min,
@@ -96,12 +96,12 @@ static void adjust_counter_limits(struct counter_s *c, long long min,
     }
 
     if (min == 0)
-        c->min = cvalue_new(CL_LLONG, 0, NULL);
+        c->min = cvalue_create(CL_LLONG, 0, NULL);
     else {
         if (min < 0)
             c->negative_min = true;
 
-        c->min = cvalue_new(CL_LLONG, min, NULL);
+        c->min = cvalue_create(CL_LLONG, min, NULL);
     }
 }
 
@@ -113,13 +113,13 @@ static void destroy_counter_s(const struct ref_s *ref)
         return;
 
     if (c->cnt != NULL)
-        cvalue_free(c->cnt);
+        cvalue_destroy(c->cnt);
 
     if (c->min != NULL)
-        cvalue_free(c->min);
+        cvalue_destroy(c->min);
 
     if (c->max != NULL)
-        cvalue_free(c->max);
+        cvalue_destroy(c->max);
 }
 
 static struct counter_s *new_counter_s(enum counter_precision precision, long long min,
@@ -137,7 +137,7 @@ static struct counter_s *new_counter_s(enum counter_precision precision, long lo
     c->precision = precision;
     c->circular_counter = circular;
     c->negative_min = false;
-    c->cnt = cvalue_new(CL_LLONG, start_value, NULL);
+    c->cnt = cvalue_create(CL_LLONG, start_value, NULL);
     c->start_value = start_value;
     c->ref.free = destroy_counter_s;
     c->ref.count = 1;
@@ -180,13 +180,13 @@ int LIBEXPORT counter_unref(counter_t *c)
     return 0;
 }
 
-counter_t LIBEXPORT *counter_new(enum counter_precision precision,
+counter_t LIBEXPORT *counter_create(enum counter_precision precision,
     long long min, long long max, long long start_value, bool circular)
 {
     return new_counter_s(precision, min, max, start_value, circular);
 }
 
-int LIBEXPORT counter_free(counter_t *c)
+int LIBEXPORT counter_destroy(counter_t *c)
 {
     return counter_unref(c);
 }
@@ -305,7 +305,7 @@ int LIBEXPORT counter_set_min(counter_t *c, long long min)
     }
 
     if (NULL == p->min)
-        p->min = cvalue_new(CL_LLONG, min, NULL);
+        p->min = cvalue_create(CL_LLONG, min, NULL);
     else
         cvalue_set(p->min, min, NULL);
 
@@ -324,7 +324,7 @@ int LIBEXPORT counter_set_max(counter_t *c, long long max)
     }
 
     if (NULL == p->max)
-        p->max = cvalue_new(CL_LLONG, max, NULL);
+        p->max = cvalue_create(CL_LLONG, max, NULL);
     else
         cvalue_set(p->max, max, NULL);
 

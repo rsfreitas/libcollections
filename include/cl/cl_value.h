@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name cvalue_new
+ * @name cvalue_create
  * @brief Creates a new cvalue_t value.
  *
  * If value is of CL_VALUE_VOIDP type the variadic arguments should be
@@ -46,17 +46,28 @@
  *
  * @return On success returns a cvalue_t value or NULL othewise.
  */
-cvalue_t *cvalue_new(enum cl_type type, ...);
+cvalue_t *cvalue_create(enum cl_type type, ...);
 
 /**
- * @name cvalue_free
+ * @name cvalue_create_with_spec
+ * @brief Creates a new cvalue_t with parameters specification support.
+ *
+ * @param [in] type: The value type of the new value.
+ * @param [in] spec: The parameters specification.
+ *
+ * @return On success returns a cvalue_t value or NULL othewise.
+ */
+cvalue_t *cvalue_create_with_spec(enum cl_type type, cspec_t *spec);
+
+/**
+ * @name cvalue_destroy
  * @brief Releases a cvalue_t from memory.
  *
  * @param [in,out] value: The cvalue_t which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cvalue_free(cvalue_t *value);
+int cvalue_destroy(cvalue_t *value);
 
 /**
  * @name cvalue_sizeof

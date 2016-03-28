@@ -214,7 +214,7 @@ cstring_list_t *api_functions(const cplugin_info_t *info)
     }
 
     t = cjson_get_array_size(f);
-    list = cstring_list_new();
+    list = cstring_list_create();
 
     for (i = 0; i < t; i++) {
         o = cjson_get_array_item(f, i);
@@ -265,7 +265,7 @@ cstring_list_t *api_function_arguments(const cplugin_info_t *info,
         return NULL;
 
     t = cjson_get_array_size(args);
-    list = cstring_list_new();
+    list = cstring_list_create();
 
     for (i = 0; i < t; i++) {
         a = cjson_get_array_item(args, i);

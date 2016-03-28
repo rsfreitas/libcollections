@@ -86,14 +86,14 @@ cdatetime_t *cdt_localtime(void);
 cdatetime_t *cdt_gmtime(void);
 
 /**
- * @name cdt_free
+ * @name cdt_destroy
  * @brief Releases a cdatetime_t object from memory.
  *
  * @param [in,out] dt: The cdatetime_t object which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cdt_free(cdatetime_t *dt);
+int cdt_destroy(cdatetime_t *dt);
 
 /**
  * @name cdt_day
@@ -552,7 +552,7 @@ bool cdt_is_local_dst(void);
 bool cdt_is_leap_year(void);
 
 /**
- * @name cdt_timeout_new
+ * @name cdt_timeout_create
  * @brief Starts a timeout verification with a specific precision.
  *
  * @param [in] interval: Timeout expiration interval.
@@ -561,17 +561,17 @@ bool cdt_is_leap_year(void);
  * @return On success returns a ctimeout_t object with the timeout info or
  *         NULL otherwise.
  */
-ctimeout_t *cdt_timeout_new(unsigned int interval, enum ctimeout precision);
+ctimeout_t *cdt_timeout_create(unsigned int interval, enum ctimeout precision);
 
 /**
- * @name cdt_timeout_free
+ * @name cdt_timeout_destroy
  * @brief Releases a ctimeout_t object from memory.
  *
  * @param [in] t: The ctimeout_t object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cdt_timeout_free(ctimeout_t *t);
+int cdt_timeout_destroy(ctimeout_t *t);
 
 /**
  * @name cdt_timeout_reset

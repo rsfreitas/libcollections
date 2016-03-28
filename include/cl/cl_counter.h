@@ -42,7 +42,7 @@ enum counter_precision {
 };
 
 /**
- * @name counter_new
+ * @name counter_create
  * @brief Creates a new counter.
  *
  * The counter created is for simple statistics counter. If an application
@@ -60,19 +60,19 @@ enum counter_precision {
  *
  * @return On success returns a counter_t object or NULL otherwise.
  */
-counter_t *counter_new(enum counter_precision precision, long long min,
-                       long long max, long long start_value,
-                       bool circular);
+counter_t *counter_create(enum counter_precision precision, long long min,
+                          long long max, long long start_value,
+                          bool circular);
 
 /**
- * @name counter_free
+ * @name counter_destroy
  * @brief Destroy a counter.
  *
  * @param [in] c: The counter which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_free(counter_t *c);
+int counter_destroy(counter_t *c);
 
 /**
  * @name counter_ref

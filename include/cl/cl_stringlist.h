@@ -34,22 +34,22 @@
 #endif
 
 /**
- * @name cstring_list_new
+ * @name cstring_list_create
  * @brief Creates a new cstring_list_t object.
  *
  * @return On success returns the cstring_list_t object or NULL otherwise.
  */
-cstring_list_t *cstring_list_new(void);
+cstring_list_t *cstring_list_create(void);
 
 /**
- * @name cstring_list_free
+ * @name cstring_list_destroy
  * @brief Releases memory from a cstring_list_t object.
  *
  * @param [in] l: The cstring_list_t object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstring_list_free(cstring_list_t *l);
+int cstring_list_destroy(cstring_list_t *l);
 
 /**
  * @name cstring_list_size

@@ -116,7 +116,7 @@ static void destroy_cfg_line_s(void *a)
         cstring_unref(l->comment);
 
     if (l->value != NULL)
-        cvalue_free(l->value);
+        cvalue_destroy(l->value);
 
     if (l->name != NULL)
         cstring_unref(l->name);
@@ -187,7 +187,7 @@ static cstring_t *get_comment(const cstring_t *s, char delim,
 
     if (list_size < 1) {
         /* Never falls here */
-        cstring_list_free(*list);
+        cstring_list_destroy(*list);
         return NULL;
     }
 
@@ -237,7 +237,7 @@ static cstring_t *get_data(const cstring_t *s, int index)
     ref = cstring_list_get(l, index);
     r = cstring_alltrim(ref);
     cstring_unref(ref);
-    cstring_list_free(l);
+    cstring_list_destroy(l);
 
     return r;
 }
@@ -306,7 +306,7 @@ end_block:
         cstring_unref(data);
 
     if (list != NULL)
-        cstring_list_free(list);
+        cstring_list_destroy(list);
 
     if (s != NULL)
         cstring_unref(s);

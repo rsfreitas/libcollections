@@ -94,11 +94,11 @@ static void plugin_details(cplugin_info_t *info)
             cstring_unref(q);
         }
 
-        cstring_list_free(a);
+        cstring_list_destroy(a);
         cstring_unref(p);
     }
 
-    cstring_list_free(l);
+    cstring_list_destroy(l);
 }
 
 static void load_and_show_plugin_info(const char *filename)
