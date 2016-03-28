@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <limits.h>
 
@@ -62,15 +63,11 @@ void signal_handler(int signum)
 int main(int argc, char **argv)
 {
     const char *opt = "htup:i:\0";
-    int option, port = 0;
+    int option, port = 0, text_length;
     bool tcp = true;
-    char *ip = NULL;
+    char *ip = NULL, *text = NULL, i = 0;
     chat_t *c = NULL;
-//    char *text = "An example... simple... just to test";
-    int text_length;// = strlen(text);
-
-    char *text = NULL;
-    char i = 0;
+    struct sigaction sa_int;
 
     do {
         option = getopt(argc, argv, opt);
@@ -106,8 +103,12 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    c = chat_new((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
-                 CHAT_CLIENT, true);
+    memset(&sa_int, 0, sizeof(struct sigaction));
+    sa_int.sa_handler = signal_handler;
+    sigaction(SIGINT, &sa_int, NULL);
+
+    c = chat_create((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
+                    CHAT_CLIENT, true);
 
     if (NULL == c) {
         fprintf(stderr, "Error (1): %s.\n", cstrerror(cget_last_error()));
@@ -141,7 +142,7 @@ int main(int argc, char **argv)
     }
 
 end_block:
-    chat_free(c);
+    chat_destroy(c);
 
     if (ip != NULL)
         free(ip);

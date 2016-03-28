@@ -46,7 +46,7 @@ enum chat_driver {
 };
 
 /**
- * @name chat_new
+ * @name chat_create
  * @brief Initialize IPC environment for client/server communication.
  *
  * @param [in] cd: Protocol type.
@@ -56,17 +56,17 @@ enum chat_driver {
  *
  * @return On success returns a chat_t object or NULL otherwise.
  */
-chat_t *chat_new(enum chat_driver cd, enum chat_mode mode, bool sigpipe_block);
+chat_t *chat_create(enum chat_driver cd, enum chat_mode mode, bool sigpipe_block);
 
 /**
- * @name chat_free
+ * @name chat_destroy
  * @brief Ends IPC environment for client/server communication.
  *
  * @param [in] chat: The chat_t object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int chat_free(chat_t *chat);
+int chat_destroy(chat_t *chat);
 
 /**
  * @name chat_set_info
@@ -150,7 +150,41 @@ void *chat_recv(chat_t *chat, unsigned int recv_timeout, unsigned int *data_size
  *
  * @return On success returns the IPC file descriptor or NULL otherwise.
  */
-int chat_fd(chat_t *c);
+int chat_fd(chat_t *chat);
+
+/**
+ * @name chat_stop
+ * @brief Closes a client/server communication.
+ *
+ * @param [in] chat: The chat_t object.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int chat_stop(chat_t *chat);
+
+/**
+ * @name chat_ref
+ * @brief Increases the reference count for a chat_t item.
+ *
+ * @param [in,out] chat: The chat_t object.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+chat_t *chat_ref(chat_t *chat);
+
+/**
+ * @name chat_unref
+ * @brief Decreases the reference count for a chat_t item.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] chat: The chat_t object.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int chat_unref(chat_t *chat);
 
 #endif
 

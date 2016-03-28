@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <collections.h>
 
@@ -64,6 +65,7 @@ int main(int argc, char **argv)
     chat_t *c = NULL, *n = NULL;
     char *ptr = NULL;
     unsigned int length = 0;
+    struct sigaction sa_int;
 
     do {
         option = getopt(argc, argv, opt);
@@ -95,8 +97,12 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    c = chat_new((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
-                 CHAT_SERVER, true);
+    memset(&sa_int, 0, sizeof(struct sigaction));
+    sa_int.sa_handler = signal_handler;
+    sigaction(SIGINT, &sa_int, NULL);
+
+    c = chat_create((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
+                    CHAT_SERVER, true);
 
     if (NULL == c) {
         fprintf(stderr, "Error (1): %s.\n", cstrerror(cget_last_error()));
@@ -124,15 +130,17 @@ int main(int argc, char **argv)
         cmsleep(1);
         ptr = (char *)chat_recv(n, 0, &length);
 
-        if (ptr != NULL)
+        if (ptr != NULL) {
             fprintf(stdout, "Recv: '%s' - %d\n", ptr, length);
+            free(ptr);
+        }
     }
 
 end_block:
     if ((n != NULL) && (tcp == true))
-        chat_free(n);
+        chat_destroy(n);
 
-    chat_free(c);
+    chat_destroy(c);
     cexit();
 
     return 0;

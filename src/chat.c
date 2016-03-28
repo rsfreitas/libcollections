@@ -92,67 +92,6 @@ static struct chat_driver_info_s __drv_info[] = {
     }
 };
 
-static bool validate_chat_driver(enum chat_driver scd)
-{
-    if ((scd == CHAT_DRV_RAW_TCP) ||
-        (scd == CHAT_DRV_RAW_UDP))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-static void blocks_sigpipe(struct chat_s *c)
-{
-    struct sigaction sa_pipe;
-
-    memset(&sa_pipe, 0, sizeof(struct sigaction));
-    sa_pipe.sa_handler = SIG_IGN;
-    sigaction(SIGPIPE, &sa_pipe, &c->sa_pipe);
-}
-
-static void restores_sigpipe(struct chat_s *c)
-{
-    sigaction(SIGPIPE, &c->sa_pipe, NULL);
-}
-
-static struct chat_s *new_chat_s(void)
-{
-    struct chat_s *s = NULL;
-
-    s = calloc(1, sizeof(struct chat_s));
-
-    if (NULL == s) {
-        cset_errno(CL_NO_MEM);
-        return NULL;
-    }
-
-    return s;
-}
-
-static void destroy_chat_s(struct chat_s *c)
-{
-    free(c);
-}
-
-static struct chat_s *dup_chat_s(struct chat_s *c)
-{
-    struct chat_s *s = NULL;
-
-    s = new_chat_s();
-
-    if (NULL == s)
-        return NULL;
-
-    s->driver_id = c->driver_id;
-    s->driver_info = c->driver_info;
-    s->ipc_methods = c->ipc_methods;
-    s->mode = c->mode;
-
-    return s;
-}
-
 /*
  *
  * IPC functions
@@ -559,11 +498,102 @@ static void *chat_drv_process_recv_data(struct chat_s *c, struct chat_data_s *cd
 
 /*
  *
+ * Internal common functions
+ *
+ */
+
+static bool validate_chat_driver(enum chat_driver scd)
+{
+    if ((scd == CHAT_DRV_RAW_TCP) ||
+        (scd == CHAT_DRV_RAW_UDP))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+static void blocks_sigpipe(struct chat_s *c)
+{
+    struct sigaction sa_pipe;
+
+    memset(&sa_pipe, 0, sizeof(struct sigaction));
+    sa_pipe.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &sa_pipe, &c->sa_pipe);
+}
+
+static void restores_sigpipe(struct chat_s *c)
+{
+    sigaction(SIGPIPE, &c->sa_pipe, NULL);
+}
+
+static void destroy_chat_s(struct chat_s *c)
+{
+    free(c);
+}
+
+static void __destroy_chat_s(const struct ref_s *ref)
+{
+    struct chat_s *c = container_of(ref, struct chat_s, ref);
+
+    if (NULL == c)
+        return;
+
+    if (c->sigpipe == true)
+        restores_sigpipe(c);
+
+    /* Call driver closing function */
+    if (chat_drv_uninit(c) < 0)
+        return;
+
+    /* Call IPC closing function */
+    if (chat_ipc_uninit(c) < 0)
+        return;
+
+    destroy_chat_s(c);
+}
+
+static struct chat_s *new_chat_s(void)
+{
+    struct chat_s *s = NULL;
+
+    s = calloc(1, sizeof(struct chat_s));
+
+    if (NULL == s) {
+        cset_errno(CL_NO_MEM);
+        return NULL;
+    }
+
+    s->ref.count = 1;
+    s->ref.free = __destroy_chat_s;
+
+    return s;
+}
+
+static struct chat_s *dup_chat_s(struct chat_s *c)
+{
+    struct chat_s *s = NULL;
+
+    s = new_chat_s();
+
+    if (NULL == s)
+        return NULL;
+
+    s->driver_id = c->driver_id;
+    s->driver_info = c->driver_info;
+    s->ipc_methods = c->ipc_methods;
+    s->mode = c->mode;
+
+    return s;
+}
+
+/*
+ *
  * Exported chat API functions.
  *
  */
 
-chat_t LIBEXPORT *chat_new(enum chat_driver cd, enum chat_mode mode,
+chat_t LIBEXPORT *chat_create(enum chat_driver cd, enum chat_mode mode,
     bool sigpipe_block)
 {
     struct chat_s *c = NULL;
@@ -624,31 +654,9 @@ error_block:
     return NULL;
 }
 
-int LIBEXPORT chat_free(chat_t *chat)
+int LIBEXPORT chat_destroy(chat_t *chat)
 {
-    struct chat_s *c = (struct chat_s *)chat;
-
-    cerrno_clear();
-
-    if (NULL == c) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    if (c->sigpipe == true)
-        restores_sigpipe(c);
-
-    /* Call driver closing function */
-    if (chat_drv_uninit(c) < 0)
-        return -1;
-
-    /* Call IPC closing function */
-    if (chat_ipc_uninit(c) < 0)
-        return -1;
-
-    destroy_chat_s(c);
-
-    return 0;
+    return chat_unref(chat);
 }
 
 int LIBEXPORT chat_set_info(chat_t *chat, ...)
@@ -800,35 +808,69 @@ end_block:
     return data;
 }
 
-int LIBEXPORT chat_stop(chat_t *c)
+int LIBEXPORT chat_stop(chat_t *chat)
 {
     cerrno_clear();
 
-    if (NULL == c) {
+    if (NULL == chat) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
     /* Call IPC stop function */
-    if (chat_ipc_stop(c) < 0)
+    if (chat_ipc_stop(chat) < 0)
         return -1;
 
     /* And call driver event function after a connection closed */
-    if (chat_drv_connection_ended(c) < 0)
+    if (chat_drv_connection_ended(chat) < 0)
         return -1;
 
     return 0;
 }
 
-int LIBEXPORT chat_fd(chat_t *c)
+int LIBEXPORT chat_fd(chat_t *chat)
 {
     cerrno_clear();
 
-    if (NULL == c) {
+    if (NULL == chat) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    return chat_ipc_fd(c);
+    chat_ref(chat);
+
+    return chat_ipc_fd(chat);
+}
+
+chat_t LIBEXPORT *chat_ref(chat_t *chat)
+{
+    struct chat_s *c = (struct chat_s *)chat;
+
+    cerrno_clear();
+
+    if (NULL == chat) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    ref_inc(&c->ref);
+
+    return chat;
+}
+
+int LIBEXPORT chat_unref(chat_t *chat)
+{
+    struct chat_s *c = (struct chat_s *)chat;
+
+    cerrno_clear();
+
+    if (NULL == chat) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    ref_dec(&c->ref);
+
+    return 0;
 }
 

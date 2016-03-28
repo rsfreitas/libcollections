@@ -99,6 +99,8 @@ struct chat_driver_info_s {
 };
 
 struct chat_s {
+    struct ref_s                ref;
+
     /* Configurations */
     enum chat_mode              mode;
     enum chat_driver            driver_id;
