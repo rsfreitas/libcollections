@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name cstring_new
+ * @name cstring_create
  * @brief Creates a new cstring_t object.
  *
  * Creates a new cstring_t object containing value passed as argument.
@@ -46,21 +46,22 @@
  * @return On success the cstring_t object will be returned. Returns NULL
  *         otherwise.
  */
-cstring_t *cstring_new(const char *fmt, ...);
+cstring_t *cstring_create(const char *fmt, ...)
+                          __attribute__((format(printf, 1, 2)));
 
 /**
- * @name cstring_new_ex
- * @brief Creates a new cstring_t object.
+ * @name cstring_create_empty
+ * @brief Creates a new empty cstring_t object.
  *
- * @param [in] size:
+ * @param [in] size: The internal size of the string.
  *
  * @return On success the cstring_t object will be returned. Returns NULL
  *         otherwise.
  */
-cstring_t *cstring_new_ex(unsigned int size);
+cstring_t *cstring_create_empty(unsigned int size);
 
 /**
- * @name cstring_new_random
+ * @name cstring_create_random
  * @brief Creates a cstring_t object containing random letters.
  *
  * @param [in] size: Size of the newly created string.
@@ -68,17 +69,17 @@ cstring_t *cstring_new_ex(unsigned int size);
  * @return On success the cstring_t object will be returned. Returns NULL
  *         otherwise.
  */
-cstring_t *cstring_new_random(unsigned int size);
+cstring_t *cstring_create_random(unsigned int size);
 
 /**
- * @name cstring_free
+ * @name cstring_destroy
  * @brief Frees a cstring_t object from memory.
  *
  * @param [in,out] string The cstring_t object that will be released.
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cstring_free(cstring_t *string);
+int cstring_destroy(cstring_t *string);
 
 /**
  * @name cstring_length
@@ -144,7 +145,8 @@ int cstring_set(cstring_t *string, char c, unsigned int index);
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cstring_cat(cstring_t *string, const char *fmt, ...);
+int cstring_cat(cstring_t *string, const char *fmt, ...)
+                __attribute__((format(printf, 2, 3)));
 
 /**
  * @name cstring_upper

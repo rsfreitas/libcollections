@@ -90,7 +90,7 @@ static cstring_t *get_file_info(const char *filename)
     cstring_t *s = NULL;
 
 #ifdef USE_LIBMAGIC
-    s = cstring_new("%s", magic_file(__dl.cookie, filename));
+    s = cstring_create("%s", magic_file(__dl.cookie, filename));
 #endif
 
     return s;
@@ -101,7 +101,7 @@ static enum cplugin_plugin_type parse_plugin_type(cstring_t *s)
     enum cplugin_plugin_type t = CPLUGIN_UNKNOWN;
     cstring_t *p = NULL;
 
-    p = cstring_new("application/x-sharedlib");
+    p = cstring_create("application/x-sharedlib");
 
     if (cstring_cmp(s, p) == 0) {
         t = CPLUGIN_C;

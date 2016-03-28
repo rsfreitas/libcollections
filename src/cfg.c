@@ -61,9 +61,9 @@ static bool is_section(const char *line)
     bool ret = true;
     cstring_t *p, *t;
 
-    p = cstring_new("%s", line);
+    p = cstring_create("%s", line);
     t = cstring_alltrim(p);
-    cstring_free(p);
+    cstring_destroy(p);
 
     if ((cstring_cchr(t, '[') != 1) ||
         (cstring_cchr(t, ']') != 1) ||
@@ -73,7 +73,7 @@ static bool is_section(const char *line)
         ret = false;
     }
 
-    cstring_free(t);
+    cstring_destroy(t);
 
     return ret;
 }
@@ -93,9 +93,9 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
         l->name = cstring_ref(name);
 
     if (value != NULL) {
-        tmp = cstring_new(value);
+        tmp = cstring_create("%s", value);
         l->value = cvalue_from_string(tmp);
-        cstring_free(tmp);
+        cstring_destroy(tmp);
     }
 
     if (comment != NULL)
@@ -138,7 +138,7 @@ static struct cfg_file_s *new_cfg_file_s(const char *filename)
         return NULL;
     }
 
-    p->filename = cstring_new("%s", filename);
+    p->filename = cstring_create("%s", filename);
     p->section = NULL;
 
     return p;
@@ -150,7 +150,7 @@ static void destroy_cfg_file_s(struct cfg_file_s *file)
         return;
 
     if (file->filename != NULL)
-        cstring_free(file->filename);
+        cstring_destroy(file->filename);
 
     if (file->section != NULL)
         cdll_free(file->section, destroy_cfg_line_s);
@@ -266,7 +266,7 @@ static struct cfg_line_s *cvt_line_to_cfg_line(const char *line)
         goto end_block;
     }
 
-    s = cstring_new("%s", line);
+    s = cstring_create("%s", line);
 
     /* Check comment */
     cdelim = get_comment_delim_char(s);
@@ -373,12 +373,12 @@ static int search_section(void *a, void *b)
         return 0;
 
     if (is_section(n) == true)
-        p = cstring_new(n);
+        p = cstring_create("%s", n);
     else
-        p = cstring_new("[%s]", n);
+        p = cstring_create("[%s]", n);
 
     ret = cstring_cmp(s->name, p);
-    cstring_free(p);
+    cstring_destroy(p);
 
     return (ret == 0) ? 1 : 0;
 }
@@ -393,9 +393,9 @@ static int search_key(void *a, void *b)
     if (!(k->line_type & CFG_LINE_KEY))
         return 0;
 
-    p = cstring_new(n);
+    p = cstring_create("%s", n);
     ret = cstring_cmp(k->name, p);
-    cstring_free(p);
+    cstring_destroy(p);
 
     return (ret == 0) ? 1 : 0;
 }
@@ -441,7 +441,7 @@ static int write_line_to_file(void *a, void *b)
                             (NULL == v) ? "" : cstring_valueof(v));
 
             if (v != NULL)
-                cstring_free(v);
+                cstring_destroy(v);
 
             break;
     }
@@ -457,9 +457,9 @@ static cstring_t *print_cfg(const struct cfg_file_s *file)
     cstring_t *s = NULL;
 
     if (NULL == file->section)
-        return cstring_new("");
+        return cstring_create_empty(0);
 
-    s = cstring_new("");
+    s = cstring_create_empty(0);
     cdll_map(file->section, write_line_to_file, s);
 
     return s;
@@ -535,7 +535,7 @@ int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
     }
 
     fprintf(fp, "%s", cstring_valueof(s));
-    cstring_free(s);
+    cstring_destroy(s);
     fclose(fp);
 
     return 0;
@@ -567,13 +567,13 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     s = cdll_map(f->section, search_section, (void *)section);
 
     if (NULL == s) {
-        s = new_cfg_line_s(cstring_new(section), NULL, NULL, 0,
+        s = new_cfg_line_s(cstring_create("%s", section), NULL, NULL, 0,
                            CFG_LINE_SECTION);
 
         if (NULL == s)
             return -1;
 
-        k = new_cfg_line_s(cstring_new(key), b, NULL, 0,
+        k = new_cfg_line_s(cstring_create("%s", key), b, NULL, 0,
                            CFG_LINE_KEY);
 
         if (NULL == k) {
@@ -590,7 +590,7 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     k = cdll_map(s->child, search_key, (void *)key);
 
     if (NULL == k) {
-        k = new_cfg_line_s(cstring_new(key), b, NULL, 0,
+        k = new_cfg_line_s(cstring_create("%s", key), b, NULL, 0,
                            CFG_LINE_KEY);
 
         if (NULL == k)
@@ -598,13 +598,13 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
 
         s->child = cdll_push(s->child, k);
     } else {
-        t = cstring_new(b);
+        t = cstring_create("%s", b);
 
         if (k->value != NULL)
-            cstring_free(k->value);
+            cstring_destroy(k->value);
 
         k->value = cvalue_from_string(t);
-        cstring_free(t);
+        cstring_destroy(t);
     }
 
 end_block:

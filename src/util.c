@@ -37,7 +37,7 @@ cstring_t LIBEXPORT *cbool_to_cstring(bool flag)
         return NULL;
     }
 
-    return cstring_new("%s", (flag == true) ? "true" : "false");
+    return cstring_create("%s", (flag == true) ? "true" : "false");
 }
 
 char LIBEXPORT *cbool_to_c_string(bool flag)
@@ -51,7 +51,7 @@ char LIBEXPORT *cbool_to_c_string(bool flag)
         return NULL;
 
     t = strdup(cstring_valueof(s));
-    cstring_free(s);
+    cstring_destroy(s);
 
     return t;
 }
@@ -80,6 +80,6 @@ cstring_t LIBEXPORT *cl_type_to_cstring(enum cl_type value)
         return NULL;
     }
 
-    return cstring_new("%s", value_desc[value]);
+    return cstring_create("%s", value_desc[value]);
 }
 

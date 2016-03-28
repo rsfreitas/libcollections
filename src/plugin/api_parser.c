@@ -58,10 +58,10 @@ static enum cl_type cvt_str_to_cv(const char *rv)
 cjson_t *api_load(const char *api_data)
 {
     cjson_t *api;
-    cstring_t *s = cstring_new("%s", api_data);
+    cstring_t *s = cstring_create("%s", api_data);
 
     api = cjson_parse(s);
-    cstring_free(s);
+    cstring_destroy(s);
 
     if (NULL == api)
         /* TODO: Adjust error code */

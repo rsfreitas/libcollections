@@ -88,7 +88,7 @@ cstring_t LIBEXPORT *cstdin_getline(void)
     if (NULL == p)
         return NULL;
 
-    s = cstring_new("%s", p);
+    s = cstring_create("%s", p);
     free(p);
 
     return s;

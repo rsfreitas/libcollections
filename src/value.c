@@ -793,51 +793,51 @@ static cstring_t *print_value(const struct cvalue_s *o)
             break;
 
         case CL_CHAR:
-            s = cstring_new("%c", o->c);
+            s = cstring_create("%c", o->c);
             break;
 
         case CL_UCHAR:
-            s = cstring_new("%c", o->uc);
+            s = cstring_create("%c", o->uc);
             break;
 
         case CL_INT:
-            s = cstring_new("%d", o->i);
+            s = cstring_create("%d", o->i);
             break;
 
         case CL_UINT:
-            s = cstring_new("%u", o->ui);
+            s = cstring_create("%u", o->ui);
             break;
 
         case CL_SINT:
-            s = cstring_new("%d", o->si);
+            s = cstring_create("%d", o->si);
             break;
 
         case CL_USINT:
-            s = cstring_new("%u", o->usi);
+            s = cstring_create("%u", o->usi);
             break;
 
         case CL_FLOAT:
-            s = cstring_new("%f", o->f);
+            s = cstring_create("%f", o->f);
             break;
 
         case CL_DOUBLE:
-            s = cstring_new("%e", o->d);
+            s = cstring_create("%e", o->d);
             break;
 
         case CL_LONG:
-            s = cstring_new("%ld", o->l);
+            s = cstring_create("%ld", o->l);
             break;
 
         case CL_ULONG:
-            s = cstring_new("%lu", o->ul);
+            s = cstring_create("%lu", o->ul);
             break;
 
         case CL_LLONG:
-            s = cstring_new("%lld", o->ll);
+            s = cstring_create("%lld", o->ll);
             break;
 
         case CL_ULLONG:
-            s = cstring_new("%llu", o->ull);
+            s = cstring_create("%llu", o->ull);
             break;
 
         case CL_POINTER:
@@ -849,7 +849,7 @@ static cstring_t *print_value(const struct cvalue_s *o)
             break;
 
         case CL_BOOLEAN:
-            s = cstring_new("%s", (o->b == true ? "true" : "false"));
+            s = cstring_create("%s", (o->b == true ? "true" : "false"));
             break;
     }
 

@@ -124,10 +124,10 @@ static void __cjson_delete(void *a)
         cdll_free(c->child, __cjson_delete);
 
     if (!(c->type & CJSON_IS_REFERENCE) && c->value)
-        cstring_free(c->value);
+        cstring_destroy(c->value);
 
     if (c->name)
-        cstring_free(c->name);
+        cstring_destroy(c->name);
 
     free(c);
 }
@@ -169,7 +169,7 @@ static const char *parse_string(struct cjson_s *n, const char *s)
     }
 
     len = get_string_length(s);
-    out = cstring_new_ex(len + 1);
+    out = cstring_create_empty(len + 1);
 
     if (NULL == out)
         return NULL;
@@ -356,7 +356,7 @@ static const char *parse_number(struct cjson_s *j, const char *num)
 
     n = sign * n * pow(10.0, (scale + subscale * sign_subscale));
 
-    j->value = cstring_new("%f", n);
+    j->value = cstring_create("%f", n);
     j->type = type;
 
     return num;
@@ -587,10 +587,10 @@ cjson_t LIBEXPORT *cjson_read_file(const char *filename)
     if (NULL == b)
         return NULL;
 
-    s = cstring_new("%s", b);
+    s = cstring_create("%s", b);
     cfunload(b);
     j = cjson_parse(s);
-    cstring_free(s);
+    cstring_destroy(s);
 
     return j;
 }
@@ -615,7 +615,7 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
     ret = cfsave(filename, (unsigned char *)cstring_valueof(s),
                  cstring_length(s));
 
-    cstring_free(s);
+    cstring_destroy(s);
 
     return ret;
 }
@@ -858,7 +858,7 @@ cjson_t LIBEXPORT *cjson_create_number(int n)
     if (NULL == p)
         return NULL;
 
-    s = cstring_new("%d", n);
+    s = cstring_create("%d", n);
     p->type = CJSON_NUMBER;
     p->value = s;
 
@@ -876,7 +876,7 @@ cjson_t LIBEXPORT *cjson_create_number_float(float n)
     if (NULL == p)
         return NULL;
 
-    s = cstring_new("%f", n);
+    s = cstring_create("%f", n);
     p->type = CJSON_NUMBER;
     p->value = s;
 
@@ -894,7 +894,7 @@ cjson_t LIBEXPORT *cjson_create_string(const char *string)
     if (NULL == p)
         return NULL;
 
-    s = cstring_new("%s", string);
+    s = cstring_create("%s", string);
     p->type = CJSON_STRING;
     p->value = s;
 
@@ -1003,9 +1003,9 @@ int LIBEXPORT cjson_add_item_to_object(cjson_t *root, const char *name,
     }
 
     if (n->name != NULL)
-        cstring_free(n->name);
+        cstring_destroy(n->name);
 
-    n->name = cstring_new(name);
+    n->name = cstring_create("%s", name);
     r->child = cdll_unshift(r->child, n);
 
     return 0;
@@ -1017,7 +1017,7 @@ static cjson_t *create_reference(struct cjson_s *item)
 
     ref = __dup(item);
 
-    cstring_free(ref->name);
+    cstring_destroy(ref->name);
     ref->type |= CJSON_IS_REFERENCE;
     ref->next = ref->prev = 0;
 
@@ -1147,7 +1147,7 @@ int LIBEXPORT cjson_replace_item_in_object(cjson_t *root, const char *name,
         return -1;
     }
 
-    tmp = cstring_new("%s", name);
+    tmp = cstring_create("%s", name);
 
     while (a->child) {
         n = cdll_pop(&a->child);
@@ -1284,11 +1284,11 @@ static cstring_t *output_array(cstring_list_t *sl, bool fmt)
     int i;
 
     /* Output */
-    out = cstring_new("[");
+    out = cstring_create("[");
 
     for (i = 0; i < cstring_list_size(sl); i++) {
         v = cstring_list_get(sl, i);
-        cstring_cat(out, cstring_valueof(v));
+        cstring_cat(out, "%s", cstring_valueof(v));
         cstring_unref(v);
 
         if (i != (cstring_list_size(sl) - 1)) {
@@ -1322,7 +1322,7 @@ static char *print_array(struct cjson_s *item, int depth, bool fmt)
             return NULL;
         }
 
-        v = cstring_new("%s", ptr);
+        v = cstring_create("%s", ptr);
         cstring_list_add(sl, v);
         cstring_unref(v);
         free(ptr);
@@ -1331,7 +1331,7 @@ static char *print_array(struct cjson_s *item, int depth, bool fmt)
 
     v = output_array(sl, fmt);
     ptr = strdup(cstring_valueof(v));
-    cstring_free(v);
+    cstring_destroy(v);
     cstring_list_free(sl);
 
     return ptr;
@@ -1343,7 +1343,7 @@ static cstring_t *output_object(cstring_list_t *sl_names,
     cstring_t *out = NULL, *v;
     int i, j;
 
-    out = cstring_new("{");
+    out = cstring_create("{");
 
     if (fmt == true)
         cstring_cat(out, "\n");
@@ -1355,7 +1355,7 @@ static cstring_t *output_object(cstring_list_t *sl_names,
                 cstring_cat(out, "\t");
 
         v = cstring_list_get(sl_names, i);
-        cstring_cat(out, cstring_valueof(v));
+        cstring_cat(out, "%s", cstring_valueof(v));
         cstring_unref(v);
         cstring_cat(out, ":");
 
@@ -1363,7 +1363,7 @@ static cstring_t *output_object(cstring_list_t *sl_names,
             cstring_cat(out, "\t");
 
         v = cstring_list_get(sl_values, i);
-        cstring_cat(out, cstring_valueof(v));
+        cstring_cat(out, "%s", cstring_valueof(v));
         cstring_unref(v);
 
         if (i != (cstring_list_size(sl_names) - 1))
@@ -1399,7 +1399,7 @@ static char *print_object(struct cjson_s *item, int depth, bool fmt)
         if (NULL == ptr)
             goto end_block;
 
-        v = cstring_new("%s", ptr);
+        v = cstring_create("%s", ptr);
         cstring_list_add(sl_names, v);
         cstring_unref(v);
         free(ptr);
@@ -1409,7 +1409,7 @@ static char *print_object(struct cjson_s *item, int depth, bool fmt)
         if (NULL == ptr)
             goto end_block;
 
-        v = cstring_new("%s", ptr);
+        v = cstring_create("%s", ptr);
         cstring_list_add(sl_values, v);
         cstring_unref(v);
         free(ptr);
@@ -1481,7 +1481,7 @@ cstring_t LIBEXPORT *cjson_to_string(const cjson_t *j, bool friendly_output)
     if (NULL == p)
         return NULL;
 
-    out = cstring_new("%s", p);
+    out = cstring_create("%s", p);
     free(p);
 
     return out;

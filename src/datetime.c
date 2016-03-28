@@ -98,7 +98,7 @@ static void destroy_cdatetime_s(struct cdatetime_s *dt)
         return;
 
     if (dt->tzone != NULL)
-        cstring_free(dt->tzone);
+        cstring_destroy(dt->tzone);
 
     free(dt);
 }
@@ -108,12 +108,12 @@ static bool is_GMT(struct cdatetime_s *dt)
     cstring_t *s;
     bool ret = false;
 
-    s = cstring_new("GMT");
+    s = cstring_create("GMT");
 
     if (cstring_cmp(dt->tzone, s) == 0)
         ret = true;
 
-    cstring_free(s);
+    cstring_destroy(s);
 
     return ret;
 }
@@ -139,9 +139,9 @@ static void cvt_time(struct cdatetime_s *dt, bool UTC)
     dt->weekday = tm.tm_wday;
 
     if (dt->tzone != NULL)
-        cstring_free(dt->tzone);
+        cstring_destroy(dt->tzone);
 
-    dt->tzone = cstring_new("%s", tm.tm_zone);
+    dt->tzone = cstring_create("%s", tm.tm_zone);
 }
 
 int LIBEXPORT cdt_free(cdatetime_t *dt)
@@ -361,8 +361,8 @@ cstring_t LIBEXPORT *cdt_month_of_year(const cdatetime_t *dt, bool full)
 
     moy = t->month;
 
-    return cstring_new("%s", (full == true) ? __moy_full[moy]
-                                            : __moy_abbrv[moy]);
+    return cstring_create("%s", (full == true) ? __moy_full[moy]
+                                               : __moy_abbrv[moy]);
 }
 
 cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
@@ -379,8 +379,8 @@ cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
 
     dow = t->weekday;
 
-    return cstring_new("%s", (full == true) ? __dow_full[dow]
-                                            : __dow_abbrv[dow]);
+    return cstring_create("%s", (full == true) ? __dow_full[dow]
+                                               : __dow_abbrv[dow]);
 }
 
 /*
@@ -423,7 +423,7 @@ cstring_t LIBEXPORT *cdt_to_string(const cdatetime_t *dt, const char *fmt)
         return NULL;
     }
 
-    d = cstring_new("");
+    d = cstring_create_empty(0);
 
     do {
         if (*fmt == '%') {
@@ -834,7 +834,7 @@ cdatetime_t LIBEXPORT *cdt_string_mktime(const cstring_t *datetime)
     cstring_list_free(lt);
     cstring_list_free(ld);
     cstring_list_free(l);
-    cstring_free(d);
+    cstring_destroy(d);
     cstring_unref(s);
 
     return cdt_mktime(year, month, day, hour, min, sec);

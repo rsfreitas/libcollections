@@ -86,7 +86,7 @@ int cfg_sync(const cfg_file_t *file, const char *filename);
  * @return Returns 0 on success or -1 otherwise.
  */
 int cfg_set_value(cfg_file_t *file, const char *section, const char *key,
-                  const char *fmt, ...);
+                  const char *fmt, ...) __attribute__((format(printf, 4, 5)));
 
 /**
  * @name cfg_get_section

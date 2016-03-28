@@ -51,7 +51,8 @@ void cprcs_deamon_start(void);
  * @return On success returns the returned value from the executed command or
  *         -1 otherwise.
  */
-int csystem(bool close_parent_files, const char *fmt, ...);
+int csystem(bool close_parent_files, const char *fmt, ...)
+            __attribute__((format(printf, 2, 3)));
 
 /**
  * @name cmsleep

@@ -52,7 +52,7 @@ static void print_file_to_user(cfg_file_t *cfg)
 
     if (s != NULL) {
         fprintf(stdout, "<<BEGIN>>%s<<END>>\n", cstring_valueof(s));
-        cstring_free(s);
+        cstring_destroy(s);
     }
 }
 

@@ -56,7 +56,7 @@ static void destroy_string(const struct ref_s *ref)
     free(string);
 }
 
-static struct cstring_s *cstring_new_empty(void)
+static struct cstring_s *new_cstring(void)
 {
     struct cstring_s *p = NULL;
 
@@ -111,7 +111,7 @@ int LIBEXPORT cstring_unref(cstring_t *string)
 /*
  * Frees a cstring_t object from memory.
  */
-int LIBEXPORT cstring_free(cstring_t *string)
+int LIBEXPORT cstring_destroy(cstring_t *string)
 {
     return cstring_unref(string);
 }
@@ -119,13 +119,13 @@ int LIBEXPORT cstring_free(cstring_t *string)
 /*
  * Creates a new cstring_t object.
  */
-cstring_t LIBEXPORT *cstring_new(const char *fmt, ...)
+cstring_t LIBEXPORT *cstring_create(const char *fmt, ...)
 {
     struct cstring_s *string = NULL;
     va_list ap;
 
     cerrno_clear();
-    string = cstring_new_empty();
+    string = new_cstring();
 
     if (NULL == string)
         return NULL;
@@ -140,27 +140,24 @@ cstring_t LIBEXPORT *cstring_new(const char *fmt, ...)
     return string;
 }
 
-cstring_t LIBEXPORT *cstring_new_ex(unsigned int size)
+cstring_t LIBEXPORT *cstring_create_empty(unsigned int size)
 {
     struct cstring_s *string = NULL;
 
     cerrno_clear();
-
-    if (size == 0) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    string = cstring_new_empty();
+    string = new_cstring();
 
     if (NULL == string)
         return NULL;
+
+    if (size == 0)
+        return string;
 
     string->str = calloc(size, sizeof(char));
 
     if (NULL == string->str) {
         cset_errno(CL_NO_MEM);
-        cstring_free(string);
+        cstring_destroy(string);
         return NULL;
     }
 
@@ -170,14 +167,14 @@ cstring_t LIBEXPORT *cstring_new_ex(unsigned int size)
 /*
  * Creates a cstring_t object containing random letters.
  */
-cstring_t LIBEXPORT *cstring_new_random(unsigned int size)
+cstring_t LIBEXPORT *cstring_create_random(unsigned int size)
 {
     struct cstring_s *p = NULL;
     unsigned int i;
     int n;
 
     cerrno_clear();
-    p = cstring_new_empty();
+    p = new_cstring();
 
     if (NULL == p)
         return NULL;
@@ -396,7 +393,7 @@ cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
         return NULL;
     }
 
-    d = cstring_new("%s", p->str);
+    d = cstring_create("%s", p->str);
     cstring_unref(p);
 
     return d;
@@ -633,7 +630,7 @@ cstring_t LIBEXPORT *cstring_alltrim(const cstring_t *string)
         return NULL;
 
     p = cstring_rtrim(o);
-    cstring_free(o);
+    cstring_destroy(o);
 
     if (NULL == p)
         return NULL;
@@ -662,7 +659,7 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
         return NULL;
     }
 
-    o = cstring_new("%s", ptr);
+    o = cstring_create("%s", ptr);
     cstring_unref(p);
 
     if (NULL == o)
@@ -942,13 +939,13 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
         return l;
     }
 
-    data = cstring_new(t);
+    data = cstring_create("%s", t);
     cstring_list_add(l, data);
     cstring_unref(data);
     free(t);
 
     while ((t = __strtok(NULL, delim, &tmp)) != NULL) {
-        data = cstring_new(t);
+        data = cstring_create("%s", t);
         cstring_list_add(l, data);
         cstring_unref(data);
         free(t);
