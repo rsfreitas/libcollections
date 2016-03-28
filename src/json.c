@@ -1174,8 +1174,8 @@ static char *print_number(struct cjson_s *item)
     int i, b = 0;
 
     value = cjson_get_object_value(item);
-    d = cstring_value_as_double(value);
-    i = cstring_value_as_int(value);
+    d = cstring_to_double(value);
+    i = cstring_to_int(value);
 
     if ((fabs((double)i - d) <= DBL_EPSILON) &&
         (d <= INT_MAX) &&

@@ -24,6 +24,7 @@
  * USA
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "collections.h"
@@ -81,5 +82,23 @@ cstring_t LIBEXPORT *cl_type_to_cstring(enum cl_type value)
     }
 
     return cstring_create("%s", value_desc[value]);
+}
+
+char *value_to_hex(void *p, unsigned int size)
+{
+    char *d = NULL, tmp[3] = {0}, *pp = p;
+    unsigned int i;
+
+    d = calloc((size * 2) + 1, sizeof(char));
+
+    if (NULL == d)
+        return NULL;
+
+    for (i = 0; i < size; i++) {
+        snprintf(tmp, sizeof(tmp) - 1, "%02x", pp[i]);
+        strcat(d, tmp);
+    }
+
+    return d;
 }
 

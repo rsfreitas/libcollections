@@ -24,10 +24,6 @@
  * USA
  */
 
-/*
- * TODO: Map, foreach function to use on a cstring_list_t.
- */
-
 #include <stdlib.h>
 
 #include "collections.h"
@@ -161,6 +157,32 @@ cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
         return NULL;
 
     n = cdll_at(p->list, index);
+
+    if (NULL == n) {
+        /* TODO */
+        return NULL;
+    }
+
+    return cstring_ref(n->s);
+}
+
+cstring_t LIBEXPORT *cstring_list_map(const cstring_list_t *l,
+    int (*foo)(void *, void *), void *data)
+{
+    struct cstring_list_s *p = (struct cstring_list_s *)l;
+    struct cstring_list_node_s *n = NULL;
+
+    cerrno_clear();
+
+    if (NULL == l) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    n = cdll_map(p->list, foo, data);
+
+    if (NULL == n)
+        return NULL;
 
     return cstring_ref(n->s);
 }

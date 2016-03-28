@@ -332,7 +332,7 @@ int cstring_clear(cstring_t *string);
 cstring_t *cstring_substr(const cstring_t *string, const char *needle);
 
 /**
- * @name cstring_value_as_int
+ * @name cstring_to_int
  * @brief Converts the value of a cstring_t object to int.
  *
  * @param [in] string: The cstring_t object.
@@ -340,10 +340,10 @@ cstring_t *cstring_substr(const cstring_t *string, const char *needle);
  * @return On success returns the int value of a cstring_t object or -1
  *         otherwise.
  */
-int cstring_value_as_int(const cstring_t *string);
+int cstring_to_int(const cstring_t *string);
 
 /**
- * @name cstring_value_as_long
+ * @name cstring_to_long
  * @brief Converts the value of a cstring_t object to long.
  *
  * @param [in] string: The cstring_t object.
@@ -351,10 +351,10 @@ int cstring_value_as_int(const cstring_t *string);
  * @return On success returns the long value of a cstring_t object or
  *         -1 otherwise.
  */
-long cstring_value_as_long(const cstring_t *string);
+long cstring_to_long(const cstring_t *string);
 
 /**
- * @name cstring_value_as_long_long
+ * @name cstring_to_long_long
  * @brief Converts the value of a cstring_t object to long long.
  *
  * @param [in] string: The cstring_t object.
@@ -362,10 +362,10 @@ long cstring_value_as_long(const cstring_t *string);
  * @return On success returns the long long value of a cstring_t object or
  *         -1 otherwise.
  */
-long long cstring_value_as_long_long(const cstring_t *string);
+long long cstring_to_long_long(const cstring_t *string);
 
 /**
- * @name cstring_value_as_float
+ * @name cstring_to_float
  * @brief Converts the value of a cstring_t object to float.
  *
  * @param [in] string: The cstring_t object.
@@ -373,10 +373,10 @@ long long cstring_value_as_long_long(const cstring_t *string);
  * @return On success returns the float value of a cstring_t object or -1
  *         otherwise.
  */
-float cstring_value_as_float(const cstring_t *string);
+float cstring_to_float(const cstring_t *string);
 
 /**
- * @name cstring_value_as_double
+ * @name cstring_to_double
  * @brief Converts the value of a cstring_t object to double.
  *
  * @param [in] string: The cstring_t object.
@@ -384,7 +384,7 @@ float cstring_value_as_float(const cstring_t *string);
  * @return On success returns the double value of a cstring_t object ot -1
  *         otherwise.
  */
-double cstring_value_as_double(const cstring_t *string);
+double cstring_to_double(const cstring_t *string);
 
 /**
  * @name cstring_split

@@ -956,7 +956,7 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
     return l;
 }
 
-int LIBEXPORT cstring_value_as_int(const cstring_t *string)
+int LIBEXPORT cstring_to_int(const cstring_t *string)
 {
     struct cstring_s *p = cstring_ref((cstring_t *)string);
     char *endptr = NULL;
@@ -990,7 +990,7 @@ int LIBEXPORT cstring_value_as_int(const cstring_t *string)
     return v;
 }
 
-long LIBEXPORT cstring_value_as_long(const cstring_t *string)
+long LIBEXPORT cstring_to_long(const cstring_t *string)
 {
     struct cstring_s *p = cstring_ref((cstring_t *)string);
     char *endptr = NULL;
@@ -1024,7 +1024,7 @@ long LIBEXPORT cstring_value_as_long(const cstring_t *string)
     return v;
 }
 
-long long LIBEXPORT cstring_value_as_long_long(const cstring_t *string)
+long long LIBEXPORT cstring_to_long_long(const cstring_t *string)
 {
     struct cstring_s *p = cstring_ref((cstring_t *)string);
     char *endptr = NULL;
@@ -1058,7 +1058,7 @@ long long LIBEXPORT cstring_value_as_long_long(const cstring_t *string)
     return v;
 }
 
-float LIBEXPORT cstring_value_as_float(const cstring_t *string)
+float LIBEXPORT cstring_to_float(const cstring_t *string)
 {
     struct cstring_s *p = cstring_ref((cstring_t *)string);
     char *endptr = NULL;
@@ -1092,7 +1092,7 @@ float LIBEXPORT cstring_value_as_float(const cstring_t *string)
     return v;
 }
 
-double LIBEXPORT cstring_value_as_double(const cstring_t *string)
+double LIBEXPORT cstring_to_double(const cstring_t *string)
 {
     struct cstring_s *p = cstring_ref((cstring_t *)string);
     char *endptr = NULL;

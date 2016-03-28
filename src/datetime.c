@@ -815,20 +815,20 @@ cdatetime_t LIBEXPORT *cdt_string_mktime(const cstring_t *datetime)
     ld = cstring_split(cstring_list_get(l, 0), "/-");
     lt = cstring_split(cstring_list_get(l, 1), ":");
 
-    hour = cstring_value_as_int(cstring_list_get(lt, 0));
-    min = cstring_value_as_int(cstring_list_get(lt, 1));
-    sec = cstring_value_as_int(cstring_list_get(lt, 2));
+    hour = cstring_to_int(cstring_list_get(lt, 0));
+    min = cstring_to_int(cstring_list_get(lt, 1));
+    sec = cstring_to_int(cstring_list_get(lt, 2));
 
 
     p = cstring_list_get(ld, 0);
-    month = cstring_value_as_int(cstring_list_get(ld, 1));
+    month = cstring_to_int(cstring_list_get(ld, 1));
 
     if (cstring_length(p) == 2) {
-        day = cstring_value_as_int(p);
-        year = cstring_value_as_int(cstring_list_get(ld, 2));
+        day = cstring_to_int(p);
+        year = cstring_to_int(cstring_list_get(ld, 2));
     } else {
-        year = cstring_value_as_int(p);
-        day = cstring_value_as_int(cstring_list_get(ld, 2));
+        year = cstring_to_int(p);
+        day = cstring_to_int(cstring_list_get(ld, 2));
     }
 
     cstring_list_destroy(lt);

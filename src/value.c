@@ -787,6 +787,7 @@ bool LIBEXPORT cvalue_is_of_type(const cvalue_t *value, unsigned int type)
 static cstring_t *print_value(const struct cvalue_s *o)
 {
     cstring_t *s = NULL;
+    char *tmp;
 
     switch (o->type) {
         case CL_VOID:
@@ -842,7 +843,9 @@ static cstring_t *print_value(const struct cvalue_s *o)
             break;
 
         case CL_POINTER:
-            /* TODO */
+            tmp = value_to_hex(o->p, o->psize);
+            s = cstring_create("%s", tmp);
+            free(tmp);
             break;
 
         case CL_STRING:
@@ -891,9 +894,9 @@ cvalue_t LIBEXPORT *cvalue_from_string(const cstring_t *value)
     ref = cstring_ref((cstring_t *)value);
 
     if (cstring_is_number(ref) == true)
-        o = cvalue_create(CL_INT, cstring_value_as_int(ref));
+        o = cvalue_create(CL_INT, cstring_to_int(ref));
     else if (cstring_is_float_number(ref) == true)
-        o = cvalue_create(CL_FLOAT, cstring_value_as_float(ref));
+        o = cvalue_create(CL_FLOAT, cstring_to_int(ref));
     else
         o = cvalue_create(CL_STRING, ref);
 

@@ -1,0 +1,12 @@
+{
+    "API": [
+        { "name": "foo_int", "return_type": "int" },
+        { "name": "foo_args", "return_type": "void",
+            "arguments": [
+                { "name": "arg1", "type": "int" },
+                { "name": "arg2", "type": "int" }
+            ]
+        }
+    ]
+}
+

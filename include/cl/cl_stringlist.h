@@ -83,5 +83,20 @@ int cstring_list_add(cstring_list_t *l, cstring_t *s);
  */
 cstring_t *cstring_list_get(const cstring_list_t *l, unsigned int index);
 
+/**
+ * @name cstring_list_map
+ * @brief Call a function to act on every node from a list.
+ *
+ * @param [in] l: The cstring_list_t object.
+ * @param [in] foo: Function to execute over a node onto the list.
+ * @param [in] data: An optional data to pass together with every node while
+ *                   walks through the list.
+ *
+ * @return If the function \a foo returns a value different from 0 returns a
+ *         reference to the current object from the list otherwise returns NULL.
+ */
+cstring_t *cstring_list_map(const cstring_list_t *l,
+                            int (*foo)(void *, void *), void *data);
+
 #endif
 
