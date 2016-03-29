@@ -175,6 +175,36 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
 
             break;
 
+        case CL_BOOLEAN:
+            return_value->value = cvalue_create(CL_BOOLEAN, va_arg(ap, int),
+                                                NULL);
+
+            break;
+
+        case CL_LONG:
+            return_value->value = cvalue_create(CL_LONG, va_arg(ap, long),
+                                                NULL);
+
+            break;
+
+        case CL_ULONG:
+            return_value->value = cvalue_create(CL_ULONG, va_arg(ap, long),
+                                                NULL);
+
+            break;
+
+        case CL_LLONG:
+            return_value->value = cvalue_create(CL_LLONG, va_arg(ap, long),
+                                                NULL);
+
+            break;
+
+        case CL_ULLONG:
+            return_value->value = cvalue_create(CL_ULLONG, va_arg(ap, long),
+                                                NULL);
+
+            break;
+
         default:
             cset_errno(CL_UNSUPPORTED_TYPE);
             destroy_cplugin_fdata_s(return_value);

@@ -252,15 +252,12 @@ void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
      * specific Python object, so we can "travel" them between C codes.
      */
 
-    printf("%s: 1\n", __FUNCTION__);
     if (foo->type_of_args != CPLUGIN_NO_ARGS)
         capsule_of_args = PyCapsule_New(foo->args, PYARGS, NULL);
 
-    printf("%s: 2\n", __FUNCTION__);
     if (foo->return_value != CL_VOID)
         capsule_of_cpl = PyCapsule_New(cpl, PYCPLUGIN_T, NULL);
 
-    printf("%s: 3\n", __FUNCTION__);
     if (foo->return_value == CL_VOID) {
         if (foo->type_of_args == CPLUGIN_NO_ARGS)
             pvalue = Py_BuildValue("()");
@@ -274,7 +271,6 @@ void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
                                    capsule_of_args);
     }
 
-    printf("%s: 4\n", __FUNCTION__);
     PyObject_CallObject(foo->symbol, pvalue);
 }
 

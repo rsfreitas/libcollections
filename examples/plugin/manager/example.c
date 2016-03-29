@@ -129,6 +129,70 @@ static void show_plugin_info(cplugin_t *cpl)
     cplugin_info_unref(info);
 }
 
+static cstring_t *get_return_as_string(const char *name, cvalue_t *v)
+{
+    cstring_t *s = cstring_create("%s return value: ", name), *tmp;
+
+    if (CVALUE_ischar(v))
+        cstring_cat(s, "%c", CVALUE_CHAR(v));
+    else if (CVALUE_isuchar(v))
+        cstring_cat(s, "%d", CVALUE_UCHAR(v));
+    else if (CVALUE_isint(v))
+        cstring_cat(s, "%d", CVALUE_INT(v));
+    else if (CVALUE_isuint(v))
+        cstring_cat(s, "%u", CVALUE_UINT(v));
+    else if (CVALUE_issint(v))
+        cstring_cat(s, "%d", CVALUE_SINT(v));
+    else if (CVALUE_isusint(v))
+        cstring_cat(s, "%d", CVALUE_USINT(v));
+    else if (CVALUE_isfloat(v))
+        cstring_cat(s, "%f", CVALUE_FLOAT(v));
+    else if (CVALUE_isdouble(v))
+        cstring_cat(s, "%f", CVALUE_DOUBLE(v));
+    else if (CVALUE_islong(v))
+        cstring_cat(s, "%ld", CVALUE_LONG(v));
+    else if (CVALUE_isulong(v))
+        cstring_cat(s, "%lu", CVALUE_ULONG(v));
+    else if (CVALUE_isllong(v))
+        cstring_cat(s, "%lld", CVALUE_LLONG(v));
+    else if (CVALUE_isullong(v))
+        cstring_cat(s, "%llu", CVALUE_ULLONG(v));
+    else if (CVALUE_isstring(v)) {
+        tmp = CVALUE_STRING(v);
+        cstring_cat(s, "%s", cstring_valueof(v));
+        cstring_unref(tmp);
+    } else if (CVALUE_isboolean(v))
+        cstring_cat(s, "%d", CVALUE_BOOLEAN(v));
+
+    return s;
+}
+
+static void call_functions(cplugin_t *cpl)
+{
+    cplugin_info_t *info;
+    cstring_list_t *l;
+    int i, t;
+    cstring_t *p, *s;
+    cvalue_t *ret;
+
+    info = cplugin_info(cpl);
+    l = cplugin_functions(info);
+    t = cstring_list_size(l);
+
+    for (i = 0; i < t; i++) {
+        p = cstring_list_get(l, i);
+        ret = cplugin_call(cpl, cstring_valueof(p), NULL);
+        s = get_return_as_string(cstring_valueof(p), ret);
+        printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
+        cstring_unref(s);
+        cvalue_unref(ret);
+        cstring_unref(p);
+    }
+
+    cstring_list_destroy(l);
+    cplugin_info_unref(info);
+}
+
 int main(int argc, char **argv)
 {
     const char *opt = "f:hI";
@@ -136,7 +200,6 @@ int main(int argc, char **argv)
     char *filename = NULL;
     cplugin_t *cpl;
     bool info = false;
-    cvalue_t *ret;
 
     do {
         option = getopt(argc, argv, opt);
@@ -179,15 +242,9 @@ int main(int argc, char **argv)
     /* Show plugin informations */
     show_plugin_info(cpl);
 
-    /* XXX: call test function */
-    ret = cplugin_call(cpl, "foo_int", NULL);
+    /* XXX: call test functions */
+    call_functions(cpl);
 
-    if (ret != NULL) {
-        printf("foo_int return value: %d\n", CVALUE_INT(ret));
-        cvalue_unref(ret);
-    }
-
-    //cplugin_call(cpl, "foo_args", "arg1", 20, "arg2", 30, NULL);
     cplugin_call(cpl, "foo_args",
                  "arg1", 20,
                  "arg2", 21,
@@ -202,7 +259,7 @@ int main(int argc, char **argv)
                  "arg11", 12345,
                  "arg12", 123456,
                  "arg13", true,
-                 "arg14", "texto",
+                 "arg14", "Sample text",
                  NULL);
 
     printf("Error 1: %s\n", cstrerror(cget_last_error()));

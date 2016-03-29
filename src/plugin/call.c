@@ -35,6 +35,8 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
     struct cplugin_fdata_s *arg = NULL;
     char *tmp;
     cstring_t *p;
+    long long ll;
+    unsigned long long ull;
 
     if (foo->type_of_args == CPLUGIN_ARG_FIXED)
         increment = 2;
@@ -45,7 +47,6 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
         return -1;
     }
 
-    printf("total de argumentos: %d, %d\n", argc, cdll_size(foo->args));
     for (i = 0; i < argc; i += increment) {
         /*
          * Search for the structure that contains the value passed as
@@ -54,14 +55,9 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
          *
          * Example: call("arg_name", value, "arg_name", value);
          */
-        printf("%s %d\n", __FUNCTION__, 5);
         if (foo->type_of_args == CPLUGIN_ARG_FIXED) {
-        printf("%s %d\n", __FUNCTION__, 6);
-            tmp = va_arg(ap, char *);
-            printf("%s: tmp =  %s\n", __FUNCTION__, tmp);
-            arg = cdll_map(foo->args, search_cplugin_fdata_s, tmp);
-//                           va_arg(ap, char *));
-        printf("%s %d\n", __FUNCTION__, 7);
+            arg = cdll_map(foo->args, search_cplugin_fdata_s,
+                           va_arg(ap, char *));
         } else if (foo->type_of_args == CPLUGIN_ARG_VAR) {
             tmp = va_arg(ap, char *);
             t = va_arg(ap, int);
@@ -71,14 +67,18 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
         if (NULL == arg)
             return -1;
 
-                printf("%s %d\n", __FUNCTION__, arg->type);
         switch (arg->type) {
             case CL_CHAR:
-                arg->value = cvalue_create(CL_CHAR, va_arg(ap, int), NULL);
+                arg->value = cvalue_create(CL_CHAR, (char)va_arg(ap, int),
+                                           NULL);
+
                 break;
 
             case CL_UCHAR:
-                arg->value = cvalue_create(CL_UCHAR, va_arg(ap, int), NULL);
+                arg->value = cvalue_create(CL_UCHAR,
+                                           (unsigned char)va_arg(ap, int),
+                                           NULL);
+
                 break;
 
             case CL_INT:
@@ -86,20 +86,28 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
                 break;
 
             case CL_UINT:
-                arg->value = cvalue_create(CL_UINT, va_arg(ap, int), NULL);
+                arg->value = cvalue_create(CL_UINT,
+                                           (unsigned int)va_arg(ap, int),
+                                           NULL);
+
                 break;
 
             case CL_SINT:
-                arg->value = cvalue_create(CL_SINT, va_arg(ap, int), NULL);
+                arg->value = cvalue_create(CL_SINT,
+                                           (short int)va_arg(ap, int), NULL);
+
                 break;
 
             case CL_USINT:
-                arg->value = cvalue_create(CL_USINT, va_arg(ap, int), NULL);
+                arg->value = cvalue_create(CL_USINT,
+                                           (unsigned short int)va_arg(ap, int),
+                                           NULL);
+
                 break;
 
             case CL_FLOAT:
                 arg->value = cvalue_create(CL_FLOAT,
-                                           va_arg(ap, double), NULL);
+                                           (float)va_arg(ap, double), NULL);
 
                 break;
 
@@ -117,22 +125,24 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
 
             case CL_ULONG:
                 arg->value = cvalue_create(CL_ULONG,
-                                           va_arg(ap, long), NULL);
+                                           (unsigned long)va_arg(ap, long),
+                                           NULL);
 
                 break;
 
-/*            case CL_LLONG:
-                printf("%s 1 -- %d\n", __FUNCTION__, arg->type);
-                arg->value = cvalue_create(CL_LLONG,
-                                           va_arg(ap, long long), NULL);
-
-                printf("%s 2 -- %d, %d\n", __FUNCTION__, arg->type, CVALUE_LLONG(arg->value));
-                break;*/
+            case CL_LLONG:
+                /*
+                 * FIXME: Trouble here... A core is created if va_arg(ap, long long)
+                 *        is used. Still don't known why...
+                 */
+                ll = (long long)va_arg(ap, int);
+                arg->value = cvalue_create(CL_LLONG, ll, NULL);
+                break;
 
             case CL_ULLONG:
-                arg->value = cvalue_create(CL_ULLONG,
-                                           va_arg(ap, long long), NULL);
-
+                /* FIXME: The same as above... */
+                ull = (unsigned long long)va_arg(ap, int);
+                arg->value = cvalue_create(CL_ULLONG, ull, NULL);
                 break;
 
             case CL_POINTER:
@@ -146,27 +156,19 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
                 break;
 
             case CL_STRING:
-                printf("%s %d\n", __FUNCTION__, arg->type);
                 p = cstring_create("%s", va_arg(ap, char *));
-                printf("%s %d\n", __FUNCTION__, arg->type);
                 arg->value = cvalue_create(CL_STRING, p, NULL);
-                printf("%s %d\n", __FUNCTION__, arg->type);
+                cstring_unref(p);
                 break;
 
             default:
-                va_arg(ap, int);
-                break;
-//                cset_errno(CL_UNSUPPORTED_TYPE);
-//                return -1;
+                cset_errno(CL_UNSUPPORTED_TYPE);
+                return -1;
         }
 
-        printf("%s %d\n", __FUNCTION__, 3);
         if (foo->type_of_args == CPLUGIN_ARG_VAR)
             foo->args = cdll_unshift(foo->args, arg);
-        printf("%s %d\n", __FUNCTION__, 4);
     }
-
-    printf("%s %d\n", __FUNCTION__, 100);
 
     return 0;
 }

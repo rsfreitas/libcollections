@@ -139,15 +139,12 @@ cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry)
     if (NULL == info)
         return NULL;
 
-    printf("%s 1\n", __FUNCTION__);
     info->api = api_load(entry->api);
-    printf("%s 1\n", __FUNCTION__);
 
     if (NULL == info->api) {
         info_unref((cplugin_info_t *)info);
         return NULL;
     }
-    printf("%s 1\n", __FUNCTION__);
 
     return (cplugin_info_t *)info;
 }

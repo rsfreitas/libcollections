@@ -3492,3 +3492,45 @@
    obj:/usr/lib/libpython2.7.so.1.0
    obj:/usr/lib/libpython2.7.so.1.0
 }
+
+## Libmagic
+
+{
+   <suppression_243>
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
+   obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
+   fun:magic_load
+   fun:dl_library_init
+   fun:dl_get_plugin_type
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_244>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
+   fun:magic_load
+   fun:dl_library_init
+   fun:dl_get_plugin_type
+   fun:cplugin_load
+   fun:main
+}
+{
+   <suppression_245>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:calloc
+   obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
+   obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
+   fun:magic_load
+   fun:dl_library_init
+   fun:dl_get_plugin_type
+   fun:cplugin_load
+   fun:main
+}
+

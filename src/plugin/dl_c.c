@@ -107,9 +107,7 @@ cplugin_info_t *c_load_info(void *handle)
     if (NULL == entry)
         return NULL;
 
-    printf("%s 1\n", __FUNCTION__);
     info = info_create_from_entry(entry);
-    printf("%s 2\n", __FUNCTION__);
 
     if (info != NULL)
         set_custom_plugin_info(info, entry);
