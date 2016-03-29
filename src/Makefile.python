@@ -44,6 +44,7 @@ OBJS = 		\
 	specs.o			\
 	string.o		\
 	stringlist.o	\
+	util.o			\
 	value.o
 
 LINK_FLAGS = -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions \

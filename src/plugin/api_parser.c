@@ -41,16 +41,36 @@
 
 static enum cl_type cvt_str_to_cv(const char *rv)
 {
-    if (strcmp(rv, "int") == 0)
-        return CL_INT;
-    else if (strcmp(rv, "char") == 0)
+    if (strcmp(rv, "char") == 0)
         return CL_CHAR;
-    else if (strcmp(rv, "float") == 0)
-        return CL_FLOAT;
-    else if (strcmp(rv, "voidp") == 0) /* FIXME: rename it */
-        return CL_POINTER;
+    else if (strcmp(rv, "uchar") == 0)
+        return CL_UCHAR;
+    else if (strcmp(rv, "int") == 0)
+        return CL_INT;
     else if (strcmp(rv, "uint") == 0)
         return CL_UINT;
+    else if (strcmp(rv, "sint") == 0)
+        return CL_SINT;
+    else if (strcmp(rv, "usint") == 0)
+        return CL_USINT;
+    else if (strcmp(rv, "float") == 0)
+        return CL_FLOAT;
+    else if (strcmp(rv, "double") == 0)
+        return CL_DOUBLE;
+    else if (strcmp(rv, "long") == 0)
+        return CL_LONG;
+    else if (strcmp(rv, "ulong") == 0)
+        return CL_ULONG;
+    else if (strcmp(rv, "llong") == 0)
+        return CL_LLONG;
+    else if (strcmp(rv, "ullong") == 0)
+        return CL_ULLONG;
+    else if (strcmp(rv, "pointer") == 0)
+        return CL_POINTER;
+    else if (strcmp(rv, "string") == 0)
+        return CL_STRING;
+    else if (strcmp(rv, "boolean") == 0)
+        return CL_BOOLEAN;
 
     return CL_VOID;
 }
@@ -64,7 +84,6 @@ cjson_t *api_load(const char *api_data)
     cstring_destroy(s);
 
     if (NULL == api)
-        /* TODO: Adjust error code */
         return NULL;
 
     return api;
@@ -88,6 +107,7 @@ static struct cplugin_fdata_s *api_parse_function_args(cjson_t *args)
 
     t_args = cjson_get_array_size(args);
 
+    printf("%s 1\n", __FUNCTION__);
     for (i = 0; i < t_args; i++) {
         a = cjson_get_array_item(args, i);
 
@@ -108,6 +128,7 @@ static struct cplugin_fdata_s *api_parse_function_args(cjson_t *args)
         alist = cdll_unshift(alist, p);
     }
 
+    printf("%s 1 - total da lista: %d\n", __FUNCTION__, cdll_size(alist));
     return alist;
 
 error_block:
@@ -135,6 +156,7 @@ struct cplugin_function_s *api_parse(cplugin_info_t *info)
     functions = cjson_get_object_item(api, PLUGIN_API);
     t_functions = cjson_get_array_size(functions);
 
+    printf("%s 1\n", __FUNCTION__);
     for (i = 0; i < t_functions; i++) {
         args = NULL;
         f = cjson_get_array_item(functions, i);
@@ -160,12 +182,15 @@ struct cplugin_function_s *api_parse(cplugin_info_t *info)
                 type_of_args = CPLUGIN_NO_ARGS;
         } else {
             type_of_args = CPLUGIN_ARG_FIXED;
+    printf("%s 1\n", __FUNCTION__);
             args = api_parse_function_args(q);
+    printf("%s 1\n", __FUNCTION__);
 
             if (NULL == args)
                 goto error_block_args;
         }
 
+    printf("%s 1\n", __FUNCTION__);
         p = new_cplugin_function_s(cstring_valueof(jname), return_value,
                                    type_of_args, args);
 
@@ -175,6 +200,7 @@ struct cplugin_function_s *api_parse(cplugin_info_t *info)
         flist = cdll_unshift(flist, p);
     }
 
+    printf("%s 1\n", __FUNCTION__);
     return flist;
 
 error_block_args:
@@ -209,7 +235,7 @@ cstring_list_t *api_functions(const cplugin_info_t *info)
     f = cjson_get_object_item(info_get_api(info), PLUGIN_API);
 
     if (NULL == f) {
-        /* TODO */
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
@@ -220,7 +246,7 @@ cstring_list_t *api_functions(const cplugin_info_t *info)
         o = cjson_get_array_item(f, i);
 
         if (NULL == o) {
-            /* TODO */
+            cset_errno(CL_OBJECT_NOT_FOUND);
             return NULL;
         }
 
@@ -285,9 +311,10 @@ enum cl_type api_function_return_type(const cplugin_info_t *info,
     foo = get_function_object(info_get_api(info), function_name);
     p = cjson_get_object_item(foo, FUNCTION_RETURN_TYPE);
 
-    if (NULL == p)
-        /* TODO */
+    if (NULL == p) {
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return -1;
+    }
 
     v = cjson_get_object_value(p);
 

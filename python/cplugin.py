@@ -102,6 +102,14 @@ class CpluginEntryAPI:
         return self.api
 
 
+    def get_startup(self):
+        return self.startup
+
+
+    def get_shutdown(self):
+        return self.shutdown
+
+
 
 class CpluginFunctionReturnValue:
     """

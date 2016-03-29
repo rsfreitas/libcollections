@@ -24,14 +24,23 @@
  * USA
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <dlfcn.h>
 
 #include "collections.h"
 #include "plugin.h"
 
-/* Exported function prototype */
+/* Structure to save custom plugin informations. */
+struct c_info {
+    int     (*startup)(void);
+    void    (*shutdown)(void);
+};
+
+/* Exported functions prototype */
 typedef void (*c_exported_function)(uint32_t, cplugin_t *, cplugin_arg_t *);
+typedef int (*c_startup_function)(void);
+typedef void (*c_shutdown_function)(void);
 
 /* Function name to get the internal plugin information */
 #define CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL    "cplugin_set_plugin_entry_name"
@@ -46,6 +55,30 @@ void c_library_uninit(void)
     /* noop */
 }
 
+static void set_custom_plugin_info(cplugin_info_t *info,
+    struct cplugin_entry_s *entry)
+{
+    struct c_info *p = NULL;
+
+    p = calloc(1, sizeof(struct c_info));
+
+    if (NULL == p)
+        return;
+
+    p->startup = entry->startup;
+    p->shutdown = entry->shutdown;
+
+    info_set_custom_data(info, p);
+}
+
+static void release_custom_plugin_info(struct c_info *info)
+{
+    if (NULL == info)
+        return;
+
+    free(info);
+}
+
 static struct cplugin_entry_s *call_entry_symbol(void *handle)
 {
     struct cplugin_entry_s *(*pl_foo)(void), *entry = NULL;
@@ -53,17 +86,13 @@ static struct cplugin_entry_s *call_entry_symbol(void *handle)
 
     pl_foo = dlsym(handle, CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL);
 
-    if ((error = dlerror()) != NULL) {
-        cset_errno(CL_ENTRY_SYMBOL_NOT_FOUND);
+    if ((error = dlerror()) != NULL)
         return NULL;
-    }
 
     entry = (pl_foo)();
 
-    if (NULL == entry) {
-        cset_errno(CL_NO_PLUGIN_INFO);
+    if (NULL == entry)
         return NULL;
-    }
 
     return entry;
 }
@@ -71,13 +100,21 @@ static struct cplugin_entry_s *call_entry_symbol(void *handle)
 cplugin_info_t *c_load_info(void *handle)
 {
     struct cplugin_entry_s *entry;
+    cplugin_info_t *info = NULL;
 
     entry = call_entry_symbol(handle);
 
     if (NULL == entry)
         return NULL;
 
-    return info_create_from_entry(entry);
+    printf("%s 1\n", __FUNCTION__);
+    info = info_create_from_entry(entry);
+    printf("%s 2\n", __FUNCTION__);
+
+    if (info != NULL)
+        set_custom_plugin_info(info, entry);
+
+    return info;
 }
 
 /*
@@ -91,10 +128,8 @@ static int c_load_function(void *a, void *b)
 
     foo->symbol = dlsym(handle, foo->name);
 
-    if ((error = dlerror()) != NULL) {
-        cset_errno(CL_FUNCTION_SYMBOL_NOT_FOUND);
+    if ((error = dlerror()) != NULL)
         return -1;
-    }
 
     return 0;
 }
@@ -141,43 +176,36 @@ void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
     f(caller_id, cpl, foo->args);
 }
 
-cplugin_internal_data_t *c_plugin_startup(void *handle)
+int c_plugin_startup(cplugin_info_t *info)
 {
-    cplugin_internal_data_t *(*foo)(CPLUGIN_STARTUP_ARGS) = NULL;
-    struct cplugin_entry_s *entry;
+    c_startup_function f;
+    struct c_info *plinfo = NULL;
 
-    entry = call_entry_symbol(handle);
+    plinfo = (struct c_info *)info_get_custom_data(info);
 
-    if (NULL == entry)
-        return NULL;
-
-    foo = entry->startup;
-
-    /*
-     * If the startup function is not found returns a valid pointer so we
-     * prevent later errors, since this is not a mandatory function.
-     */
-    if (NULL == foo)
-        return handle;
-
-    return (foo)();
-}
-
-int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata, void *handle)
-{
-    int (*foo)(CPLUGIN_SHUTDOWN_ARGS) = NULL;
-    struct cplugin_entry_s *entry;
-
-    entry = call_entry_symbol(handle);
-
-    if (NULL == entry)
+    if (NULL == plinfo)
         return -1;
 
-    foo = entry->shutdown;
+    f = plinfo->startup;
 
-    if (NULL == foo)
-        return 0;
+    return f();
+}
 
-    return (foo)(plugin_idata);
+int c_plugin_shutdown(cplugin_info_t *info)
+{
+    c_shutdown_function f;
+    struct c_info *plinfo = NULL;
+
+    plinfo = (struct c_info *)info_get_custom_data(info);
+
+    if (NULL == plinfo)
+        return -1;
+
+    /* call the plugin shutdown function */
+    f = plinfo->shutdown;
+    f();
+    release_custom_plugin_info(plinfo);
+
+    return 0;
 }
 

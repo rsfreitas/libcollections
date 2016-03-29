@@ -32,6 +32,7 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
 {
     cvalue_t *cplv = NULL;
     PyObject *v = NULL;
+    cstring_t *s = NULL;
 
     cplv = cplugin_argument(acpl, argument_name);
 
@@ -96,11 +97,13 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
             break;
 
         case CL_STRING:
-            /* TODO */
+            s = CVALUE_STRING(cplv);
+            v = Py_BuildValue("s", cstring_valueof(s));
+            cstring_unref(s);
             break;
 
         case CL_BOOLEAN:
-            /* TODO */
+            v = Py_BuildValue("i", CVALUE_BOOLEAN(cplv));
             break;
     }
 
@@ -137,6 +140,8 @@ static PyObject *arg_count(PyObject *self, PyObject *args)
 static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
     const char *function_name, enum cl_type type, const char *value)
 {
+    bool b;
+
     switch (type) {
         case CL_VOID:
             /* noop */
@@ -204,8 +209,9 @@ static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
             break;
 
         case CL_BOOLEAN:
-            /* TODO */
-            break;
+            return cplugin_set_return_value(cpl, function_name, caller_id,
+                                            CL_BOOLEAN,
+                                            strtol(value, NULL, 10));
     }
 
     return -1;

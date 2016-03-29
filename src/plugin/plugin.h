@@ -105,12 +105,9 @@ struct cplugin_s {
     /* Plugin information */
     cplugin_info_t                  *info;
 
-    /* Plugin custom internal data */
-    cplugin_internal_data_t         *idata;
-
     /* Optional startup and shutdown plugin functions */
-    cplugin_internal_data_t         *(*startup)(CPLUGIN_STARTUP_ARGS);
-    int                             (*shutdown)(CPLUGIN_SHUTDOWN_ARGS);
+    int                             (*startup)(void);
+    void                            (*shutdown)(void);
 };
 
 /* api_parser.c */
@@ -145,8 +142,8 @@ int c_close(void *handle);
 void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
             struct cplugin_s *cpl);
 
-cplugin_internal_data_t *c_plugin_startup(void *handle);
-int c_plugin_shutdown(cplugin_internal_data_t *plugin_idata, void *handle);
+int c_plugin_startup(void *handle);
+int c_plugin_shutdown(cplugin_info_t *info);
 
 /* dl_python.c */
 void py_library_init(void);
@@ -158,8 +155,8 @@ int py_close(void *ptr);
 void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
              struct cplugin_s *cpl);
 
-cplugin_internal_data_t *py_plugin_startup(void *handle);
-int py_plugin_shutdown(cplugin_internal_data_t *pl_idata, void *handle);
+int py_plugin_startup(void *handle, cplugin_info_t *info);
+int py_plugin_shutdown(void *handle, cplugin_info_t *info);
 
 /* dl.c */
 enum cplugin_plugin_type dl_get_plugin_type(const char *pathname);
@@ -172,8 +169,8 @@ cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
 void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
              struct cplugin_s *cpl);
 
-cplugin_internal_data_t *dl_plugin_startup(void *handle,
-                                           enum cplugin_plugin_type plugin_type);
+int dl_plugin_startup(void *handle, enum cplugin_plugin_type plugin_type,
+                      cplugin_info_t *info);
 
 int dl_plugin_shutdown(struct cplugin_s *cpl);
 
@@ -190,6 +187,8 @@ cplugin_info_t *info_create_from_data(const char *name, const char *version,
                                       const char *api);
 
 cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry);
+void info_set_custom_data(cplugin_info_t *info, void *ptr);
+void *info_get_custom_data(cplugin_info_t *info);
 
 /* plugin_misc.c */
 struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,

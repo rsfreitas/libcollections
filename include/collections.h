@@ -30,7 +30,11 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          1
-# define BUILD                  6
+# define BUILD                  7
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #include <cl/cl_types.h>
@@ -59,6 +63,10 @@
 
 #ifdef LIBCOLLECTIONS_COMPILE
 # include <cl/cl_internal.h>
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

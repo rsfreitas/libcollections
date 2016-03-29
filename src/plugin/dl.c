@@ -47,11 +47,13 @@ static struct dl_info __dl = {
 
 static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 {
-    py_library_uninit();
+//    py_library_uninit();
     c_library_uninit();
 
     /* dl_uninit */
+#ifdef USE_LIBMAGIC
     magic_close(__dl.cookie);
+#endif
 }
 
 static void dl_library_init(void)
@@ -75,7 +77,7 @@ static void dl_library_init(void)
 
         __dl.ref.free = __dl_library_uninit;
         c_library_init();
-        py_library_init();
+//        py_library_init();
     } else
         ref_inc(&__dl.ref);
 }
@@ -159,8 +161,11 @@ void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type)
             break;
 
         default:
-            return NULL;
+            break;
     }
+
+    if (NULL == p)
+        cset_errno(CL_DLOPEN);
 
     return p;
 }
@@ -190,6 +195,9 @@ int dl_close(void *handle, enum cplugin_plugin_type plugin_type)
 
     dl_library_uninit();
 
+    if (ret != 0)
+        cset_errno(CL_DLCLOSE);
+
     return ret;
 }
 
@@ -199,18 +207,27 @@ int dl_close(void *handle, enum cplugin_plugin_type plugin_type)
 int dl_load_functions(struct cplugin_function_s *flist, void *handle,
     enum cplugin_plugin_type plugin_type)
 {
+    int ret = -1;
+
     switch (plugin_type) {
         case CPLUGIN_C:
-            return c_load_functions(flist, handle);
+            ret = c_load_functions(flist, handle);
+            break;
 
         case CPLUGIN_PYTHON:
-            return py_load_functions(flist, handle);
+            ret = py_load_functions(flist, handle);
+            break;
 
         default:
-            return 0;
+            /* Does not have any function */
+            ret = 0;
+            break;
     }
 
-    return 0;
+    if (ret < 0)
+        cset_errno(CL_OBJECT_NOT_FOUND);
+
+    return ret;
 }
 
 /*
@@ -232,6 +249,9 @@ cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
             break;
     }
 
+    if (NULL == info)
+        cset_errno(CL_NO_PLUGIN_INFO);
+
     return info;
 }
 
@@ -239,21 +259,28 @@ cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
  * Call the plugin startup function. It should return 0 on success or something
  * different otherwise.
  */
-cplugin_internal_data_t *dl_plugin_startup(void *handle,
-    enum cplugin_plugin_type plugin_type)
+int dl_plugin_startup(void *handle, enum cplugin_plugin_type plugin_type,
+    cplugin_info_t *info)
 {
+    int ret = -1;
+
     switch (plugin_type) {
         case CPLUGIN_C:
-            return c_plugin_startup(handle);
+            ret = c_plugin_startup(info);
+            break;
 
         case CPLUGIN_PYTHON:
-            return py_plugin_startup(handle);
+            ret = py_plugin_startup(handle, info);
+            break;
 
         default:
             break;
     }
 
-    return NULL;
+    if (ret != 0)
+        cset_errno(CL_PLUGIN_STARTUP);
+
+    return ret;
 }
 
 /*
@@ -262,18 +289,25 @@ cplugin_internal_data_t *dl_plugin_startup(void *handle,
  */
 int dl_plugin_shutdown(struct cplugin_s *cpl)
 {
+    int ret = -1;
+
     switch (cpl->type) {
         case CPLUGIN_C:
-            return c_plugin_shutdown(cpl->idata, cpl->handle);
+            ret = c_plugin_shutdown(cpl->info);
+            break;
 
         case CPLUGIN_PYTHON:
-            return py_plugin_shutdown(cpl->idata, cpl->handle);
+            ret = py_plugin_shutdown(cpl->handle, cpl->info);
+            break;
 
         default:
             break;
     }
 
-    return -1;
+    if (ret != 0)
+        cset_errno(CL_PLUGIN_SHUTDOWN);
+
+    return ret;
 }
 
 void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,

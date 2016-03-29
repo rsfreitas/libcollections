@@ -258,8 +258,6 @@ LIBCOLLECTIONS_0.1 {
         cvalue_unref;
         cplugin_load;
         cplugin_unload;
-        cplugin_get_startup_data;
-        cplugin_get_shutdown_arg;
         cplugin_info;
         cplugin_info_from_file;
         cplugin_info_unref;

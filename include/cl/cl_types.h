@@ -141,7 +141,6 @@ typedef void                counter_t;
 /** plugin types */
 typedef void                cplugin_t;
 typedef void                cplugin_arg_t;
-typedef void                cplugin_internal_data_t;
 typedef void                cplugin_info_t;
 
 #endif

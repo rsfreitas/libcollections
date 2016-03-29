@@ -153,7 +153,7 @@ int LIBEXPORT ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state)
     t = search_timer(tlist, timer_name);
 
     if (NULL == t) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return -1;
     }
 
@@ -176,7 +176,7 @@ ctimer_t LIBEXPORT *ctimer_get_timer(const ctimer_t *timers_list,
     t = search_timer(tlist, timer_name);
 
     if (NULL == t) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
@@ -358,7 +358,7 @@ ctimer_info_t LIBEXPORT *ctimer_load_info_within_timer(ctimer_arg_t arg)
     t = search_timer(tlist, timer_name);
 
     if (NULL == t) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
@@ -583,7 +583,7 @@ int LIBEXPORT ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
     t = search_timer(tlist, timer_name);
 
     if (NULL == t) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return -1;
     }
 

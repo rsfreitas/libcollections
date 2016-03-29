@@ -506,7 +506,7 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
     pthread_mutex_unlock(&ev->m_evc);
 
     if (NULL == evc) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return -1;
     }
 

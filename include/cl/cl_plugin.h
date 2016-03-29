@@ -32,14 +32,6 @@
 # endif
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/*
- * TODO: Substitute cplugin_internal_data_t for a cvalue_t.
- */
-
 /** Functions argument mode */
 enum cplugin_arg {
     CPLUGIN_ARG_FIXED,
@@ -49,13 +41,13 @@ enum cplugin_arg {
 
 /** Identification of a C/C++ plugin */
 struct cplugin_entry_s {
-    const char                      *name;
-    const char                      *version;
-    const char                      *author;
-    const char                      *description;
-    const char                      *api;
-    cplugin_internal_data_t         *(*startup)(CPLUGIN_STARTUP_ARGS);
-    int                             (*shutdown)(CPLUGIN_SHUTDOWN_ARGS);
+    const char  *name;
+    const char  *version;
+    const char  *author;
+    const char  *description;
+    const char  *api;
+    int         (*startup)(void);
+    void        (*shutdown)(void);
 };
 
 /**
@@ -90,42 +82,6 @@ cplugin_t *cplugin_load(const char *pathname);
  * @return On success returns 0 or -1 otherwise.
  */
 int cplugin_unload(cplugin_t *cpl);
-
-/**
- * @name cplugin_get_startup_data
- * @brief Gets the startup function return value.
- *
- * This function gets a pointer to the data returned by the plugin startup
- * function so it can be used from other plugin functions.
- *
- * It is recommended to use the CPLUGIN_GET_STARTUP_DATA instead of a direct
- * call to this function.
- *
- * @param [in] cpl: The cplugin_t object from the loaded plugin.
- *
- * @return On success returns a pointer to the data that was returned by the
- *         plugin startup function or NULL otherwise.
- */
-cplugin_internal_data_t *cplugin_get_startup_data(cplugin_t *cpl);
-
-/**
- * @name cplugin_get_shutdown_arg
- * @brief Gets the value passed as argument to the shutdown plugin function.
- *
- * This function gets a pointer to the data passed as argument to the shutdown
- * plugin function. The same data that was returned from the startup plugin
- * function.
- *
- * It is recommended to use de CPLUGIN_GET_SHUTDOWN_ARG macro instead of a
- * direct call to this function. And it should be called from the plugin
- * shutdown function.
- *
- * @param [in] arg: The cplugin_internal_data_t object passed as argument
- *                  to the shutdown function.
- *
- * @return Returns the argument from the plugin shutdown function.
- */
-cplugin_internal_data_t *cplugin_get_shutdown_arg(cplugin_internal_data_t *arg);
 
 /**
  * @name cplugin_info
@@ -377,10 +333,6 @@ cvalue_t *cplugin_argument(const cplugin_arg_t *args, const char *arg_name);
  *         otherwise.
  */
 int cplugin_arg_count(const cplugin_arg_t *args);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

@@ -32,12 +32,16 @@
 #include "plugin.h"
 
 struct info_s {
-    char                    *name;
-    char                    *version;
-    char                    *author;
-    char                    *description;
-    cjson_t                 *api;
-    struct ref_s            ref;
+    char            *name;
+    char            *version;
+    char            *author;
+    char            *description;
+    cjson_t         *api;
+
+    /* Plugin custom internal data */
+    void            *data;
+
+    struct ref_s    ref;
 };
 
 static void __destroy_info_s(const struct ref_s *ref)
@@ -74,6 +78,7 @@ static struct info_s *new_info_s(const char *name,
     i->description = strdup(description);
     i->author = strdup(author);
     i->api = NULL;
+    i->data = NULL;
 
     i->ref.count = 1;
     i->ref.free = __destroy_info_s;
@@ -134,12 +139,15 @@ cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry)
     if (NULL == info)
         return NULL;
 
+    printf("%s 1\n", __FUNCTION__);
     info->api = api_load(entry->api);
+    printf("%s 1\n", __FUNCTION__);
 
     if (NULL == info->api) {
         info_unref((cplugin_info_t *)info);
         return NULL;
     }
+    printf("%s 1\n", __FUNCTION__);
 
     return (cplugin_info_t *)info;
 }
@@ -192,5 +200,25 @@ char *info_get_author(const cplugin_info_t *info)
         return NULL;
 
     return i->author;
+}
+
+void info_set_custom_data(cplugin_info_t *info, void *ptr)
+{
+    struct info_s *i = (struct info_s *)info;
+
+    if ((NULL == i) || (NULL == ptr))
+        return;
+
+    i->data = ptr;
+}
+
+void *info_get_custom_data(cplugin_info_t *info)
+{
+    struct info_s *i = (struct info_s *)info;
+
+    if ((NULL == i) || (NULL == i->data))
+        return NULL;
+
+    return i->data;
 }
 

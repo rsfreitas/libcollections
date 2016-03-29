@@ -55,7 +55,7 @@ unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
         return NULL;
     }
 
-    sread = fread(b, info.st_size, 1, f);
+    sread = fread(b, 1, info.st_size, f);
     fclose(f);
 
     if ((off_t)sread != info.st_size)

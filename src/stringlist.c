@@ -159,7 +159,7 @@ cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
     n = cdll_at(p->list, index);
 
     if (NULL == n) {
-        /* TODO */
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 

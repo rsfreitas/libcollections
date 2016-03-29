@@ -29,15 +29,14 @@ from cplugin import *
 
 def module_init():
     print CpluginFunctionName()
-    print 'Inside module_init'
+    print 'Inside module init'
+    return 0
 
 
 
 def module_uninit():
     print CpluginFunctionName()
-    print 'Inside module_uninit'
-
-    return 0
+    print 'Inside module uninit'
 
 
 
@@ -47,13 +46,15 @@ class cplugin_entry_s(CpluginEntryAPI):
         self.version = "0.1"
         self.creator = "Rodrigo Freitas"
         self.description = "Python plugin example"
+        self.startup = "module_init"
+        self.shutdown = "module_uninit"
         self.api = "{\
     \"API\": [\
         { \"name\": \"foo_int\", \"return_type\": \"int\" },\
         { \"name\": \"foo_args\", \"return_type\": \"void\", \
             \"arguments\": [\
                 { \"name\": \"arg1\", \"type\": \"int\" },\
-                { \"name\": \"arg2\", \"type\": \"int\" }\
+                { \"name\": \"arg2\", \"type\": \"boolean\" }\
             ]\
         }\
     ]\
@@ -80,6 +81,7 @@ def foo_args(args):
     a = CpluginFunctionArgs(args)
     arg1 = a.argument('arg1')
     arg2 = a.argument('arg2')
+    print 'arg2'
 
     print "Arguments (arg1=%d, arg2=%d)" % (int(arg1), int(arg2))
 

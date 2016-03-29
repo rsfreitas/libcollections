@@ -187,7 +187,25 @@ int main(int argc, char **argv)
         cvalue_unref(ret);
     }
 
-    cplugin_call(cpl, "foo_args", "arg1", 20, "arg2", 30, NULL);
+    //cplugin_call(cpl, "foo_args", "arg1", 20, "arg2", 30, NULL);
+    cplugin_call(cpl, "foo_args",
+                 "arg1", 20,
+                 "arg2", 21,
+                 "arg3", 22,
+                 "arg4", 23,
+                 "arg5", 'a',
+                 "arg6", 231,
+                 "arg7", 3.1415f,
+                 "arg8", 2.27,
+                 "arg9", 123,
+                 "arg10", 1234,
+                 "arg11", 12345,
+                 "arg12", 123456,
+                 "arg13", true,
+                 "arg14", "texto",
+                 NULL);
+
+    printf("Error 1: %s\n", cstrerror(cget_last_error()));
 
     cplugin_unload(cpl);
 

@@ -633,7 +633,7 @@ cfg_section_t LIBEXPORT *cfg_get_section(const cfg_file_t *file,
     l = cdll_map(f->section, search_section, (void *)section);
 
     if (NULL == l) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
@@ -672,7 +672,7 @@ cfg_key_t LIBEXPORT *cfg_get_key_from_section(const cfg_section_t *section,
     l = cdll_map(s->child, search_key, (void *)key);
 
     if (NULL == l) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 

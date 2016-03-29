@@ -82,6 +82,7 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
     va_list ap;
     void *p;
     int psize;
+    cstring_t *s;
 
     cerrno_clear();
 
@@ -94,7 +95,7 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
                    (char *)function_name);
 
     if (NULL == foo) {
-        cset_errno(CL_FUNCTION_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return -1;
     }
 
@@ -117,6 +118,20 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
 
             break;
 
+        case CL_SINT:
+            return_value->value = cvalue_create(CL_SINT,
+                                                (short int)va_arg(ap, int),
+                                                NULL);
+            break;
+
+        case CL_USINT:
+            return_value->value = cvalue_create(CL_USINT,
+                                                (unsigned short int)va_arg(ap,
+                                                                           int),
+                                                NULL);
+
+            break;
+
         case CL_VOID:
             /* noop */
             break;
@@ -129,14 +144,33 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
 
             break;
 
+        case CL_STRING:
+            s = cstring_create("%s", va_arg(ap, char *));
+            return_value->value = cvalue_create(CL_STRING, s, NULL);
+            cstring_unref(s);
+            break;
+
         case CL_CHAR:
             return_value->value = cvalue_create(CL_CHAR, (char)va_arg(ap, int),
                                                 NULL);
 
             break;
 
+        case CL_UCHAR:
+            return_value->value = cvalue_create(CL_UCHAR,
+                                                (unsigned char)va_arg(ap, int),
+                                                NULL);
+
+            break;
+
         case CL_FLOAT:
             return_value->value = cvalue_create(CL_FLOAT, va_arg(ap, double),
+                                                NULL);
+
+            break;
+
+        case CL_DOUBLE:
+            return_value->value = cvalue_create(CL_DOUBLE, va_arg(ap, double),
                                                 NULL);
 
             break;
@@ -197,10 +231,8 @@ cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
 
     handle = dl_open(pathname, plugin_type);
 
-    if (NULL == handle) {
-        cset_errno(CL_DLOPEN);
+    if (NULL == handle)
         return NULL;
-    }
 
     /* Loads plugin info */
     info = dl_load_info(handle, plugin_type);
@@ -383,7 +415,7 @@ cvalue_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
                    (char *)function_name);
 
     if (NULL == foo) {
-        cset_errno(CL_FUNCTION_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
@@ -443,7 +475,6 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     struct cplugin_s *cpl = NULL;
     cplugin_info_t *info = NULL;
     void *handle = NULL;
-    cplugin_internal_data_t *plugin_idata = NULL;
     enum cplugin_plugin_type plugin_type;
 
     cerrno_clear();
@@ -492,19 +523,8 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
         goto error_block;
 
     /* Runs the plugin initialization function */
-    plugin_idata = dl_plugin_startup(handle, plugin_type);
-
-    if (NULL == plugin_idata) {
-        cset_errno(CL_PLUGIN_STARTUP);
+    if (dl_plugin_startup(handle, plugin_type, info))
         goto error_block;
-    } else {
-        /*
-         * If the plugin does not have an initialization function makes
-         * sure that the @idata is set to NULL.
-         */
-        if (plugin_idata == handle)
-            plugin_idata = NULL;
-    }
 
     cpl = new_cplugin_s();
 
@@ -515,7 +535,6 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     cpl->handle = handle;
     cpl->functions = flist;
     cpl->info = info;
-    cpl->idata = plugin_idata;
 
     return cpl;
 
@@ -553,25 +572,5 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
         return -1;
 
     return 0;
-}
-
-cplugin_internal_data_t LIBEXPORT *cplugin_get_startup_data(cplugin_t *cpl)
-{
-    struct cplugin_s *pl = (struct cplugin_s *)cpl;
-
-    cerrno_clear();
-
-    if (NULL == cpl) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    return pl->idata;
-}
-
-cplugin_internal_data_t LIBEXPORT
-    *cplugin_get_shutdown_arg(cplugin_internal_data_t *arg)
-{
-    return arg;
 }
 

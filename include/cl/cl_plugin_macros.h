@@ -45,10 +45,6 @@
 
 #define OBJEXPORT               __attribute__((visibility("default")))
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
  * Macros to be used with libcollections while manipulating plugins.
  *
@@ -95,25 +91,6 @@ extern "C" {
 #define CPLUGIN_ARGUMENT(arg_name)              \
     cplugin_argument(args, arg_name)
 
-/* Arguments to the startup plugin function */
-#define CPLUGIN_STARTUP_ARGS                    \
-    void
-
-/* Arguments to the shutdown plugin function */
-#define CPLUGIN_SHUTDOWN_ARGS                   \
-    cplugin_internal_data_t *cpl_idata
-
-/*
- * Macro to get the argument from a shutdown plugin function as a
- * cplugin_internal_data_t.
- */
-#define CPLUGIN_GET_SHUTDOWN_ARG()              \
-    cplugin_get_shutdown_arg(cpl_idata)
-
-/* Macro to get the startup plugin function data */
-#define CPLUGIN_GET_STARTUP_DATA()              \
-    cplugin_get_startup_data(cpl)
-
 /*
  * Macro to access the argument @args from an exported function and
  * remove the GCC warning.
@@ -131,10 +108,6 @@ extern "C" {
 #define cplugin_call(cpl, function_name, arg...)   \
     cplugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
                     cpl, function_name, ## arg)
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

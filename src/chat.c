@@ -610,14 +610,14 @@ chat_t LIBEXPORT *chat_create(enum chat_driver cd, enum chat_mode mode,
     cdi = get_chat_driver_info_s(cd);
 
     if (NULL == cdi) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
     cim = get_chat_ipc_methods_s(cdi->ipc_type);
 
     if (NULL == cim) {
-        cset_errno(CL_ELEMENT_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 

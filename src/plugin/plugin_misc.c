@@ -169,6 +169,7 @@ int search_cplugin_fdata_s(void *a, void *b)
     struct cplugin_fdata_s *arg = (struct cplugin_fdata_s *)a;
     char *arg_name = (char *)b;
 
+    printf("%s: %s - %s\n", __FUNCTION__, arg->name, arg_name);
     if (strcmp(arg->name, arg_name) == 0)
         return 1;
 

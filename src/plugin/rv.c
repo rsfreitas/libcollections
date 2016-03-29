@@ -52,7 +52,7 @@ cvalue_t *cplugin_get_return_value(struct cplugin_s *cpl,
                    (char *)function_name);
 
     if (NULL == foo) {
-        cset_errno(CL_FUNCTION_NOT_FOUND);
+        cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 

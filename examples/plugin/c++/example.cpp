@@ -34,34 +34,24 @@ using namespace std;
 
 #define API     "{\
     \"API\": [\
-        { \"name\": \"foo_int\", \"return_type\": \"int\" }\
+        { \"name\": \"foo_int\", \"return_type\": \"int\" },\
+        { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
+            { \"name\": \"arg1\", \"type\": \"int\" },\
+            { \"name\": \"arg2\", \"type\": \"int\" }\
+            ] }\
     ]\
 }"
 
-static cplugin_internal_data_t *plugin_init(CPLUGIN_STARTUP_ARGS)
+static int plugin_init(void)
 {
-    string *s = new string();
-
     cout << "Pass through " << __FUNCTION__ << endl;
-    s->append(__FUNCTION__);
-
-    return reinterpret_cast<cplugin_internal_data_t *>(s);
-}
-
-static int plugin_uninit(CPLUGIN_SHUTDOWN_ARGS)
-{
-    string *s;
-    cplugin_internal_data_t *p = CPLUGIN_GET_SHUTDOWN_ARG();
-
-    s = reinterpret_cast<string *>(p);
-
-    if (s != NULL) {
-        cout << __FUNCTION__ << " -> " << s->c_str() << endl;
-        delete s;
-    } else
-        cout << __FUNCTION__ << ": NULL" << endl;
 
     return 0;
+}
+
+static void plugin_uninit(void)
+{
+    cout << "Pass through " << __FUNCTION__ << endl;
 }
 
 struct cplugin_entry_s plugin_example_plugin_entry = {
@@ -82,5 +72,22 @@ CPLUGIN_OBJECT_EXPORT(foo_int)
 
     cout << __FUNCTION__ << endl;
     CPLUGIN_SET_RETURN_VALUE(CL_INT, 42);
+}
+
+CPLUGIN_OBJECT_EXPORT(foo_args)
+{
+    cvalue_t *arg1, *arg2;
+
+    cout << "Number of arguments: " << CPLUGIN_ARG_COUNT() << endl;
+    arg1 = CPLUGIN_ARGUMENT("arg1");
+    arg2 = CPLUGIN_ARGUMENT("arg2");
+
+    cout << "arg1 value " << CVALUE_INT(arg1) << endl;
+    cout << "arg2 value " << CVALUE_INT(arg2) << endl;
+
+    cvalue_unref(arg2);
+    cvalue_unref(arg1);
+
+    CPLUGIN_SET_RETURN_VALUE_AS_VOID();
 }
 

@@ -34,6 +34,12 @@
 #include "collections.h"
 #include "plugin.h"
 
+/* Structure to save custom plugin informations. */
+struct py_info {
+    char    *startup_name;
+    char    *shutdown_name;
+};
+
 void py_library_init(void)
 {
     setenv("PYTHONPATH", "/usr/local/lib", 1);
@@ -75,6 +81,32 @@ static char *py_strip_filename(const char *pathname)
     return n;
 }
 
+static void set_custom_plugin_info(cplugin_info_t *info, const char *startup,
+    const char *shutdown)
+{
+    struct py_info *p;
+
+    p = calloc(1, sizeof(struct py_info));
+
+    if (NULL == p)
+        return;
+
+    p->startup_name = strdup(startup);
+    p->shutdown_name = strdup(shutdown);
+
+    info_set_custom_data(info, p);
+}
+
+static void release_custom_plugin_info(struct py_info *info)
+{
+    if (NULL == info)
+        return;
+
+    free(info->shutdown_name);
+    free(info->startup_name);
+    free(info);
+}
+
 /*
  * Loads information from within 'cplugin_entry_s' class.
  */
@@ -88,31 +120,33 @@ cplugin_info_t *py_load_info(void *ptr)
     PyObject *dict = (PyObject *)ptr;
     PyObject *class = NULL, *instance = NULL, *result = NULL;
     unsigned int i = 0, t = 0;
+    cplugin_info_t *info = NULL;
     struct py_pl_info pyinfo[] = {
+        /*
+         * These names are based upon the method names from the CpluginEntryAPI
+         * class, inside the cplugin.py file.
+         */
         { "get_name",           NULL },
         { "get_version",        NULL },
         { "get_creator",        NULL },
         { "get_description",    NULL },
-        { "get_api",            NULL }
+        { "get_api",            NULL },
+        { "get_startup",        NULL },
+        { "get_shutdown",       NULL }
     };
 
     class = PyDict_GetItemString(dict, "cplugin_entry_s");
 
-    if (NULL == class) {
-        cset_errno(CL_ENTRY_SYMBOL_NOT_FOUND);
+    if (NULL == class)
         return NULL;
-    }
 
-    if (!PyCallable_Check(class)) {
-        cset_errno(CL_NO_PLUGIN_INFO);
+    if (!PyCallable_Check(class))
         return NULL;
-    } else
+    else
         instance = PyObject_CallObject(class, NULL);
 
-    if (NULL == instance) {
-        cset_errno(CL_NO_PLUGIN_INFO);
+    if (NULL == instance)
         return NULL;
-    }
 
     /* Call methods from the class so we can get more informations. */
     t = sizeof(pyinfo) / sizeof(pyinfo[0]);
@@ -120,16 +154,19 @@ cplugin_info_t *py_load_info(void *ptr)
     for (i = 0; i < t; i++) {
         result = PyObject_CallMethod(instance, pyinfo[i].fname, NULL);
 
-        if (NULL == result) {
-            cset_errno(CL_NO_PLUGIN_INFO);
+        if (NULL == result)
             return NULL;
-        }
 
         pyinfo[i].data = PyString_AS_STRING(result);
     }
 
-    return info_create_from_data(pyinfo[0].data, pyinfo[1].data, pyinfo[2].data,
+    info = info_create_from_data(pyinfo[0].data, pyinfo[1].data, pyinfo[2].data,
                                  pyinfo[3].data, pyinfo[4].data);
+
+    if (info != NULL)
+        set_custom_plugin_info(info, pyinfo[5].data, pyinfo[6].data);
+
+    return info;
 }
 
 static int py_load_function(void *a, void *b)
@@ -147,10 +184,8 @@ static int py_load_function(void *a, void *b)
 
 int py_load_functions(struct cplugin_function_s *flist, void *handle)
 {
-    if (cdll_map(flist, py_load_function, handle) != NULL) {
-        cset_errno(CL_FUNCTION_SYMBOL_NOT_FOUND);
+    if (cdll_map(flist, py_load_function, handle) != NULL)
         return -1;
-    }
 
     return 0;
 }
@@ -217,12 +252,15 @@ void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
      * specific Python object, so we can "travel" them between C codes.
      */
 
+    printf("%s: 1\n", __FUNCTION__);
     if (foo->type_of_args != CPLUGIN_NO_ARGS)
         capsule_of_args = PyCapsule_New(foo->args, PYARGS, NULL);
 
+    printf("%s: 2\n", __FUNCTION__);
     if (foo->return_value != CL_VOID)
         capsule_of_cpl = PyCapsule_New(cpl, PYCPLUGIN_T, NULL);
 
+    printf("%s: 3\n", __FUNCTION__);
     if (foo->return_value == CL_VOID) {
         if (foo->type_of_args == CPLUGIN_NO_ARGS)
             pvalue = Py_BuildValue("()");
@@ -236,44 +274,54 @@ void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
                                    capsule_of_args);
     }
 
+    printf("%s: 4\n", __FUNCTION__);
     PyObject_CallObject(foo->symbol, pvalue);
 }
 
-cplugin_internal_data_t *py_plugin_startup(void *handle)
+int py_plugin_startup(void *handle, cplugin_info_t *info)
 {
-    PyObject *dict, *foo, *pvalue;
+    PyObject *dict, *foo, *pvalue, *pret;
+    struct py_info *plinfo = NULL;
+    int ret = -1;
 
-    /* TODO: MEmory leak warning */
+    plinfo = (struct py_info *)info_get_custom_data(info);
+
+    if (NULL == plinfo)
+        return -1;
+
     dict = (PyObject *)handle;
-    foo = PyDict_GetItemString(dict, (char *)"module_init");
+    foo = PyDict_GetItemString(dict, (char *)plinfo->startup_name);
 
-    /* Optional function */
     if (PyCallable_Check(foo)) {
         pvalue = Py_BuildValue("()");
-        PyObject_CallObject(foo, pvalue);
+        pret = PyObject_CallObject(foo, pvalue);
+
+        if (pret != NULL)
+           ret = _PyInt_AsInt(pret);
     }
 
-    /*
-     * The plugin startup function returns nothing. This way, we return @handle
-     * itself, preventing later errors.
-     */
-    return handle;
+    return ret;
 }
 
-int py_plugin_shutdown(cplugin_internal_data_t *pl_idata __attribute__((unused)),
-    void *handle)
+int py_plugin_shutdown(void *handle, cplugin_info_t *info)
 {
     PyObject *dict, *foo, *pvalue;
+    struct py_info *plinfo = NULL;
 
-    /* TODO: Memory leak warning */
+    plinfo = (struct py_info *)info_get_custom_data(info);
+
+    if (NULL == plinfo)
+        return -1;
+
     dict = (PyObject *)handle;
-    foo = PyDict_GetItemString(dict, (char *)"module_uninit");
+    foo = PyDict_GetItemString(dict, (char *)plinfo->shutdown_name);
 
-    /* Optional function */
     if (PyCallable_Check(foo)) {
         pvalue = Py_BuildValue("()");
         PyObject_CallObject(foo, pvalue);
     }
+
+    release_custom_plugin_info(plinfo);
 
     return 0;
 }
