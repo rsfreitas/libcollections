@@ -51,12 +51,34 @@ class cplugin_entry_s(CpluginEntryAPI):
         self.api = "{\
     \"API\": [\
         { \"name\": \"foo_int\", \"return_type\": \"int\" },\
-        { \"name\": \"foo_args\", \"return_type\": \"void\", \
-            \"arguments\": [\
-                { \"name\": \"arg1\", \"type\": \"int\" },\
-                { \"name\": \"arg2\", \"type\": \"boolean\" }\
-            ]\
-        }\
+        { \"name\": \"foo_uint\", \"return_type\": \"uint\" },\
+        { \"name\": \"foo_char\", \"return_type\": \"char\" },\
+        { \"name\": \"foo_uchar\", \"return_type\": \"uchar\" },\
+        { \"name\": \"foo_sint\", \"return_type\": \"sint\" },\
+        { \"name\": \"foo_usint\", \"return_type\": \"usint\" },\
+        { \"name\": \"foo_float\", \"return_type\": \"float\" },\
+        { \"name\": \"foo_double\", \"return_type\": \"double\" },\
+        { \"name\": \"foo_long\", \"return_type\": \"long\" },\
+        { \"name\": \"foo_ulong\", \"return_type\": \"ulong\" },\
+        { \"name\": \"foo_llong\", \"return_type\": \"llong\" },\
+        { \"name\": \"foo_ullong\", \"return_type\": \"ullong\" },\
+        { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" },\
+        { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
+            { \"name\": \"arg1\", \"type\": \"int\" },\
+            { \"name\": \"arg2\", \"type\": \"uint\" },\
+            { \"name\": \"arg3\", \"type\": \"sint\" },\
+            { \"name\": \"arg4\", \"type\": \"usint\" },\
+            { \"name\": \"arg5\", \"type\": \"char\" },\
+            { \"name\": \"arg6\", \"type\": \"uchar\" },\
+            { \"name\": \"arg7\", \"type\": \"float\" },\
+            { \"name\": \"arg8\", \"type\": \"double\" },\
+            { \"name\": \"arg9\", \"type\": \"long\" },\
+            { \"name\": \"arg10\", \"type\": \"ulong\" },\
+            { \"name\": \"arg11\", \"type\": \"llong\" },\
+            { \"name\": \"arg12\", \"type\": \"ullong\" },\
+            { \"name\": \"arg13\", \"type\": \"boolean\" },\
+            { \"name\": \"arg14\", \"type\": \"string\" }\
+            ] }\
     ]\
 }"
 
@@ -70,9 +92,92 @@ class cplugin_entry_s(CpluginEntryAPI):
 
 def foo_int(caller_id, cplugin_t):
     print CpluginFunctionName()
-    print caller_id
     rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
     rv.set_return_value(CpluginValue.INT.value, 42)
+
+
+
+def foo_uint(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.UINT.value, 420)
+
+
+
+def foo_sint(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.SINT.value, 421)
+
+
+
+def foo_usint(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.USINT.value, 4201)
+
+
+
+def foo_char(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.CHAR.value, 'a')
+
+
+
+def foo_uchar(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.UCHAR.value, 230)
+
+
+
+def foo_float(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.FLOAT.value, 42.5)
+
+
+
+def foo_double(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.DOUBLE.value, 4.2)
+
+
+
+def foo_boolean(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.BOOLEAN.value, True)
+
+
+
+def foo_long(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.LONG.value, 42000)
+
+
+
+def foo_ulong(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.ULONG.value, 420001)
+
+
+
+def foo_llong(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.LLONG.value, 420009)
+
+
+
+def foo_ullong(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.ULLONG.value, 4200019)
 
 
 
@@ -81,8 +186,8 @@ def foo_args(args):
     a = CpluginFunctionArgs(args)
     arg1 = a.argument('arg1')
     arg2 = a.argument('arg2')
-    print 'arg2'
 
+    print arg2
     print "Arguments (arg1=%d, arg2=%d)" % (int(arg1), int(arg2))
 
 

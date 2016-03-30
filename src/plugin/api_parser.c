@@ -75,6 +75,10 @@ static enum cl_type cvt_str_to_cv(const char *rv)
     return CL_VOID;
 }
 
+/*
+ * FIXME: We need to create better error codes, to tell the user that he may
+ *        have an error in its JSON API.
+ */
 cjson_t *api_load(const char *api_data)
 {
     cjson_t *api;

@@ -47,7 +47,7 @@ static struct dl_info __dl = {
 
 static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 {
-//    py_library_uninit();
+    py_library_uninit();
     c_library_uninit();
 
     /* dl_uninit */
@@ -77,7 +77,7 @@ static void dl_library_init(void)
 
         __dl.ref.free = __dl_library_uninit;
         c_library_init();
-//        py_library_init();
+        py_library_init();
     } else
         ref_inc(&__dl.ref);
 }

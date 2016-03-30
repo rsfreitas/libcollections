@@ -35,8 +35,6 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
     struct cplugin_fdata_s *arg = NULL;
     char *tmp;
     cstring_t *p;
-    long long ll;
-    unsigned long long ull;
 
     if (foo->type_of_args == CPLUGIN_ARG_FIXED)
         increment = 2;
@@ -125,24 +123,22 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
 
             case CL_ULONG:
                 arg->value = cvalue_create(CL_ULONG,
-                                           (unsigned long)va_arg(ap, long),
+                                           va_arg(ap, unsigned long),
                                            NULL);
 
                 break;
 
             case CL_LLONG:
-                /*
-                 * FIXME: Trouble here... A core is created if va_arg(ap, long long)
-                 *        is used. Still don't known why...
-                 */
-                ll = (long long)va_arg(ap, int);
-                arg->value = cvalue_create(CL_LLONG, ll, NULL);
+                arg->value = cvalue_create(CL_LLONG,
+                                           va_arg(ap, long long), NULL);
+
                 break;
 
             case CL_ULLONG:
-                /* FIXME: The same as above... */
-                ull = (unsigned long long)va_arg(ap, int);
-                arg->value = cvalue_create(CL_ULLONG, ull, NULL);
+                arg->value = cvalue_create(CL_ULLONG,
+                                           va_arg(ap, unsigned long long),
+                                           NULL);
+
                 break;
 
             case CL_POINTER:

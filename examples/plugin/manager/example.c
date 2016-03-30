@@ -256,14 +256,13 @@ int main(int argc, char **argv)
                  "arg8", 2.27,
                  "arg9", 123,
                  "arg10", 1234,
-                 "arg11", 12345,
-                 "arg12", 123456,
+                 "arg11", 12345LL,
+                 "arg12", 123456LL,
                  "arg13", true,
                  "arg14", "Sample text",
                  NULL);
 
-    printf("Error 1: %s\n", cstrerror(cget_last_error()));
-
+    printf("Last call error: %s\n", cstrerror(cget_last_error()));
     cplugin_unload(cpl);
 
     if (filename != NULL)
