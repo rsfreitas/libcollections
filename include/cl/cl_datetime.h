@@ -244,7 +244,7 @@ cstring_t *cdt_month_of_year(const cdatetime_t *dt, bool full);
 cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
 
 /**
- * @name cdt_to_string
+ * @name cdt_to_cstring
  * @brief Gets the date and time in a specific string format.
  *
  * Supported formats:
@@ -279,7 +279,7 @@ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
  * @return On success returns a cstring_t object containing date and time with
  *         the requested format.
  */
-cstring_t *cdt_to_string(const cdatetime_t *dt, const char *fmt);
+cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt);
 
 /**
  * @name cdt_dup

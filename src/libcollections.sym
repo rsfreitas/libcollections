@@ -10,7 +10,7 @@ LIBCOLLECTIONS_0.1 {
         cfg_section_name;
         cfg_key_name;
         cfg_key_value;
-        cfg_to_string;
+        cfg_to_cstring;
         chat_client_start;
         chat_create;
         chat_destroy;
@@ -59,7 +59,7 @@ LIBCOLLECTIONS_0.1 {
         cdt_get_useconds;
         cdt_month_of_year;
         cdt_day_of_week;
-        cdt_to_string;
+        cdt_to_cstring;
         cdt_cmp;
         cdt_isafter;
         cdt_isbefore;
@@ -156,7 +156,7 @@ LIBCOLLECTIONS_0.1 {
         cjson_delete_item_from_object;
         cjson_replace_item_in_array;
         cjson_replace_item_in_object;
-        cjson_to_string;
+        cjson_to_cstring;
         cmemdup;
         collections_version;
         cprcs_daemon_start;
@@ -229,7 +229,7 @@ LIBCOLLECTIONS_0.1 {
         ctimer_disarm;
         ctimer_arm;
         cbool_to_cstring;
-        cbool_to_c_string;
+        cbool_to_string;
         cvalue_set;
         cvalue_create;
         cvalue_create_with_spec;
@@ -252,7 +252,7 @@ LIBCOLLECTIONS_0.1 {
         cvalue_get_pointer;
         cvalue_get_boolean;
         cvalue_is_of_type;
-        cvalue_to_string;
+        cvalue_to_cstring;
         cvalue_from_string;
         cvalue_ref;
         cvalue_unref;

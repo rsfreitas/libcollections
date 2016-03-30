@@ -361,7 +361,7 @@ int cjson_replace_item_in_object(cjson_t *root, const char *name,
                                  cjson_t *new_item);
 
 /**
- * @name cjson_to_string
+ * @name cjson_to_cstring
  * @brief Converts a cjson_t object into a human readable string.
  *
  * @param [in] j: The cjson_t object.
@@ -370,7 +370,7 @@ int cjson_replace_item_in_object(cjson_t *root, const char *name,
  *
  * @return On success returns a cstring_t containing the cjson_t object.
  */
-cstring_t *cjson_to_string(const cjson_t *j, bool friendly_output);
+cstring_t *cjson_to_cstring(const cjson_t *j, bool friendly_output);
 
 #endif
 

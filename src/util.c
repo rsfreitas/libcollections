@@ -41,7 +41,7 @@ cstring_t LIBEXPORT *cbool_to_cstring(bool flag)
     return cstring_create("%s", (flag == true) ? "true" : "false");
 }
 
-char LIBEXPORT *cbool_to_c_string(bool flag)
+char LIBEXPORT *cbool_to_string(bool flag)
 {
     cstring_t *s = NULL;
     char *t = NULL;

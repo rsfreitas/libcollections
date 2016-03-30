@@ -410,7 +410,7 @@ cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
  * %w - decimal day of week (0 to 6) (0 = Sunday)
  * %Z - Timezone name or abbreviation
  */
-cstring_t LIBEXPORT *cdt_to_string(const cdatetime_t *dt, const char *fmt)
+cstring_t LIBEXPORT *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
 {
     struct cdatetime_s *t = (struct cdatetime_s *)dt;
     cstring_t *d = NULL;

@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     } while (option != -1);
 
     c = counter_create(CNT_8BIT, -10, 110, cv, true);
-    tmp = cbool_to_c_string(counter_lt(c, v));
+    tmp = cbool_to_string(counter_lt(c, v));
     printf("%s: %lld < %lld: %s\n", __FUNCTION__, counter_get(c),
             v, tmp);
 

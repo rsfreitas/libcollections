@@ -48,7 +48,7 @@ static void print_file_to_user(cfg_file_t *cfg)
 {
     cstring_t *s;
 
-    s = cfg_to_string(cfg);
+    s = cfg_to_cstring(cfg);
 
     if (s != NULL) {
         fprintf(stdout, "<<BEGIN>>%s<<END>>\n", cstring_valueof(s));

@@ -94,7 +94,7 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
 
     if (value != NULL) {
         tmp = cstring_create("%s", value);
-        l->value = cvalue_from_string(tmp);
+        l->value = cvalue_from_cstring(tmp);
         cstring_destroy(tmp);
     }
 
@@ -430,7 +430,7 @@ static int write_line_to_file(void *a, void *b)
             break;
 
         case CFG_LINE_KEY:
-            v = cvalue_to_string(l->value);
+            v = cvalue_to_cstring(l->value);
 
             if (l->line_type & CFG_LINE_COMMENT) {
                 cstring_cat(s, "%s=%s %c %s\n", cstring_valueof(l->name),
@@ -603,7 +603,7 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
         if (k->value != NULL)
             cstring_destroy(k->value);
 
-        k->value = cvalue_from_string(t);
+        k->value = cvalue_from_cstring(t);
         cstring_destroy(t);
     }
 
@@ -730,7 +730,7 @@ cvalue_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
     return cvalue_ref(k->value);
 }
 
-cstring_t LIBEXPORT *cfg_to_string(const cfg_file_t *file)
+cstring_t LIBEXPORT *cfg_to_cstring(const cfg_file_t *file)
 {
     cstring_t *s = NULL;
 

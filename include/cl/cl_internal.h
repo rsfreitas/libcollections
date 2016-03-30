@@ -75,7 +75,8 @@ void cvalue_set_ulong(cvalue_t *value, unsigned long ul);
 void cvalue_set_llong(cvalue_t *value, long long ll);
 void cvalue_set_ullong(cvalue_t *value, unsigned long long ull);
 void cvalue_set_boolean(cvalue_t *value, bool b);
-void cvalue_set_string(cvalue_t *value, cstring_t *s);
+void cvalue_set_string(cvalue_t *value, char *s);
+void cvalue_set_cstring(cvalue_t *value, cstring_t *s);
 
 /* util.c */
 char *value_to_hex(void *p, unsigned int size);

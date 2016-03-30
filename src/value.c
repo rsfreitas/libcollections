@@ -76,6 +76,7 @@ bool validate_cl_type(enum cl_type type)
         (type == CL_ULLONG) ||
         (type == CL_POINTER) ||
         (type == CL_STRING) ||
+        (type == CL_CSTRING) ||
         (type == CL_BOOLEAN))
     {
         return true;
@@ -265,7 +266,7 @@ void cvalue_set_boolean(cvalue_t *value, bool b)
     v->b = b;
 }
 
-void cvalue_set_string(cvalue_t *value, cstring_t *s)
+void cvalue_set_cstring(cvalue_t *value, cstring_t *s)
 {
     struct cvalue_s *v = (struct cvalue_s *)value;
 
@@ -276,6 +277,19 @@ void cvalue_set_string(cvalue_t *value, cstring_t *s)
         cstring_unref(v->s);
 
     v->s = cstring_ref(s);
+}
+
+void cvalue_set_string(cvalue_t *value, char *s)
+{
+    struct cvalue_s *v = (struct cvalue_s *)value;
+
+    if (NULL == value)
+        return;
+
+    if (v->s != NULL)
+        cstring_unref(v->s);
+
+    v->s = cstring_create("%s", s);
 }
 
 static void set_cvalue_value(struct cvalue_s *o, va_list ap)
@@ -356,8 +370,12 @@ static void set_cvalue_value(struct cvalue_s *o, va_list ap)
 
             break;
 
+        case CL_CSTRING:
+            cvalue_set_cstring(o, va_arg(ap, void *));
+            break;
+
         case CL_STRING:
-            cvalue_set_string(o, va_arg(ap, void *));
+            cvalue_set_string(o, va_arg(ap, char *));
             break;
 
         case CL_BOOLEAN:
@@ -480,6 +498,7 @@ static int get_cvalue_sizeof(struct cvalue_s *o)
             return o->psize;
 
         case CL_STRING:
+        case CL_CSTRING:
             return cstring_length(o->s);
     }
 
@@ -656,12 +675,25 @@ unsigned long long LIBEXPORT cvalue_get_ullong(const cvalue_t *value)
     return ull;
 }
 
-cstring_t LIBEXPORT *cvalue_get_string(const cvalue_t *value)
+const char LIBEXPORT *cvalue_get_string(const cvalue_t *value)
+{
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    char *s = NULL;
+
+    if (get_value_check(value, CL_STRING) == 0)
+        s = (char *)cstring_valueof(o->s);
+
+    cvalue_unref(o);
+
+    return s;
+}
+
+cstring_t LIBEXPORT *cvalue_get_cstring(const cvalue_t *value)
 {
     struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
     cstring_t *s = NULL;
 
-    if (get_value_check(value, CL_STRING) == 0)
+    if (get_value_check(value, CL_CSTRING) == 0)
         s = cstring_ref(o->s);
 
     cvalue_unref(o);
@@ -849,6 +881,7 @@ static cstring_t *print_value(const struct cvalue_s *o)
             break;
 
         case CL_STRING:
+        case CL_CSTRING:
             s = cstring_dup(o->s);
             break;
 
@@ -860,7 +893,7 @@ static cstring_t *print_value(const struct cvalue_s *o)
     return s;
 }
 
-cstring_t LIBEXPORT *cvalue_to_string(const cvalue_t *value)
+cstring_t LIBEXPORT *cvalue_to_cstring(const cvalue_t *value)
 {
     cvalue_t *ref = cvalue_ref((cvalue_t *)value);
     cstring_t *s = NULL;
@@ -879,7 +912,7 @@ cstring_t LIBEXPORT *cvalue_to_string(const cvalue_t *value)
     return s;
 }
 
-cvalue_t LIBEXPORT *cvalue_from_string(const cstring_t *value)
+cvalue_t LIBEXPORT *cvalue_from_cstring(const cstring_t *value)
 {
     cvalue_t *o = NULL;
     cstring_t *ref = NULL;

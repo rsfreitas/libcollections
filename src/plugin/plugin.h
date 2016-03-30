@@ -114,7 +114,7 @@ struct cplugin_s {
 cjson_t *api_load(const char *api_data);
 void api_unload(cjson_t *api);
 struct cplugin_function_s *api_parse(cplugin_info_t *info);
-cstring_t *api_to_string(cjson_t *api);
+cstring_t *api_to_cstring(cjson_t *api);
 cstring_list_t *api_functions(const cplugin_info_t *info);
 cstring_list_t *api_function_arguments(const cplugin_info_t *info,
                                        const char *function_name);

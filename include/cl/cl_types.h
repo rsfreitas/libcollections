@@ -89,8 +89,10 @@ enum cl_type {
     CL_ULLONG,
     CL_POINTER,
     CL_STRING,
-    CL_BOOLEAN
+    CL_BOOLEAN,
+    CL_CSTRING
 };
+
 
 /** error type */
 typedef int                 cerrno;

@@ -150,6 +150,11 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
             cstring_unref(s);
             break;
 
+        case CL_CSTRING:
+            p = va_arg(ap, void *);
+            return_value->value = cvalue_create(CL_CSTRING, p, NULL);
+            break;
+
         case CL_CHAR:
             return_value->value = cvalue_create(CL_CHAR, (char)va_arg(ap, int),
                                                 NULL);
@@ -351,7 +356,7 @@ cstring_t LIBEXPORT *cplugin_API(const cplugin_info_t *info)
     if (NULL == api)
         return NULL;
 
-    return api_to_string(api);
+    return api_to_cstring(api);
 }
 
 cstring_list_t LIBEXPORT *cplugin_functions(const cplugin_info_t *info)

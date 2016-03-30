@@ -182,13 +182,23 @@ unsigned long long cvalue_get_ullong(const cvalue_t *value);
 
 /**
  * @name cvalue_get_string
+ * @brief Gets the string (char *) value of a cvalue_t.
+ *
+ * @param [in] value: The cvalue_t.
+ *
+ * @return On success returns the cvalue_t value or NULL otherwise.
+ */
+const char *cvalue_get_string(const cvalue_t *value);
+
+/**
+ * @name cvalue_get_cstring
  * @brief Gets the 'cstring_t' value of a cvalue_t.
  *
  * @param [in] value: The cvalue_t.
  *
  * @return On success returns the cvalue_t value or NULL otherwise.
  */
-cstring_t *cvalue_get_string(const cvalue_t *value);
+cstring_t *cvalue_get_cstring(const cvalue_t *value);
 
 /**
  * @name cvalue_get_long
@@ -263,25 +273,25 @@ bool cvalue_get_boolean(const cvalue_t *value);
 bool cvalue_is_of_type(const cvalue_t *value, unsigned int type);
 
 /**
- * @name cvalue_to_string
- * @brief Converts a cvalue_t value into a human readable string.
+ * @name cvalue_to_cstring
+ * @brief Converts a cvalue_t value into a human readable string (cstring_t).
  *
  * @param [in] value: The cvalue_t value.
  *
  * @return On success returns a cstring_t containing the cvalue_t or NULL
  *         otherwise.
  */
-cstring_t *cvalue_to_string(const cvalue_t *value);
+cstring_t *cvalue_to_cstring(const cvalue_t *value);
 
 /**
- * @name cvalue_from_string
+ * @name cvalue_from_cstring
  * @brief Creates a cvalue_t from a cstring_t value.
  *
  * @param [in] value: The cstring_t value.
  *
  * @return On success returns the new cvalue_t or NULL otherwise.
  */
-cvalue_t *cvalue_from_string(const cstring_t *value);
+cvalue_t *cvalue_from_cstring(const cstring_t *value);
 
 /**
  * @name cvalue_ref
@@ -319,6 +329,7 @@ int cvalue_unref(cvalue_t *value);
 #define CVALUE_LLONG(o)         cvalue_get_llong((o))
 #define CVALUE_ULLONG(o)        cvalue_get_ullong((o))
 #define CVALUE_STRING(o)        cvalue_get_string((o))
+#define CVALUE_CSTRING(o)       cvalue_get_cstring((o))
 #define CVALUE_CHAR(o)          cvalue_get_char((o))
 #define CVALUE_UCHAR(o)         cvalue_get_uchar((o))
 #define CVALUE_BOOLEAN(o)       cvalue_get_boolean((o))
@@ -339,6 +350,7 @@ int cvalue_unref(cvalue_t *value);
 #define CVALUE_isllong(o)       cvalue_is_of_type((o), CL_LLONG)
 #define CVALUE_isullong(o)      cvalue_is_of_type((o), CL_ULLONG)
 #define CVALUE_isstring(o)      cvalue_is_of_type((o), CL_STRING)
+#define CVALUE_iscstring(o)     cvalue_is_of_type((o), CL_CSTRING)
 #define CVALUE_isboolean(o)     cvalue_is_of_type((o), CL_BOOLEAN)
 
 #endif

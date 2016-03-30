@@ -211,9 +211,9 @@ error_block_functions:
     return NULL;
 }
 
-cstring_t *api_to_string(cjson_t *api)
+cstring_t *api_to_cstring(cjson_t *api)
 {
-    return cjson_to_string(api, true);
+    return cjson_to_cstring(api, true);
 }
 
 cstring_list_t *api_functions(const cplugin_info_t *info)

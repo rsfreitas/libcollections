@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include "collections.h"
 
@@ -280,7 +281,15 @@ static bool validate_boolean(bool value)
     return true;
 }
 
-static bool validate_string(const struct spec_s *spec, cstring_t *s)
+static bool validate_string(const struct spec_s *spec, const char *s)
+{
+    if ((unsigned int)strlen(s) > spec->max_length)
+        return false;
+
+    return true;
+}
+
+static bool validate_cstring(const struct spec_s *spec, cstring_t *s)
 {
     if ((unsigned int)cstring_length(s) > spec->max_length)
         return false;
@@ -292,7 +301,7 @@ static bool validate_value(const struct spec_s *spec, cvalue_t *value,
     va_list ap)
 {
     bool b, ret = false;
-    char c;
+    char c, *cp;
     unsigned char uc;
     int i;
     unsigned int ui;
@@ -432,11 +441,21 @@ static bool validate_value(const struct spec_s *spec, cvalue_t *value,
 
             break;
 
-        case CL_STRING:
+        case CL_CSTRING:
             p = va_arg(ap, void *);
 
-            if (validate_string(spec, p) == true) {
-                cvalue_set_string(value, p);
+            if (validate_cstring(spec, p) == true) {
+                cvalue_set_cstring(value, p);
+                ret = true;
+            }
+
+            break;
+
+        case CL_STRING:
+            cp = va_arg(ap, char *);
+
+            if (validate_string(spec, cp) == true) {
+                cvalue_set_string(value, cp);
                 ret = true;
             }
 

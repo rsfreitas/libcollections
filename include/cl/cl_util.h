@@ -45,7 +45,7 @@
 cstring_t *cbool_to_cstring(bool flag);
 
 /**
- * @name cbool_to_c_string
+ * @name cbool_to_string
  * @brief Converts a bool type to a C string type (char *).
  *
  * @param [in] flag: The bool value.
@@ -53,7 +53,7 @@ cstring_t *cbool_to_cstring(bool flag);
  * @return On success returns a char * containing a string with 'true' or 'false'
  *         according to \a flag value or NULL otherwise.
  */
-char *cbool_to_c_string(bool flag);
+char *cbool_to_string(bool flag);
 
 /**
  * @name collections_version

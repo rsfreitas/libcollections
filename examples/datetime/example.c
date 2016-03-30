@@ -50,12 +50,12 @@ int main(int argc, char **argv)
     } while (option != -1);
 
     dt = cdt_mktime(2016, 3, 30, 10, 30, 40);
-    s = cdt_to_string(dt, "%Y/%m/%d %H:%M:%S");
+    s = cdt_to_cstring(dt, "%Y/%m/%d %H:%M:%S");
     printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
     cstring_destroy(s);
 
     p = cdt_minus_months(dt, m);
-    s = cdt_to_string(p, "%Y/%m/%d %H:%M:%S");
+    s = cdt_to_cstring(p, "%Y/%m/%d %H:%M:%S");
     printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
     cstring_destroy(s);
 

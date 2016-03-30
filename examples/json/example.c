@@ -79,7 +79,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    s = cjson_to_string(j, true);
+    s = cjson_to_cstring(j, true);
 
     if (s != NULL) {
         fprintf(stdout, "%s\n", cstring_valueof(s));

@@ -607,7 +607,7 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
         return -1;
     }
 
-    s = cjson_to_string(j, false);
+    s = cjson_to_cstring(j, false);
 
     if (NULL == s)
         return -1;
@@ -1464,7 +1464,7 @@ static char *print_value(struct cjson_s *j, int depth, bool fmt)
     return p;
 }
 
-cstring_t LIBEXPORT *cjson_to_string(const cjson_t *j, bool friendly_output)
+cstring_t LIBEXPORT *cjson_to_cstring(const cjson_t *j, bool friendly_output)
 {
     char *p = NULL;
     cstring_t *out;
