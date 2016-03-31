@@ -118,8 +118,8 @@ static bool validate_char(const struct spec_s *spec, char value)
 {
     char min, max;
 
-    min = cvalue_get_char(spec->min);
-    max = cvalue_get_char(spec->max);
+    cvalue_get(spec->min, CVALUE_CHAR, &min);
+    cvalue_get(spec->min, CVALUE_CHAR, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -131,8 +131,8 @@ static bool validate_uchar(const struct spec_s *spec, unsigned char value)
 {
     unsigned char min, max;
 
-    min = cvalue_get_uchar(spec->min);
-    max = cvalue_get_uchar(spec->max);
+    cvalue_get(spec->min, CVALUE_UCHAR, &min);
+    cvalue_get(spec->min, CVALUE_UCHAR, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -144,8 +144,8 @@ static bool validate_int(const struct spec_s *spec, int value)
 {
     int min, max;
 
-    min = cvalue_get_int(spec->min);
-    max = cvalue_get_int(spec->max);
+    cvalue_get(spec->min, CVALUE_INT, &min);
+    cvalue_get(spec->min, CVALUE_INT, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -157,8 +157,8 @@ static bool validate_uint(const struct spec_s *spec, unsigned int value)
 {
     unsigned int min, max;
 
-    min = cvalue_get_uint(spec->min);
-    max = cvalue_get_uint(spec->max);
+    cvalue_get(spec->min, CVALUE_UINT, &min);
+    cvalue_get(spec->min, CVALUE_UINT, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -170,8 +170,8 @@ static bool validate_sint(const struct spec_s *spec, short int value)
 {
     short int min, max;
 
-    min = cvalue_get_sint(spec->min);
-    max = cvalue_get_sint(spec->max);
+    cvalue_get(spec->min, CVALUE_SINT, &min);
+    cvalue_get(spec->min, CVALUE_SINT, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -184,8 +184,8 @@ static bool validate_usint(const struct spec_s *spec,
 {
     unsigned short int min, max;
 
-    min = cvalue_get_usint(spec->min);
-    max = cvalue_get_usint(spec->max);
+    cvalue_get(spec->min, CVALUE_USINT, &min);
+    cvalue_get(spec->min, CVALUE_USINT, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -197,8 +197,8 @@ static bool validate_long(const struct spec_s *spec, long value)
 {
     long min, max;
 
-    min = cvalue_get_long(spec->min);
-    max = cvalue_get_long(spec->max);
+    cvalue_get(spec->min, CVALUE_LONG, &min);
+    cvalue_get(spec->min, CVALUE_LONG, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -210,8 +210,8 @@ static bool validate_ulong(const struct spec_s *spec, unsigned long value)
 {
     unsigned long min, max;
 
-    min = cvalue_get_ulong(spec->min);
-    max = cvalue_get_ulong(spec->max);
+    cvalue_get(spec->min, CVALUE_ULONG, &min);
+    cvalue_get(spec->min, CVALUE_ULONG, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -223,8 +223,8 @@ static bool validate_llong(const struct spec_s *spec, long long value)
 {
     long long min, max;
 
-    min = cvalue_get_llong(spec->min);
-    max = cvalue_get_llong(spec->max);
+    cvalue_get(spec->min, CVALUE_LLONG, &min);
+    cvalue_get(spec->min, CVALUE_LLONG, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -237,8 +237,8 @@ static bool validate_ullong(const struct spec_s *spec,
 {
     unsigned long long min, max;
 
-    min = cvalue_get_ullong(spec->min);
-    max = cvalue_get_ullong(spec->max);
+    cvalue_get(spec->min, CVALUE_ULLONG, &min);
+    cvalue_get(spec->min, CVALUE_ULLONG, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -250,8 +250,8 @@ static bool validate_float(const struct spec_s *spec, float value)
 {
     float min, max;
 
-    min = cvalue_get_float(spec->min);
-    max = cvalue_get_float(spec->max);
+    cvalue_get(spec->min, CVALUE_FLOAT, &min);
+    cvalue_get(spec->min, CVALUE_FLOAT, &max);
 
     if ((value >= min) && (value <= max))
         return true;
@@ -263,8 +263,8 @@ static bool validate_double(const struct spec_s *spec, double value)
 {
     double min, max;
 
-    min = cvalue_get_double(spec->min);
-    max = cvalue_get_double(spec->max);
+    cvalue_get(spec->min, CVALUE_DOUBLE, &min);
+    cvalue_get(spec->min, CVALUE_DOUBLE, &max);
 
     if ((value >= min) && (value <= max))
         return true;
