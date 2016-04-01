@@ -93,6 +93,22 @@ enum cl_type {
     CL_CSTRING
 };
 
+/** cvalue token types */
+#define CVALUE_CHAR         "b"
+#define CVALUE_UCHAR        "B"
+#define CVALUE_INT          "i"
+#define CVALUE_UINT         "I"
+#define CVALUE_SINT         "h"
+#define CVALUE_USINT        "H"
+#define CVALUE_FLOAT        "f"
+#define CVALUE_DOUBLE       "d"
+#define CVALUE_LONG         "l"
+#define CVALUE_ULONG        "k"
+#define CVALUE_LLONG        "L"
+#define CVALUE_ULLONG       "K"
+#define CVALUE_BOOLEAN      "Z"
+#define CVALUE_STRING       "z"
+#define CVALUE_POINTER      "P"
 
 /** error type */
 typedef int                 cerrno;

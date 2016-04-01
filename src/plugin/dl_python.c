@@ -293,7 +293,7 @@ int py_plugin_startup(void *handle, cplugin_info_t *info)
         pret = PyObject_CallObject(foo, pvalue);
 
         if (pret != NULL)
-           ret = _PyInt_AsInt(pret);
+           ret = (int)PyInt_AsLong(pret);
     }
 
     return ret;

@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include "collections.h"
 
@@ -571,227 +572,6 @@ static int get_value_check(const cvalue_t *value, enum cl_type type)
     return 0;
 }
 
-int LIBEXPORT cvalue_get_int(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    int v = -1;
-
-    if (get_value_check(value, CL_INT) == 0)
-        v = o->i;
-
-    cvalue_unref(o);
-
-    return v;
-}
-
-unsigned int LIBEXPORT cvalue_get_uint(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    unsigned int v = 0;
-
-    if (get_value_check(value, CL_UINT) == 0)
-        v = o->ui;
-
-    cvalue_unref(o);
-
-    return v;
-}
-
-short int LIBEXPORT cvalue_get_sint(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    short int v = -1;
-
-    if (get_value_check(value, CL_SINT) == 0)
-        v = o->si;
-
-    cvalue_unref(o);
-
-    return v;
-}
-
-unsigned short int LIBEXPORT cvalue_get_usint(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    unsigned short int v = 0;
-
-    if (get_value_check(value, CL_USINT) == 0)
-        v = o->usi;
-
-    cvalue_unref(o);
-
-    return v;
-}
-
-float LIBEXPORT cvalue_get_float(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    float f = -1;
-
-    if (get_value_check(value, CL_FLOAT) == 0)
-        f = o->f;
-
-    cvalue_unref(o);
-
-    return f;
-}
-
-double LIBEXPORT cvalue_get_double(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    double d = -1;
-
-    if (get_value_check(value, CL_DOUBLE) == 0)
-        d = o->d;
-
-    cvalue_unref(o);
-
-    return d;
-}
-
-long long LIBEXPORT cvalue_get_llong(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    long long ll = -1;
-
-    if (get_value_check(value, CL_LLONG) == 0)
-        ll = o->ll;
-
-    cvalue_unref(o);
-
-    return ll;
-}
-
-unsigned long long LIBEXPORT cvalue_get_ullong(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    unsigned long long ull = 0;
-
-    if (get_value_check(value, CL_ULLONG) == 0)
-        ull = o->ull;
-
-    cvalue_unref(o);
-
-    return ull;
-}
-
-const char LIBEXPORT *cvalue_get_string(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    char *s = NULL;
-
-    if (get_value_check(value, CL_STRING) == 0)
-        s = (char *)cstring_valueof(o->s);
-
-    cvalue_unref(o);
-
-    return s;
-}
-
-cstring_t LIBEXPORT *cvalue_get_cstring(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    cstring_t *s = NULL;
-
-    if (get_value_check(value, CL_CSTRING) == 0)
-        s = cstring_ref(o->s);
-
-    cvalue_unref(o);
-
-    return s;
-}
-
-long LIBEXPORT cvalue_get_long(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    long l = -1;
-
-    if (get_value_check(value, CL_LONG) == 0)
-        l = o->l;
-
-    cvalue_unref(o);
-
-    return l;
-}
-
-unsigned long LIBEXPORT cvalue_get_ulong(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    unsigned long ul = 0;
-
-    if (get_value_check(value, CL_ULONG) == 0)
-        ul = o->ul;
-
-    cvalue_unref(o);
-
-    return ul;
-}
-
-char LIBEXPORT cvalue_get_char(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    char c = -1;
-
-    if (get_value_check(value, CL_CHAR) == 0)
-        c = o->c;
-
-    cvalue_unref(o);
-
-    return c;
-}
-
-unsigned char LIBEXPORT cvalue_get_uchar(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    unsigned char uc = 0;
-
-    if (get_value_check(value, CL_UCHAR) == 0)
-        uc = o->uc;
-
-    cvalue_unref(o);
-
-    return uc;
-}
-
-void LIBEXPORT *cvalue_get_pointer(const cvalue_t *value, unsigned int *size)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    void *p = NULL;
-
-    cerrno_clear();
-
-    if (NULL == value) {
-        cvalue_unref(o);
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    if (cvalue_is_of_type(o, CL_POINTER) == false) {
-        cvalue_unref(o);
-        cset_errno(CL_WRONG_TYPE);
-        return NULL;
-    }
-
-    *size = o->psize;
-    p = o->p;
-    cvalue_unref(o);
-
-    return p;
-}
-
-bool LIBEXPORT cvalue_get_boolean(const cvalue_t *value)
-{
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
-    bool b = -1;
-
-    if (get_value_check(value, CL_BOOLEAN) == 0)
-        b = o->b;
-
-    cvalue_unref(o);
-
-    return b;
-}
-
 bool LIBEXPORT cvalue_is_of_type(const cvalue_t *value, unsigned int type)
 {
     struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
@@ -880,7 +660,7 @@ static cstring_t *print_value(const struct cvalue_s *o)
             free(tmp);
             break;
 
-        case CL_STRING:
+        case CL_STRING: /* TODO */
         case CL_CSTRING:
             s = cstring_dup(o->s);
             break;
@@ -968,5 +748,176 @@ int LIBEXPORT cvalue_unref(cvalue_t *value)
     ref_dec(&v->ref);
 
     return 0;
+}
+
+int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
+{
+    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    va_list ap;
+    char *pc, c;
+    unsigned char *uc;
+    int ret = -1, *i;
+    unsigned int *ui;
+    short int *si;
+    unsigned short int *usi;
+    float *f;
+    double *d;
+    long *l;
+    unsigned long *ul;
+    long long *ll;
+    unsigned long long *ull;
+    void **pp;
+    cstring_t *s;
+    bool *b;
+
+    cerrno_clear();
+
+    if (NULL == value) {
+        cvalue_unref((cvalue_t *)value);
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    va_start(ap, fmt);
+
+    while (*fmt) {
+        switch (*fmt++) {
+            case 'b':
+                if (get_value_check(value, CL_CHAR) < 0)
+                    goto end_block;
+
+                c = o->c;
+                pc = va_arg(ap, char *);
+                memcpy(pc, &c, sizeof(char));
+                break;
+
+            case 'B':
+                if (get_value_check(value, CL_UCHAR) < 0)
+                    goto end_block;
+
+                uc = (unsigned char *)va_arg(ap, char *);
+                memcpy(uc, &o->uc, sizeof(unsigned char));
+                break;
+
+            case 'i':
+                if (get_value_check(value, CL_INT) < 0)
+                    goto end_block;
+
+                i = va_arg(ap, int *);
+                memcpy(i, &o->i, sizeof(int));
+                break;
+
+            case 'I':
+                if (get_value_check(value, CL_UINT) < 0)
+                    goto end_block;
+
+                ui = (unsigned int *)va_arg(ap, int *);
+                memcpy(ui, &o->ui, sizeof(unsigned int));
+                break;
+
+            case 'h':
+                if (get_value_check(value, CL_SINT) < 0)
+                    goto end_block;
+
+                si = va_arg(ap, short *);
+                memcpy(si, &o->si, sizeof(short int));
+                break;
+
+            case 'H':
+                if (get_value_check(value, CL_USINT) < 0)
+                    goto end_block;
+
+                usi = (unsigned short int *)va_arg(ap, short *);
+                memcpy(usi, &o->usi, sizeof(unsigned short int));
+                break;
+
+            case 'f':
+                if (get_value_check(value, CL_FLOAT) < 0)
+                    goto end_block;
+
+                f = va_arg(ap, float *);
+                memcpy(f, &o->f, sizeof(float));
+                break;
+
+            case 'd':
+                if (get_value_check(value, CL_DOUBLE) < 0)
+                    goto end_block;
+
+                d = va_arg(ap, double *);
+                memcpy(d, &o->d, sizeof(double));
+                break;
+
+            case 'l':
+                if (get_value_check(value, CL_LONG) < 0)
+                    goto end_block;
+
+                l = va_arg(ap, long *);
+                memcpy(l, &o->l, sizeof(long));
+                break;
+
+            case 'k':
+                if (get_value_check(value, CL_ULONG) < 0)
+                    goto end_block;
+
+                ul = (unsigned long *)va_arg(ap, long *);
+                memcpy(ul, &o->ul, sizeof(unsigned long));
+                break;
+
+            case 'L':
+                if (get_value_check(value, CL_LLONG) < 0)
+                    goto end_block;
+
+                ll = va_arg(ap, long long *);
+                memcpy(ll, &o->ll, sizeof(long long));
+                break;
+
+            case 'K':
+                if (get_value_check(value, CL_ULLONG) < 0)
+                    goto end_block;
+
+                ull = (unsigned long long *)va_arg(ap, long long *);
+                memcpy(ull, &o->ull, sizeof(unsigned long long));
+                break;
+
+            case 'Z':
+                if (get_value_check(value, CL_BOOLEAN) < 0)
+                    goto end_block;
+
+                b = va_arg(ap, bool *);
+                memcpy(b, &o->b, sizeof(bool));
+                break;
+
+            case 'z':
+                if (get_value_check(value, CL_STRING) < 0)
+                    goto end_block;
+
+                pp = va_arg(ap, void **);
+                s = cstring_dup(o->s);
+                *pp = s;
+                break;
+
+            case 'P':
+                if (get_value_check(value, CL_POINTER) < 0)
+                    goto end_block;
+
+                pp = va_arg(ap, void **);
+                i = va_arg(ap, int *);
+                memcpy(i, &o->psize, sizeof(int));
+                *pp = o->p;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /* success */
+    ret = 0;
+
+end_block:
+    va_end(ap);
+    cvalue_unref((cvalue_t *)value);
+
+    return ret;
 }
 

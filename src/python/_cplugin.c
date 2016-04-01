@@ -45,51 +45,51 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
             break;
 
         case CL_CHAR:
-            v = Py_BuildValue("b", CVALUE_CHAR(cplv));
+            v = Py_BuildValue("b", CVALUE_AS_CHAR(cplv));
             break;
 
         case CL_UCHAR:
-            v = Py_BuildValue("B", CVALUE_UCHAR(cplv));
+            v = Py_BuildValue("B", CVALUE_AS_UCHAR(cplv));
             break;
 
         case CL_INT:
-            v = Py_BuildValue("i", CVALUE_INT(cplv));
+            v = Py_BuildValue("i", CVALUE_AS_INT(cplv));
             break;
 
         case CL_UINT:
-            v = Py_BuildValue("I", CVALUE_UINT(cplv));
+            v = Py_BuildValue("I", CVALUE_AS_UINT(cplv));
             break;
 
         case CL_SINT:
-            v = Py_BuildValue("h", CVALUE_SINT(cplv));
+            v = Py_BuildValue("h", CVALUE_AS_SINT(cplv));
             break;
 
         case CL_USINT:
-            v = Py_BuildValue("H", CVALUE_USINT(cplv));
+            v = Py_BuildValue("H", CVALUE_AS_USINT(cplv));
             break;
 
         case CL_FLOAT:
-            v = Py_BuildValue("f", CVALUE_FLOAT(cplv));
+            v = Py_BuildValue("f", CVALUE_AS_FLOAT(cplv));
             break;
 
         case CL_DOUBLE:
-            v = Py_BuildValue("d", CVALUE_DOUBLE(cplv));
+            v = Py_BuildValue("d", CVALUE_AS_DOUBLE(cplv));
             break;
 
         case CL_LONG:
-            v = Py_BuildValue("l", CVALUE_LONG(cplv));
+            v = Py_BuildValue("l", CVALUE_AS_LONG(cplv));
             break;
 
         case CL_ULONG:
-            v = Py_BuildValue("k", CVALUE_ULONG(cplv));
+            v = Py_BuildValue("k", CVALUE_AS_ULONG(cplv));
             break;
 
         case CL_LLONG:
-            v = Py_BuildValue("L", CVALUE_LLONG(cplv));
+            v = Py_BuildValue("L", CVALUE_AS_LLONG(cplv));
             break;
 
         case CL_ULLONG:
-            v = Py_BuildValue("K", CVALUE_ULLONG(cplv));
+            v = Py_BuildValue("K", CVALUE_AS_ULLONG(cplv));
             break;
 
         case CL_POINTER:
@@ -97,13 +97,13 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
             break;
 
         case CL_STRING:
-            s = CVALUE_STRING(cplv);
+            s = CVALUE_AS_STRING(cplv);
             v = Py_BuildValue("s", cstring_valueof(s));
             cstring_unref(s);
             break;
 
         case CL_BOOLEAN:
-            v = Py_BuildValue("i", CVALUE_BOOLEAN(cplv));
+            v = Py_BuildValue("i", CVALUE_AS_BOOLEAN(cplv));
             break;
     }
 
@@ -140,8 +140,6 @@ static PyObject *arg_count(PyObject *self, PyObject *args)
 static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
     const char *function_name, enum cl_type type, const char *value)
 {
-    bool b;
-
     switch (type) {
         case CL_VOID:
             /* noop */

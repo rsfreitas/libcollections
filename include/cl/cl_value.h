@@ -101,11 +101,14 @@ enum cl_type cvalue_type(const cvalue_t *value);
 int cvalue_set(cvalue_t *value, ...);
 
 /**
- * @name cvalue_get_int
- * @brief Gets the 'int' value of a cvalue_t.
+ * @name cvalue_get
+ * @brief Gets the real value of a cvalue_t object.
  *
  * @param [in] value: The cvalue_t.
+ * @param [in] fmt: The output format.
+ * @param [out] ...: The output values.
  *
+<<<<<<< HEAD
  * @return On success returns the cvalue_t value or -1 otherwise.
  */
 int cvalue_get_int(const cvalue_t *value);
@@ -257,8 +260,11 @@ void *cvalue_get_pointer(const cvalue_t *value, unsigned int *size);
  * @param [in] value: The cvalue_t.
  *
  * @return On success returns the cvalue_t value or -1 otherwise.
+=======
+ * @return On success returns 0 or -1 otherwise.
+>>>>>>> 8af625c22b34aeb3a7745f3d2bd4b9e91b6afa64
  */
-bool cvalue_get_boolean(const cvalue_t *value);
+int cvalue_get(const cvalue_t *value, const char *fmt, ...);
 
 /**
  * @name cvalue_is_of_type
@@ -317,23 +323,66 @@ cvalue_t *cvalue_ref(cvalue_t *value);
  */
 int cvalue_unref(cvalue_t *value);
 
+/**
+ * @name cvalue_get
+ * @brief Gets the content from a cvalue_t object.
+ *
+ * @param [in] value: The cvalue_t object.
+ * @param [in] fmt: The output format of the object.
+ * @param [out] ...: The output value.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cvalue_get(const cvalue_t *value, const char *fmt, ...);
+
 /** Macros to get the item value */
-#define CVALUE_INT(o)           cvalue_get_int((o))
-#define CVALUE_UINT(o)          cvalue_get_uint((o))
-#define CVALUE_SINT(o)          cvalue_get_sint((o))
-#define CVALUE_USINT(o)         cvalue_get_usint((o))
-#define CVALUE_FLOAT(o)         cvalue_get_float((o))
-#define CVALUE_DOUBLE(o)        cvalue_get_double((o))
-#define CVALUE_LONG(o)          cvalue_get_long((o))
-#define CVALUE_ULONG(o)         cvalue_get_ulong((o))
-#define CVALUE_LLONG(o)         cvalue_get_llong((o))
-#define CVALUE_ULLONG(o)        cvalue_get_ullong((o))
-#define CVALUE_STRING(o)        cvalue_get_string((o))
-#define CVALUE_CSTRING(o)       cvalue_get_cstring((o))
-#define CVALUE_CHAR(o)          cvalue_get_char((o))
-#define CVALUE_UCHAR(o)         cvalue_get_uchar((o))
-#define CVALUE_BOOLEAN(o)       cvalue_get_boolean((o))
-#define CVALUE_POINTER(o,s)     cvalue_get_pointer((o),(s))
+#define CVALUE_AS_INT(v)       \
+    ({ int __x; cvalue_get(v, CVALUE_INT, &__x, NULL); __x; })
+
+#define CVALUE_AS_UINT(v)       \
+    ({ unsigned int __x; cvalue_get(v, CVALUE_UINT, &__x, NULL); __x; })
+
+#define CVALUE_AS_LONG(v)       \
+    ({ long __x; cvalue_get(v, CVALUE_LONG, &__x, NULL); __x; })
+
+#define CVALUE_AS_ULONG(v)       \
+    ({ unsigned long __x; cvalue_get(v, CVALUE_ULONG, &__x, NULL); __x; })
+
+#define CVALUE_AS_LLONG(v)       \
+    ({ long long __x; cvalue_get(v, CVALUE_LLONG, &__x, NULL); __x; })
+
+#define CVALUE_AS_ULLONG(v)       \
+    ({ unsigned long long __x; cvalue_get(v, CVALUE_ULLONG, &__x, NULL); __x; })
+
+#define CVALUE_AS_SINT(v)       \
+    ({ short int __x; cvalue_get(v, CVALUE_SINT, &__x, NULL); __x; })
+
+#define CVALUE_AS_USINT(v)       \
+    ({ unsigned short int __x; cvalue_get(v, CVALUE_USINT, &__x, NULL); __x; })
+
+#define CVALUE_AS_CHAR(v)       \
+    ({ char __x; cvalue_get(v, CVALUE_CHAR, &__x, NULL); __x; })
+
+#define CVALUE_AS_UCHAR(v)       \
+    ({ unsigned char __x; cvalue_get(v, CVALUE_UCHAR, &__x, NULL); __x; })
+
+#define CVALUE_AS_FLOAT(v)      \
+    ({ float __x; cvalue_get(v, CVALUE_FLOAT, &__x, NULL); __x; })
+
+#define CVALUE_AS_DOUBLE(v)     \
+    ({ double __x; cvalue_get(v, CVALUE_DOUBLE, &__x, NULL); __x; })
+
+#define CVALUE_AS_BOOLEAN(v)    \
+    ({ bool __x; cvalue_get(v, CVALUE_BOOLEAN, &__x, NULL); __x; })
+
+#define CVALUE_AS_STRING(v)     \
+    ({ char *__x; cvalue_get(v, CVALUE_STRING, &__x, NULL); __x; })
+
+#define CVALUE_AS_CSTRING(v)    \
+    ({ cstring_t *__x; cvalue_get(v, CVALUE_CSTRING, &__x, NULL); __x; })
+
+#define CVALUE_AS_POINTER(v)    \
+    ({ int __s; void *__x; cvalue_get(v, CVALUE_POINTER, &__x, &__s, NULL); __x; })
 
 /** Macros to check if an item correspond to a specific type */
 #define CVALUE_isvoid(o)        cvalue_is_of_type((o), CL_VOID)

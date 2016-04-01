@@ -194,7 +194,7 @@ int LIBEXPORT counter_destroy(counter_t *c)
 static int __counter_increase(counter_t *c, long long gap)
 {
     struct counter_s *p = (struct counter_s *)c;
-    long long v;
+    long long v, max;
 
     cerrno_clear();
 
@@ -203,13 +203,14 @@ static int __counter_increase(counter_t *c, long long gap)
         return -1;
     }
 
-    v = CVALUE_LLONG(p->cnt) + gap;
+    v = CVALUE_AS_LLONG(p->cnt) + gap;
+    max = CVALUE_AS_LLONG(p->max);
 
-    if (v > CVALUE_LLONG(p->max)) {
+    if (v > max) {
         if (p->circular_counter == false)
-            v = CVALUE_LLONG(p->max);
+            v = max;
         else
-            v = CVALUE_LLONG(p->min);
+            v = CVALUE_AS_LLONG(p->min);
     }
 
     cvalue_set(p->cnt, v, NULL);
@@ -230,7 +231,7 @@ int LIBEXPORT counter_increase_by(counter_t *c, long long gap)
 static int __counter_decrease(counter_t *c, long long gap)
 {
     struct counter_s *p = (struct counter_s *)c;
-    long long v;
+    long long v, min;
 
     cerrno_clear();
 
@@ -239,13 +240,14 @@ static int __counter_decrease(counter_t *c, long long gap)
         return -1;
     }
 
-    v = CVALUE_LLONG(p->cnt) - gap;
+    v = CVALUE_AS_LLONG(p->cnt) - gap;
+    min = CVALUE_AS_LLONG(p->min);
 
-    if (v < CVALUE_LLONG(p->min)) {
+    if (v < min) {
         if (p->circular_counter == false)
-            v = CVALUE_LLONG(p->min);
+            v = min;
         else
-            v = CVALUE_LLONG(p->max);
+            v = CVALUE_AS_LLONG(p->max);
     }
 
     cvalue_set(p->cnt, v, NULL);
@@ -290,7 +292,7 @@ long long LIBEXPORT counter_get(counter_t *c)
         return -1;
     }
 
-    return CVALUE_LLONG(p->cnt);
+    return CVALUE_AS_LLONG(p->cnt);
 }
 
 int LIBEXPORT counter_set_min(counter_t *c, long long min)
@@ -349,6 +351,7 @@ int LIBEXPORT counter_set_range(counter_t *c, long long min, long long max)
 bool LIBEXPORT counter_lt(const counter_t *c, long long value)
 {
     struct counter_s *p = (struct counter_s *)c;
+    long long v;
 
     cerrno_clear();
 
@@ -357,11 +360,13 @@ bool LIBEXPORT counter_lt(const counter_t *c, long long value)
         return false;
     }
 
+    v = CVALUE_AS_LLONG(p->cnt);
+
     if (p->negative_min == true) {
-        if (CVALUE_LLONG(p->cnt) < value)
+        if (v < value)
             return true;
     } else
-        if ((unsigned long long)CVALUE_LLONG(p->cnt) < (unsigned long long)value)
+        if ((unsigned long long)v < (unsigned long long)value)
             return true;
 
     return false;
@@ -370,6 +375,7 @@ bool LIBEXPORT counter_lt(const counter_t *c, long long value)
 bool LIBEXPORT counter_le(const counter_t *c, long long value)
 {
     struct counter_s *p = (struct counter_s *)c;
+    long long v;
 
     cerrno_clear();
 
@@ -378,11 +384,13 @@ bool LIBEXPORT counter_le(const counter_t *c, long long value)
         return false;
     }
 
+    v = CVALUE_AS_LLONG(p->cnt);
+
     if (p->negative_min == true) {
-        if (CVALUE_LLONG(p->cnt) <= value)
+        if (v <= value)
             return true;
     } else
-        if ((unsigned long long)CVALUE_LLONG(p->cnt) <= (unsigned long long)value)
+        if ((unsigned long long)v <= (unsigned long long)value)
             return true;
 
     return false;
@@ -391,6 +399,7 @@ bool LIBEXPORT counter_le(const counter_t *c, long long value)
 bool LIBEXPORT counter_gt(const counter_t *c, long long value)
 {
     struct counter_s *p = (struct counter_s *)c;
+    long long v;
 
     cerrno_clear();
 
@@ -399,11 +408,13 @@ bool LIBEXPORT counter_gt(const counter_t *c, long long value)
         return false;
     }
 
+    v = CVALUE_AS_LLONG(p->cnt);
+
     if (p->negative_min == true) {
-        if (CVALUE_LLONG(p->cnt) > value)
+        if (v > value)
             return true;
     } else
-        if ((unsigned long long)CVALUE_LLONG(p->cnt) > (unsigned long long)value)
+        if ((unsigned long long)v > (unsigned long long)value)
             return true;
 
     return false;
@@ -412,6 +423,7 @@ bool LIBEXPORT counter_gt(const counter_t *c, long long value)
 bool LIBEXPORT counter_ge(const counter_t *c, long long value)
 {
     struct counter_s *p = (struct counter_s *)c;
+    long long v;
 
     cerrno_clear();
 
@@ -420,11 +432,13 @@ bool LIBEXPORT counter_ge(const counter_t *c, long long value)
         return false;
     }
 
+    v = CVALUE_AS_LLONG(p->cnt);
+
     if (p->negative_min == true) {
-        if (CVALUE_LLONG(p->cnt) >= value)
+        if (v >= value)
             return true;
     } else
-        if ((unsigned long long)CVALUE_LLONG(p->cnt) >= (unsigned long long)value)
+        if ((unsigned long long)v >= (unsigned long long)value)
             return true;
 
     return false;
@@ -441,7 +455,7 @@ bool LIBEXPORT counter_eq(const counter_t *c, long long value)
         return false;
     }
 
-    if (CVALUE_LLONG(p->cnt) == value)
+    if (CVALUE_AS_LLONG(p->cnt) == value)
         return true;
 
     return false;
@@ -458,7 +472,7 @@ bool LIBEXPORT counter_ne(const counter_t *c, long long value)
         return false;
     }
 
-    if (CVALUE_LLONG(p->cnt) != value)
+    if (CVALUE_AS_LLONG(p->cnt) != value)
         return true;
 
     return false;
@@ -466,7 +480,7 @@ bool LIBEXPORT counter_ne(const counter_t *c, long long value)
 
 static bool is_between_limits(long long value, const struct counter_s *c)
 {
-    if ((value >= CVALUE_LLONG(c->min)) && (value <= CVALUE_LLONG(c->max)))
+    if ((value >= CVALUE_AS_LLONG(c->min)) && (value <= CVALUE_AS_LLONG(c->max)))
         return true;
 
     return false;
@@ -489,7 +503,7 @@ long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
         return -1;
     }
 
-    v = CVALUE_LLONG(p->cnt);
+    v = CVALUE_AS_LLONG(p->cnt);
     cvalue_set(p->cnt, new_value, NULL);
 
     return v;
