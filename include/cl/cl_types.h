@@ -88,9 +88,9 @@ enum cl_type {
     CL_LLONG,
     CL_ULLONG,
     CL_POINTER,
-    CL_STRING,
+    CL_STRING,      /* 'char *' strings */
     CL_BOOLEAN,
-    CL_CSTRING
+    CL_CSTRING      /* collections strings */
 };
 
 /** cvalue token types */
@@ -107,7 +107,8 @@ enum cl_type {
 #define CVALUE_LLONG        "L"
 #define CVALUE_ULLONG       "K"
 #define CVALUE_BOOLEAN      "Z"
-#define CVALUE_STRING       "z"
+#define CVALUE_CSTRING      "z"
+#define CVALUE_STRING       "s"
 #define CVALUE_POINTER      "P"
 
 /** error type */

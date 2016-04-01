@@ -69,6 +69,8 @@ static enum cl_type cvt_str_to_cv(const char *rv)
         return CL_POINTER;
     else if (strcmp(rv, "string") == 0)
         return CL_STRING;
+    else if (strcmp(rv, "cstring") == 0)
+        return CL_CSTRING;
     else if (strcmp(rv, "boolean") == 0)
         return CL_BOOLEAN;
 

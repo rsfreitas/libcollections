@@ -152,8 +152,14 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
                 break;
 
             case CL_STRING:
-                p = cstring_create("%s", va_arg(ap, char *));
-                arg->value = cvalue_create(CL_STRING, p, NULL);
+                arg->value = cvalue_create(CL_STRING, va_arg(ap, char *),
+                                           NULL);
+
+                break;
+
+            case CL_CSTRING:
+                p = va_arg(ap, void *);
+                arg->value = cvalue_create(CL_CSTRING, p, NULL);
                 cstring_unref(p);
                 break;
 

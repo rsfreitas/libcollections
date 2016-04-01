@@ -103,7 +103,7 @@ static void destroy_cvalue_s(const struct ref_s *ref)
     if (NULL == o)
         return;
 
-    if ((o->type == CL_STRING) && (o->s != NULL))
+    if (((o->type == CL_CSTRING) || (o->type == CL_STRING)) && (o->s != NULL))
         cstring_unref(o->s);
 
     if (o->dup_data == true)
@@ -660,7 +660,7 @@ static cstring_t *print_value(const struct cvalue_s *o)
             free(tmp);
             break;
 
-        case CL_STRING: /* TODO */
+        case CL_STRING:
         case CL_CSTRING:
             s = cstring_dup(o->s);
             break;
@@ -754,7 +754,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
 {
     struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
     va_list ap;
-    char *pc, c;
+    char *pc, c, **cc;
     unsigned char *uc;
     int ret = -1, *i;
     unsigned int *ui;
@@ -888,12 +888,21 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'z':
-                if (get_value_check(value, CL_STRING) < 0)
+                if (get_value_check(value, CL_CSTRING) < 0)
                     goto end_block;
 
                 pp = va_arg(ap, void **);
-                s = cstring_dup(o->s);
+                s = cstring_ref(o->s);
                 *pp = s;
+                break;
+
+            case 's':
+                if (get_value_check(value, CL_STRING) < 0)
+                    goto end_block;
+
+                cc = va_arg(ap, char **);
+                pc = strdup(cstring_valueof(o->s));
+                *cc = pc;
                 break;
 
             case 'P':

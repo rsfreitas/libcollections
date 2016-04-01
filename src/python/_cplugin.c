@@ -96,6 +96,10 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
             /* TODO */
             break;
 
+        case CL_CSTRING:
+            /* TODO */
+            break;
+
         case CL_STRING:
             s = CVALUE_AS_STRING(cplv);
             v = Py_BuildValue("s", cstring_valueof(s));
@@ -203,6 +207,10 @@ static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
             break;
 
         case CL_STRING:
+            /* TODO */
+            break;
+
+        case CL_CSTRING:
             /* TODO */
             break;
 
