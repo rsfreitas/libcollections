@@ -48,8 +48,8 @@ struct cevent_s {
     pthread_mutex_t             m_evc;
     enum event_execution        exec_type;
     char                        *name;
-    bool                     sort;
-    bool                     end_thread;
+    bool                        sort;
+    bool                        end_thread;
     int                         total_or_cond;
     int                         total_and_cond;
 

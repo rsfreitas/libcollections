@@ -424,7 +424,8 @@ void LIBEXPORT *cdll_mergesort(void *root, int (*cmp)(void *, void *))
 
     if (p && p->next) {
         p = cdll_split(root);
-        root = cdll_merge(cdll_mergesort(root, cmp), cdll_mergesort(p, cmp), cmp);
+        root = cdll_merge(cdll_mergesort(root, cmp), cdll_mergesort(p, cmp),
+                          cmp);
     }
 
     return root;

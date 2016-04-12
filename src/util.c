@@ -72,7 +72,8 @@ cstring_t LIBEXPORT *cl_type_to_cstring(enum cl_type value)
     const char *value_desc[] = {
         "void", "char", "unsigned char", "int", "unsigned int", "short int",
         "unsigned short int", "float", "double", "long", "unsigned long",
-        "long long", "unsigned long long", "pointer", "string", "bool" };
+        "long long", "unsigned long long", "pointer", "string", "bool",
+        "cstring" };
 
     cerrno_clear();
 

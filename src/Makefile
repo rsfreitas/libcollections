@@ -65,6 +65,7 @@ OBJS =	\
 	string.o		\
 	stringlist.o	\
 	thread.o		\
+	timeout.o		\
 	timer.o			\
 	util.o			\
 	value.o

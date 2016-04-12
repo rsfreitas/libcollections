@@ -193,7 +193,7 @@ CPLUGIN_OBJECT_EXPORT(foo_ullong)
 
 CPLUGIN_OBJECT_EXPORT(foo_args)
 {
-    cstring_t *s;
+    char *s;
     cvalue_t *arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8, *arg9,
              *arg10, *arg11, *arg12, *arg13, *arg14;
 
@@ -213,23 +213,22 @@ CPLUGIN_OBJECT_EXPORT(foo_args)
     arg13 = CPLUGIN_ARGUMENT("arg13");
     arg14 = CPLUGIN_ARGUMENT("arg14");
 
-    printf("arg1 value %d\n", CVALUE_INT(arg1));
-    printf("arg2 value %d\n", CVALUE_UINT(arg2));
-    printf("arg3 value %d\n", CVALUE_SINT(arg3));
-    printf("arg4 value %d\n", CVALUE_USINT(arg4));
-    printf("arg5 value %c\n", CVALUE_CHAR(arg5));
-    printf("arg6 value %d\n", CVALUE_UCHAR(arg6));
-    printf("arg7 value %f\n", CVALUE_FLOAT(arg7));
-    printf("arg8 value %f\n", CVALUE_DOUBLE(arg8));
-    printf("arg9 value %ld\n", CVALUE_LONG(arg9));
-    printf("arg10 value %lu\n", CVALUE_ULONG(arg10));
-    printf("arg11 value %lld\n", CVALUE_LLONG(arg11));
-    printf("arg12 value %llu\n", CVALUE_ULLONG(arg12));
-    printf("arg13 value %d\n", CVALUE_BOOLEAN(arg13));
+    printf("arg1 value %d\n", CVALUE_AS_INT(arg1));
+    printf("arg2 value %d\n", CVALUE_AS_UINT(arg2));
+    printf("arg3 value %d\n", CVALUE_AS_SINT(arg3));
+    printf("arg4 value %d\n", CVALUE_AS_USINT(arg4));
+    printf("arg5 value %c\n", CVALUE_AS_CHAR(arg5));
+    printf("arg6 value %d\n", CVALUE_AS_UCHAR(arg6));
+    printf("arg7 value %f\n", CVALUE_AS_FLOAT(arg7));
+    printf("arg8 value %f\n", CVALUE_AS_DOUBLE(arg8));
+    printf("arg9 value %ld\n", CVALUE_AS_LONG(arg9));
+    printf("arg10 value %lu\n", CVALUE_AS_ULONG(arg10));
+    printf("arg11 value %lld\n", CVALUE_AS_LLONG(arg11));
+    printf("arg12 value %llu\n", CVALUE_AS_ULLONG(arg12));
+    printf("arg13 value %d\n", CVALUE_AS_BOOLEAN(arg13));
 
-    s = CVALUE_STRING(arg14);
-    printf("arg14 value %s\n", cstring_valueof(s));
-    cstring_unref(s);
+    s = CVALUE_AS_STRING(arg14);
+    printf("arg14 value %s\n", s);
 
     cvalue_unref(arg14);
     cvalue_unref(arg13);

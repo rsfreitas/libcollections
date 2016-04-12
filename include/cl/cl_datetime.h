@@ -60,13 +60,6 @@ enum cmonth {
     CL_DECEMBR
 };
 
-/** Types of timeout interval checks */
-enum ctimeout {
-    CL_TM_SECONDS,
-    CL_TM_MSECONDS,
-    CL_TM_USECONDS
-};
-
 /**
  * @name cdt_localtime
  * @brief Gets the current date and time in localtime format.
@@ -380,7 +373,7 @@ cdatetime_t *cdt_mktime(unsigned int year, unsigned int month, unsigned int day,
                         unsigned int second);
 
 /**
- * @name cdt_mktime
+ * @name cdt_mktime_from_cstring
  * @brief Creates a cdatetime_t object with a specific date and time.
  *
  * In this case the date and time information comes from a cstring_t object,
@@ -396,7 +389,7 @@ cdatetime_t *cdt_mktime(unsigned int year, unsigned int month, unsigned int day,
  * @return On success a new cdatetime_t object will be returned or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_string_mktime(const cstring_t *datetime);
+cdatetime_t *cdt_mktime_from_cstring(const cstring_t *datetime);
 
 /**
  * @name cdt_minus_years
@@ -550,51 +543,6 @@ bool cdt_is_local_dst(void);
  *         not.
  */
 bool cdt_is_leap_year(void);
-
-/**
- * @name cdt_timeout_create
- * @brief Starts a timeout verification with a specific precision.
- *
- * @param [in] interval: Timeout expiration interval.
- * @param [in] precision: The accuracy of timeout expiration check.
- *
- * @return On success returns a ctimeout_t object with the timeout info or
- *         NULL otherwise.
- */
-ctimeout_t *cdt_timeout_create(unsigned int interval, enum ctimeout precision);
-
-/**
- * @name cdt_timeout_destroy
- * @brief Releases a ctimeout_t object from memory.
- *
- * @param [in] t: The ctimeout_t object.
- *
- * @return On success returns 0 or -1 otherwise.
- */
-int cdt_timeout_destroy(ctimeout_t *t);
-
-/**
- * @name cdt_timeout_reset
- * @brief Resets a ctimeout_t object info.
- *
- * @param [in,out] t: The ctimeout_t object.
- * @param [in] interval: The new timeout expiration interval.
- * @param [in] precision: The new accuracy of timeout expiration check.
- *
- * @return On success returns 0 or -1 otherwise.
- */
-int cdt_timeout_reset(ctimeout_t *t, unsigned int interval,
-                      enum ctimeout precision);
-
-/**
- * @name cdt_timeout_expired
- * @brief Checks whether a timeout has expired or not.
- *
- * @param [in] t: The ctimeout_t object.
- *
- * @return Returns true or false if the timeout had expired or not.
- */
-bool cdt_timeout_expired(const ctimeout_t *t);
 
 #endif
 

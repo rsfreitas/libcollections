@@ -82,7 +82,6 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
     va_list ap;
     void *p;
     int psize;
-    cstring_t *s;
 
     cerrno_clear();
 

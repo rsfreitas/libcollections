@@ -196,7 +196,7 @@ CPLUGIN_OBJECT_EXPORT(foo_ullong)
 
 CPLUGIN_OBJECT_EXPORT(foo_args)
 {
-    cstring_t *s;
+    char *s;
     cvalue_t *arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8, *arg9,
              *arg10, *arg11, *arg12, *arg13, *arg14;
 
@@ -217,23 +217,22 @@ CPLUGIN_OBJECT_EXPORT(foo_args)
     arg13 = CPLUGIN_ARGUMENT("arg13");
     arg14 = CPLUGIN_ARGUMENT("arg14");
 
-    cout << "arg1 value: " << CVALUE_INT(arg1) << endl;
-    cout << "arg2 value: " << CVALUE_UINT(arg2) << endl;
-    cout << "arg3 value: " << CVALUE_SINT(arg3) << endl;
-    cout << "arg4 value: " << CVALUE_USINT(arg4) << endl;
-    cout << "arg5 value: " << CVALUE_CHAR(arg5) << endl;
-    cout << "arg6 value: " << CVALUE_UCHAR(arg6) << endl;
-    cout << "arg7 value: " << CVALUE_FLOAT(arg7) << endl;
-    cout << "arg8 value: " << CVALUE_DOUBLE(arg8) << endl;
-    cout << "arg9 value: " << CVALUE_LONG(arg9) << endl;
-    cout << "arg10 value: " << CVALUE_ULONG(arg10) << endl;
-    cout << "arg11 value: " << CVALUE_LLONG(arg11) << endl;
-    cout << "arg12 value: " << CVALUE_ULLONG(arg12) << endl;
-    cout << "arg13 value: " << CVALUE_BOOLEAN(arg13) << endl;
+    cout << "arg1 value: " << CVALUE_AS_INT(arg1) << endl;
+    cout << "arg2 value: " << CVALUE_AS_UINT(arg2) << endl;
+    cout << "arg3 value: " << CVALUE_AS_SINT(arg3) << endl;
+    cout << "arg4 value: " << CVALUE_AS_USINT(arg4) << endl;
+    cout << "arg5 value: " << CVALUE_AS_CHAR(arg5) << endl;
+    cout << "arg6 value: " << CVALUE_AS_UCHAR(arg6) << endl;
+    cout << "arg7 value: " << CVALUE_AS_FLOAT(arg7) << endl;
+    cout << "arg8 value: " << CVALUE_AS_DOUBLE(arg8) << endl;
+    cout << "arg9 value: " << CVALUE_AS_LONG(arg9) << endl;
+    cout << "arg10 value: " << CVALUE_AS_ULONG(arg10) << endl;
+    cout << "arg11 value: " << CVALUE_AS_LLONG(arg11) << endl;
+    cout << "arg12 value: " << CVALUE_AS_ULLONG(arg12) << endl;
+    cout << "arg13 value: " << CVALUE_AS_BOOLEAN(arg13) << endl;
 
-    s = CVALUE_STRING(arg14);
-    cout << "arg14 value: " << cstring_valueof(s) << endl;
-    cstring_unref(s);
+    s = CVALUE_AS_STRING(arg14);
+    cout << "arg14 value: " << s << endl;
 
     cvalue_unref(arg14);
     cvalue_unref(arg13);

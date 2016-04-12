@@ -69,10 +69,9 @@ LIBCOLLECTIONS_0.1 {
         cdt_to_localtime;
         cdt_to_gmtime;
         cdt_mktime;
-        cdt_string_mktime;
+        cdt_mktime_from_cstring;
         cdt_minus_years;
         cdt_minus_days;
-        cdt_minus_months;
         cdt_minus_seconds;
         cdt_minus_minutes;
         cdt_minus_hours;
@@ -85,10 +84,10 @@ LIBCOLLECTIONS_0.1 {
         cdt_current_month;
         cdt_is_local_dst;
         cdt_is_leap_year;
-        cdt_timeout_create;
-        cdt_timeout_destroy;
-        cdt_timeout_expired;
-        cdt_timeout_reset;
+        ctimeout_create;
+        ctimeout_destroy;
+        ctimeout_expired;
+        ctimeout_reset;
         cdll_push;
         cdll_pop;
         cdll_unshift;

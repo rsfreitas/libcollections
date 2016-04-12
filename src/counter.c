@@ -30,16 +30,16 @@
 #include "collections.h"
 
 struct counter_s {
-    enum counter_precision   precision;
-    bool             circular_counter;
-    bool             negative_min;
-    cvalue_t            *cnt;
-    cvalue_t            *min;
-    cvalue_t            *max;
-    long long           start_value;
+    enum counter_precision  precision;
+    bool                    circular_counter;
+    bool                    negative_min;
+    cvalue_t                *cnt;
+    cvalue_t                *min;
+    cvalue_t                *max;
+    long long               start_value;
 
     /* reference count */
-    struct ref_s        ref;
+    struct ref_s            ref;
 };
 
 static void adjust_8bit_counter(struct counter_s *c, long long max)

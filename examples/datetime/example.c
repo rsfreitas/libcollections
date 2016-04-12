@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
     cstring_destroy(s);
 
-    p = cdt_minus_months(dt, m);
+    p = cdt_minus_years(dt, m);
     s = cdt_to_cstring(p, "%Y/%m/%d %H:%M:%S");
     printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
     cstring_destroy(s);
