@@ -145,9 +145,9 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
             break;
 
         case CL_STRING:
-            s = cstring_create("%s", va_arg(ap, char *));
-            return_value->value = cvalue_create(CL_STRING, s, NULL);
-            cstring_unref(s);
+            return_value->value = cvalue_create(CL_STRING, va_arg(ap, char *),
+                                                NULL);
+
             break;
 
         case CL_CSTRING:

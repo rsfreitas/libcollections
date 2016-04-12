@@ -63,6 +63,8 @@ class cplugin_entry_s(CpluginEntryAPI):
         { \"name\": \"foo_llong\", \"return_type\": \"llong\" },\
         { \"name\": \"foo_ullong\", \"return_type\": \"ullong\" },\
         { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" },\
+        { \"name\": \"foo_string\", \"return_type\": \"string\" },\
+        { \"name\": \"foo_cstring\", \"return_type\": \"cstring\" },\
         { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
             { \"name\": \"arg1\", \"type\": \"int\" },\
             { \"name\": \"arg2\", \"type\": \"uint\" },\
@@ -181,14 +183,42 @@ def foo_ullong(caller_id, cplugin_t):
 
 
 
+def foo_string(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.STRING.value, "Just a String test!")
+
+
+
+def foo_cstring(caller_id, cplugin_t):
+    print CpluginFunctionName()
+    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
+    rv.set_return_value(CpluginValue.STRING.value, "Just a Cstring test!")
+
+
+
 def foo_args(args):
     print CpluginFunctionName()
     a = CpluginFunctionArgs(args)
     arg1 = a.argument('arg1')
     arg2 = a.argument('arg2')
+    arg3 = a.argument('arg3')
+    arg4 = a.argument('arg4')
+    arg5 = a.argument('arg5')
+    arg6 = a.argument('arg6')
+    arg7 = a.argument('arg7')
+    arg8 = a.argument('arg8')
+    arg9 = a.argument('arg9')
+    arg10 = a.argument('arg10')
+    arg11 = a.argument('arg11')
+    arg12 = a.argument('arg12')
+    arg13 = a.argument('arg13')
+    arg14 = a.argument('arg14')
 
-    print arg2
-    print "Arguments (arg1=%d, arg2=%d)" % (int(arg1), int(arg2))
+    print "Arguments (arg1=%d, arg2=%d, arg3=%d, arg4=%d, arg5=%c, arg6=%d, \
+arg7=%f, arg8=%f, arg9=%d, arg10=%d, arg11=%d, arg12=%d, arg13=%d, arg14=%s)" % \
+            (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11,\
+            arg12, arg13, arg14)
 
 
 

@@ -131,38 +131,40 @@ static void show_plugin_info(cplugin_t *cpl)
 
 static cstring_t *get_return_as_string(const char *name, cvalue_t *v)
 {
-    cstring_t *s = cstring_create("%s return value: ", name), *tmp;
+    cstring_t *s = cstring_create("%s return value: ", name);
+    char *tmp;
 
     if (CVALUE_ischar(v))
-        cstring_cat(s, "%c", CVALUE_CHAR(v));
+        cstring_cat(s, "%c", CVALUE_AS_CHAR(v));
     else if (CVALUE_isuchar(v))
-        cstring_cat(s, "%d", CVALUE_UCHAR(v));
+        cstring_cat(s, "%d", CVALUE_AS_UCHAR(v));
     else if (CVALUE_isint(v))
-        cstring_cat(s, "%d", CVALUE_INT(v));
+        cstring_cat(s, "%d", CVALUE_AS_INT(v));
     else if (CVALUE_isuint(v))
-        cstring_cat(s, "%u", CVALUE_UINT(v));
+        cstring_cat(s, "%u", CVALUE_AS_UINT(v));
     else if (CVALUE_issint(v))
-        cstring_cat(s, "%d", CVALUE_SINT(v));
+        cstring_cat(s, "%d", CVALUE_AS_SINT(v));
     else if (CVALUE_isusint(v))
-        cstring_cat(s, "%d", CVALUE_USINT(v));
+        cstring_cat(s, "%d", CVALUE_AS_USINT(v));
     else if (CVALUE_isfloat(v))
-        cstring_cat(s, "%f", CVALUE_FLOAT(v));
+        cstring_cat(s, "%f", CVALUE_AS_FLOAT(v));
     else if (CVALUE_isdouble(v))
-        cstring_cat(s, "%f", CVALUE_DOUBLE(v));
+        cstring_cat(s, "%f", CVALUE_AS_DOUBLE(v));
     else if (CVALUE_islong(v))
-        cstring_cat(s, "%ld", CVALUE_LONG(v));
+        cstring_cat(s, "%ld", CVALUE_AS_LONG(v));
     else if (CVALUE_isulong(v))
-        cstring_cat(s, "%lu", CVALUE_ULONG(v));
+        cstring_cat(s, "%lu", CVALUE_AS_ULONG(v));
     else if (CVALUE_isllong(v))
-        cstring_cat(s, "%lld", CVALUE_LLONG(v));
+        cstring_cat(s, "%lld", CVALUE_AS_LLONG(v));
     else if (CVALUE_isullong(v))
-        cstring_cat(s, "%llu", CVALUE_ULLONG(v));
+        cstring_cat(s, "%llu", CVALUE_AS_ULLONG(v));
     else if (CVALUE_isstring(v)) {
-        tmp = CVALUE_STRING(v);
-        cstring_cat(s, "%s", cstring_valueof(v));
-        cstring_unref(tmp);
+        tmp = CVALUE_AS_STRING(v);
+
+        if (tmp != NULL)
+            cstring_cat(s, "%s", tmp);
     } else if (CVALUE_isboolean(v))
-        cstring_cat(s, "%d", CVALUE_BOOLEAN(v));
+        cstring_cat(s, "%d", CVALUE_AS_BOOLEAN(v));
 
     return s;
 }

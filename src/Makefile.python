@@ -1,6 +1,7 @@
 
 CC = gcc
 TARGET= ../bin/_cplugin.so
+DEST_DIR = /usr/lib/python2.7
 
 INCLUDEDIR = -I../include
 INCLUDEDIR += -I../../libcollections/include
@@ -58,4 +59,7 @@ clean:
 	rm -rf $(OBJS) $(TARGET) *~ ../include/*~
 
 purge: clean $(TARGET)
+
+install:
+	cp -f $(TARGET) $(DEST_DIR)
 

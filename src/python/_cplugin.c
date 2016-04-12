@@ -32,7 +32,7 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
 {
     cvalue_t *cplv = NULL;
     PyObject *v = NULL;
-    cstring_t *s = NULL;
+    char *s = NULL;
 
     cplv = cplugin_argument(acpl, argument_name);
 
@@ -92,18 +92,15 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
             v = Py_BuildValue("K", CVALUE_AS_ULLONG(cplv));
             break;
 
+        /* XXX: We still can't receive arguments of these types. */
         case CL_POINTER:
-            /* TODO */
-            break;
-
         case CL_CSTRING:
-            /* TODO */
+            v = Py_BuildValue("s", "##unsupported argument type##");
             break;
 
         case CL_STRING:
             s = CVALUE_AS_STRING(cplv);
-            v = Py_BuildValue("s", cstring_valueof(s));
-            cstring_unref(s);
+            v = Py_BuildValue("s", s);
             break;
 
         case CL_BOOLEAN:
@@ -144,6 +141,9 @@ static PyObject *arg_count(PyObject *self, PyObject *args)
 static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
     const char *function_name, enum cl_type type, const char *value)
 {
+    cstring_t *s = NULL;
+    int ret = -1;
+
     switch (type) {
         case CL_VOID:
             /* noop */
@@ -202,17 +202,21 @@ static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
                                             CL_ULLONG,
                                             strtoull(value, NULL, 10));
 
+        /* unsupported */
         case CL_POINTER:
-            /* TODO */
             break;
 
         case CL_STRING:
-            /* TODO */
-            break;
+            return cplugin_set_return_value(cpl, function_name, caller_id,
+                                            CL_STRING, value);
 
         case CL_CSTRING:
-            /* TODO */
-            break;
+            s = cstring_create("%s", value);
+            ret = cplugin_set_return_value(cpl, function_name, caller_id,
+                                           CL_CSTRING, s);
+
+            cstring_unref(s);
+            return ret;
 
         case CL_BOOLEAN:
             return cplugin_set_return_value(cpl, function_name, caller_id,

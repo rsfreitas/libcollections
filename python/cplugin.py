@@ -64,6 +64,7 @@ LONG ULONG LLONG ULLONG POINTER STRING BOOLEAN'
     POINTER = ()
     STRING = ()
     BOOLEAN = ()
+    CSTRING = ()    # unsupported
 
 
 

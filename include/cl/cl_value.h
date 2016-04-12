@@ -102,167 +102,13 @@ int cvalue_set(cvalue_t *value, ...);
 
 /**
  * @name cvalue_get
- * @brief Gets the real value of a cvalue_t object.
+ * @brief Gets the content from a cvalue_t object.
  *
- * @param [in] value: The cvalue_t.
- * @param [in] fmt: The output format.
- * @param [out] ...: The output values.
+ * @param [in] value: The cvalue_t object.
+ * @param [in] fmt: The output format of the object.
+ * @param [out] ...: The output value.
  *
-<<<<<<< HEAD
- * @return On success returns the cvalue_t value or -1 otherwise.
- */
-int cvalue_get_int(const cvalue_t *value);
-
-/**
- * @name cvalue_get_uint
- * @brief Gets the 'unsigned int' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or 0 otherwise.
- */
-unsigned int cvalue_get_uint(const cvalue_t *value);
-
-/**
- * @name cvalue_get_sint
- * @brief Gets the 'short int' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or -1 otherwise.
- */
-short int cvalue_get_sint(const cvalue_t *value);
-
-/**
- * @name cvalue_get_usint
- * @brief Gets the 'unsigned short int' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or 0 otherwise.
- */
-unsigned short int cvalue_get_usint(const cvalue_t *value);
-
-/**
- * @name cvalue_get_float
- * @brief Gets the 'float' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or -1 otherwise.
- */
-float cvalue_get_float(const cvalue_t *value);
-
-/**
- * @name cvalue_get_double
- * @brief Gets the 'double' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or -1 otherwise.
- */
-double cvalue_get_double(const cvalue_t *value);
-
-/**
- * @name cvalue_get_llong
- * @brief Gets the 'long long' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or -1 otherwise.
- */
-long long cvalue_get_llong(const cvalue_t *value);
-
-/**
- * @name cvalue_get_ullong
- * @brief Gets the 'unsigned long long' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or 0 otherwise.
- */
-unsigned long long cvalue_get_ullong(const cvalue_t *value);
-
-/**
- * @name cvalue_get_string
- * @brief Gets the string (char *) value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or NULL otherwise.
- */
-const char *cvalue_get_string(const cvalue_t *value);
-
-/**
- * @name cvalue_get_cstring
- * @brief Gets the 'cstring_t' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or NULL otherwise.
- */
-cstring_t *cvalue_get_cstring(const cvalue_t *value);
-
-/**
- * @name cvalue_get_long
- * @brief Gets the 'long' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or -1 otherwise.
- */
-long cvalue_get_long(const cvalue_t *value);
-
-/**
- * @name cvalue_get_ulong
- * @brief Gets the 'unsigned long' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or 0 otherwise.
- */
-unsigned long cvalue_get_ulong(const cvalue_t *value);
-
-/**
- * @name cvalue_get_char
- * @brief Gets the 'char' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or -1 otherwise.
- */
-char cvalue_get_char(const cvalue_t *value);
-
-/**
- * @name cvalue_get_uchar
- * @brief Gets the 'unsigned char' value of a cvalue_t.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or 0 otherwise.
- */
-unsigned char cvalue_get_uchar(const cvalue_t *value);
-
-/**
- * @name cvalue_get_pointer
- * @brief Gets the value of a cvalue_t as 'void *'.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or NULL otherwise.
- */
-void *cvalue_get_pointer(const cvalue_t *value, unsigned int *size);
-
-/**
- * @name cvalue_get_boolean
- * @brief Gets the value of a cvalue_t as 'bool'.
- *
- * @param [in] value: The cvalue_t.
- *
- * @return On success returns the cvalue_t value or -1 otherwise.
-=======
  * @return On success returns 0 or -1 otherwise.
->>>>>>> 8af625c22b34aeb3a7745f3d2bd4b9e91b6afa64
  */
 int cvalue_get(const cvalue_t *value, const char *fmt, ...);
 
@@ -323,19 +169,7 @@ cvalue_t *cvalue_ref(cvalue_t *value);
  */
 int cvalue_unref(cvalue_t *value);
 
-/**
- * @name cvalue_get
- * @brief Gets the content from a cvalue_t object.
- *
- * @param [in] value: The cvalue_t object.
- * @param [in] fmt: The output format of the object.
- * @param [out] ...: The output value.
- *
- * @return On success returns 0 or -1 otherwise.
- */
-int cvalue_get(const cvalue_t *value, const char *fmt, ...);
-
-/** Macros to get the item value */
+/** Macros to get the cvalue_t item value */
 #define CVALUE_AS_INT(v)       \
     ({ int __x; cvalue_get(v, CVALUE_INT, &__x, NULL); __x; })
 
