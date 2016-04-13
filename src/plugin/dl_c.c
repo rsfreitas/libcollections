@@ -174,7 +174,7 @@ void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
     f(caller_id, cpl, foo->args);
 }
 
-int c_plugin_startup(cplugin_info_t *info)
+int c_plugin_startup(void *handle __attribute__((unused)), cplugin_info_t *info)
 {
     c_startup_function f;
     struct c_info *plinfo = NULL;
@@ -189,7 +189,7 @@ int c_plugin_startup(cplugin_info_t *info)
     return f();
 }
 
-int c_plugin_shutdown(cplugin_info_t *info)
+int c_plugin_shutdown(void *handle __attribute__((unused)), cplugin_info_t *info)
 {
     c_shutdown_function f;
     struct c_info *plinfo = NULL;

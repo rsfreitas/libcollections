@@ -247,7 +247,7 @@ cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
 {
     void *handle = NULL;
     cplugin_info_t *info = NULL;
-    enum cplugin_plugin_type plugin_type;
+    struct dl_plugin_driver *pdriver = NULL;
 
     cerrno_clear();
 
@@ -256,23 +256,23 @@ cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
         return NULL;
     }
 
-    plugin_type = dl_get_plugin_type(pathname);
+    pdriver = dl_get_plugin_driver(pathname);
 
-    if (plugin_type == CPLUGIN_UNKNOWN) {
+    if (NULL == pdriver) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return NULL;
     }
 
-    handle = dl_open(pathname, plugin_type);
+    handle = dl_open(pdriver, pathname);
 
     if (NULL == handle)
         return NULL;
 
     /* Loads plugin info */
-    info = dl_load_info(handle, plugin_type);
+    info = dl_load_info(pdriver, handle);
 
     if (handle != NULL)
-        dl_close(handle, plugin_type);
+        dl_close(pdriver, handle);
 
     return info;
 }
@@ -486,7 +486,7 @@ cvalue_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
      */
 
     /* Call the function */
-    dl_call(foo, caller_id, pl);
+    dl_call(pl, foo, caller_id);
 
     if (foo->return_value != CL_VOID)
         cplv = cplugin_get_return_value(pl, function_name, caller_id);
@@ -509,7 +509,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     struct cplugin_s *cpl = NULL;
     cplugin_info_t *info = NULL;
     void *handle = NULL;
-    enum cplugin_plugin_type plugin_type;
+    struct dl_plugin_driver *pdriver = NULL;
 
     cerrno_clear();
 
@@ -523,14 +523,14 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
         return NULL;
     }
 
-    plugin_type = dl_get_plugin_type(pathname);
+    pdriver = dl_get_plugin_driver(pathname);
 
-    if (plugin_type == CPLUGIN_UNKNOWN) {
+    if (NULL == pdriver) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return NULL;
     }
 
-    handle = dl_open(pathname, plugin_type);
+    handle = dl_open(pdriver, pathname);
 
     if (NULL == handle) {
         cset_errno(CL_DLOPEN);
@@ -538,7 +538,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     }
 
     /* Loads plugin info */
-    info = dl_load_info(handle, plugin_type);
+    info = dl_load_info(pdriver, handle);
 
     if (NULL == info)
         goto error_block;
@@ -553,11 +553,11 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
      * Look for the real plugin exported functions (internal API) and point
      * to them so they can be called.
      */
-    if (dl_load_functions(flist, handle, plugin_type) < 0)
+    if (dl_load_functions(pdriver, flist, handle) < 0)
         goto error_block;
 
     /* Runs the plugin initialization function */
-    if (dl_plugin_startup(handle, plugin_type, info))
+    if (dl_plugin_startup(pdriver, handle, info))
         goto error_block;
 
     cpl = new_cplugin_s();
@@ -565,7 +565,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     if (NULL == cpl)
         goto error_block;
 
-    cpl->type = plugin_type;
+    cpl->dl = pdriver;
     cpl->handle = handle;
     cpl->functions = flist;
     cpl->info = info;
@@ -574,7 +574,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
 
 error_block:
     if (handle != NULL)
-        dl_close(handle, plugin_type);
+        dl_close(pdriver, handle);
 
     if (flist != NULL)
         destroy_cplugin_function_s_list(flist);
@@ -600,7 +600,7 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
     }
 
     if (pl->handle != NULL)
-        dl_close(pl->handle, pl->type);
+        dl_close(pl->dl, pl->handle);
 
     if (destroy_cplugin_s(cpl) < 0)
         return -1;

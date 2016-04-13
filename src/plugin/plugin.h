@@ -64,6 +64,26 @@ enum cplugin_info {
 
 /** Structures */
 
+struct cplugin_function_s;
+struct cplugin_s;
+
+struct dl_plugin_driver {
+    enum cplugin_plugin_type    type;
+    void                        (*library_init)(void);
+    void                        (*library_uninit)(void);
+    cplugin_info_t              *(*load_info)(void *);
+    int                         (*load_functions)(struct cplugin_function_s *,
+                                                  void *);
+
+    void                        *(*open)(const char *);
+    int                         (*close)(void *);
+    void                        (*call)(struct cplugin_function_s *, uint32_t,
+                                        struct cplugin_s *);
+
+    int                         (*plugin_startup)(void *, cplugin_info_t *);
+    int                         (*plugin_shutdown)(void *, cplugin_info_t *);
+};
+
 struct cplugin_fdata_s {
     clist_t         *prev;
     clist_t         *next;
@@ -95,19 +115,11 @@ struct cplugin_function_s {
 };
 
 struct cplugin_s {
-    /* Plugin */
     enum cplugin_plugin_type        type;
     void                            *handle;
-
-    /* Plugin functions list */
-    struct cplugin_function_s       *functions;
-
-    /* Plugin information */
-    cplugin_info_t                  *info;
-
-    /* Optional startup and shutdown plugin functions */
-    int                             (*startup)(void);
-    void                            (*shutdown)(void);
+    struct cplugin_function_s       *functions; /** Plugin functions list */
+    cplugin_info_t                  *info;      /** Plugin information */
+    struct dl_plugin_driver         *dl;        /** Plugin driver */
 };
 
 /* api_parser.c */
@@ -132,47 +144,20 @@ enum cl_type api_function_arg_type(const cplugin_info_t *info,
 /* call.c */
 int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap);
 
-/* dl_c.c */
-void c_library_init(void);
-void c_library_uninit(void);
-cplugin_info_t *c_load_info(void *handle);
-int c_load_functions(struct cplugin_function_s *flist, void *handle);
-void *c_open(const char *pathname);
-int c_close(void *handle);
-void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
-            struct cplugin_s *cpl);
-
-int c_plugin_startup(void *handle);
-int c_plugin_shutdown(cplugin_info_t *info);
-
-/* dl_python.c */
-void py_library_init(void);
-void py_library_uninit(void);
-cplugin_info_t *py_load_info(void *ptr);
-int py_load_functions(struct cplugin_function_s *flist, void *handle);
-void *py_open(const char *pathname);
-int py_close(void *ptr);
-void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
-             struct cplugin_s *cpl);
-
-int py_plugin_startup(void *handle, cplugin_info_t *info);
-int py_plugin_shutdown(void *handle, cplugin_info_t *info);
-
 /* dl.c */
-enum cplugin_plugin_type dl_get_plugin_type(const char *pathname);
-void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type);
-int dl_close(void *handle, enum cplugin_plugin_type plugin_type);
-int dl_load_functions(struct cplugin_function_s *flist, void *handle,
-                      enum cplugin_plugin_type plugin_type);
+struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname);
+void *dl_open(struct dl_plugin_driver *drv, const char *pathname);
+int dl_close(struct dl_plugin_driver *drv, void *handle);
+int dl_load_functions(struct dl_plugin_driver *drv,
+                      struct cplugin_function_s *flist, void *handle);
 
-cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type);
-void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
-             struct cplugin_s *cpl);
-
-int dl_plugin_startup(void *handle, enum cplugin_plugin_type plugin_type,
-                      cplugin_info_t *info);
+cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle);
+void dl_call(struct cplugin_s *cpl, struct cplugin_function_s *foo,
+             uint32_t caller_id);
 
 int dl_plugin_shutdown(struct cplugin_s *cpl);
+int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
+                      cplugin_info_t *info);
 
 /* info.c */
 cplugin_info_t *info_ref(cplugin_info_t *info);

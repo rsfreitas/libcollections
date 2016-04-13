@@ -34,6 +34,10 @@
 #include "collections.h"
 #include "plugin.h"
 
+/* supported languages */
+#include "dl_c.h"
+#include "dl_python.h"
+
 struct dl_info {
 #ifdef USE_LIBMAGIC
     magic_t         cookie;
@@ -45,12 +49,56 @@ static struct dl_info __dl = {
     .ref.count = 0,
 };
 
+static struct dl_plugin_driver __dl_driver[] = {
+    {
+        .type               = CPLUGIN_C,
+        .library_init       = c_library_init,
+        .library_uninit     = c_library_uninit,
+        .load_info          = c_load_info,
+        .load_functions     = c_load_functions,
+        .open               = c_open,
+        .close              = c_close,
+        .call               = c_call,
+        .plugin_startup     = c_plugin_startup,
+        .plugin_shutdown    = c_plugin_shutdown,
+    },
+
+    {
+        .type               = CPLUGIN_PYTHON,
+        .library_init       = py_library_init,
+        .library_uninit     = py_library_uninit,
+        .load_info          = py_load_info,
+        .load_functions     = py_load_functions,
+        .open               = py_open,
+        .close              = py_close,
+        .call               = py_call,
+        .plugin_startup     = py_plugin_startup,
+        .plugin_shutdown    = py_plugin_shutdown,
+    }
+};
+
+#define NDRIVERS            \
+    (sizeof(__dl_driver) / sizeof(__dl_driver[0]))
+
+static struct dl_plugin_driver *get_plugin_driver(enum cplugin_plugin_type type)
+{
+    int i = 0;
+
+    for (i = NDRIVERS - 1; i >= 0; i--)
+        if (__dl_driver[i].type == type)
+            return &__dl_driver[i];
+
+    return NULL;
+}
+
 static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 {
-    py_library_uninit();
-    c_library_uninit();
+    int i = 0;
 
-    /* dl_uninit */
+    /* call all drivers uninit function */
+    for (i = NDRIVERS - 1; i >= 0; i--)
+        (__dl_driver[i].library_uninit)();
+
 #ifdef USE_LIBMAGIC
     magic_close(__dl.cookie);
 #endif
@@ -59,6 +107,7 @@ static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 static void dl_library_init(void)
 {
     int old = 0, new = 1;
+    unsigned int i = 0;
 
     if (ref_bool_compare(&__dl.ref, old, new) == true) {
         srandom(time(NULL) + cseed());
@@ -76,8 +125,10 @@ static void dl_library_init(void)
 #endif
 
         __dl.ref.free = __dl_library_uninit;
-        c_library_init();
-        py_library_init();
+
+        /* call all drivers init function */
+        for (i = 0; i < NDRIVERS; i++)
+            (__dl_driver[i].library_init)();
     } else
         ref_inc(&__dl.ref);
 }
@@ -125,7 +176,7 @@ ok:
     return t;
 }
 
-enum cplugin_plugin_type dl_get_plugin_type(const char *pathname)
+struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
 {
     cstring_t *info = NULL;
     enum cplugin_plugin_type type;
@@ -141,29 +192,22 @@ enum cplugin_plugin_type dl_get_plugin_type(const char *pathname)
     type = parse_plugin_type(info);
     cstring_unref(info);
 
-    return type;
+    return get_plugin_driver(type);
 }
 
 /*
  * Load plugin to memory.
  */
-void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type)
+void *dl_open(struct dl_plugin_driver *drv, const char *pathname)
 {
     void *p = NULL;
 
-    switch (plugin_type) {
-        case CPLUGIN_C:
-            p = c_open(pathname);
-            break;
+    if (NULL == drv)
+        goto end_block;
 
-        case CPLUGIN_PYTHON:
-            p = py_open(pathname);
-            break;
+    p = (drv->open)(pathname);
 
-        default:
-            break;
-    }
-
+end_block:
     if (NULL == p)
         cset_errno(CL_DLOPEN);
 
@@ -173,28 +217,17 @@ void *dl_open(const char *pathname, enum cplugin_plugin_type plugin_type)
 /*
  * Release plugin from memory.
  */
-int dl_close(void *handle, enum cplugin_plugin_type plugin_type)
+int dl_close(struct dl_plugin_driver *drv, void *handle)
 {
     int ret = -1;
 
-    if (NULL == handle)
-        return 0;
+    if ((NULL == drv) || (NULL == handle))
+        goto end_block;
 
-    switch (plugin_type) {
-        case CPLUGIN_C:
-            ret = c_close(handle);
-            break;
-
-        case CPLUGIN_PYTHON:
-            ret = py_close(handle);
-            break;
-
-        default:
-            return 0;
-    }
-
+    ret = (drv->close)(handle);
     dl_library_uninit();
 
+end_block:
     if (ret != 0)
         cset_errno(CL_DLCLOSE);
 
@@ -204,26 +237,17 @@ int dl_close(void *handle, enum cplugin_plugin_type plugin_type)
 /*
  * Load plugin functions.
  */
-int dl_load_functions(struct cplugin_function_s *flist, void *handle,
-    enum cplugin_plugin_type plugin_type)
+int dl_load_functions(struct dl_plugin_driver *drv,
+     struct cplugin_function_s *flist, void *handle)
 {
     int ret = -1;
 
-    switch (plugin_type) {
-        case CPLUGIN_C:
-            ret = c_load_functions(flist, handle);
-            break;
+    if (NULL == drv)
+        goto end_block;
 
-        case CPLUGIN_PYTHON:
-            ret = py_load_functions(flist, handle);
-            break;
+    ret = (drv->load_functions)(flist, handle);
 
-        default:
-            /* Does not have any function */
-            ret = 0;
-            break;
-    }
-
+end_block:
     if (ret < 0)
         cset_errno(CL_OBJECT_NOT_FOUND);
 
@@ -233,22 +257,16 @@ int dl_load_functions(struct cplugin_function_s *flist, void *handle,
 /*
  * Load informations from a plugin.
  */
-cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
+cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle)
 {
     cplugin_info_t *info = NULL;
 
-    switch (plugin_type) {
-        case CPLUGIN_C:
-            info = c_load_info(handle);
-            break;
+    if (NULL == drv)
+        goto end_block;
 
-        case CPLUGIN_PYTHON:
-            info = py_load_info(handle);
+    info = (drv->load_info)(handle);
 
-        default:
-            break;
-    }
-
+end_block:
     if (NULL == info)
         cset_errno(CL_NO_PLUGIN_INFO);
 
@@ -259,24 +277,17 @@ cplugin_info_t *dl_load_info(void *handle, enum cplugin_plugin_type plugin_type)
  * Call the plugin startup function. It should return 0 on success or something
  * different otherwise.
  */
-int dl_plugin_startup(void *handle, enum cplugin_plugin_type plugin_type,
+int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
     cplugin_info_t *info)
 {
     int ret = -1;
 
-    switch (plugin_type) {
-        case CPLUGIN_C:
-            ret = c_plugin_startup(info);
-            break;
+    if (NULL == drv)
+        goto end_block;
 
-        case CPLUGIN_PYTHON:
-            ret = py_plugin_startup(handle, info);
-            break;
+    ret = (drv->plugin_startup)(handle, info);
 
-        default:
-            break;
-    }
-
+end_block:
     if (ret != 0)
         cset_errno(CL_PLUGIN_STARTUP);
 
@@ -291,39 +302,24 @@ int dl_plugin_shutdown(struct cplugin_s *cpl)
 {
     int ret = -1;
 
-    switch (cpl->type) {
-        case CPLUGIN_C:
-            ret = c_plugin_shutdown(cpl->info);
-            break;
+    if ((NULL == cpl) || (NULL == cpl->dl))
+        goto end_block;
 
-        case CPLUGIN_PYTHON:
-            ret = py_plugin_shutdown(cpl->handle, cpl->info);
-            break;
+    ret = (cpl->dl->plugin_shutdown)(cpl->handle, cpl->info);
 
-        default:
-            break;
-    }
-
+end_block:
     if (ret != 0)
         cset_errno(CL_PLUGIN_SHUTDOWN);
 
     return ret;
 }
 
-void dl_call(struct cplugin_function_s *foo, uint32_t caller_id,
-    struct cplugin_s *cpl)
+void dl_call(struct cplugin_s *cpl, struct cplugin_function_s *foo,
+    uint32_t caller_id)
 {
-    switch (cpl->type) {
-        case CPLUGIN_C:
-            c_call(foo, caller_id, cpl);
-            break;
+    if ((NULL == cpl) || (NULL == cpl->dl))
+        return;
 
-        case CPLUGIN_PYTHON:
-            py_call(foo, caller_id, cpl);
-            break;
-
-        default:
-            break;
-    }
+    (cpl->dl->call)(foo, caller_id, cpl);
 }
 
