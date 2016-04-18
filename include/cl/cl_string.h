@@ -154,9 +154,9 @@ int cstring_cat(cstring_t *string, const char *fmt, ...)
  *
  * @param [in] string: The cstring_t object.
  *
- * @return On success returns the new cstring_t object or NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_upper(const cstring_t *string);
+int cstring_upper(cstring_t *string);
 
 /**
  * @name cstring_lower
@@ -164,9 +164,9 @@ cstring_t *cstring_upper(const cstring_t *string);
  *
  * @param [in] string: The cstring_t object.
  *
- * @return On success returns the new cstring_t object or NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_lower(const cstring_t *string);
+int cstring_lower(cstring_t *string);
 
 /**
  * @name cstring_capitalize
@@ -174,9 +174,9 @@ cstring_t *cstring_lower(const cstring_t *string);
  *
  * @param [in] string: The cstring_t object.
  *
- * @return On success returns the new cstring_t object or NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_capitalize(const cstring_t *string);
+int cstring_capitalize(cstring_t *string);
 
 /**
  * @name cstring_find
@@ -221,9 +221,9 @@ int cstring_cchr(const cstring_t *string, char c);
  *
  * @param [in] string: The cstring_t object.
  *
- * @return On success returns the new cstring_t object or NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_ltrim(const cstring_t *string);
+int cstring_ltrim(cstring_t *string);
 
 /**
  * @name cstring_rtrim
@@ -231,9 +231,9 @@ cstring_t *cstring_ltrim(const cstring_t *string);
  *
  * @param [in] string: The cstring_t object.
  *
- * @return On success returns the new cstring_t object or NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_rtrim(const cstring_t *string);
+int cstring_rtrim(cstring_t *string);
 
 /**
  * @name cstring_alltrim
@@ -242,9 +242,9 @@ cstring_t *cstring_rtrim(const cstring_t *string);
  *
  * @param [in] string: The cstring_t object.
  *
- * @return On success returns the new cstring_t object or NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_alltrim(const cstring_t *string);
+int cstring_alltrim(cstring_t *string);
 
 /**
  * @name cstring_cmp
@@ -464,10 +464,9 @@ int cstring_unref(cstring_t *string);
  * @param [in] string: The cstring_t.
  * @param [in] c: The character which will be removed.
  *
- * @return On success returns a new cstring_t without the character or
- *         NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_dchr(const cstring_t *string, char c);
+int cstring_dchr(cstring_t *string, char c);
 
 /**
  * @name cstring_idchr
@@ -476,10 +475,9 @@ cstring_t *cstring_dchr(const cstring_t *string, char c);
  * @param [in] string: Ths cstring_t.
  * @param [in] p: The character position which will be removed.
  *
- * @return On success returns a new cstring_t without the character or
- *         NULL otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
-cstring_t *cstring_idchr(const cstring_t *string, unsigned int p);
+int cstring_idchr(cstring_t *string, unsigned int p);
 
 #endif
 

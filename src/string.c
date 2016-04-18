@@ -399,10 +399,9 @@ cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
     return d;
 }
 
-cstring_t LIBEXPORT *cstring_upper(const cstring_t *string)
+int LIBEXPORT cstring_upper(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    struct cstring_s *p = cstring_ref(string);
     unsigned int i;
 
     cerrno_clear();
@@ -410,24 +409,21 @@ cstring_t LIBEXPORT *cstring_upper(const cstring_t *string)
     if (NULL == string) {
         cstring_unref(p);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    o = cstring_dup(p);
+    for (i = 0; i < p->size; i++)
+        if (isascii(p->str[i]))
+            p->str[i] = toupper(p->str[i]);
+
     cstring_unref(p);
 
-    if (o != NULL)
-        for (i = 0; i < o->size; i++)
-            if (isascii(o->str[i]))
-                o->str[i] = toupper(o->str[i]);
-
-    return o;
+    return 0;
 }
 
-cstring_t LIBEXPORT *cstring_lower(const cstring_t *string)
+int LIBEXPORT cstring_lower(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    struct cstring_s *p = cstring_ref(string);
     unsigned int i;
 
     cerrno_clear();
@@ -435,40 +431,34 @@ cstring_t LIBEXPORT *cstring_lower(const cstring_t *string)
     if (NULL == string) {
         cstring_unref(p);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    o = cstring_dup(p);
+    for (i = 0; i < p->size; i++)
+        if (isascii(p->str[i]))
+            p->str[i] = tolower(p->str[i]);
+
     cstring_unref(p);
 
-    if (o != NULL)
-        for (i = 0; i < o->size; i++)
-            if (isascii(o->str[i]))
-                o->str[i] = tolower(o->str[i]);
-
-    return o;
+    return 0;
 }
 
-cstring_t LIBEXPORT *cstring_capitalize(const cstring_t *string)
+int LIBEXPORT cstring_capitalize(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    struct cstring_s *p = cstring_ref(string);
 
     cerrno_clear();
 
     if (NULL == string) {
         cstring_unref(p);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    o = cstring_dup(p);
+    p->str[0] = toupper(p->str[0]);
     cstring_unref(p);
 
-    if (o != NULL)
-        o->str[0] = toupper(o->str[0]);
-
-    return o;
+    return 0;
 }
 
 int LIBEXPORT cstring_find(const cstring_t *string, char c)
@@ -541,10 +531,9 @@ int LIBEXPORT cstring_cchr(const cstring_t *string, char c)
     return match;
 }
 
-cstring_t LIBEXPORT *cstring_ltrim(const cstring_t *string)
+int LIBEXPORT cstring_ltrim(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    struct cstring_s *p = cstring_ref(string);
     int size, i;
 
     cerrno_clear();
@@ -552,34 +541,28 @@ cstring_t LIBEXPORT *cstring_ltrim(const cstring_t *string)
     if (NULL == string) {
         cstring_unref(p);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    o = cstring_dup(p);
-    cstring_unref(p);
+    size = cstring_length(p);
 
-    if (NULL == o)
-        return NULL;
-
-    size = cstring_length(o);
-
-    while (o->str[0] == ' ') {
+    while (p->str[0] == ' ') {
         for (i = 0; i < size; i++)
-            o->str[i] = o->str[i + 1];
+            p->str[i] = p->str[i + 1];
 
         size--;
-        o->str[size] = '\0';
+        p->str[size] = '\0';
     }
 
-    o->size = size;
+    p->size = size;
+    cstring_unref(p);
 
-    return o;
+    return 0;
 }
 
-cstring_t LIBEXPORT *cstring_rtrim(const cstring_t *string)
+int LIBEXPORT cstring_rtrim(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    struct cstring_s *p = cstring_ref(string);
     int size, i;
 
     cerrno_clear();
@@ -587,55 +570,40 @@ cstring_t LIBEXPORT *cstring_rtrim(const cstring_t *string)
     if (NULL == string) {
         cstring_unref(p);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    o = cstring_dup(p);
-    cstring_unref(p);
-
-    if (NULL == o)
-        return NULL;
-
-    size = cstring_length(o);
+    size = cstring_length(p);
     i = size - 1;
 
-    while ((i >= 0) && (o->str[i] == ' ')) {
-        o->str[i] = '\0';
+    while ((i >= 0) && (p->str[i] == ' ')) {
+        p->str[i] = '\0';
         i--;
         size--;
     }
 
-    o->size = size;
+    p->size = size;
+    cstring_unref(p);
 
-    return o;
+    return 0;
 }
 
-cstring_t LIBEXPORT *cstring_alltrim(const cstring_t *string)
+int LIBEXPORT cstring_alltrim(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    struct cstring_s *p = cstring_ref(string);
 
     cerrno_clear();
 
     if (NULL == string) {
         cstring_unref(p);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    o = cstring_ltrim(p);
-    cstring_unref(p);
+    cstring_ltrim(p);
+    cstring_rtrim(p);
 
-    if (NULL == o)
-        return NULL;
-
-    p = cstring_rtrim(o);
-    cstring_destroy(o);
-
-    if (NULL == p)
-        return NULL;
-
-    return p;
+    return 0;
 }
 
 cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
@@ -1210,43 +1178,36 @@ bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
     return ret;
 }
 
-cstring_t LIBEXPORT *cstring_idchr(const cstring_t *string, unsigned int p)
+int LIBEXPORT cstring_idchr(cstring_t *string, unsigned int p)
 {
-    cstring_t *value = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    struct cstring_s *s = cstring_ref(string);
     int size;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cstring_unref(value);
+    if (NULL == s) {
+        cstring_unref(s);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    size = cstring_length(value);
+    size = cstring_length(s);
 
     if (p > (unsigned int)size) {
-        cstring_unref(value);
+        cstring_unref(s);
         cset_errno(CL_WRONG_STRING_INDEX);
-        return NULL;
+        return -1;
     }
 
-    o = cstring_dup(value);
-    cstring_unref(value);
+    memmove(&s->str[p], &s->str[p + 1], size - p);
+    cstring_unref(s);
 
-    if (NULL == o)
-        return NULL;
-
-    memmove(&o->str[p], &o->str[p + 1], size - p);
-
-    return o;
+    return 0;
 }
 
-cstring_t LIBEXPORT *cstring_dchr(const cstring_t *string, char c)
+int LIBEXPORT cstring_dchr(cstring_t *string, char c)
 {
-    cstring_t *value = cstring_ref((cstring_t *)string);
-    cstring_t *s, *tmp;
+    cstring_t *value = cstring_ref(string);
     int t, p;
 
     cerrno_clear();
@@ -1254,33 +1215,22 @@ cstring_t LIBEXPORT *cstring_dchr(const cstring_t *string, char c)
     if (NULL == value) {
         cstring_unref(value);
         cset_errno(CL_NULL_ARG);
-        return NULL;
+        return -1;
     }
 
-    s = cstring_dup(value);
-    cstring_unref(value);
-
-    if (NULL == s)
-        return NULL;
-
-    t = cstring_cchr(s, c);
+    t = cstring_cchr(value, c);
 
     if (t == 0)
-        return s;
+        goto end_block;
 
     do {
-        p = cstring_find(s, c);
-        tmp = cstring_idchr(s, p);
-        cstring_unref(s);
-        s = cstring_dup(tmp);
+        p = cstring_find(value, c);
+        cstring_idchr(value, p);
         t--;
-
-        if (t)
-            cstring_unref(tmp);
     } while (t);
 
-    cstring_unref(s);
-
-    return tmp;
+end_block:
+    cstring_unref(value);
+    return 0;
 }
 

@@ -59,21 +59,20 @@ struct cfg_file_s {
 static bool is_section(const char *line)
 {
     bool ret = true;
-    cstring_t *p, *t;
+    cstring_t *p;
 
     p = cstring_create("%s", line);
-    t = cstring_alltrim(p);
-    cstring_destroy(p);
+    cstring_alltrim(p);
 
-    if ((cstring_cchr(t, '[') != 1) ||
-        (cstring_cchr(t, ']') != 1) ||
-        (cstring_at(t, 0) != '[') ||
-        (cstring_at(t, cstring_length(t) - 1) != ']'))
+    if ((cstring_cchr(p, '[') != 1) ||
+        (cstring_cchr(p, ']') != 1) ||
+        (cstring_at(p, 0) != '[') ||
+        (cstring_at(p, cstring_length(p) - 1) != ']'))
     {
         ret = false;
     }
 
-    cstring_destroy(t);
+    cstring_destroy(p);
 
     return ret;
 }
@@ -196,8 +195,9 @@ static cstring_t *get_comment(const cstring_t *s, char delim,
      * @list_size - 1 index at the list
      */
     ref = cstring_list_get(*list, list_size - 1);
-    comment = cstring_alltrim(ref);
+    comment = cstring_dup(ref);
     cstring_unref(ref);
+    cstring_alltrim(comment);
 
     return comment;
 }
@@ -222,8 +222,9 @@ static cstring_t *get_line_content(const cstring_t *s, char delim,
             return NULL;
     }
 
-    content = cstring_alltrim(p);
+    content = cstring_dup(p);
     cstring_unref(p);
+    cstring_alltrim(content);
 
     return content;
 }
@@ -235,8 +236,9 @@ static cstring_t *get_data(const cstring_t *s, int index)
 
     l = cstring_split(s, "=");
     ref = cstring_list_get(l, index);
-    r = cstring_alltrim(ref);
+    r = cstring_dup(ref);
     cstring_unref(ref);
+    cstring_alltrim(r);
     cstring_list_destroy(l);
 
     return r;
