@@ -30,7 +30,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          1
-# define BUILD                  7
+# define BUILD                  8
 #endif
 
 #ifdef __cplusplus

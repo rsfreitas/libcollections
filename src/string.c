@@ -1210,3 +1210,77 @@ bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
     return ret;
 }
 
+cstring_t LIBEXPORT *cstring_idchr(const cstring_t *string, unsigned int p)
+{
+    cstring_t *value = cstring_ref((cstring_t *)string);
+    struct cstring_s *o = NULL;
+    int size;
+
+    cerrno_clear();
+
+    if (NULL == value) {
+        cstring_unref(value);
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    size = cstring_length(value);
+
+    if (p > (unsigned int)size) {
+        cstring_unref(value);
+        cset_errno(CL_WRONG_STRING_INDEX);
+        return NULL;
+    }
+
+    o = cstring_dup(value);
+    cstring_unref(value);
+
+    if (NULL == o)
+        return NULL;
+
+    memmove(&o->str[p], &o->str[p + 1], size - p);
+
+    return o;
+}
+
+cstring_t LIBEXPORT *cstring_dchr(const cstring_t *string, char c)
+{
+    cstring_t *value = cstring_ref((cstring_t *)string);
+    cstring_t *s, *tmp;
+    int t, p;
+
+    cerrno_clear();
+
+    if (NULL == value) {
+        cstring_unref(value);
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    s = cstring_dup(value);
+    cstring_unref(value);
+
+    if (NULL == s)
+        return NULL;
+
+    t = cstring_cchr(s, c);
+
+    if (t == 0)
+        return s;
+
+    do {
+        p = cstring_find(s, c);
+        tmp = cstring_idchr(s, p);
+        cstring_unref(s);
+        s = cstring_dup(tmp);
+        t--;
+
+        if (t)
+            cstring_unref(tmp);
+    } while (t);
+
+    cstring_unref(s);
+
+    return tmp;
+}
+

@@ -451,9 +451,35 @@ cstring_t *cstring_ref(cstring_t *string);
  *
  * @param [in,out] string: The cstring_t item.
  *
- * @return On sucess returns 0 or -1 otherwise.
+ * @return On success returns 0 or -1 otherwise.
  */
 int cstring_unref(cstring_t *string);
+
+/**
+ * @name cstring_dchr
+ * @brief Deletes a character from a cstring_t.
+ *
+ * This function removes the first entry of the respective character.
+ *
+ * @param [in] string: The cstring_t.
+ * @param [in] c: The character which will be removed.
+ *
+ * @return On success returns a new cstring_t without the character or
+ *         NULL otherwise.
+ */
+cstring_t *cstring_dchr(const cstring_t *string, char c);
+
+/**
+ * @name cstring_idchr
+ * @brief Deletes a character from a cstring_t from a specific position.
+ *
+ * @param [in] string: Ths cstring_t.
+ * @param [in] p: The character position which will be removed.
+ *
+ * @return On success returns a new cstring_t without the character or
+ *         NULL otherwise.
+ */
+cstring_t *cstring_idchr(const cstring_t *string, unsigned int p);
 
 #endif
 

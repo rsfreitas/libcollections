@@ -209,6 +209,8 @@ LIBCOLLECTIONS_0.1 {
         cstring_list_get;
         cstring_list_map;
         cstring_list_size;
+        cstring_dchr;
+        cstring_idchr;
         cthread_get_user_data;
         cthread_set_state;
         cthread_wait_startup;
