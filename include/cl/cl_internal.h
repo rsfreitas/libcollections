@@ -80,6 +80,7 @@ void cvalue_set_cstring(cvalue_t *value, cstring_t *s);
 
 /* util.c */
 char *value_to_hex(void *p, unsigned int size);
+char *strip_filename(const char *pathname);
 
 #endif
 

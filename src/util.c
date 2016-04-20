@@ -103,3 +103,33 @@ char *value_to_hex(void *p, unsigned int size)
     return d;
 }
 
+/*
+ * Removes the file name extension, as well as all path, leaving only
+ * its name.
+ */
+char *strip_filename(const char *pathname)
+{
+    char *ext = NULL, *n = NULL, *tmp = NULL, *bname = NULL;
+
+    tmp = strdup(pathname);
+    bname = basename(tmp);
+    ext = strrchr(bname, '.');
+
+    if (NULL == ext)
+        n = strdup(bname);
+    else {
+        n = calloc(1, strlen(bname) - strlen(ext) + 1);
+
+        if (NULL == n) {
+            cset_errno(CL_NO_MEM);
+            return NULL;
+        }
+
+        strncpy(n, bname, strlen(bname) - strlen(ext));
+    }
+
+    free(tmp);
+
+    return n;
+}
+

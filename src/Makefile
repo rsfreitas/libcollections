@@ -16,9 +16,11 @@ TARGET_DEST = ../bin/$(DEST_LIBNAME)
 
 INCLUDEDIR = -I../include
 INCLUDEDIR += -I/usr/include/python2.7
+INCLUDEDIR += -I/usr/lib/jvm/default-java/include
 
 LIBDIR = -L/usr/local/lib
-LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic
+LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/i386/server/
+LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm
 
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 		 -D_GNU_SOURCE -DLINUX -DUSE_LIBMAGIC $(INCLUDEDIR)
@@ -39,6 +41,7 @@ PLUGIN_OBJS =	\
 	dl.o			\
 	dl_c.o			\
 	dl_python.o		\
+	dl_java.o		\
 	info.o			\
 	plugin_misc.o	\
 	rv.o

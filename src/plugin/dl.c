@@ -37,6 +37,7 @@
 /* supported languages */
 #include "dl_c.h"
 #include "dl_python.h"
+#include "dl_java.h"
 
 struct dl_info {
 #ifdef USE_LIBMAGIC
@@ -61,6 +62,7 @@ static struct dl_plugin_driver __dl_driver[] = {
         .call               = c_call,
         .plugin_startup     = c_plugin_startup,
         .plugin_shutdown    = c_plugin_shutdown,
+        .data               = NULL,
     },
 
     {
@@ -74,6 +76,21 @@ static struct dl_plugin_driver __dl_driver[] = {
         .call               = py_call,
         .plugin_startup     = py_plugin_startup,
         .plugin_shutdown    = py_plugin_shutdown,
+        .data               = NULL,
+    },
+
+    {
+        .type               = CPLUGIN_JAVA,
+        .library_init       = jni_library_init,
+        .library_uninit     = jni_library_uninit,
+        .load_info          = jni_load_info,
+        .load_functions     = jni_load_functions,
+        .open               = jni_open,
+        .close              = jni_close,
+        .call               = jni_call,
+        .plugin_startup     = jni_plugin_startup,
+        .plugin_shutdown    = jni_plugin_shutdown,
+        .data               = NULL,
     }
 };
 
@@ -97,7 +114,7 @@ static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 
     /* call all drivers uninit function */
     for (i = NDRIVERS - 1; i >= 0; i--)
-        (__dl_driver[i].library_uninit)();
+        (__dl_driver[i].library_uninit)(__dl_driver[i].data);
 
 #ifdef USE_LIBMAGIC
     magic_close(__dl.cookie);
@@ -128,7 +145,7 @@ static void dl_library_init(void)
 
         /* call all drivers init function */
         for (i = 0; i < NDRIVERS; i++)
-            (__dl_driver[i].library_init)();
+            __dl_driver[i].data = (__dl_driver[i].library_init)();
     } else
         ref_inc(&__dl.ref);
 }
@@ -154,6 +171,7 @@ static enum cplugin_plugin_type parse_plugin_type(cstring_t *s)
     enum cplugin_plugin_type t = CPLUGIN_UNKNOWN;
     cstring_t *p = NULL;
 
+    /* C/C++ */
     p = cstring_create("application/x-sharedlib");
 
     if (cstring_cmp(s, p) == 0) {
@@ -161,11 +179,21 @@ static enum cplugin_plugin_type parse_plugin_type(cstring_t *s)
         goto ok;
     }
 
+    /* Python */
     cstring_clear(p);
     cstring_cat(p, "text/x-python");
 
     if (cstring_cmp(s, p) == 0) {
         t = CPLUGIN_PYTHON;
+        goto ok;
+    }
+
+    /* Java */
+    cstring_clear(p);
+    cstring_cat(p, "application/x-java-applet");
+
+    if (cstring_cmp(s, p) == 0) {
+        t = CPLUGIN_JAVA;
         goto ok;
     }
 
@@ -205,7 +233,7 @@ void *dl_open(struct dl_plugin_driver *drv, const char *pathname)
     if (NULL == drv)
         goto end_block;
 
-    p = (drv->open)(pathname);
+    p = (drv->open)(drv->data, pathname);
 
 end_block:
     if (NULL == p)
@@ -224,7 +252,7 @@ int dl_close(struct dl_plugin_driver *drv, void *handle)
     if ((NULL == drv) || (NULL == handle))
         goto end_block;
 
-    ret = (drv->close)(handle);
+    ret = (drv->close)(drv->data, handle);
     dl_library_uninit();
 
 end_block:
@@ -245,7 +273,7 @@ int dl_load_functions(struct dl_plugin_driver *drv,
     if (NULL == drv)
         goto end_block;
 
-    ret = (drv->load_functions)(flist, handle);
+    ret = (drv->load_functions)(drv->data, flist, handle);
 
 end_block:
     if (ret < 0)
@@ -264,7 +292,7 @@ cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle)
     if (NULL == drv)
         goto end_block;
 
-    info = (drv->load_info)(handle);
+    info = (drv->load_info)(drv->data, handle);
 
 end_block:
     if (NULL == info)
@@ -285,7 +313,7 @@ int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
     if (NULL == drv)
         goto end_block;
 
-    ret = (drv->plugin_startup)(handle, info);
+    ret = (drv->plugin_startup)(drv->data, handle, info);
 
 end_block:
     if (ret != 0)
@@ -301,11 +329,13 @@ end_block:
 int dl_plugin_shutdown(struct cplugin_s *cpl)
 {
     int ret = -1;
+    struct dl_plugin_driver *drv = NULL;
 
     if ((NULL == cpl) || (NULL == cpl->dl))
         goto end_block;
 
-    ret = (cpl->dl->plugin_shutdown)(cpl->handle, cpl->info);
+    drv = cpl->dl;
+    ret = (drv->plugin_shutdown)(drv->data, cpl->handle, cpl->info);
 
 end_block:
     if (ret != 0)
@@ -317,9 +347,12 @@ end_block:
 void dl_call(struct cplugin_s *cpl, struct cplugin_function_s *foo,
     uint32_t caller_id)
 {
+    struct dl_plugin_driver *drv = NULL;
+
     if ((NULL == cpl) || (NULL == cpl->dl))
         return;
 
-    (cpl->dl->call)(foo, caller_id, cpl);
+    drv = cpl->dl;
+    (drv->call)(drv->data, foo, caller_id, cpl);
 }
 

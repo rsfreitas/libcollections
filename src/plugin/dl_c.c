@@ -45,16 +45,6 @@ typedef void (*c_shutdown_function)(void);
 /* Function name to get the internal plugin information */
 #define CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL    "cplugin_set_plugin_entry_name"
 
-void c_library_init(void)
-{
-    /* noop */
-}
-
-void c_library_uninit(void)
-{
-    /* noop */
-}
-
 static void set_custom_plugin_info(cplugin_info_t *info,
     struct cplugin_entry_s *entry)
 {
@@ -97,24 +87,6 @@ static struct cplugin_entry_s *call_entry_symbol(void *handle)
     return entry;
 }
 
-cplugin_info_t *c_load_info(void *handle)
-{
-    struct cplugin_entry_s *entry;
-    cplugin_info_t *info = NULL;
-
-    entry = call_entry_symbol(handle);
-
-    if (NULL == entry)
-        return NULL;
-
-    info = info_create_from_entry(entry);
-
-    if (info != NULL)
-        set_custom_plugin_info(info, entry);
-
-    return info;
-}
-
 /*
  * Points to the real plugin function, inside it.
  */
@@ -132,7 +104,43 @@ static int c_load_function(void *a, void *b)
     return 0;
 }
 
-int c_load_functions(struct cplugin_function_s *flist, void *handle)
+/*
+ *
+ * Plugin Driver API
+ *
+ */
+
+void *c_library_init(void)
+{
+    /* noop */
+    return NULL;
+}
+
+void c_library_uninit(void *data __attribute__((unused)))
+{
+    /* noop */
+}
+
+cplugin_info_t *c_load_info(void *data __attribute__((unused)), void *handle)
+{
+    struct cplugin_entry_s *entry;
+    cplugin_info_t *info = NULL;
+
+    entry = call_entry_symbol(handle);
+
+    if (NULL == entry)
+        return NULL;
+
+    info = info_create_from_entry(entry);
+
+    if (info != NULL)
+        set_custom_plugin_info(info, entry);
+
+    return info;
+}
+
+int c_load_functions(void *data __attribute__((unused)),
+     struct cplugin_function_s *flist, void *handle)
 {
     if (cdll_map(flist, c_load_function, handle) != NULL)
         return -1;
@@ -140,7 +148,7 @@ int c_load_functions(struct cplugin_function_s *flist, void *handle)
     return 0;
 }
 
-void *c_open(const char *pathname)
+void *c_open(void *data __attribute__((unused)), const char *pathname)
 {
 #ifdef DEBUG_LIBCOLLECTIONS
     void *p;
@@ -156,13 +164,13 @@ void *c_open(const char *pathname)
 #endif
 }
 
-int c_close(void *handle)
+int c_close(void *data __attribute__((unused)), void *handle)
 {
     return dlclose(handle);
 }
 
-void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
-    struct cplugin_s *cpl)
+void c_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
+    uint32_t caller_id, struct cplugin_s *cpl)
 {
     c_exported_function f;
 
@@ -174,7 +182,8 @@ void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
     f(caller_id, cpl, foo->args);
 }
 
-int c_plugin_startup(void *handle __attribute__((unused)), cplugin_info_t *info)
+int c_plugin_startup(void *data __attribute__((unused)),
+    void *handle __attribute__((unused)), cplugin_info_t *info)
 {
     c_startup_function f;
     struct c_info *plinfo = NULL;
@@ -189,7 +198,8 @@ int c_plugin_startup(void *handle __attribute__((unused)), cplugin_info_t *info)
     return f();
 }
 
-int c_plugin_shutdown(void *handle __attribute__((unused)), cplugin_info_t *info)
+int c_plugin_shutdown(void *data __attribute__((unused)),
+    void *handle __attribute__((unused)), cplugin_info_t *info)
 {
     c_shutdown_function f;
     struct c_info *plinfo = NULL;

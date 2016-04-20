@@ -40,47 +40,6 @@ struct py_info {
     char    *shutdown_name;
 };
 
-void py_library_init(void)
-{
-    setenv("PYTHONPATH", "/usr/local/lib", 1);
-    Py_Initialize();
-}
-
-void py_library_uninit(void)
-{
-    Py_Finalize();
-}
-
-/*
- * Removes the file name extension, as well as all path, leaving only
- * its name.
- */
-static char *py_strip_filename(const char *pathname)
-{
-    char *ext = NULL, *n = NULL, *tmp = NULL, *bname = NULL;
-
-    tmp = strdup(pathname);
-    bname = basename(tmp);
-    ext = strrchr(bname, '.');
-
-    if (NULL == ext)
-        n = strdup(bname);
-    else {
-        n = calloc(1, strlen(bname) - strlen(ext) + 1);
-
-        if (NULL == n) {
-            cset_errno(CL_NO_MEM);
-            return NULL;
-        }
-
-        strncpy(n, bname, strlen(bname) - strlen(ext));
-    }
-
-    free(tmp);
-
-    return n;
-}
-
 static void set_custom_plugin_info(cplugin_info_t *info, const char *startup,
     const char *shutdown)
 {
@@ -107,10 +66,42 @@ static void release_custom_plugin_info(struct py_info *info)
     free(info);
 }
 
+static int py_load_function(void *a, void *b)
+{
+    struct cplugin_function_s *foo = (struct cplugin_function_s *)a;
+    PyObject *dict = (PyObject *)b;
+
+    foo->symbol = PyDict_GetItemString(dict, (char *)foo->name);
+
+    if (PyCallable_Check(foo->symbol))
+        return 0;
+
+    return -1;
+}
+
+/*
+ *
+ * Plugin Driver API
+ *
+ */
+
+void *py_library_init(void)
+{
+    setenv("PYTHONPATH", "/usr/local/lib", 1);
+    Py_Initialize();
+
+    return NULL;
+}
+
+void py_library_uninit(void *data __attribute__((unused)))
+{
+    Py_Finalize();
+}
+
 /*
  * Loads information from within 'cplugin_entry_s' class.
  */
-cplugin_info_t *py_load_info(void *ptr)
+cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 {
     struct py_pl_info {
         char *fname;
@@ -169,20 +160,8 @@ cplugin_info_t *py_load_info(void *ptr)
     return info;
 }
 
-static int py_load_function(void *a, void *b)
-{
-    struct cplugin_function_s *foo = (struct cplugin_function_s *)a;
-    PyObject *dict = (PyObject *)b;
-
-    foo->symbol = PyDict_GetItemString(dict, (char *)foo->name);
-
-    if (PyCallable_Check(foo->symbol))
-        return 0;
-
-    return -1;
-}
-
-int py_load_functions(struct cplugin_function_s *flist, void *handle)
+int py_load_functions(void *data __attribute__((unused)),
+    struct cplugin_function_s *flist, void *handle)
 {
     if (cdll_map(flist, py_load_function, handle) != NULL)
         return -1;
@@ -190,7 +169,7 @@ int py_load_functions(struct cplugin_function_s *flist, void *handle)
     return 0;
 }
 
-void *py_open(const char *pathname)
+void *py_open(void *data __attribute__((unused)), const char *pathname)
 {
     PyObject *handle = NULL, *pname = NULL, *module = NULL;
     char *tmp = NULL;
@@ -199,7 +178,7 @@ void *py_open(const char *pathname)
      * Case it exists, removes file name extension and path. They are
      * unnecessary to Python API.
      */
-    tmp = py_strip_filename(pathname);
+    tmp = strip_filename(pathname);
 
     if (NULL == tmp)
         return NULL;
@@ -233,7 +212,7 @@ void *py_open(const char *pathname)
     return handle;
 }
 
-int py_close(void *ptr)
+int py_close(void *data __attribute__((unused)), void *ptr)
 {
     PyObject *handle = (PyObject *)ptr;
 
@@ -242,8 +221,8 @@ int py_close(void *ptr)
     return 0;
 }
 
-void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
-    struct cplugin_s *cpl)
+void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
+    uint32_t caller_id, struct cplugin_s *cpl)
 {
     PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL;
 
@@ -274,7 +253,8 @@ void py_call(struct cplugin_function_s *foo, uint32_t caller_id,
     PyObject_CallObject(foo->symbol, pvalue);
 }
 
-int py_plugin_startup(void *handle, cplugin_info_t *info)
+int py_plugin_startup(void *data __attribute__((unused)), void *handle,
+    cplugin_info_t *info)
 {
     PyObject *dict, *foo, *pvalue, *pret;
     struct py_info *plinfo = NULL;
@@ -299,7 +279,8 @@ int py_plugin_startup(void *handle, cplugin_info_t *info)
     return ret;
 }
 
-int py_plugin_shutdown(void *handle, cplugin_info_t *info)
+int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
+    cplugin_info_t *info)
 {
     PyObject *dict, *foo, *pvalue;
     struct py_info *plinfo = NULL;

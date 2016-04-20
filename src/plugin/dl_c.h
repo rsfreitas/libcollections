@@ -33,17 +33,17 @@
 # endif
 #endif
 
-void c_library_init(void);
-void c_library_uninit(void);
-cplugin_info_t *c_load_info(void *handle);
-int c_load_functions(struct cplugin_function_s *flist, void *handle);
-void *c_open(const char *pathname);
-int c_close(void *handle);
-void c_call(struct cplugin_function_s *foo, uint32_t caller_id,
+void *c_library_init(void);
+void c_library_uninit(void *data);
+cplugin_info_t *c_load_info(void *data, void *handle);
+int c_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
+void *c_open(void *data, const char *pathname);
+int c_close(void *data, void *handle);
+void c_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
             struct cplugin_s *cpl);
 
-int c_plugin_startup(void *handle, cplugin_info_t *info);
-int c_plugin_shutdown(void *handle, cplugin_info_t *info);
+int c_plugin_startup(void *data, void *handle, cplugin_info_t *info);
+int c_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
 
 #endif
 

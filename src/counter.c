@@ -122,8 +122,8 @@ static void destroy_counter_s(const struct ref_s *ref)
         cvalue_destroy(c->max);
 }
 
-static struct counter_s *new_counter_s(enum counter_precision precision, long long min,
-    long long max, long long start_value, bool circular)
+static struct counter_s *new_counter_s(enum counter_precision precision,
+    long long min, long long max, long long start_value, bool circular)
 {
     struct counter_s *c = NULL;
 
