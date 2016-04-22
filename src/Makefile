@@ -59,6 +59,7 @@ OBJS =	\
 	file.o			\
 	io.o			\
 	json.o			\
+	log.o			\
 	mem.o			\
 	plugin.o		\
 	process.o		\
@@ -66,7 +67,7 @@ OBJS =	\
 	ref.o			\
 	specs.o			\
 	string.o		\
-	stringlist.o	\
+	stringlist.o		\
 	thread.o		\
 	timeout.o		\
 	timer.o			\

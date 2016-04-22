@@ -48,6 +48,7 @@ extern "C" {
 #include <cl/cl_file.h>
 #include <cl/cl_io.h>
 #include <cl/cl_json.h>
+#include <cl/cl_log.h>
 #include <cl/cl_mem.h>
 #include <cl/cl_plugin_macros.h>
 #include <cl/cl_plugin.h>
