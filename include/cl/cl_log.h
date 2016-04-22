@@ -25,13 +25,16 @@
  */
 
 #ifndef _COLLECTIONS_CL_LOG_H
-#define _COLLECTIONS_CL_LOG_H     1
+#define _COLLECTIONS_CL_LOG_H       1
 
 #ifndef LIBCOLLECTIONS_COMPILE
 # ifndef _COLLECTIONS_H
 #  error "Never use <cl_log.h> directly; include <collections.h> instead."
 # endif
 #endif
+
+#define CLOG_SEPARATOR              ';'
+#define CLOG_HEADER                 ">>> Log file header <<<"
 
 enum clog_level {
     CLOG_OFF,
@@ -47,7 +50,7 @@ enum clog_level {
 
 enum clog_mode {
     CLOG_SYNC_ALL_MSGS,
-    CLOG_KEPP_FILE_OPEN
+    CLOG_KEEP_FILE_OPEN
 };
 
 enum clog_fmt_field {
@@ -57,5 +60,13 @@ enum clog_fmt_field {
     CLOG_FIELD_LEVEL    = (1 << 3)
 };
 
+clog_fmt_t *clog_fmt_create(void);
+int clog_fmt_unref(clog_fmt_t *fmt);
+int clog_fmt_add(clog_fmt_t *fmt, enum clog_fmt_field field);
+clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
+    enum clog_level start_level, unsigned int max_repeat, char separator,
+    clog_fmt_t *fmt);
+clog_t *clog_open(const char *pathname, enum clog_mode mode,
+    enum clog_level start_level, unsigned int max_repeat);
 #endif
 
