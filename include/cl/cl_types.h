@@ -164,7 +164,6 @@ typedef void                cplugin_info_t;
 
 /** log type */
 typedef void                clog_t;
-typedef void                clog_fmt_t;
 
 #endif
 

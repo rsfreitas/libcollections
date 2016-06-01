@@ -28,10 +28,14 @@
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #include <pthread.h>
 
 #include "collections.h"
+
+#define CLOG_SEPARATOR              ';'
+#define CLOG_COUNTER_MSG            "Last message repeated %d times\n"
 
 /* Structure used to store the last message written in the log file */
 struct last_msg {
@@ -39,36 +43,17 @@ struct last_msg {
     unsigned int    count;
 };
 
-/*
- * A list to hold all of the prefixes that will be written before the
- * messages.
- */
-struct log_fmt {
-    struct log_fmt      *prev;
-    struct log_fmt      *next;
-    enum clog_fmt_field field;
-
-    /* TODO: Add priority? */
-};
-
-struct clog_fmt_s {
-    struct ref_s        ref;
-    struct log_fmt      *fmts;
-};
-
 struct clog_s {
-    FILE                *f;
-    char                *pathname;
-    pthread_mutex_t     lock;
-    enum clog_mode      mode;
-    enum clog_level     level;
-    unsigned int        max_repeat;
-    cstring_t           *header;
-    char                separator;
-    struct last_msg     lmsg;
-    struct clog_fmt_s   *lfmt;
-    enum clog_fmt_field final_fmt;
-    struct ref_s        ref;
+    FILE                    *f;
+    char                    *pathname;
+    enum clog_mode          mode;
+    enum clog_level         level;
+    enum clog_prefix_field  prefixes;
+    unsigned int            max_repeat;
+    char                    separator;
+    struct last_msg         lmsg;
+    pthread_mutex_t         lock;
+    struct ref_s            ref;
 };
 
 static void close_log_file(struct clog_s *log);
@@ -102,12 +87,78 @@ static bool is_level_valid(enum clog_level level)
     return false;
 }
 
+static const char *level_to_string(enum clog_level level)
+{
+    switch (level) {
+        case CLOG_OFF:
+            return NULL;
+
+        case CLOG_EMERG:
+            return "EMERG";
+
+        case CLOG_ALERT:
+            return "ALERT";
+
+        case CLOG_CRITI:
+            return "CRITI";
+
+        case CLOG_ERROR:
+            return "ERROR";
+
+        case CLOG_WARNG:
+            return "WARNG";
+
+        case CLOG_NOTICE:
+            return "NOTIC";
+
+        case CLOG_INFO:
+            return "INFOM";
+
+        case CLOG_DEBUG:
+            return "DEBUG";
+    }
+
+    return NULL;
+}
+
 static bool is_separator_valid(char separator)
 {
     if (ispunct(separator))
         return true;
 
     return false;
+}
+
+static bool compare_message(const char *m1, const char *m2)
+{
+    if ((NULL == m1) || (NULL == m2))
+        return false;
+
+    if (strcmp(m1, m2) == 0)
+        return true;
+
+    return false;
+}
+
+static bool may_write_message(struct clog_s *log, enum clog_level level)
+{
+    if (level <= log->level)
+        return true;
+
+    return false;
+}
+
+static void save_written_message(struct clog_s *log, const char *msg)
+{
+    if (compare_message(cstring_valueof(log->lmsg.msg), msg) == true)
+        log->lmsg.count++;
+    else {
+        if (log->lmsg.msg != NULL)
+            cstring_destroy(log->lmsg.msg);
+
+        log->lmsg.msg = cstring_create("%s", msg);
+        log->lmsg.count = 1;
+    }
 }
 
 /*
@@ -121,17 +172,14 @@ static void __destroy_clog_s(const struct ref_s *ref)
     if (NULL == l)
         return;
 
-    if (l->lfmt != NULL)
-        clog_fmt_unref(l->lfmt);
-
-    if (l->header != NULL)
-        cstring_unref(l->header);
-
     if (l->pathname != NULL)
         free(l->pathname);
 
     if (l->mode == CLOG_KEEP_FILE_OPEN)
         close_log_file(l);
+
+    if (l->lmsg.msg != NULL)
+        cstring_destroy(l->lmsg.msg);
 
     free(l);
 }
@@ -157,80 +205,9 @@ static struct clog_s *new_clog_s(void)
     return l;
 }
 
-/*
- * Creates a new 'struct log_fmt'.
- */
-static struct log_fmt *new_log_fmt(enum clog_fmt_field field)
-{
-    struct log_fmt *l = NULL;
-
-    l = calloc(1, sizeof(struct log_fmt));
-
-    if (NULL == l) {
-        cset_errno(CL_NO_MEM);
-        return NULL;
-    }
-
-    l->field = field;
-
-    return l;
-}
-
-/*
- * Releases a 'struct log_fmt' from memory. Function to be used with a
- * cdll_free call.
- */
-static void destroy_log_fmt(void *p)
-{
-    struct log_fmt *l = (struct log_fmt *)p;
-
-    if (NULL == l)
-        return;
-
-    free(l);
-}
-
-/*
- * Releases a 'struct clog_fmt_s' from memory. Function to be called when its
- * reference count drops to 0.
- */
-static void __destroy_clog_fmt_s(const struct ref_s *ref)
-{
-    struct clog_fmt_s *l = container_of(ref, struct clog_fmt_s, ref);
-
-    if (NULL == l)
-        return;
-
-    if (l->fmts != NULL)
-        cdll_free(l->fmts, destroy_log_fmt);
-
-    free(l);
-}
-
-/*
- * Creates a new 'struct clog_fmt_s'.
- */
-static struct clog_fmt_s *new_clog_fmt_s(void)
-{
-    struct clog_fmt_s *l = NULL;
-
-    l = calloc(1, sizeof(struct clog_fmt_s));
-
-    if (NULL == l) {
-        cset_errno(CL_NO_MEM);
-        return NULL;
-    }
-
-    l->ref.count = 1;
-    l->ref.free = __destroy_clog_fmt_s;
-    l->fmts = NULL;
-
-    return l;
-}
-
 static int open_log_file(struct clog_s *log)
 {
-    log->f = fopen(log->pathname, "r+");
+    log->f = fopen(log->pathname, "a");
 
     if (NULL == log->f) {
         cset_errno(CL_FILE_OPEN_ERROR);
@@ -250,6 +227,16 @@ static void sync_log_data(struct clog_s *log)
 {
     if (log->f != NULL)
         fflush(log->f);
+}
+
+static void lock_log_file(struct clog_s *log)
+{
+    pthread_mutex_lock(&log->lock);
+}
+
+static void unlock_log_file(struct clog_s *log)
+{
+    pthread_mutex_unlock(&log->lock);
 }
 
 /*
@@ -274,50 +261,115 @@ static int set_log_mode(struct clog_s *log, enum clog_mode mode,
     return 0;
 }
 
+static cstring_t *message_prefix(struct clog_s *log, enum clog_level level)
+{
+    cstring_t *p = NULL, *tmp = NULL;
+    cdatetime_t *dt = NULL;
+
+    if (log->prefixes == 0)
+        return NULL;
+
+    dt = cdt_localtime();
+    p = cstring_create_empty(0);
+
+    if (log->prefixes & CLOG_FIELD_DATE) {
+        tmp = cdt_to_cstring(dt, "%F");
+        cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
+        cstring_destroy(tmp);
+    }
+
+    if (log->prefixes & CLOG_FIELD_TIME) {
+        tmp = cdt_to_cstring(dt, "%T.%1");
+        cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
+        cstring_destroy(tmp);
+    }
+
+    cdt_destroy(dt);
+
+    if (log->prefixes & CLOG_FIELD_PID)
+        cstring_cat(p, "%d%c", getpid(), log->separator);
+
+    if (log->prefixes & CLOG_FIELD_LEVEL)
+        cstring_cat(p, "%s%c", level_to_string(level), log->separator);
+
+    return p;
+}
+
 /*
- * Get all log format fields within.
+ * Check if we have a last message saved that may be written to the log file.
  */
-static enum clog_fmt_field get_log_fields(clog_fmt_t *fmts)
+static bool has_last_message_to_write(struct clog_s *log)
 {
-    struct clog_fmt_s *lfmt = (struct clog_fmt_s *)fmts;
-    struct log_fmt *p;
-    enum clog_fmt_field fields = 0;
+    if (log->lmsg.count > 1)
+        return true;
 
-    for (p = lfmt->fmts; p; p = p->next)
-        fields |= p->field;
-
-    return fields;
+    return false;
 }
 
-static cstring_t *set_default_log_header(void)
+/*
+ * Check if we can write the last message counter to the log file.
+ */
+static bool needs_to_write_last_message(struct clog_s *log)
 {
-    cstring_t *s = cstring_create("%s", CLOG_HEADER);
+    if ((log->lmsg.count % log->max_repeat) == 0)
+        return true;
 
-    return s;
+    return false;
 }
 
-static int write_message(struct clog_s *log, enum clog_level level,
+static void write_last_message_counter(struct clog_s *log, enum clog_level level)
+{
+    cstring_t *p = message_prefix(log, level);
+
+    if (p != NULL) {
+        fprintf(log->f, "%s", cstring_valueof(p));
+        cstring_destroy(p);
+    }
+
+    /* TODO: Allow the user change this message */
+    fprintf(log->f, CLOG_COUNTER_MSG, log->lmsg.count);
+}
+
+static void write_message(struct clog_s *log, enum clog_level level,
     const char *msg)
 {
-    if (is_level_valid(level) == false)
-        return -1;
+    cstring_t *p = message_prefix(log, level);
 
-    return 0;
+    if (compare_message(cstring_valueof(log->lmsg.msg), msg) == false) {
+        if (has_last_message_to_write(log))
+            write_last_message_counter(log, level);
+
+        /* Write the current message */
+        if (p != NULL) {
+            fprintf(log->f, "%s%s\n", cstring_valueof(p), msg);
+            cstring_destroy(p);
+        } else
+            fprintf(log->f, "%s\n", msg);
+    } else
+        if (needs_to_write_last_message(log))
+            write_last_message_counter(log, level);
 }
 
-static int write_hex_message(struct clog_s *log, enum clog_level level,
-    void *data, unsigned int dsize)
+static void write_hex_message(struct clog_s *log, enum clog_level level,
+    const void *data, unsigned int dsize)
 {
     unsigned int i;
-    char *ptr = data;
+    char *ptr = (char *)data;
+    cstring_t *p = message_prefix(log, level);
 
-    if (is_level_valid(level) == false)
-        return -1;
+    /*
+     * TODO: break lines in 80 columns
+     */
+
+    if (p != NULL) {
+        fprintf(log->f, "%s%c", cstring_valueof(p), log->separator);
+        cstring_destroy(p);
+    }
 
     for (i = 0; i < dsize; i++)
         fprintf(log->f, "%02x", ptr[i]);
 
-    return 0;
+    fprintf(log->f, "\n");
 }
 
 static bool check_log_mode(struct clog_s *log, enum clog_mode mode)
@@ -330,82 +382,26 @@ static bool check_log_mode(struct clog_s *log, enum clog_mode mode)
 
 /*
  *
- * Log messages format API
- *
- */
-
-clog_fmt_t *clog_fmt_create(void)
-{
-    clog_fmt_t *fmt = NULL;
-
-    fmt = new_clog_fmt_s();
-
-    if (NULL == fmt)
-        return NULL;
-
-    return fmt;
-}
-
-int clog_fmt_unref(clog_fmt_t *fmt)
-{
-    struct clog_fmt_s *l = (struct clog_fmt_s *)fmt;
-
-    cerrno_clear();
-
-    if (NULL == fmt) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    ref_dec(&l->ref);
-
-    return 0;
-}
-
-int clog_fmt_add(clog_fmt_t *fmt, enum clog_fmt_field field)
-{
-    struct clog_fmt_s *l = (struct clog_fmt_s *)fmt;
-    struct log_fmt *n;
-
-    cerrno_clear();
-
-    if (NULL == fmt) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    n = new_log_fmt(field);
-
-    if (NULL == n)
-        return -1;
-
-    cdll_unshift(l->fmts, n);
-
-    return 0;
-}
-
-/*
- *
  * Log messages API
  *
  */
 
-clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
+clog_t LIBEXPORT *clog_open_ex(const char *pathname, enum clog_mode mode,
     enum clog_level start_level, unsigned int max_repeat, char separator,
-    clog_fmt_t *fmt)
+    enum clog_prefix_field prefixes)
 {
     struct clog_s *log = NULL;
 
     cerrno_clear();
 
-    if ((NULL == pathname) || (NULL == fmt)) {
+    if (NULL == pathname) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
     if ((is_mode_valid(mode) == false) ||
         (is_level_valid(start_level) == false) ||
-        (is_separator_valid(start_level) == false))
+        (is_separator_valid(separator) == false))
     {
         cset_errno(CL_INVALID_VALUE);
         return NULL;
@@ -422,9 +418,7 @@ clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
     log->level = start_level;
     log->max_repeat = max_repeat;
     log->separator = separator;
-    log->lfmt = fmt;
-    log->final_fmt = get_log_fields(fmt);
-    log->header = set_default_log_header();
+    log->prefixes = prefixes;
 
     return log;
 
@@ -433,33 +427,16 @@ error_block:
     return NULL;
 }
 
-clog_t *clog_open(const char *pathname, enum clog_mode mode,
+clog_t LIBEXPORT *clog_open(const char *pathname, enum clog_mode mode,
     enum clog_level start_level, unsigned int max_repeat)
 {
-    clog_fmt_t *fmt;
-    clog_t *log;
-
-    cerrno_clear();
-    fmt = clog_fmt_create();
-
-    if (NULL == fmt)
-        return NULL;
-
     /* Creates the default log format: DATE; TIME; PID; LEVEL; msg */
-    clog_fmt_add(fmt, CLOG_FIELD_DATE);
-    clog_fmt_add(fmt, CLOG_FIELD_TIME);
-    clog_fmt_add(fmt, CLOG_FIELD_PID);
-    clog_fmt_add(fmt, CLOG_FIELD_LEVEL);
-
-    log = clog_open_ex(pathname, mode, start_level, max_repeat,
-                       CLOG_SEPARATOR, fmt);
-
-    clog_fmt_unref(fmt);
-
-    return log;
+    return clog_open_ex(pathname, mode, start_level, max_repeat, CLOG_SEPARATOR,
+                        CLOG_FIELD_DATE | CLOG_FIELD_TIME | CLOG_FIELD_PID |
+                        CLOG_FIELD_LEVEL);
 }
 
-int clog_close(clog_t *log)
+int LIBEXPORT clog_close(clog_t *log)
 {
     struct clog_s *l = (struct clog_s *)log;
 
@@ -475,11 +452,10 @@ int clog_close(clog_t *log)
     return 0;
 }
 
-int clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
+int LIBEXPORT clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
     va_list args)
 {
     char *msg = NULL;
-    int ret = -1;
 
     cerrno_clear();
 
@@ -488,14 +464,40 @@ int clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
         return -1;
     }
 
+    if (is_level_valid(level) == false) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
+    }
+
+    if (may_write_message(log, level) == false)
+        /* It's not an error */
+        return 1;
+
+    lock_log_file(log);
+
+    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS))
+        if (open_log_file(log) < 0) {
+            unlock_log_file(log);
+            return -1;
+        }
+
     vasprintf(&msg, fmt, args);
-    ret = write_message(log, level, msg);
+    write_message(log, level, msg);
+    save_written_message(log, msg);
     free(msg);
 
-    return ret;
+    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS)) {
+        sync_log_data(log);
+        close_log_file(log);
+    }
+
+    unlock_log_file(log);
+
+    return 0;
 }
 
-int clog_printf(clog_t *log, enum clog_level level, const char *fmt, ...)
+int LIBEXPORT clog_printf(clog_t *log, enum clog_level level,
+    const char *fmt, ...)
 {
     va_list ap;
     int ret = -1;
@@ -514,10 +516,58 @@ int clog_printf(clog_t *log, enum clog_level level, const char *fmt, ...)
     return ret;
 }
 
-int clog_bprint(clog_t *log, enum clog_level level, void *data,
+int LIBEXPORT clog_bprint(clog_t *log, enum clog_level level, const void *data,
     unsigned int dsize)
 {
-    int ret;
+    cerrno_clear();
+
+    if (NULL == log) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    if ((NULL == data) || (dsize == 0)) {
+        cset_errno(CL_NULL_DATA);
+        return -1;
+    }
+
+    if (is_level_valid(level) == false) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
+    }
+
+    if (may_write_message(log, level) == false)
+        /* It's not an error */
+        return 1;
+
+    lock_log_file(log);
+
+    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS))
+        if (open_log_file(log) < 0) {
+            unlock_log_file(log);
+            return -1;
+        }
+
+    write_hex_message(log, level, data, dsize);
+
+    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS)) {
+        sync_log_data(log);
+        close_log_file(log);
+    }
+
+    unlock_log_file(log);
+
+    return 0;
+}
+
+/* XXX: rprint? */
+void clog_rprint(void)
+{
+}
+
+int LIBEXPORT clog_set_log_level(clog_t *log, enum clog_level level)
+{
+    struct clog_s *l = (struct clog_s *)log;
 
     cerrno_clear();
 
@@ -526,34 +576,34 @@ int clog_bprint(clog_t *log, enum clog_level level, void *data,
         return -1;
     }
 
-    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS))
-        if (open_log_file(log) < 0)
-            return -1;
-
-    ret = write_hex_message(log, level, data, dsize);
-
-    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS)) {
-        sync_log_data(log);
-        close_log_file(log);
+    if (is_level_valid(level) == false) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
     }
 
-    return ret;
+    l->level = level;
+
+    return 0;
 }
 
-/* XXX: rprint? */
-void clog_rprint(void)
+int LIBEXPORT clog_set_separator(clog_t *log, char separator)
 {
-}
+    struct clog_s *l = (struct clog_s *)log;
 
-void clog_set_log_level(void)
-{
-}
+    cerrno_clear();
 
-void clog_set_header(void)
-{
-}
+    if (NULL == log) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
 
-void clog_set_separator(void)
-{
+    if (is_separator_valid(separator) == false) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
+    }
+
+    l->separator = separator;
+
+    return 0;
 }
 

@@ -137,7 +137,7 @@ int cstring_set(cstring_t *string, char c, unsigned int index);
 
 /**
  * @name cstring_cat
- * @brief Concatenate two strings.
+ * @brief Concatenate a C string with a cstring_t object.
  *
  * @param [in,out] string: The cstring_t object.
  * @param [in] fmt: The format of the string to be concatenated.

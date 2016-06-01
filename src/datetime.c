@@ -383,7 +383,7 @@ cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
  * %a - abbreviated weekday
  * %A - full weekday
  * %b - abbreviated month
- * %b - full month
+ * %B - full month
  *
  * %d - day of month (1 to 31)
  * %m - month (01 to 12)
@@ -403,6 +403,10 @@ cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
  * %u - decimal day of week (1 to 7) (1 = Monday)
  * %w - decimal day of week (0 to 6) (0 = Sunday)
  * %Z - Timezone name or abbreviation
+ *
+ * NON ANSI C:
+ *
+ * %1 - milliseconds
  */
 cstring_t LIBEXPORT *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
 {
@@ -532,6 +536,10 @@ cstring_t LIBEXPORT *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
 
                 case 'Z':
                     cstring_cat(d, "%s", cstring_valueof(t->tzone));
+                    break;
+
+                case '1':
+                    cstring_cat(d, "%03ld", t->tv.tv_usec / 1000);
                     break;
             }
         } else

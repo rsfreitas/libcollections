@@ -262,6 +262,14 @@ LIBCOLLECTIONS_0.1 {
         cplugin_set_return_value;
         cplugin_arg_count;
         cplugin_argument;
+        clog_bprint;
+        clog_close;
+        clog_open;
+        clog_open_ex;
+        clog_printf;
+        clog_set_log_level;
+        clog_set_separator;
+        clog_vprintf;
     local:
         *;
 };

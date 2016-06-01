@@ -245,7 +245,7 @@ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
  * %a - abbreviated weekday
  * %A - full weekday
  * %b - abbreviated month
- * %b - full month
+ * %B - full month
  *
  * %d - day of month (1 to 31)
  * %m - month (01 to 12)
@@ -265,6 +265,10 @@ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
  * %u - decimal day of week (1 to 7) (1 = Monday)
  * %w - decimal day of week (0 to 6) (0 = Sunday)
  * %Z - Timezone name or abbreviation
+ *
+ * NON ANSI C:
+ *
+ * %1 - milliseconds
  *
  * @param [in] dt: The cdatetime_t object.
  * @param [in] fmt: The output format.
