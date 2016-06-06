@@ -46,15 +46,17 @@ enum clog_level {
 };
 
 enum clog_mode {
-    CLOG_SYNC_ALL_MSGS,
-    CLOG_KEEP_FILE_OPEN
+    CLOG_SYNC_ALL_MSGS  = (1 << 0),
+    CLOG_KEEP_FILE_OPEN = (1 << 1),
+    CLOG_ROTATE_DAILY   = (1 << 2)  /* TODO */
 };
 
 enum clog_prefix_field {
     CLOG_FIELD_DATE     = (1 << 0),
     CLOG_FIELD_TIME     = (1 << 1),
     CLOG_FIELD_PID      = (1 << 2),
-    CLOG_FIELD_LEVEL    = (1 << 3)
+    CLOG_FIELD_LEVEL    = (1 << 3),
+    CLOG_FIELD_TIMEZONE = (1 << 4)
 };
 
 /**

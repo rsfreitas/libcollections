@@ -240,7 +240,7 @@ static void unlock_log_file(struct clog_s *log)
 }
 
 /*
- * Sets the log mode.
+ * Sets the way the log file will be handled.
  *
  * - CLOG_SYNC_ALL_MSGS: every message will cause the log file to be opened,
  *                       the message will be written and then the file closed.
@@ -248,7 +248,7 @@ static void unlock_log_file(struct clog_s *log)
  * - CLOG_KEEP_FILE_OPEN: the file will be opened as long as the @log is active
  *                        inside the application.
  */
-static int set_log_mode(struct clog_s *log, enum clog_mode mode,
+static int set_logfile_handle_mode(struct clog_s *log, enum clog_mode mode,
     const char *pathname)
 {
     log->f = NULL;
@@ -280,6 +280,12 @@ static cstring_t *message_prefix(struct clog_s *log, enum clog_level level)
 
     if (log->prefixes & CLOG_FIELD_TIME) {
         tmp = cdt_to_cstring(dt, "%T.%1");
+        cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
+        cstring_destroy(tmp);
+    }
+
+    if (log->prefizes & CLOG_FIELD_TIMEZONE) {
+        tmp = cdt_to_cstring(dt, "%Z");
         cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
         cstring_destroy(tmp);
     }
@@ -412,7 +418,7 @@ clog_t LIBEXPORT *clog_open_ex(const char *pathname, enum clog_mode mode,
     if (NULL == log)
         return NULL;
 
-    if (set_log_mode(log, mode, pathname) < 0)
+    if (set_logfile_handle_mode(log, mode, pathname) < 0)
         goto error_block;
 
     log->level = start_level;
