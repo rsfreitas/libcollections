@@ -1,4 +1,6 @@
 
+package cplugin;
+
 public interface CpluginEntryAPI {
     public String getName();
     public String getVersion();

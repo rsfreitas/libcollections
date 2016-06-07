@@ -46,14 +46,6 @@
 /* Default number of arguments to 'cplugin_call_ex' function */
 #define CPLUGIN_CALL_DEF_ARGUMENTS          3
 
-/* Plugin languages */
-enum cplugin_plugin_type {
-    CPLUGIN_UNKNOWN,
-    CPLUGIN_C,              /* C or C++ */
-    CPLUGIN_PYTHON,         /* Python */
-    CPLUGIN_JAVA
-};
-
 enum cplugin_info {
     CPLUGIN_INFO_NAME,
     CPLUGIN_INFO_VERSION,
@@ -69,7 +61,8 @@ struct cplugin_function_s;
 struct cplugin_s;
 
 struct dl_plugin_driver {
-    enum cplugin_plugin_type    type;
+    enum cplugin_type    type;
+    bool                        enabled;
     void                        *(*library_init)(void);
     void                        (*library_uninit)(void *);
     cplugin_info_t              *(*load_info)(void *, void *);
@@ -123,7 +116,7 @@ struct cplugin_function_s {
 };
 
 struct cplugin_s {
-    enum cplugin_plugin_type        type;
+    enum cplugin_type        type;
     void                            *handle;
     struct cplugin_function_s       *functions; /** Plugin functions list */
     cplugin_info_t                  *info;      /** Plugin information */
@@ -153,6 +146,7 @@ enum cl_type api_function_arg_type(const cplugin_info_t *info,
 int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap);
 
 /* dl.c */
+void dl_enable_plugin_types(enum cplugin_type types);
 struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname);
 void *dl_open(struct dl_plugin_driver *drv, const char *pathname);
 int dl_close(struct dl_plugin_driver *drv, void *handle);

@@ -1,6 +1,10 @@
 
-//import cplugin.CpluginEntryAPI;
-//import cplugin.CpluginModule;
+/*
+ * This import still does not work...
+ */
+
+import cplugin.cplugin.CpluginEntryAPI;
+import cplugin.CpluginModule;
 
 /**
  * We need to follow the Java coding style and keep the main class with the
@@ -86,7 +90,7 @@ public class Jplugin {// implements CpluginEntryAPI, CpluginModule {
     }
 
     Jplugin() {
-        System.out.println("Construtor");
+        System.out.println("Constructor");
     }
 
     /** Module API */

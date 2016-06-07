@@ -43,7 +43,7 @@ PLUGIN_OBJS =	\
 	dl_python.o		\
 	dl_java.o		\
 	info.o			\
-	plugin_misc.o	\
+	pl_misc.o		\
 	rv.o
 
 OBJS =	\

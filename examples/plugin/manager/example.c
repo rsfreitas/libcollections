@@ -271,7 +271,7 @@ int main(int argc, char **argv)
         free(filename);
 
     /* This makes valgrind report no memory leaks. */
-    cexit();
+//    cexit();
 
     return 0;
 }
