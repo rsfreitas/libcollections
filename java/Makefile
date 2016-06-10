@@ -1,24 +1,28 @@
 
-#
-# TODO: Needs to fix this .jar creation and use... still not working
-#
-
-CC = gcc
-
-OUTCLASSPATH = cplugin/
+OUTCLASSPATH = out/
 JAVAC = javac
 JAR_FILE = ../bin/cplugin.jar
+DEST_DIR = /usr/local/lib
 
 JAVA_OBJS = \
 	CpluginEntryAPI.java    \
-	CpluginModule.java	\
-	CpluginType.java	\
-	Cplugin.java
+	CpluginModule.java		\
+	CpluginType.java		\
+	Cplugin.java			\
+	CpluginArguments.java	\
+	CpluginObject.java		\
+	Argument.java
 
 jar:
+	$(shell test -d $(OUTCLASSPATH) || mkdir $(OUTCLASSPATH))
 	$(JAVAC) -d $(OUTCLASSPATH) $(JAVA_OBJS)
-	jar -cvf $(JAR_FILE) cplugin/cplugin/*.class
+	jar -cvf $(JAR_FILE) -C $(OUTCLASSPATH) .
 
 clean:
-	rm -rf ../java/*.class $(JAR_FILE)
+	rm -rf $(OUTCLASSPATH)/cplugin/*.class $(JAR_FILE)
+
+purge: clean jar
+
+install:
+	cp -f $(JAR_FILE) $(DEST_DIR)
 

@@ -23,4 +23,5 @@ LGPLv2
 * Realtime extensions library
 * python-enum34 for python extension
 * libmagic
+* Java 1.6 JDK
 

@@ -1,0 +1,62 @@
+#!/bin/bash
+
+LIBS=/usr/local/lib/cplugin.jar
+INSTALLPATH=/usr/local/lib
+DEBUG_OPTIONS="-Xlint"
+OPTIONS="$DEBUG_OPTIONS -cp .:$LIBS"
+SOURCE=""
+INSTALL=0
+
+clean() {
+    rm -f *.class
+}
+
+compile() {
+    javac $OPTIONS $SOURCE
+}
+
+usage() {
+    echo -e "\nUsage: jpbuild [OPTIONS]"
+    echo -e "A script to build a Java plugin."
+    echo -e "\nOptions:"
+    echo -e " -h\t\tShow this help options."
+    echo -e " -s [filename]\tIndicate the Java plugin source file name."
+    echo
+}
+
+while getopts :s:hi OPTION; do
+    case $OPTION in
+        s)
+            SOURCE=$OPTARG
+            ;;
+        h)
+            usage
+            exit 1
+            ;;
+        i)
+            INSTALL=1
+            ;;
+        *)
+            echo "Unsupported option"
+            ;;
+    esac
+done
+
+if [ $INSTALL -eq 1 ]; then
+    if [ ! -e *class ]; then
+        echo "Error: No binary file to install."
+        exit -1
+    fi
+
+    sudo cp *.class $INSTALLPATH
+    exit 0
+fi
+
+if [ -z "$SOURCE" ]; then
+    echo "Error: No source file name was given."
+    exit -1
+fi
+
+clean
+compile
+

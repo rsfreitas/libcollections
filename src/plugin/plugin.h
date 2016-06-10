@@ -161,6 +161,9 @@ int dl_plugin_shutdown(struct cplugin_s *cpl);
 int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
                       cplugin_info_t *info);
 
+/* dl_java.c */
+cstring_t *type_to_jni_type(enum cl_type type);
+
 /* info.c */
 cplugin_info_t *info_ref(cplugin_info_t *info);
 void info_unref(cplugin_info_t *info);

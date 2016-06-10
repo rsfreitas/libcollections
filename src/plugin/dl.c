@@ -120,6 +120,14 @@ void dl_enable_plugin_types(enum cplugin_type types)
     }
 }
 
+bool dl_is_plugin_enabled(enum cplugin_type type)
+{
+    if (__dl_driver[type].enabled == true)
+        return true;
+
+    return false;
+}
+
 static struct dl_plugin_driver *get_plugin_driver(enum cplugin_type type)
 {
     int i = 0;

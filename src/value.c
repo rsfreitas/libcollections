@@ -31,7 +31,7 @@
 
 #include "collections.h"
 
-#define cvalue_members                              \
+/*#define cvalue_members                              \
     cl_struct_member(enum cl_type, type)            \
     cl_struct_member(unsigned int, size)            \
     cl_struct_member(bool, dup_data)                \
@@ -55,7 +55,7 @@
     cl_struct_member(void *, p)                     \
     cl_struct_member(struct ref_s, ref)
 
-cl_struct_declare(cvalue_s2, cvalue_members);
+cl_struct_declare(cvalue_s2, cvalue_members);*/
 
 struct cvalue_s {
     enum cl_type        type;

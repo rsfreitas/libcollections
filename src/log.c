@@ -284,7 +284,7 @@ static cstring_t *message_prefix(struct clog_s *log, enum clog_level level)
         cstring_destroy(tmp);
     }
 
-    if (log->prefizes & CLOG_FIELD_TIMEZONE) {
+    if (log->prefixes & CLOG_FIELD_TIMEZONE) {
         tmp = cdt_to_cstring(dt, "%Z");
         cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
         cstring_destroy(tmp);

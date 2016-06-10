@@ -244,8 +244,13 @@ int main(int argc, char **argv)
     /* Show plugin informations */
     show_plugin_info(cpl);
 
+    cplugin_call(cpl, "foo_int", NULL);
+    cplugin_call(cpl, "foo_void2", NULL);
+    cplugin_call(cpl, "foo_void", "arg1", 100, "arg2", 200, NULL);
+//    cplugin_call(cpl, "foo_args", "arg1", 101, "arg2", 201, NULL);
+
     /* XXX: call test functions */
-    call_functions(cpl);
+//    call_functions(cpl);
 
 /*    cplugin_call(cpl, "foo_args",
                  "arg1", 20,
@@ -271,7 +276,7 @@ int main(int argc, char **argv)
         free(filename);
 
     /* This makes valgrind report no memory leaks. */
-//    cexit();
+    cexit();
 
     return 0;
 }

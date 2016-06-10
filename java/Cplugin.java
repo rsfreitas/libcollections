@@ -3,29 +3,19 @@ package cplugin;
 
 import cplugin.CpluginType;
 
-/**
- * A class to call libcollections API and hold a reference to the C version of
- * the library.
- */
 public class Cplugin {
-    private static Cplugin instance = null;
+    private int caller_id;
 
-    private Cplugin() {
-        System.load("/usr/local/lib/libcollections_jni.so");
+    Cplugin(int caller_id) {
+        this.caller_id = caller_id;
     }
 
-    public static Cplugin getInstance() {
-        if (null == instance)
-            instance = new Cplugin();
-
-        return instance;
+    public int getCallerId() {
+        return caller_id;
     }
 
-    public void setReturnValue(String name, CpluginType type, Object value) {
-    }
-
-    public Object getArgument(String name) {
-        return null;
+    public String getCurrentFunctionName() {
+        return Thread.currentThread().getStackTrace()[0].getMethodName();
     }
 }
 
