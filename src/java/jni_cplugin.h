@@ -1,6 +1,7 @@
 
 /*
  * Description:
+ *
  * Author: Rodrigo Freitas
  * Created at: Wed Jun  8 13:47:03 2016
  * Project: libcollections

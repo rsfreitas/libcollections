@@ -8,7 +8,7 @@ public class CpluginArguments {
     private ArrayList<Argument> args;
 
     CpluginArguments() {
-        args = new ArrayList<>();
+        args = new ArrayList<Argument>();
     }
 
     public void addArgument(String name, Object value) {

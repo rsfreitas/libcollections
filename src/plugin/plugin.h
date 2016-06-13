@@ -61,28 +61,28 @@ struct cplugin_function_s;
 struct cplugin_s;
 
 struct dl_plugin_driver {
-    enum cplugin_type    type;
-    bool                        enabled;
-    void                        *(*library_init)(void);
-    void                        (*library_uninit)(void *);
-    cplugin_info_t              *(*load_info)(void *, void *);
-    int                         (*load_functions)(void *,
-                                                  struct cplugin_function_s *,
-                                                  void *);
+    enum cplugin_type   type;
+    bool                enabled;
+    void                *(*library_init)(void);
+    void                (*library_uninit)(void *);
+    cplugin_info_t      *(*load_info)(void *, void *);
+    int                 (*load_functions)(void *,
+                                          struct cplugin_function_s *,
+                                          void *);
 
-    void                        *(*open)(void *, const char *);
-    int                         (*close)(void *, void *);
-    void                        (*call)(void *, struct cplugin_function_s *,
-                                        uint32_t, struct cplugin_s *);
+    void                *(*open)(void *, const char *);
+    int                 (*close)(void *, void *);
+    void                (*call)(void *, struct cplugin_function_s *,
+                                uint32_t, struct cplugin_s *);
 
-    int                         (*plugin_startup)(void *, void *,
-                                                  cplugin_info_t *);
+    int                 (*plugin_startup)(void *, void *,
+                                          cplugin_info_t *);
 
-    int                         (*plugin_shutdown)(void *, void *,
-                                                   cplugin_info_t *);
+    int                 (*plugin_shutdown)(void *, void *,
+                                           cplugin_info_t *);
 
     /* Plugin driver custom data */
-    void                        *data;
+    void                *data;
 };
 
 struct cplugin_fdata_s {

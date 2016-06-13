@@ -5,11 +5,11 @@ JAR_FILE = ../bin/cplugin.jar
 DEST_DIR = /usr/local/lib
 
 JAVA_OBJS = \
-	CpluginEntryAPI.java    \
+	CpluginEntryAPI.java    	\
 	CpluginModule.java		\
 	CpluginType.java		\
 	Cplugin.java			\
-	CpluginArguments.java	\
+	CpluginArguments.java		\
 	CpluginObject.java		\
 	Argument.java
 
