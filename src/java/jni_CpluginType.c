@@ -28,26 +28,24 @@
 
 #include "collections.h"
 
-jobject newCplugin(JNIEnv *env, unsigned int caller_id)
+enum cl_type CpluginType_to_cl_type(jobject *object, JNIEnv *env)
 {
+    jmethodID m;
     jclass c;
-    jmethodID constructor;
-    jobject o;
-    jvalue args;
+    int ret;
 
-    c = (*env)->FindClass(env, "cplugin/Cplugin");
+    c = (*env)->FindClass(env, "cplugin/CpluginType");
 
     if (NULL == c)
-        return NULL;
+        return -1;
 
-    constructor = (*env)->GetMethodID(env, c, "<init>", "(I)V");
+    m = (*env)->GetMethodID(env, c, "getValue", "()I");
 
-    if (NULL == constructor)
-        return NULL;
+    if (NULL == m)
+        return -1;
 
-    args.i = caller_id;
-    o = (*env)->NewObjectA(env, c, constructor, &args);
+    ret = (int)(*env)->CallIntMethod(env, object, m);
 
-    return o;
+    return ret;
 }
 

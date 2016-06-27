@@ -211,7 +211,7 @@ cstring_t *type_to_jni_type(enum cl_type type)
             break;
 
         case CL_STRING:
-            r = cstring_create("Ljava/lang/String");
+            r = cstring_create("Ljava/lang/String;");
             break;
 
         case CL_BOOLEAN:
@@ -220,19 +220,6 @@ cstring_t *type_to_jni_type(enum cl_type type)
     }
 
     return r;
-}
-
-static int add_argument_signature(void *a, void *b)
-{
-    struct cplugin_fdata_s *arg = (struct cplugin_fdata_s *)a;
-    cstring_t *jargs = (cstring_t *)b;
-    cstring_t *j;
-
-    j = type_to_jni_type(arg->type);
-    cstring_cat(jargs, "%s", cstring_valueof(j));
-    cstring_unref(j);
-
-    return 0;
 }
 
 static cstring_t *create_method_signature(struct cplugin_function_s *foo)
@@ -245,8 +232,6 @@ static cstring_t *create_method_signature(struct cplugin_function_s *foo)
 
         cstring_cat(jargs, ")V");
     } else {
-        cstring_cat(jargs, "Lcplugin/Cplugin;");
-
         if (foo->type_of_args != CPLUGIN_NO_ARGS)
             cstring_cat(jargs, "Lcplugin/CpluginArguments;");
 
@@ -322,8 +307,7 @@ void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
 {
     struct jdriver *j = (struct jdriver *)data;
     struct jinfo *jinfo = NULL;
-    jobject ret;
-    jvalue args[2];
+    jobject ret, args;
 
     jinfo = (struct jinfo *)info_get_custom_data(cpl->info);
 
@@ -332,23 +316,22 @@ void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
 
     if (foo->return_value == CL_VOID) {
         if (foo->type_of_args != CPLUGIN_NO_ARGS) {
-            args[0].l = newCpluginArguments(j->env, foo);
-            (*j->env)->CallObjectMethodA(j->env, jinfo->obj, foo->symbol,
-                                         args);
+            args = newCpluginArguments(j->env, foo);
+            (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol, args);
         } else
             (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol);
     } else {
-        args[0].l = newCplugin(j->env, caller_id);
-
-        if (foo->type_of_args != CPLUGIN_NO_ARGS)
-            args[1].l = newCpluginArguments(j->env, foo);
-
-        ret = (*j->env)->CallObjectMethodA(j->env, jinfo->obj, foo->symbol,
-                                           args);
+        if (foo->type_of_args != CPLUGIN_NO_ARGS) {
+            args = newCpluginArguments(j->env, foo);
+            ret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol,
+                                              args);
+        } else
+            ret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol);
 
         if (ret != NULL) {
-            /* TODO */
             /* Sets the return value from the function */
+            set_return_value_from_CpluginObject(j->env, cpl, foo->name,
+                                                caller_id, ret);
         }
     }
 }

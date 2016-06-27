@@ -32,14 +32,14 @@ VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)
 
 CHAT_OBJS =	\
 	chat_misc.o			\
-	drv_raw_socket.o	\
+	drv_raw_socket.o		\
 	ipc_tcp.o			\
 	ipc_udp.o
 
 JNI_OBJS =		\
-	jni_CpluginArguments.o	\
-	jni_Cplugin.o			\
-	jni_CpluginObject.o
+	jni_CpluginArguments.o		\
+	jni_CpluginObject.o		\
+	jni_CpluginType.o
 
 PLUGIN_OBJS =	\
 	api_parser.o	\

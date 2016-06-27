@@ -43,6 +43,14 @@ public class CpluginArguments {
         args.add(new Argument(name, value));
     }
 
+    public void addArgument(String name, boolean value) {
+        args.add(new Argument(name, value));
+    }
+
+    public void addArgument(String name, String value) {
+        args.add(new Argument(name, value));
+    }
+
     public Object getArgument(String name) {
         int p = args.indexOf(new Argument(name, null));
 
@@ -52,6 +60,10 @@ public class CpluginArguments {
         Argument a = args.get(p);
 
         return a.getValue();
+    }
+
+    public int argCount() {
+        return args.size();
     }
 }
 

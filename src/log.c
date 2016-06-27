@@ -64,6 +64,9 @@ static bool is_mode_valid(enum clog_mode mode)
         case CLOG_SYNC_ALL_MSGS:
         case CLOG_KEEP_FILE_OPEN:
             return true;
+
+        default:
+            break;
     }
 
     return false;

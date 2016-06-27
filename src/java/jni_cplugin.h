@@ -37,13 +37,21 @@
 # include <jni.h>
 #endif
 
-/* jni_Cplugin.c */
-jobject newCplugin(JNIEnv *env, unsigned int caller_id);
+#ifndef _COLLECTIONS_PLUGIN_H
+# include "../plugin/plugin.h"
+#endif
 
 /* jni_CpluginArguments.c */
 jobject newCpluginArguments(JNIEnv *env, struct cplugin_function_s *foo);
 
 /* jni_CpluginObject.c */
+int set_return_value_from_CpluginObject(JNIEnv *env, cplugin_t *cpl,
+                                        const char *function_name,
+                                        unsigned int caller_id,
+                                        jobject *object);
+
+/* jni_CpluginType.c */
+enum cl_type CpluginType_to_cl_type(jobject *object, JNIEnv *env);
 
 #endif
 

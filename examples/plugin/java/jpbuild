@@ -21,6 +21,7 @@ usage() {
     echo -e "\nOptions:"
     echo -e " -h\t\tShow this help options."
     echo -e " -s [filename]\tIndicate the Java plugin source file name."
+    echo -e " -i\t\tInstall the plugin."
     echo
 }
 

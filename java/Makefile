@@ -8,7 +8,6 @@ JAVA_OBJS = \
 	CpluginEntryAPI.java    	\
 	CpluginModule.java		\
 	CpluginType.java		\
-	Cplugin.java			\
 	CpluginArguments.java		\
 	CpluginObject.java		\
 	Argument.java

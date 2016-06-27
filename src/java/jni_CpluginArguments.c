@@ -26,6 +26,7 @@
 
 #include <jni.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "collections.h"
 #include "../plugin/plugin.h"
@@ -36,7 +37,7 @@ struct tmp_s {
     jclass      c;
 };
 
-static void fill_method_argument_value(struct cplugin_fdata_s *arg,
+static void fill_method_argument_value(JNIEnv *env, struct cplugin_fdata_s *arg,
     jvalue *jarg)
 {
     switch (arg->type) {
@@ -97,9 +98,11 @@ static void fill_method_argument_value(struct cplugin_fdata_s *arg,
             break;
 
         case CL_STRING:
+            jarg->l = (*env)->NewStringUTF(env, CVALUE_AS_STRING(arg->value));
             break;
 
         case CL_BOOLEAN:
+            jarg->z = CVALUE_AS_BOOLEAN(arg->value);
             break;
     }
 }
@@ -137,7 +140,7 @@ static int add_argument(void *a, void *b)
 
     /* call addArgument(name, value) */
     args[0].l = (*tmp->env)->NewStringUTF(tmp->env, arg->name);
-    fill_method_argument_value(arg, &args[1]);
+    fill_method_argument_value(tmp->env, arg, &args[1]);
     (*tmp->env)->CallObjectMethodA(tmp->env, tmp->o, m, args);
 
     return 0;
