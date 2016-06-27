@@ -27,6 +27,8 @@
 
 #include <stdlib.h>
 
+#include <math.h>
+
 #ifdef USE_LIBMAGIC
 # include <magic.h>
 #endif
@@ -39,20 +41,27 @@
 #include "dl_python.h"
 #include "dl_java.h"
 
-struct dl_info {
+struct dl_plugin {
 #ifdef USE_LIBMAGIC
     magic_t         cookie;
 #endif
+
     struct ref_s    ref;
 };
 
-static struct dl_info __dl = {
-    .ref.count = 0,
+static struct dl_plugin __dl = {
+    .ref.count  = 0,
 };
 
 static struct dl_plugin_driver __dl_driver[] = {
     {
+        .type               = CPLUGIN_UNKNOWN,
+        .enabled            = false,
+    },
+
+    {
         .type               = CPLUGIN_C,
+        .enabled            = true,
         .library_init       = c_library_init,
         .library_uninit     = c_library_uninit,
         .load_info          = c_load_info,
@@ -67,6 +76,7 @@ static struct dl_plugin_driver __dl_driver[] = {
 
     {
         .type               = CPLUGIN_PYTHON,
+        .enabled            = true,
         .library_init       = py_library_init,
         .library_uninit     = py_library_uninit,
         .load_info          = py_load_info,
@@ -81,6 +91,7 @@ static struct dl_plugin_driver __dl_driver[] = {
 
     {
         .type               = CPLUGIN_JAVA,
+        .enabled            = true,
         .library_init       = jni_library_init,
         .library_uninit     = jni_library_uninit,
         .load_info          = jni_load_info,
@@ -97,12 +108,32 @@ static struct dl_plugin_driver __dl_driver[] = {
 #define NDRIVERS            \
     (sizeof(__dl_driver) / sizeof(__dl_driver[0]))
 
-static struct dl_plugin_driver *get_plugin_driver(enum cplugin_plugin_type type)
+void dl_enable_plugin_types(enum cplugin_type types)
+{
+    unsigned int i = 0;
+
+    for (i = 1; i < NDRIVERS; i++) {
+        if (types & (int)pow(2, i))
+            __dl_driver[i].enabled = true;
+        else
+            __dl_driver[i].enabled = false;
+    }
+}
+
+bool dl_is_plugin_enabled(enum cplugin_type type)
+{
+    if (__dl_driver[type].enabled == true)
+        return true;
+
+    return false;
+}
+
+static struct dl_plugin_driver *get_plugin_driver(enum cplugin_type type)
 {
     int i = 0;
 
     for (i = NDRIVERS - 1; i >= 0; i--)
-        if (__dl_driver[i].type == type)
+        if ((__dl_driver[i].type == type) && (__dl_driver[i].enabled == true))
             return &__dl_driver[i];
 
     return NULL;
@@ -114,7 +145,8 @@ static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
 
     /* call all drivers uninit function */
     for (i = NDRIVERS - 1; i >= 0; i--)
-        (__dl_driver[i].library_uninit)(__dl_driver[i].data);
+        if (__dl_driver[i].enabled == true)
+            (__dl_driver[i].library_uninit)(__dl_driver[i].data);
 
 #ifdef USE_LIBMAGIC
     magic_close(__dl.cookie);
@@ -145,7 +177,8 @@ static void dl_library_init(void)
 
         /* call all drivers init function */
         for (i = 0; i < NDRIVERS; i++)
-            __dl_driver[i].data = (__dl_driver[i].library_init)();
+            if (__dl_driver[i].enabled == true)
+                __dl_driver[i].data = (__dl_driver[i].library_init)();
     } else
         ref_inc(&__dl.ref);
 }
@@ -166,9 +199,9 @@ static cstring_t *get_file_info(const char *filename)
     return s;
 }
 
-static enum cplugin_plugin_type parse_plugin_type(cstring_t *s)
+static enum cplugin_type parse_plugin_type(cstring_t *s)
 {
-    enum cplugin_plugin_type t = CPLUGIN_UNKNOWN;
+    enum cplugin_type t = CPLUGIN_UNKNOWN;
     cstring_t *p = NULL;
 
     /* C/C++ */
@@ -207,13 +240,13 @@ ok:
 struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
 {
     cstring_t *info = NULL;
-    enum cplugin_plugin_type type;
+    enum cplugin_type type;
 
     dl_library_init();
     info = get_file_info(pathname);
 
     if (NULL == info)
-        return CPLUGIN_UNKNOWN;
+        return NULL;
 
     /* DEBUG */
     printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(info));

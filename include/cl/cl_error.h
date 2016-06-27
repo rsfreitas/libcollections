@@ -102,7 +102,7 @@ cerrno *cerrno_storage(void);
  * @name cexit
  * @brief Terminate calling thread.
  *
- * This function must called at the end of main function if the user wants no
+ * This function be must called at the end of main function if the user wants no
  * memory leak errors reported by the valgrind tool.
  */
 void cexit(void);

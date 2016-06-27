@@ -608,3 +608,8 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
     return 0;
 }
 
+void LIBEXPORT cplugin_set_supported_types(enum cplugin_type types)
+{
+    dl_enable_plugin_types(types);
+}
+

@@ -247,7 +247,7 @@ int main(int argc, char **argv)
     /* XXX: call test functions */
     call_functions(cpl);
 
-/*    cplugin_call(cpl, "foo_args",
+    cplugin_call(cpl, "foo_args",
                  "arg1", 20,
                  "arg2", 21,
                  "arg3", 22,
@@ -264,7 +264,7 @@ int main(int argc, char **argv)
                  "arg14", "Sample text",
                  NULL);
 
-    printf("Last call error: %s\n", cstrerror(cget_last_error()));*/
+    printf("Last call error: %s\n", cstrerror(cget_last_error()));
     cplugin_unload(cpl);
 
     if (filename != NULL)

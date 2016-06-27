@@ -31,8 +31,14 @@
 
 #include "collections.h"
 #include "plugin.h"
+#include "../java/jni_cplugin.h"
 
-#define USER_CLASSPATH                  "/usr/local/lib"
+/*
+ * With our custom classpath we need to able to load the 'cplugin.jar'
+ * file. So plugins may correctly load their dependencies.
+ */
+#define CPLUGIN_CLASSPATH           "/usr/local/lib/cplugin.jar:/usr/local/lib"
+#define MAX_JVM_OPTIONS             1
 
 struct jdriver {
     JavaVM      *jvm;
@@ -87,10 +93,10 @@ void *jni_library_init(void)
     if (NULL == j)
         return NULL;
 
-    options.optionString = "-Djava.class.path=" USER_CLASSPATH;
+    options.optionString = "-Djava.class.path=" CPLUGIN_CLASSPATH;
     vm_args.version = JNI_VERSION_1_6;
     vm_args.options = &options;
-    vm_args.nOptions = 1;
+    vm_args.nOptions = MAX_JVM_OPTIONS;
     vm_args.ignoreUnrecognized = JNI_TRUE;
 
     /* Create the Java VM */
@@ -147,7 +153,7 @@ cplugin_info_t *jni_load_info(void *data, void *handle)
 
         s = (jstring)(*j->env)->CallObjectMethod(j->env, obj, m);
         emethods[i].data = (char *)(*j->env)->GetStringUTFChars(j->env,
-                                                                      s, 0);
+                                                                s, 0);
     }
 
     info = info_create_from_data(emethods[0].data, emethods[1].data,
@@ -160,7 +166,7 @@ cplugin_info_t *jni_load_info(void *data, void *handle)
     return info;
 }
 
-static cstring_t *type_to_jni_type(enum cl_type type)
+cstring_t *type_to_jni_type(enum cl_type type)
 {
     cstring_t *r = NULL;
 
@@ -201,11 +207,11 @@ static cstring_t *type_to_jni_type(enum cl_type type)
 
         case CL_POINTER:
         case CL_CSTRING:
-            /* TODO */
+            r = cstring_create("Ljava/lang/Object;");
             break;
 
         case CL_STRING:
-            r = cstring_create("Ljava/lang/String");
+            r = cstring_create("Ljava/lang/String;");
             break;
 
         case CL_BOOLEAN:
@@ -216,32 +222,21 @@ static cstring_t *type_to_jni_type(enum cl_type type)
     return r;
 }
 
-static int add_argument_signature(void *a, void *b)
-{
-    struct cplugin_fdata_s *arg = (struct cplugin_fdata_s *)a;
-    cstring_t *jargs = (cstring_t *)b;
-    cstring_t *j;
-
-    j = type_to_jni_type(arg->type);
-    cstring_cat(jargs, "%s", cstring_valueof(j));
-    cstring_unref(j);
-
-    return 0;
-}
-
 static cstring_t *create_method_signature(struct cplugin_function_s *foo)
 {
     cstring_t *jargs = cstring_create("(");
-    cstring_t *r = type_to_jni_type(foo->return_value);
 
-    cdll_map(foo->args, add_argument_signature, jargs);
-    cstring_cat(jargs, ")%s", cstring_valueof(r));
-    cstring_unref(r);
+    if (foo->return_value == CL_VOID) {
+        if (foo->type_of_args != CPLUGIN_NO_ARGS)
+            cstring_cat(jargs, "Lcplugin/CpluginArguments;");
 
-    /*
-     * XXX: We need to make the same adjustments that Python does, so
-     *      we can pass the caller_id and the methods can return values.
-     */
+        cstring_cat(jargs, ")V");
+    } else {
+        if (foo->type_of_args != CPLUGIN_NO_ARGS)
+            cstring_cat(jargs, "Lcplugin/CpluginArguments;");
+
+        cstring_cat(jargs, ")Lcplugin/CpluginObject;");
+    }
 
     return jargs;
 }
@@ -312,13 +307,33 @@ void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
 {
     struct jdriver *j = (struct jdriver *)data;
     struct jinfo *jinfo = NULL;
+    jobject ret, args;
 
     jinfo = (struct jinfo *)info_get_custom_data(cpl->info);
 
     if (NULL == jinfo)
         return;
 
-    (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol);
+    if (foo->return_value == CL_VOID) {
+        if (foo->type_of_args != CPLUGIN_NO_ARGS) {
+            args = newCpluginArguments(j->env, foo);
+            (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol, args);
+        } else
+            (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol);
+    } else {
+        if (foo->type_of_args != CPLUGIN_NO_ARGS) {
+            args = newCpluginArguments(j->env, foo);
+            ret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol,
+                                              args);
+        } else
+            ret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol);
+
+        if (ret != NULL) {
+            /* Sets the return value from the function */
+            set_return_value_from_CpluginObject(j->env, cpl, foo->name,
+                                                caller_id, ret);
+        }
+    }
 }
 
 int jni_plugin_startup(void *data, void *handle, cplugin_info_t *info)

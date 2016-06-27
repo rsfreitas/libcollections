@@ -32,6 +32,14 @@
 # endif
 #endif
 
+/** Plugin supported languages */
+enum cplugin_type {
+    CPLUGIN_UNKNOWN = (1 << 0),
+    CPLUGIN_C       = (1 << 1),         /* C or C++ */
+    CPLUGIN_PYTHON  = (1 << 2),         /* Python */
+    CPLUGIN_JAVA    = (1 << 3)
+};
+
 /** Functions argument mode */
 enum cplugin_arg {
     CPLUGIN_ARG_FIXED,
@@ -333,6 +341,16 @@ cvalue_t *cplugin_argument(const cplugin_arg_t *args, const char *arg_name);
  *         otherwise.
  */
 int cplugin_arg_count(const cplugin_arg_t *args);
+
+/**
+ * @name cplugin_set_supported_types
+ * @brief Enables plugin supported by an application.
+ *
+ * This function must be called before all cplugin_load calls.
+ *
+ * @param [in] types: A bitfield with all supported plugin types.
+ */
+void cplugin_set_supported_types(enum cplugin_type types);
 
 #endif
 

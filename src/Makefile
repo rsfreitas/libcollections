@@ -27,13 +27,19 @@ CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 
 CHAT_PATH = ./chat
 PLUGIN_PATH = ./plugin
-VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH)
+JNI_PATH = ./java
+VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)
 
 CHAT_OBJS =	\
 	chat_misc.o			\
-	drv_raw_socket.o	\
+	drv_raw_socket.o		\
 	ipc_tcp.o			\
 	ipc_udp.o
+
+JNI_OBJS =		\
+	jni_CpluginArguments.o		\
+	jni_CpluginObject.o		\
+	jni_CpluginType.o
 
 PLUGIN_OBJS =	\
 	api_parser.o	\
@@ -43,8 +49,9 @@ PLUGIN_OBJS =	\
 	dl_python.o		\
 	dl_java.o		\
 	info.o			\
-	plugin_misc.o	\
-	rv.o
+	pl_misc.o		\
+	rv.o			\
+	$(JNI_OBJS)
 
 OBJS =	\
 	$(CHAT_OBJS)	\

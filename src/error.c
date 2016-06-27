@@ -123,11 +123,16 @@ cerrno LIBEXPORT *cerrno_storage(void)
  * @name cexit
  * @brief Terminate calling thread.
  *
- * This function must called at the end of main function if the user wants no
+ * This function must be called at the end of main function if the user wants no
  * memory leak errors reported by the valgrind tool.
  */
 void LIBEXPORT cexit(void)
 {
+    if (dl_is_plugin_enabled(CPLUGIN_JAVA)) {
+        /* Does nothing here. It hangs if pthread_exit is called */
+        return;
+    }
+
     pthread_exit(NULL);
 }
 

@@ -25,13 +25,13 @@
  */
 
 #ifndef _COLLECTIONS_INTERNAL_H
-#define _COLLECTIONS_INTERNAL_H     1
+#define _COLLECTIONS_INTERNAL_H         1
 
 #include <stddef.h>
 
 #ifndef LIBEXPORT
 # ifdef LINUX
-#  define LIBEXPORT                 __attribute__((visibility("default")))
+#  define LIBEXPORT                     __attribute__((visibility("default")))
 # else
 #  define LIBEXPORT
 # endif
@@ -42,9 +42,9 @@
 
 /* _cplugin.c */
 /* Keys to access PyObject encapsulated info */
-#define PYARGS                              "pyargs"
-#define PYCPLUGIN_T                         "pycplugin_t"
-#define PYSHUTDOWN_ARGS                     "pyshutargs"
+#define PYARGS                          "pyargs"
+#define PYCPLUGIN_T                     "pycplugin_t"
+#define PYSHUTDOWN_ARGS                 "pyshutargs"
 
 /* error.c */
 void cerrno_clear(void);
@@ -81,6 +81,9 @@ void cvalue_set_cstring(cvalue_t *value, cstring_t *s);
 /* util.c */
 char *value_to_hex(void *p, unsigned int size);
 char *strip_filename(const char *pathname);
+
+/* plugin.c */
+bool dl_is_plugin_enabled(enum cplugin_type type);
 
 #endif
 

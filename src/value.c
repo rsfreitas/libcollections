@@ -31,6 +31,32 @@
 
 #include "collections.h"
 
+/*#define cvalue_members                              \
+    cl_struct_member(enum cl_type, type)            \
+    cl_struct_member(unsigned int, size)            \
+    cl_struct_member(bool, dup_data)                \
+    cl_struct_member(void, (*free_value)(void *))   \
+    cl_struct_member(size_t, psize)                 \
+    cl_struct_member(cspec_t *, specs)              \
+    cl_struct_member(char, c)                       \
+    cl_struct_member(unsigned char, uc)             \
+    cl_struct_member(int, i)                        \
+    cl_struct_member(unsigned int, ui)              \
+    cl_struct_member(short int, si)                 \
+    cl_struct_member(unsigned short int, usi)       \
+    cl_struct_member(float, f)                      \
+    cl_struct_member(double, d)                     \
+    cl_struct_member(long, l)                       \
+    cl_struct_member(unsigned long, ul)             \
+    cl_struct_member(long long, ll)                 \
+    cl_struct_member(unsigned long long, ull)       \
+    cl_struct_member(cstring_t *, s)                \
+    cl_struct_member(bool, b)                       \
+    cl_struct_member(void *, p)                     \
+    cl_struct_member(struct ref_s, ref)
+
+cl_struct_declare(cvalue_s2, cvalue_members);*/
+
 struct cvalue_s {
     enum cl_type        type;
     unsigned int        size;
