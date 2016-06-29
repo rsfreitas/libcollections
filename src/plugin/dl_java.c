@@ -331,7 +331,7 @@ void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
         if (ret != NULL) {
             /* Sets the return value from the function */
             set_return_value_from_CpluginObject(j->env, cpl, foo->name,
-                                                caller_id, ret);
+                                                caller_id, &ret);
         }
     }
 }
