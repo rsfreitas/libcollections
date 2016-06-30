@@ -105,7 +105,7 @@ class CpluginEntryAPI(object):
 
     # TODO: Rename to author
     @abstractmethod
-    def get_creator(self):
+    def get_author(self):
         """
             Function to return the module author name.
         """

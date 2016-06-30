@@ -40,11 +40,11 @@ def module_uninit():
 
 
 
-class cplugin_entry_s(cplugin.CpluginEntryAPI):
+class CpluginMainEntry(cplugin.CpluginEntryAPI):
     def __init__(self):
         self.name = "py-plugin"
         self.version = "0.1"
-        self.creator = "Rodrigo Freitas"
+        self.author = "Rodrigo Freitas"
         self.description = "Python plugin example"
         self.startup = "module_init"
         self.shutdown = "module_uninit"
@@ -93,8 +93,8 @@ class cplugin_entry_s(cplugin.CpluginEntryAPI):
         return self.version
 
 
-    def get_creator(self):
-        return self.creator
+    def get_author(self):
+        return self.author
 
 
     def get_description(self):
