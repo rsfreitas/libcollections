@@ -89,6 +89,11 @@ static struct dl_plugin_driver __dl_driver[] = {
         .data               = NULL,
     },
 
+/*
+ * Does not need to compile this with the python version from the library,
+ * since we don't want another library dependency (libjvm).
+ */
+#ifndef LIB_PYTHON
     {
         .type               = CPLUGIN_JAVA,
         .enabled            = true,
@@ -103,6 +108,7 @@ static struct dl_plugin_driver __dl_driver[] = {
         .plugin_shutdown    = jni_plugin_shutdown,
         .data               = NULL,
     }
+#endif
 };
 
 #define NDRIVERS            \
