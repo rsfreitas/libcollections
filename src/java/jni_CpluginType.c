@@ -44,7 +44,7 @@ enum cl_type CpluginType_to_cl_type(jobject *object, JNIEnv *env)
     if (NULL == m)
         return -1;
 
-    ret = (int)(*env)->CallIntMethod(env, object, m);
+    ret = (int)(*env)->CallIntMethod(env, *object, m);
 
     return ret;
 }

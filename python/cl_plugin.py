@@ -25,13 +25,14 @@
 #
 
 """
-libcollections python extension to be used inside python plugins.
+Libcollections python extension to be used inside python plugins.
 """
 
 import sys
 import _cplugin
 
 from enum import Enum
+from abc import ABCMeta, abstractmethod
 
 CpluginFunctionName = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
@@ -77,42 +78,77 @@ class CpluginArg(AutoNumber):
 
 
 
-class CpluginEntryAPI:
+class CpluginEntryAPI(object):
     """
         A class to be inherited by the mandatory plugin class named as
-        'cplugin_entry_s', so that a plugin manager may get all plugin
+        'CpluginMainEntry', so that a plugin manager may get all plugin
         informations and its API.
     """
+
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
     def get_name(self):
-        return self.name
+        """
+            Function to return the module name.
+        """
+        pass
 
 
+    @abstractmethod
     def get_version(self):
-        return self.version
+        """
+            Function to return the module version.
+        """
+        pass
 
 
-    def get_creator(self):
-        return self.creator
+    # TODO: Rename to author
+    @abstractmethod
+    def get_author(self):
+        """
+            Function to return the module author name.
+        """
+        pass
 
 
+    @abstractmethod
     def get_description(self):
-        return self.description
+        """
+            Function to return the module description.
+        """
+        pass
 
 
+    @abstractmethod
     def get_api(self):
-        return self.api
+        """
+            Function to return the module description.
+        """
+        pass
 
 
+    # TODO: Put these into another abstract class
+    @abstractmethod
     def get_startup(self):
-        return self.startup
+        """
+            Function to return the name of the function called when the
+            plugin is loaded.
+        """
+        pass
 
 
+    @abstractmethod
     def get_shutdown(self):
-        return self.shutdown
+        """
+            Function to return the name of the function called when the
+            plugin is unloaded.
+        """
+        pass
 
 
 
-class CpluginFunctionReturnValue:
+class CpluginFunctionReturnValue(object):
     """
         This class is used to set the return value from an exported function
         from a plugin. It requires the 'caller_id' and the 'cplugin_t'
@@ -131,15 +167,16 @@ class CpluginFunctionReturnValue:
 
 
 
-class CpluginFunctionArgs:
+class CpluginFunctionArgs(object):
     """
-        In a python plugin a function may receive none or up to 3 arguments. If
-        its return value is void, it may receive none (void arguments) or 1 with
-        the arguments (args). Otherwise, it may receive 2 if it does not have
-        any argument (caller_id, cplugin_t) or 3 if it does (caller_id,
-        cplugin_t, args).
+        This class is used to extract arguments received by functions called
+        from a plugin manager.
 
-        This class must be used to extract arguments received by functions.
+        In a python plugin, a function may receive none or up to 3 arguments.
+        If its return value is void, it may receive none (void arguments) or
+        1 argument, called 'args'. Otherwise, it may receive 2 if it does not
+        have any argument (caller_id, cplugin_t) or 3 if it does (caller_id,
+        cplugin_t, args).
     """
     def __init__(self, args):
         self.args = args

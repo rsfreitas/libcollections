@@ -36,20 +36,17 @@
 
 #define CJSON_IS_REFERENCE              256
 
-struct cjson_s {
-    clist_t         *prev;
-    clist_t         *next;
+#define cjson_members                       \
+    cl_struct_member(clist_t *, prev)       \
+    cl_struct_member(clist_t *, next)       \
+    cl_struct_member(void *, child)         \
+    cl_struct_member(cstring_t *, name)     \
+    cl_struct_member(enum cjson_type, type) \
+    cl_struct_member(cstring_t *, value)
 
-    /* if element is an object, it'll have child nodes */
-    struct cjson_s  *child;
+cl_struct_declare(cjson_s, cjson_members);
 
-    /* element name and type */
-    cstring_t       *name;
-    enum cjson_type type;
-
-    /* element value */
-    cstring_t       *value;
-};
+#define cjson_s             cl_struct(cjson_s)
 
 struct jvalue_s {
     char            *value;
@@ -57,8 +54,8 @@ struct jvalue_s {
     enum cjson_type type;
 };
 
-static const char *parse(struct cjson_s *n, const char *s);
-static char *print_value(struct cjson_s *j, int depth, bool fmt);
+static const char *parse(cjson_s *n, const char *s);
+static char *print_value(cjson_s *j, int depth, bool fmt);
 
 struct jvalue_s __jvalues[] = {
     { "null",   4,  CJSON_NULL },
@@ -84,11 +81,11 @@ static const char *get_jvalue_value(enum cjson_type type)
     return NULL;
 }
 
-static struct cjson_s *cjson_new(void)
+static cjson_s *cjson_new(void)
 {
-    struct cjson_s *j = NULL;
+    cjson_s *j = NULL;
 
-    j = calloc(1, sizeof(struct cjson_s));
+    j = calloc(1, sizeof(cjson_s));
 
     if (NULL == j) {
         cset_errno(CL_NO_MEM);
@@ -96,13 +93,14 @@ static struct cjson_s *cjson_new(void)
     }
 
     j->child = NULL;
+    set_typeof(CJSON, j);
 
     return j;
 }
 
-static cjson_t *__dup(const struct cjson_s *j)
+static cjson_t *__dup(const cjson_s *j)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
 
     p = cjson_new();
 
@@ -118,7 +116,7 @@ static cjson_t *__dup(const struct cjson_s *j)
 
 static void __cjson_delete(void *a)
 {
-    struct cjson_s *c = (struct cjson_s *)a;
+    cjson_s *c = (cjson_s *)a;
 
     if (!(c->type & CJSON_IS_REFERENCE) && c->child)
         cdll_free(c->child, __cjson_delete);
@@ -155,7 +153,7 @@ static int get_string_length(const char *s)
     return l;
 }
 
-static const char *parse_string(struct cjson_s *n, const char *s)
+static const char *parse_string(cjson_s *n, const char *s)
 {
     const char *ptr = s + 1;
     char *ptr2;
@@ -339,7 +337,7 @@ static const char *get_exponent_notation(const char *num, int *sign_subscale,
     return num;
 }
 
-static const char *parse_number(struct cjson_s *j, const char *num)
+static const char *parse_number(cjson_s *j, const char *num)
 {
     double n = 0, sign = 1, scale = 0;
     int subscale = 0, sign_subscale = 1;
@@ -362,9 +360,9 @@ static const char *parse_number(struct cjson_s *j, const char *num)
     return num;
 }
 
-static const char *parse_array(struct cjson_s *j, const char *s)
+static const char *parse_array(cjson_s *j, const char *s)
 {
-    struct cjson_s *n;
+    cjson_s *n;
 
     if (*s != '[') {
         cset_errno(CL_PARSE_ERROR);
@@ -416,9 +414,9 @@ static const char *parse_array(struct cjson_s *j, const char *s)
     return NULL;
 }
 
-static const char *parse_object(struct cjson_s *j, const char *s)
+static const char *parse_object(cjson_s *j, const char *s)
 {
-    struct cjson_s *n;
+    cjson_s *n;
 
     if (*s != '{') {
         cset_errno(CL_PARSE_ERROR);
@@ -503,7 +501,7 @@ static const char *parse_object(struct cjson_s *j, const char *s)
     return NULL;
 }
 
-static const char *parse(struct cjson_s *n, const char *s)
+static const char *parse(cjson_s *n, const char *s)
 {
     unsigned int i;
 
@@ -545,12 +543,15 @@ static const char *parse(struct cjson_s *n, const char *s)
 
 cjson_t LIBEXPORT *cjson_parse(const cstring_t *string)
 {
-    struct cjson_s *c = NULL;
+    cjson_s *c = NULL;
 
     cerrno_clear();
 
-    if ((NULL == string) || (cstring_length(string) == 0)) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
+        return NULL;
+
+    if (cstring_length(string) == 0) {
+        cset_errno(CL_INVALID_VALUE);
         return NULL;
     }
 
@@ -602,7 +603,10 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
 
     cerrno_clear();
 
-    if ((NULL == j) || (NULL == filename)) {
+    if (validate_object(j, CJSON) == false)
+        return -1;
+
+    if (NULL == filename) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -622,7 +626,10 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
 
 void LIBEXPORT cjson_delete(cjson_t *j)
 {
-    struct cjson_s *c = (struct cjson_s *)j;
+    cjson_s *c = (cjson_s *)j;
+
+    if (validate_object(j, CJSON) == false)
+        return;
 
     cdll_free(c->child, __cjson_delete);
     free(c);
@@ -630,14 +637,12 @@ void LIBEXPORT cjson_delete(cjson_t *j)
 
 int LIBEXPORT cjson_get_array_size(const cjson_t *array)
 {
-    struct cjson_s *p = (struct cjson_s *)array;
+    cjson_s *p = (cjson_s *)array;
 
     cerrno_clear();
 
-    if (NULL == array) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(array, CJSON) == false)
         return -1;
-    }
 
     if (p->type != CJSON_ARRAY)
         return -1;
@@ -647,15 +652,13 @@ int LIBEXPORT cjson_get_array_size(const cjson_t *array)
 
 cjson_t LIBEXPORT *cjson_get_array_item(const cjson_t *array, unsigned int item)
 {
-    struct cjson_s *p = (struct cjson_s *)array, *n;
+    cjson_s *p = (cjson_s *)array, *n;
     int size;
 
     cerrno_clear();
 
-    if (NULL == array) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(array, CJSON) == false)
         return NULL;
-    }
 
     size = cjson_get_array_size(array);
 
@@ -669,7 +672,7 @@ cjson_t LIBEXPORT *cjson_get_array_item(const cjson_t *array, unsigned int item)
 
 static int find_object(void *a, void *b)
 {
-    struct cjson_s *p = (struct cjson_s *)a;
+    cjson_s *p = (cjson_s *)a;
     char *name = (char *)b;
 
     if (strcmp(cstring_valueof(p->name), name) == 0)
@@ -680,11 +683,14 @@ static int find_object(void *a, void *b)
 
 cjson_t LIBEXPORT *cjson_get_object_item(const cjson_t *json, const char *name)
 {
-    struct cjson_s *p = NULL, *root = (struct cjson_s *)json;
+    cjson_s *p = NULL, *root = (cjson_s *)json;
 
     cerrno_clear();
 
-    if ((NULL == json) || (NULL == name)) {
+    if (validate_object(json, CJSON) == false)
+        return NULL;
+
+    if (NULL == name) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -696,51 +702,45 @@ cjson_t LIBEXPORT *cjson_get_object_item(const cjson_t *json, const char *name)
 
 cstring_t LIBEXPORT *cjson_get_object_name(const cjson_t *o)
 {
-    struct cjson_s *p = (struct cjson_s *)o;
+    cjson_s *p = (cjson_s *)o;
 
     cerrno_clear();
 
-    if (NULL == o) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(o, CJSON) == false)
         return NULL;
-    }
 
     return p->name;
 }
 
 cstring_t LIBEXPORT *cjson_get_object_value(const cjson_t *o)
 {
-    struct cjson_s *p = (struct cjson_s *)o;
+    cjson_s *p = (cjson_s *)o;
 
     cerrno_clear();
 
-    if (NULL == o) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(o, CJSON) == false)
         return NULL;
-    }
 
     return p->value;
 }
 
 enum cjson_type LIBEXPORT cjson_get_object_type(const cjson_t *o)
 {
-    struct cjson_s *p = (struct cjson_s *)o;
+    cjson_s *p = (cjson_s *)o;
 
     cerrno_clear();
 
-    if (NULL == o) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(o, CJSON) == false)
         return -1;
-    }
 
     return p->type;
 }
 
 static int __cjson_dup(void *a, void *b)
 {
-    struct cjson_s *node = (struct cjson_s *)a;
-    struct cjson_s *list = (struct cjson_s *)b;
-    struct cjson_s *p;
+    cjson_s *node = (cjson_s *)a;
+    cjson_s *list = (cjson_s *)b;
+    cjson_s *p;
 
     p = __dup(node);
     p->type = node->type & (~CJSON_IS_REFERENCE);
@@ -755,15 +755,13 @@ static int __cjson_dup(void *a, void *b)
 
 cjson_t LIBEXPORT *cjson_dup(const cjson_t *root)
 {
-    struct cjson_s *r = (struct cjson_s *)root;
-    struct cjson_s *l = NULL;
+    cjson_s *r = (cjson_s *)root;
+    cjson_s *l = NULL;
 
     cerrno_clear();
 
-    if (NULL == root) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(root, CJSON) == false)
         return NULL;
-    }
 
     l = __dup(r);
     l->type = r->type & (~CJSON_IS_REFERENCE);
@@ -774,7 +772,7 @@ cjson_t LIBEXPORT *cjson_dup(const cjson_t *root)
 
 cjson_t LIBEXPORT *cjson_create_array(void)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
 
     cerrno_clear();
     p = cjson_new();
@@ -789,7 +787,7 @@ cjson_t LIBEXPORT *cjson_create_array(void)
 
 cjson_t LIBEXPORT *cjson_create_object(void)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
 
     cerrno_clear();
     p = cjson_new();
@@ -804,7 +802,7 @@ cjson_t LIBEXPORT *cjson_create_object(void)
 
 cjson_t LIBEXPORT *cjson_create_null(void)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
 
     cerrno_clear();
     p = cjson_new();
@@ -819,7 +817,7 @@ cjson_t LIBEXPORT *cjson_create_null(void)
 
 cjson_t LIBEXPORT *cjson_create_false(void)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
 
     cerrno_clear();
     p = cjson_new();
@@ -834,7 +832,7 @@ cjson_t LIBEXPORT *cjson_create_false(void)
 
 cjson_t LIBEXPORT *cjson_create_true(void)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
 
     cerrno_clear();
     p = cjson_new();
@@ -849,7 +847,7 @@ cjson_t LIBEXPORT *cjson_create_true(void)
 
 cjson_t LIBEXPORT *cjson_create_number(int n)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
     cstring_t *s = NULL;
 
     cerrno_clear();
@@ -867,7 +865,7 @@ cjson_t LIBEXPORT *cjson_create_number(int n)
 
 cjson_t LIBEXPORT *cjson_create_number_float(float n)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
     cstring_t *s = NULL;
 
     cerrno_clear();
@@ -885,7 +883,7 @@ cjson_t LIBEXPORT *cjson_create_number_float(float n)
 
 cjson_t LIBEXPORT *cjson_create_string(const char *string)
 {
-    struct cjson_s *p = NULL;
+    cjson_s *p = NULL;
     cstring_t *s = NULL;
 
     cerrno_clear();
@@ -904,7 +902,7 @@ cjson_t LIBEXPORT *cjson_create_string(const char *string)
 cjson_t LIBEXPORT *cjson_create_int_array(const int *values, int size)
 {
     int i;
-    struct cjson_s *a = NULL, *n;
+    cjson_s *a = NULL, *n;
 
     cerrno_clear();
     a = cjson_create_array();
@@ -927,7 +925,7 @@ cjson_t LIBEXPORT *cjson_create_int_array(const int *values, int size)
 cjson_t LIBEXPORT *cjson_create_float_array(const float *values, int size)
 {
     int i;
-    struct cjson_s *a = NULL, *n;
+    cjson_s *a = NULL, *n;
 
     cerrno_clear();
     a = cjson_create_array();
@@ -950,9 +948,13 @@ cjson_t LIBEXPORT *cjson_create_float_array(const float *values, int size)
 cjson_t LIBEXPORT *cjson_create_string_array(const cstring_list_t *values)
 {
     int i, size;
-    struct cjson_s *a = NULL, *n;
+    cjson_s *a = NULL, *n;
 
     cerrno_clear();
+
+    if (validate_object(values, CSTRINGLIST) == false)
+        return NULL;
+
     a = cjson_create_array();
 
     if (NULL == a)
@@ -974,13 +976,14 @@ cjson_t LIBEXPORT *cjson_create_string_array(const cstring_list_t *values)
 
 int LIBEXPORT cjson_add_item_to_array(cjson_t *array, const cjson_t *item)
 {
-    struct cjson_s *a = (struct cjson_s *)array;
-    struct cjson_s *n = (struct cjson_s *)item;
+    cjson_s *a = (cjson_s *)array;
+    cjson_s *n = (cjson_s *)item;
 
     cerrno_clear();
 
-    if ((NULL == array) || (NULL == item)) {
-        cset_errno(CL_NULL_ARG);
+    if ((validate_object(array, CJSON) == false) ||
+        (validate_object(item, CJSON) == false))
+    {
         return -1;
     }
 
@@ -992,12 +995,18 @@ int LIBEXPORT cjson_add_item_to_array(cjson_t *array, const cjson_t *item)
 int LIBEXPORT cjson_add_item_to_object(cjson_t *root, const char *name,
     cjson_t *item)
 {
-    struct cjson_s *r = (struct cjson_s *)root;
-    struct cjson_s *n = (struct cjson_s *)item;
+    cjson_s *r = (cjson_s *)root;
+    cjson_s *n = (cjson_s *)item;
 
     cerrno_clear();
 
-    if ((NULL == root) || (NULL == name) || (NULL == item)) {
+    if ((validate_object(root, CJSON) == false) ||
+        (validate_object(item, CJSON) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == name) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -1011,9 +1020,9 @@ int LIBEXPORT cjson_add_item_to_object(cjson_t *root, const char *name,
     return 0;
 }
 
-static cjson_t *create_reference(struct cjson_s *item)
+static cjson_t *create_reference(cjson_s *item)
 {
-    struct cjson_s *ref = NULL;
+    cjson_s *ref = NULL;
 
     ref = __dup(item);
 
@@ -1028,8 +1037,9 @@ int LIBEXPORT cjson_add_item_reference_to_array(cjson_t *array, cjson_t *item)
 {
     cerrno_clear();
 
-    if ((NULL == array) || (NULL == item)) {
-        cset_errno(CL_NULL_ARG);
+    if ((validate_object(array, CJSON) == false) ||
+        (validate_object(item, CJSON) == false))
+    {
         return -1;
     }
 
@@ -1041,7 +1051,13 @@ int LIBEXPORT cjson_add_item_reference_to_object(cjson_t *root, const char *name
 {
     cerrno_clear();
 
-    if ((NULL == root) || (NULL == name) || (NULL == item)) {
+    if ((validate_object(root, CJSON) == false) ||
+        (validate_object(item, CJSON) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == name) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -1051,15 +1067,13 @@ int LIBEXPORT cjson_add_item_reference_to_object(cjson_t *root, const char *name
 
 int LIBEXPORT cjson_delete_item_from_array(cjson_t *array, unsigned int index)
 {
-    struct cjson_s *p, *root = (struct cjson_s *)array;
+    cjson_s *p, *root = (cjson_s *)array;
     int size;
 
     cerrno_clear();
 
-    if (NULL == array) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(array, CJSON) == false)
         return -1;
-    }
 
     size = cjson_get_array_size(array);
 
@@ -1078,11 +1092,14 @@ int LIBEXPORT cjson_delete_item_from_array(cjson_t *array, unsigned int index)
 
 int LIBEXPORT cjson_delete_item_from_object(cjson_t *json, const char *name)
 {
-    struct cjson_s *p = NULL, *root = (struct cjson_s *)json;
+    cjson_s *p = NULL, *root = (cjson_s *)json;
 
     cerrno_clear();
 
-    if ((NULL == json) || (NULL == name)) {
+    if (validate_object(json, CJSON) == false)
+        return -1;
+
+    if (NULL == name) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -1100,14 +1117,15 @@ int LIBEXPORT cjson_delete_item_from_object(cjson_t *json, const char *name)
 int LIBEXPORT cjson_replace_item_in_array(cjson_t *array, unsigned int index,
     cjson_t *new_item)
 {
-    struct cjson_s *a = (struct cjson_s *)array;
-    struct cjson_s *p = NULL, *n;
+    cjson_s *a = (cjson_s *)array;
+    cjson_s *p = NULL, *n;
     unsigned int i = 0;
 
     cerrno_clear();
 
-    if ((NULL == array) || (NULL == new_item)) {
-        cset_errno(CL_NULL_ARG);
+    if ((validate_object(array, CJSON) == false) ||
+        (validate_object(new_item, CJSON) == false))
+    {
         return -1;
     }
 
@@ -1137,12 +1155,18 @@ int LIBEXPORT cjson_replace_item_in_object(cjson_t *root, const char *name,
     cjson_t *new_item)
 {
     cstring_t *tmp = NULL;
-    struct cjson_s *a = (struct cjson_s *)root;
-    struct cjson_s *p = NULL, *n;
+    cjson_s *a = (cjson_s *)root;
+    cjson_s *p = NULL, *n;
 
     cerrno_clear();
 
-    if ((NULL == root) || (NULL == name) || (NULL == new_item)) {
+    if ((validate_object(root, CJSON) == false) ||
+        (validate_object(new_item, CJSON) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == name) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -1166,7 +1190,7 @@ int LIBEXPORT cjson_replace_item_in_object(cjson_t *root, const char *name,
     return 0;
 }
 
-static char *print_number(struct cjson_s *item)
+static char *print_number(cjson_s *item)
 {
     cstring_t *value = NULL;
     char *str = NULL;
@@ -1304,12 +1328,12 @@ static cstring_t *output_array(cstring_list_t *sl, bool fmt)
     return out;
 }
 
-static char *print_array(struct cjson_s *item, int depth, bool fmt)
+static char *print_array(cjson_s *item, int depth, bool fmt)
 {
     char *ptr;
     cstring_list_t *sl = NULL;
     cstring_t *v = NULL;
-    struct cjson_s *child = item->child;
+    cjson_s *child = item->child;
 
     sl = cstring_list_create();
 
@@ -1382,10 +1406,10 @@ static cstring_t *output_object(cstring_list_t *sl_names,
     return out;
 }
 
-static char *print_object(struct cjson_s *item, int depth, bool fmt)
+static char *print_object(cjson_s *item, int depth, bool fmt)
 {
     char *ptr;
-    struct cjson_s *child = item->child;
+    cjson_s *child = item->child;
     cstring_list_t *sl_names = NULL, *sl_values = NULL;
     cstring_t *v;
 
@@ -1429,7 +1453,7 @@ end_block:
 
 }
 
-static char *print_value(struct cjson_s *j, int depth, bool fmt)
+static char *print_value(cjson_s *j, int depth, bool fmt)
 {
     char *p = NULL;
     int type;
@@ -1471,12 +1495,10 @@ cstring_t LIBEXPORT *cjson_to_cstring(const cjson_t *j, bool friendly_output)
 
     cerrno_clear();
 
-    if (NULL == j) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(j, CJSON) == false)
         return NULL;
-    }
 
-    p = print_value((struct cjson_s *)j, 0, friendly_output);
+    p = print_value((cjson_s *)j, 0, friendly_output);
 
     if (NULL == p)
         return NULL;

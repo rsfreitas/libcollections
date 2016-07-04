@@ -29,24 +29,27 @@
 
 #include "collections.h"
 
-struct ctimeout_s {
-    struct cdatetime_s  *dt;
-    enum ctimeout       precision;
-    unsigned int        interval;
-};
+#define ctimeout_members                        \
+    cl_struct_member(cdatetime_t *, dt)         \
+    cl_struct_member(enum ctimeout, precision)  \
+    cl_struct_member(unsigned int, interval)
 
-static struct ctimeout_s *new_ctimeout_s(unsigned int interval,
+cl_struct_declare(ctimeout_s, ctimeout_members);
+
+#define ctimeout_s          cl_struct(ctimeout_s)
+
+static ctimeout_s *new_ctimeout_s(unsigned int interval,
     enum ctimeout precision)
 {
     cdatetime_t *dt = NULL;
-    struct ctimeout_s *t = NULL;
+    ctimeout_s *t = NULL;
 
     dt = cdt_localtime();
 
     if (NULL == dt)
         return NULL;
 
-    t = calloc(1, sizeof(struct ctimeout_s));
+    t = calloc(1, sizeof(ctimeout_s));
 
     if (NULL == t) {
         cdt_destroy(dt);
@@ -57,11 +60,12 @@ static struct ctimeout_s *new_ctimeout_s(unsigned int interval,
     t->dt = dt;
     t->precision = precision;
     t->interval = interval;
+    set_typeof(CTIMEOUT, t);
 
     return t;
 }
 
-static void destroy_ctimeout_s(struct ctimeout_s *t)
+static void destroy_ctimeout_s(ctimeout_s *t)
 {
     if (NULL == t)
         return;
@@ -75,7 +79,7 @@ static void destroy_ctimeout_s(struct ctimeout_s *t)
 ctimeout_t LIBEXPORT *ctimeout_create(unsigned int interval,
    enum ctimeout precision)
 {
-    struct ctimeout_s *t;
+    ctimeout_s *t;
 
     cerrno_clear();
     t = new_ctimeout_s(interval, precision);
@@ -88,14 +92,12 @@ ctimeout_t LIBEXPORT *ctimeout_create(unsigned int interval,
 
 int LIBEXPORT ctimeout_destroy(ctimeout_t *t)
 {
-    struct ctimeout_s *ct = (struct ctimeout_s *)t;
+    ctimeout_s *ct = (ctimeout_s *)t;
 
     cerrno_clear();
 
-    if (NULL == t) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(t, CTIMEOUT) == false)
         return -1;
-    }
 
     destroy_ctimeout_s(ct);
 
@@ -105,14 +107,12 @@ int LIBEXPORT ctimeout_destroy(ctimeout_t *t)
 int LIBEXPORT ctimeout_reset(ctimeout_t *t, unsigned int interval,
     enum ctimeout precision)
 {
-    struct ctimeout_s *ct = (struct ctimeout_s *)t;
+    ctimeout_s *ct = (ctimeout_s *)t;
 
     cerrno_clear();
 
-    if (NULL == t) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(t, CTIMEOUT) == false)
         return -1;
-    }
 
     if (ct->dt != NULL)
         cdt_destroy(ct->dt);
@@ -130,17 +130,15 @@ int LIBEXPORT ctimeout_reset(ctimeout_t *t, unsigned int interval,
 
 bool LIBEXPORT ctimeout_expired(const ctimeout_t *t)
 {
-    struct ctimeout_s *ct = (struct ctimeout_s *)t;
+    ctimeout_s *ct = (ctimeout_s *)t;
     struct timeval tv;
     unsigned int i;
     unsigned long long l;
 
     cerrno_clear();
 
-    if (NULL == t) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(t, CTIMEOUT) == false)
         return -1;
-    }
 
     gettimeofday(&tv, NULL);
 

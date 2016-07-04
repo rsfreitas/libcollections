@@ -45,13 +45,13 @@ static enum cl_type get_type_from_CpluginObject(JNIEnv *env, jclass class,
     if (NULL == m)
         return -1;
 
-    jtype = (*env)->CallObjectMethod(env, object, m);
+    jtype = (*env)->CallObjectMethod(env, *object, m);
 
     if (NULL == jtype)
         return -1;
 
     /* Convert jni type to type */
-    return CpluginType_to_cl_type(jtype, env);
+    return CpluginType_to_cl_type(&jtype, env);
 }
 
 static int __set_return_value_byte(JNIEnv *env, cplugin_t *cpl,
@@ -66,7 +66,7 @@ static int __set_return_value_byte(JNIEnv *env, cplugin_t *cpl,
     if (NULL == m)
         return -1;
 
-    ret = (char)(*env)->CallByteMethod(env, object, m);
+    ret = (char)(*env)->CallByteMethod(env, *object, m);
 
     return cplugin_set_return_value(cpl, function_name, caller_id,
                                     CL_CHAR, ret);
@@ -84,7 +84,7 @@ static int __set_return_value_short(JNIEnv *env, cplugin_t *cpl,
     if (NULL == m)
         return -1;
 
-    ret = (short int)(*env)->CallShortMethod(env, object, m);
+    ret = (short int)(*env)->CallShortMethod(env, *object, m);
 
     return cplugin_set_return_value(cpl, function_name, caller_id,
                                     CL_SINT, ret);
@@ -102,7 +102,7 @@ static int __set_return_value_int(JNIEnv *env, cplugin_t *cpl,
     if (NULL == m)
         return -1;
 
-    ret = (int)(*env)->CallIntMethod(env, object, m);
+    ret = (int)(*env)->CallIntMethod(env, *object, m);
 
     return cplugin_set_return_value(cpl, function_name, caller_id,
                                     CL_INT, ret);
@@ -120,7 +120,7 @@ static int __set_return_value_long(JNIEnv *env, cplugin_t *cpl,
     if (NULL == m)
         return -1;
 
-    ret = (long long)(*env)->CallLongMethod(env, object, m);
+    ret = (long long)(*env)->CallLongMethod(env, *object, m);
 
     return cplugin_set_return_value(cpl, function_name, caller_id,
                                     CL_LLONG, ret);
@@ -138,7 +138,7 @@ static int __set_return_value_float(JNIEnv *env, cplugin_t *cpl,
     if (NULL == m)
         return -1;
 
-    ret = (float)(*env)->CallFloatMethod(env, object, m);
+    ret = (float)(*env)->CallFloatMethod(env, *object, m);
 
     return cplugin_set_return_value(cpl, function_name, caller_id,
                                     CL_FLOAT, ret);
@@ -156,7 +156,7 @@ static int __set_return_value_double(JNIEnv *env, cplugin_t *cpl,
     if (NULL == m)
         return -1;
 
-    ret = (double)(*env)->CallDoubleMethod(env, object, m);
+    ret = (double)(*env)->CallDoubleMethod(env, *object, m);
 
     return cplugin_set_return_value(cpl, function_name, caller_id,
                                     CL_DOUBLE, ret);
@@ -174,7 +174,7 @@ static int __set_return_value_boolean(JNIEnv *env, cplugin_t *cpl,
     if (NULL == m)
         return -1;
 
-    ret = (bool)(*env)->CallBooleanMethod(env, object, m);
+    ret = (bool)(*env)->CallBooleanMethod(env, *object, m);
 
     return cplugin_set_return_value(cpl, function_name, caller_id,
                                     CL_BOOLEAN, ret);
@@ -246,7 +246,7 @@ static int __set_return_value(JNIEnv *env, cplugin_t *cpl,
 }
 
 int set_return_value_from_CpluginObject(JNIEnv *env, cplugin_t *cpl,
-    const char *function_name, unsigned int caller_id, jobject *object)
+    const char *function_name, uint32_t caller_id, jobject *object)
 {
     jclass c;
     enum cl_type type;

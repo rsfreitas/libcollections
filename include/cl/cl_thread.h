@@ -62,7 +62,7 @@ enum cthread_state {
  * @return On success returns a cthread_t object or NULL otherwise.
  */
 cthread_t *cthread_create(enum cthread_type type,
-                          void *(*start_routine)(cthread_data_t *),
+                          void *(*start_routine)(cthread_t *),
                           void *user_data);
 
 /**
@@ -104,12 +104,12 @@ int cthread_set_state(cthread_t *t, enum cthread_state state);
  * @name cthread_get_user_data
  * @brief Gets the user data passed to a thread.
  *
- * @param [in] arg: The cthread_data_t object passed as argument to a thread.
+ * @param [in] arg: The cthread_t object passed as argument to a thread.
  *
  * @return Returns the original user data argument of the thread function or
  *         NULL otherwise.
  */
-void *cthread_get_user_data(cthread_data_t *arg);
+void *cthread_get_user_data(cthread_t *arg);
 
 #endif
 
