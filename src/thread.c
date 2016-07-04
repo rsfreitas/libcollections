@@ -35,18 +35,21 @@ struct sync_data_s {
     enum cthread_state  state;
 };
 
-struct cthread_s {
-    struct sync_data_s  sdata;
-    pthread_t           thread_id;
-    pthread_attr_t      attr;
-    void                *user_data;
-};
+#define cthread_members                         \
+    cl_struct_member(struct sync_data_s, sdata) \
+    cl_struct_member(pthread_t, thread_id)      \
+    cl_struct_member(pthread_attr_t, attr)      \
+    cl_struct_member(void *, user_data)
 
-static struct cthread_s *new_thread_data(void *user_data)
+cl_struct_declare(cthread_s, cthread_members);
+
+#define cthread_s               cl_struct(cthread_s)
+
+static cthread_s *new_thread_data(void *user_data)
 {
-    struct cthread_s *td = NULL;
+    cthread_s *td = NULL;
 
-    td = calloc(1, sizeof(struct cthread_s));
+    td = calloc(1, sizeof(cthread_s));
 
     if (NULL == td) {
         cset_errno(CL_NO_MEM);
@@ -54,11 +57,12 @@ static struct cthread_s *new_thread_data(void *user_data)
     }
 
     td->user_data = user_data;
+    set_typeof(CTHREAD, td);
 
     return td;
 }
 
-static void destroy_thread_data(struct cthread_s *td)
+static void destroy_thread_data(cthread_s *td)
 {
     if (NULL == td)
         return;
@@ -74,32 +78,28 @@ static bool validate_thread_state(enum cthread_state state)
     return true;
 }
 
-void LIBEXPORT *cthread_get_user_data(cthread_data_t *arg)
+void LIBEXPORT *cthread_get_user_data(cthread_t *arg)
 {
-    struct cthread_s *td;
+    cthread_s *td;
 
     cerrno_clear();
 
-    if (NULL == arg) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(arg, CTHREAD) == false)
         return NULL;
-    }
 
-    td = (struct cthread_s *)arg;
+    td = (cthread_s *)arg;
 
     return td->user_data;
 }
 
 int LIBEXPORT cthread_set_state(cthread_t *t, enum cthread_state state)
 {
-    struct cthread_s *td = (struct cthread_s *)t;
+    cthread_s *td = (cthread_s *)t;
 
     cerrno_clear();
 
-    if (NULL == td) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(t, CTHREAD) == false)
         return -1;
-    }
 
     if (validate_thread_state(state) == false) {
         cset_errno(CL_INVALID_STATE);
@@ -113,7 +113,7 @@ int LIBEXPORT cthread_set_state(cthread_t *t, enum cthread_state state)
 
 int LIBEXPORT cthread_wait_startup(const cthread_t *t)
 {
-    struct cthread_s *td = (struct cthread_s *)t;
+    cthread_s *td = (cthread_s *)t;
 
     cerrno_clear();
 
@@ -133,14 +133,12 @@ int LIBEXPORT cthread_wait_startup(const cthread_t *t)
 
 int LIBEXPORT cthread_destroy(cthread_t *t)
 {
-    struct cthread_s *td = (struct cthread_s *)t;
+    cthread_s *td = (cthread_s *)t;
 
     cerrno_clear();
 
-    if (NULL == td) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(t, CTHREAD) == false)
         return -1;
-    }
 
     if (td->sdata.type == CL_THREAD_JOINABLE)
         pthread_join(td->thread_id, NULL);
@@ -151,9 +149,9 @@ int LIBEXPORT cthread_destroy(cthread_t *t)
 }
 
 cthread_t LIBEXPORT *cthread_create(enum cthread_type type,
-    void *(*start_routine)(cthread_data_t *), void *user_data)
+    void *(*start_routine)(cthread_t *), void *user_data)
 {
-    struct cthread_s *td = NULL;
+    cthread_s *td = NULL;
     int detachstate = PTHREAD_CREATE_JOINABLE;
 
     cerrno_clear();

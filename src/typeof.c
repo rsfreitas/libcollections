@@ -26,9 +26,62 @@
 
 #include "collections.h"
 
-static const unsigned char __lhash[] = {
-    /* "libcollections" md5 */
-    0xc8, 0x5e, 0x1b, 0x8a, 0x83, 0x60, 0x62, 0x2a, 0x2c, 0xc7, 0x0c, 0xa2,
-    0x9c, 0x22, 0x8c, 0x98
-};
+#define LIBID       0xC011EC7105LL
+
+void set_typeof(enum cl_object type, void *p)
+{
+    struct cobject_hdr *hdr = p;
+
+    if (NULL == hdr)
+        return;
+
+    hdr->lib_id = LIBID;
+    hdr->object = type;
+}
+
+static bool validate_libid(void *p)
+{
+    struct cobject_hdr *hdr = p;
+
+    if (NULL == hdr)
+        return false;
+
+    if (hdr->lib_id != LIBID)
+        return false;
+
+    return true;
+}
+
+static bool validate_typeof(void *p, enum cl_object type)
+{
+    struct cobject_hdr *hdr = p;
+
+    if (NULL == hdr)
+        return false;
+
+    if (hdr->object != type)
+        return false;
+
+    return true;
+}
+
+bool validate_object(const void *p, enum cl_object type)
+{
+    if (NULL == p) {
+        cset_errno(CL_NULL_ARG);
+        return false;
+    }
+
+    if (validate_libid((void *)p) == false) {
+        cset_errno(CL_UNSUPPORTED_TYPE);
+        return false;
+    }
+
+    if (validate_typeof((void *)p, type) == false) {
+        cset_errno(CL_INVALID_VALUE);
+        return false;
+    }
+
+    return true;
+}
 

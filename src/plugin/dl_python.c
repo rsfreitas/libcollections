@@ -99,7 +99,7 @@ void py_library_uninit(void *data __attribute__((unused)))
 }
 
 /*
- * Loads information from within 'cplugin_entry_s' class.
+ * Loads information from within 'CpluginMainEntry' class.
  */
 cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 {
@@ -119,14 +119,14 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
          */
         { "get_name",           NULL },
         { "get_version",        NULL },
-        { "get_creator",        NULL },
+        { "get_author",         NULL },
         { "get_description",    NULL },
         { "get_api",            NULL },
         { "get_startup",        NULL },
         { "get_shutdown",       NULL }
     };
 
-    class = PyDict_GetItemString(dict, "cplugin_entry_s");
+    class = PyDict_GetItemString(dict, "CpluginMainEntry");
 
     if (NULL == class)
         return NULL;

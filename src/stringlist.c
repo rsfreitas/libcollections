@@ -34,10 +34,13 @@ struct cstring_list_node_s {
     cstring_t   *s;
 };
 
-struct cstring_list_s {
-    struct cstring_list_node_s  *list;
-    unsigned int                size;
-};
+#define cstring_list_members                                \
+    cl_struct_member(struct cstring_list_node_s *, list)    \
+    cl_struct_member(unsigned int, size)
+
+cl_struct_declare(cstring_list_s, cstring_list_members);
+
+#define cstring_list_s      cl_struct(cstring_list_s)
 
 static struct cstring_list_node_s *new_list_node_s(cstring_t *v)
 {
@@ -68,10 +71,10 @@ static void destroy_list_node_s(void *ptr)
 
 cstring_list_t LIBEXPORT *cstring_list_create(void)
 {
-    struct cstring_list_s *l = NULL;
+    cstring_list_s *l = NULL;
 
     cerrno_clear();
-    l = calloc(1, sizeof(struct cstring_list_s));
+    l = calloc(1, sizeof(cstring_list_s));
 
     if (NULL == l) {
         cset_errno(CL_NO_MEM);
@@ -81,19 +84,19 @@ cstring_list_t LIBEXPORT *cstring_list_create(void)
     l->list = NULL;
     l->size = 0;
 
+    set_typeof(CSTRINGLIST, l);
+
     return l;
 }
 
 int LIBEXPORT cstring_list_destroy(cstring_list_t *l)
 {
-    struct cstring_list_s *p = (struct cstring_list_s *)l;
+    cstring_list_s *p = (cstring_list_s *)l;
 
     cerrno_clear();
 
-    if (NULL == l) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(l, CSTRINGLIST) == false)
         return -1;
-    }
 
     if (p->size > 0)
         cdll_free(p->list, destroy_list_node_s);
@@ -105,27 +108,26 @@ int LIBEXPORT cstring_list_destroy(cstring_list_t *l)
 
 int LIBEXPORT cstring_list_size(const cstring_list_t *l)
 {
-    struct cstring_list_s *p = (struct cstring_list_s *)l;
+    cstring_list_s *p = (cstring_list_s *)l;
 
     cerrno_clear();
 
-    if (NULL == l) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(l, CSTRINGLIST) == false)
         return -1;
-    }
 
     return p->size;
 }
 
 int LIBEXPORT cstring_list_add(cstring_list_t *l, cstring_t *s)
 {
-    struct cstring_list_s *p = (struct cstring_list_s *)l;
+    cstring_list_s *p = (cstring_list_s *)l;
     struct cstring_list_node_s *n = NULL;
 
     cerrno_clear();
 
-    if ((NULL == l) || (NULL == s)) {
-        cset_errno(CL_NULL_ARG);
+    if ((validate_object(l, CSTRINGLIST) == false) ||
+        (validate_object(s, CSTRING) == false))
+    {
         return -1;
     }
 
@@ -143,15 +145,13 @@ int LIBEXPORT cstring_list_add(cstring_list_t *l, cstring_t *s)
 cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
     unsigned int index)
 {
-    struct cstring_list_s *p = (struct cstring_list_s *)l;
+    cstring_list_s *p = (cstring_list_s *)l;
     struct cstring_list_node_s *n = NULL;
 
     cerrno_clear();
 
-    if (NULL == l) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(l, CSTRINGLIST) == false)
         return NULL;
-    }
 
     if (index >= (unsigned int)cstring_list_size(p))
         return NULL;
@@ -169,15 +169,13 @@ cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
 cstring_t LIBEXPORT *cstring_list_map(const cstring_list_t *l,
     int (*foo)(void *, void *), void *data)
 {
-    struct cstring_list_s *p = (struct cstring_list_s *)l;
+    cstring_list_s *p = (cstring_list_s *)l;
     struct cstring_list_node_s *n = NULL;
 
     cerrno_clear();
 
-    if (NULL == l) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(l, CSTRINGLIST) == false)
         return NULL;
-    }
 
     n = cdll_map(p->list, foo, data);
 

@@ -47,7 +47,7 @@ jobject newCpluginArguments(JNIEnv *env, struct cplugin_function_s *foo);
 /* jni_CpluginObject.c */
 int set_return_value_from_CpluginObject(JNIEnv *env, cplugin_t *cpl,
                                         const char *function_name,
-                                        unsigned int caller_id,
+                                        uint32_t caller_id,
                                         jobject *object);
 
 /* jni_CpluginType.c */

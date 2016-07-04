@@ -43,20 +43,23 @@ struct last_msg {
     unsigned int    count;
 };
 
-struct clog_s {
-    FILE                    *f;
-    char                    *pathname;
-    enum clog_mode          mode;
-    enum clog_level         level;
-    enum clog_prefix_field  prefixes;
-    unsigned int            max_repeat;
-    char                    separator;
-    struct last_msg         lmsg;
-    pthread_mutex_t         lock;
-    struct ref_s            ref;
-};
+#define clog_members                                    \
+    cl_struct_member(FILE *, f)                         \
+    cl_struct_member(char *, pathname)                  \
+    cl_struct_member(enum clog_mode, mode)              \
+    cl_struct_member(enum clog_level, level)            \
+    cl_struct_member(enum clog_prefix_field, prefixes)  \
+    cl_struct_member(unsigned int, max_repeat)          \
+    cl_struct_member(char, separator)                   \
+    cl_struct_member(struct last_msg, lmsg)             \
+    cl_struct_member(pthread_mutex_t, lock)             \
+    cl_struct_member(struct ref_s, ref)
 
-static void close_log_file(struct clog_s *log);
+cl_struct_declare(clog_s, clog_members);
+
+#define clog_s          cl_struct(clog_s)
+
+static void close_log_file(clog_s *log);
 
 static bool is_mode_valid(enum clog_mode mode)
 {
@@ -143,7 +146,7 @@ static bool compare_message(const char *m1, const char *m2)
     return false;
 }
 
-static bool may_write_message(struct clog_s *log, enum clog_level level)
+static bool may_write_message(clog_s *log, enum clog_level level)
 {
     if (level <= log->level)
         return true;
@@ -151,7 +154,7 @@ static bool may_write_message(struct clog_s *log, enum clog_level level)
     return false;
 }
 
-static void save_written_message(struct clog_s *log, const char *msg)
+static void save_written_message(clog_s *log, const char *msg)
 {
     if (compare_message(cstring_valueof(log->lmsg.msg), msg) == true)
         log->lmsg.count++;
@@ -165,12 +168,12 @@ static void save_written_message(struct clog_s *log, const char *msg)
 }
 
 /*
- * Releases a 'struct clog_s' from memory. Function to be called when its
+ * Releases a 'clog_s' from memory. Function to be called when its
  * reference count drops to 0.
  */
 static void __destroy_clog_s(const struct ref_s *ref)
 {
-    struct clog_s *l = container_of(ref, struct clog_s, ref);
+    clog_s *l = container_of(ref, clog_s, ref);
 
     if (NULL == l)
         return;
@@ -188,13 +191,13 @@ static void __destroy_clog_s(const struct ref_s *ref)
 }
 
 /*
- * Creates a new 'struct clog_s'.
+ * Creates a new 'clog_s'.
  */
-static struct clog_s *new_clog_s(void)
+static clog_s *new_clog_s(void)
 {
-    struct clog_s *l = NULL;
+    clog_s *l = NULL;
 
-    l = calloc(1, sizeof(struct clog_s));
+    l = calloc(1, sizeof(clog_s));
 
     if (NULL == l) {
         cset_errno(CL_NO_MEM);
@@ -205,10 +208,12 @@ static struct clog_s *new_clog_s(void)
     l->ref.free = __destroy_clog_s;
     pthread_mutex_init(&l->lock, NULL);
 
+    set_typeof(CLOG, l);
+
     return l;
 }
 
-static int open_log_file(struct clog_s *log)
+static int open_log_file(clog_s *log)
 {
     log->f = fopen(log->pathname, "a");
 
@@ -220,24 +225,24 @@ static int open_log_file(struct clog_s *log)
     return 0;
 }
 
-static void close_log_file(struct clog_s *log)
+static void close_log_file(clog_s *log)
 {
     if (log->f != NULL)
         fclose(log->f);
 }
 
-static void sync_log_data(struct clog_s *log)
+static void sync_log_data(clog_s *log)
 {
     if (log->f != NULL)
         fflush(log->f);
 }
 
-static void lock_log_file(struct clog_s *log)
+static void lock_log_file(clog_s *log)
 {
     pthread_mutex_lock(&log->lock);
 }
 
-static void unlock_log_file(struct clog_s *log)
+static void unlock_log_file(clog_s *log)
 {
     pthread_mutex_unlock(&log->lock);
 }
@@ -251,7 +256,7 @@ static void unlock_log_file(struct clog_s *log)
  * - CLOG_KEEP_FILE_OPEN: the file will be opened as long as the @log is active
  *                        inside the application.
  */
-static int set_logfile_handle_mode(struct clog_s *log, enum clog_mode mode,
+static int set_logfile_handle_mode(clog_s *log, enum clog_mode mode,
     const char *pathname)
 {
     log->f = NULL;
@@ -264,7 +269,7 @@ static int set_logfile_handle_mode(struct clog_s *log, enum clog_mode mode,
     return 0;
 }
 
-static cstring_t *message_prefix(struct clog_s *log, enum clog_level level)
+static cstring_t *message_prefix(clog_s *log, enum clog_level level)
 {
     cstring_t *p = NULL, *tmp = NULL;
     cdatetime_t *dt = NULL;
@@ -307,7 +312,7 @@ static cstring_t *message_prefix(struct clog_s *log, enum clog_level level)
 /*
  * Check if we have a last message saved that may be written to the log file.
  */
-static bool has_last_message_to_write(struct clog_s *log)
+static bool has_last_message_to_write(clog_s *log)
 {
     if (log->lmsg.count > 1)
         return true;
@@ -318,7 +323,7 @@ static bool has_last_message_to_write(struct clog_s *log)
 /*
  * Check if we can write the last message counter to the log file.
  */
-static bool needs_to_write_last_message(struct clog_s *log)
+static bool needs_to_write_last_message(clog_s *log)
 {
     if ((log->lmsg.count % log->max_repeat) == 0)
         return true;
@@ -326,7 +331,7 @@ static bool needs_to_write_last_message(struct clog_s *log)
     return false;
 }
 
-static void write_last_message_counter(struct clog_s *log, enum clog_level level)
+static void write_last_message_counter(clog_s *log, enum clog_level level)
 {
     cstring_t *p = message_prefix(log, level);
 
@@ -339,7 +344,7 @@ static void write_last_message_counter(struct clog_s *log, enum clog_level level
     fprintf(log->f, CLOG_COUNTER_MSG, log->lmsg.count);
 }
 
-static void write_message(struct clog_s *log, enum clog_level level,
+static void write_message(clog_s *log, enum clog_level level,
     const char *msg)
 {
     cstring_t *p = message_prefix(log, level);
@@ -359,7 +364,7 @@ static void write_message(struct clog_s *log, enum clog_level level,
             write_last_message_counter(log, level);
 }
 
-static void write_hex_message(struct clog_s *log, enum clog_level level,
+static void write_hex_message(clog_s *log, enum clog_level level,
     const void *data, unsigned int dsize)
 {
     unsigned int i;
@@ -381,7 +386,7 @@ static void write_hex_message(struct clog_s *log, enum clog_level level,
     fprintf(log->f, "\n");
 }
 
-static bool check_log_mode(struct clog_s *log, enum clog_mode mode)
+static bool check_log_mode(clog_s *log, enum clog_mode mode)
 {
     if (log->mode == mode)
         return true;
@@ -399,7 +404,7 @@ clog_t LIBEXPORT *clog_open_ex(const char *pathname, enum clog_mode mode,
     enum clog_level start_level, unsigned int max_repeat, char separator,
     enum clog_prefix_field prefixes)
 {
-    struct clog_s *log = NULL;
+    clog_s *log = NULL;
 
     cerrno_clear();
 
@@ -447,14 +452,12 @@ clog_t LIBEXPORT *clog_open(const char *pathname, enum clog_mode mode,
 
 int LIBEXPORT clog_close(clog_t *log)
 {
-    struct clog_s *l = (struct clog_s *)log;
+    clog_s *l = (clog_s *)log;
 
     cerrno_clear();
 
-    if (NULL == l) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(log, CLOG) == false)
         return -1;
-    }
 
     ref_dec(&l->ref);
 
@@ -468,10 +471,8 @@ int LIBEXPORT clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
 
     cerrno_clear();
 
-    if (NULL == log) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(log, CLOG) == false)
         return -1;
-    }
 
     if (is_level_valid(level) == false) {
         cset_errno(CL_INVALID_VALUE);
@@ -513,10 +514,8 @@ int LIBEXPORT clog_printf(clog_t *log, enum clog_level level,
 
     cerrno_clear();
 
-    if (NULL == log) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(log, CLOG) == false)
         return -1;
-    }
 
     va_start(ap, fmt);
     ret = clog_vprintf(log, level, fmt, ap);
@@ -530,10 +529,8 @@ int LIBEXPORT clog_bprint(clog_t *log, enum clog_level level, const void *data,
 {
     cerrno_clear();
 
-    if (NULL == log) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(log, CLOG) == false)
         return -1;
-    }
 
     if ((NULL == data) || (dsize == 0)) {
         cset_errno(CL_NULL_DATA);
@@ -576,14 +573,12 @@ void clog_rprint(void)
 
 int LIBEXPORT clog_set_log_level(clog_t *log, enum clog_level level)
 {
-    struct clog_s *l = (struct clog_s *)log;
+    clog_s *l = (clog_s *)log;
 
     cerrno_clear();
 
-    if (NULL == log) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(log, CLOG) == false)
         return -1;
-    }
 
     if (is_level_valid(level) == false) {
         cset_errno(CL_INVALID_VALUE);
@@ -597,14 +592,12 @@ int LIBEXPORT clog_set_log_level(clog_t *log, enum clog_level level)
 
 int LIBEXPORT clog_set_separator(clog_t *log, char separator)
 {
-    struct clog_s *l = (struct clog_s *)log;
+    clog_s *l = (clog_s *)log;
 
     cerrno_clear();
 
-    if (NULL == log) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(log, CLOG) == false)
         return -1;
-    }
 
     if (is_separator_valid(separator) == false) {
         cset_errno(CL_INVALID_VALUE);

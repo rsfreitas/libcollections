@@ -25,26 +25,26 @@
 #
 
 import sys
-from cplugin import *
+import cl_plugin as cplugin
 
 def module_init():
-    print CpluginFunctionName()
+    print cplugin.CpluginFunctionName()
     print 'Inside module init'
     return 0
 
 
 
 def module_uninit():
-    print CpluginFunctionName()
+    print cplugin.CpluginFunctionName()
     print 'Inside module uninit'
 
 
 
-class cplugin_entry_s(CpluginEntryAPI):
+class CpluginMainEntry(cplugin.CpluginEntryAPI):
     def __init__(self):
         self.name = "py-plugin"
         self.version = "0.1"
-        self.creator = "Rodrigo Freitas"
+        self.author = "Rodrigo Freitas"
         self.description = "Python plugin example"
         self.startup = "module_init"
         self.shutdown = "module_uninit"
@@ -85,6 +85,34 @@ class cplugin_entry_s(CpluginEntryAPI):
 }"
 
 
+    def get_name(self):
+        return self.name
+
+
+    def get_version(self):
+        return self.version
+
+
+    def get_author(self):
+        return self.author
+
+
+    def get_description(self):
+        return self.description
+
+
+    def get_api(self):
+        return self.api
+
+
+    def get_startup(self):
+        return self.startup
+
+
+    def get_shutdown(self):
+        return self.shutdown
+
+
 
 # ########################################################## #
 #                                                            #
@@ -93,113 +121,145 @@ class cplugin_entry_s(CpluginEntryAPI):
 # ########################################################## #
 
 def foo_int(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.INT.value, 42)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.INT.value, 42)
 
 
 
 def foo_uint(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.UINT.value, 420)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.UINT.value, 420)
 
 
 
 def foo_sint(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.SINT.value, 421)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.SINT.value, 421)
 
 
 
 def foo_usint(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.USINT.value, 4201)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.USINT.value, 4201)
 
 
 
 def foo_char(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.CHAR.value, 'a')
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.CHAR.value, 'a')
 
 
 
 def foo_uchar(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.UCHAR.value, 230)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.UCHAR.value, 230)
 
 
 
 def foo_float(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.FLOAT.value, 42.5)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.FLOAT.value, 42.5)
 
 
 
 def foo_double(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.DOUBLE.value, 4.2)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.DOUBLE.value, 4.2)
 
 
 
 def foo_boolean(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.BOOLEAN.value, True)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.BOOLEAN.value, True)
 
 
 
 def foo_long(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.LONG.value, 42000)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.LONG.value, 42000)
 
 
 
 def foo_ulong(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.ULONG.value, 420001)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.ULONG.value, 420001)
 
 
 
 def foo_llong(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.LLONG.value, 420009)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.LLONG.value, 420009)
 
 
 
 def foo_ullong(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.ULLONG.value, 4200019)
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.ULLONG.value, 4200019)
 
 
 
 def foo_string(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.STRING.value, "Just a String test!")
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.STRING.value,
+                        "Just a String test!")
 
 
 
 def foo_cstring(caller_id, cplugin_t):
-    print CpluginFunctionName()
-    rv = CpluginFunctionReturnValue(caller_id, cplugin_t, CpluginFunctionName())
-    rv.set_return_value(CpluginValue.STRING.value, "Just a Cstring test!")
+    print cplugin.CpluginFunctionName()
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.STRING.value,
+                        "Just a Cstring test!")
 
 
 
 def foo_args(args):
-    print CpluginFunctionName()
-    a = CpluginFunctionArgs(args)
+    print cplugin.CpluginFunctionName()
+    a = cplugin.CpluginFunctionArgs(args)
     arg1 = a.argument('arg1')
     arg2 = a.argument('arg2')
     arg3 = a.argument('arg3')

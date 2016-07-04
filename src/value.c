@@ -31,7 +31,7 @@
 
 #include "collections.h"
 
-/*#define cvalue_members                              \
+#define cvalue_members                              \
     cl_struct_member(enum cl_type, type)            \
     cl_struct_member(unsigned int, size)            \
     cl_struct_member(bool, dup_data)                \
@@ -55,36 +55,9 @@
     cl_struct_member(void *, p)                     \
     cl_struct_member(struct ref_s, ref)
 
-cl_struct_declare(cvalue_s2, cvalue_members);*/
+cl_struct_declare(cvalue_s, cvalue_members);
 
-struct cvalue_s {
-    enum cl_type        type;
-    unsigned int        size;
-    bool                dup_data;
-    void                (*free_value)(void *);
-    size_t              psize;
-    cspec_t             *specs;
-
-    /* data */
-    char                c;
-    unsigned char       uc;
-    int                 i;
-    unsigned int        ui;
-    short int           si;
-    unsigned short int  usi;
-    float               f;
-    double              d;
-    long                l;
-    unsigned long       ul;
-    long long           ll;
-    unsigned long long  ull;
-    cstring_t           *s;
-    bool                b;
-    void                *p;
-
-    /* ref count */
-    struct ref_s        ref;
-};
+#define cvalue_s        cl_struct(cvalue_s)
 
 bool validate_cl_type(enum cl_type type)
 {
@@ -114,7 +87,7 @@ bool validate_cl_type(enum cl_type type)
     return false;
 }
 
-static void free_value_data(struct cvalue_s *o)
+static void free_value_data(cvalue_s *o)
 {
     if (o->free_value != NULL)
         (o->free_value)(o->p);
@@ -124,7 +97,7 @@ static void free_value_data(struct cvalue_s *o)
 
 static void destroy_cvalue_s(const struct ref_s *ref)
 {
-    struct cvalue_s *o = container_of(ref, struct cvalue_s, ref);
+    cvalue_s *o = container_of(ref, cvalue_s, ref);
 
     if (NULL == o)
         return;
@@ -141,11 +114,11 @@ static void destroy_cvalue_s(const struct ref_s *ref)
     free(o);
 }
 
-static struct cvalue_s *new_cvalue_s(enum cl_type type)
+static cvalue_s *new_cvalue_s(enum cl_type type)
 {
-    struct cvalue_s *o = NULL;
+    cvalue_s *o = NULL;
 
-    o = calloc(1, sizeof(struct cvalue_s));
+    o = calloc(1, sizeof(cvalue_s));
 
     if (NULL == o) {
         cset_errno(CL_NO_MEM);
@@ -160,12 +133,14 @@ static struct cvalue_s *new_cvalue_s(enum cl_type type)
     o->ref.free = destroy_cvalue_s;
     o->ref.count = 1;
 
+    set_typeof(CVALUE, o);
+
     return o;
 }
 
 void cvalue_set_char(cvalue_t *value, char c)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -175,7 +150,7 @@ void cvalue_set_char(cvalue_t *value, char c)
 
 void cvalue_set_uchar(cvalue_t *value, unsigned char uc)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -185,7 +160,7 @@ void cvalue_set_uchar(cvalue_t *value, unsigned char uc)
 
 void cvalue_set_int(cvalue_t *value, int i)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -195,7 +170,7 @@ void cvalue_set_int(cvalue_t *value, int i)
 
 void cvalue_set_uint(cvalue_t *value, unsigned int ui)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -205,7 +180,7 @@ void cvalue_set_uint(cvalue_t *value, unsigned int ui)
 
 void cvalue_set_sint(cvalue_t *value, short int si)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -215,7 +190,7 @@ void cvalue_set_sint(cvalue_t *value, short int si)
 
 void cvalue_set_usint(cvalue_t *value, unsigned short int usi)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -225,7 +200,7 @@ void cvalue_set_usint(cvalue_t *value, unsigned short int usi)
 
 void cvalue_set_float(cvalue_t *value, float f)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -235,7 +210,7 @@ void cvalue_set_float(cvalue_t *value, float f)
 
 void cvalue_set_double(cvalue_t *value, double d)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -245,7 +220,7 @@ void cvalue_set_double(cvalue_t *value, double d)
 
 void cvalue_set_long(cvalue_t *value, long l)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -255,7 +230,7 @@ void cvalue_set_long(cvalue_t *value, long l)
 
 void cvalue_set_ulong(cvalue_t *value, unsigned long ul)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -265,7 +240,7 @@ void cvalue_set_ulong(cvalue_t *value, unsigned long ul)
 
 void cvalue_set_llong(cvalue_t *value, long long ll)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -275,7 +250,7 @@ void cvalue_set_llong(cvalue_t *value, long long ll)
 
 void cvalue_set_ullong(cvalue_t *value, unsigned long long ull)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -285,7 +260,7 @@ void cvalue_set_ullong(cvalue_t *value, unsigned long long ull)
 
 void cvalue_set_boolean(cvalue_t *value, bool b)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -295,7 +270,7 @@ void cvalue_set_boolean(cvalue_t *value, bool b)
 
 void cvalue_set_cstring(cvalue_t *value, cstring_t *s)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -308,7 +283,7 @@ void cvalue_set_cstring(cvalue_t *value, cstring_t *s)
 
 void cvalue_set_string(cvalue_t *value, char *s)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     if (NULL == value)
         return;
@@ -319,7 +294,7 @@ void cvalue_set_string(cvalue_t *value, char *s)
     v->s = cstring_create("%s", s);
 }
 
-static void set_cvalue_value(struct cvalue_s *o, va_list ap)
+static void set_cvalue_value(cvalue_s *o, va_list ap)
 {
     void *p;
 
@@ -413,16 +388,15 @@ static void set_cvalue_value(struct cvalue_s *o, va_list ap)
 
 int LIBEXPORT cvalue_set(cvalue_t *value, ...)
 {
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cvalue_s *o;
     va_list ap;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return -1;
-    }
 
+    o = cvalue_ref(value);
     va_start(ap, NULL);
 
     if (o->specs != NULL) {
@@ -438,7 +412,7 @@ int LIBEXPORT cvalue_set(cvalue_t *value, ...)
 
 cvalue_t LIBEXPORT *cvalue_create(enum cl_type type, ...)
 {
-    struct cvalue_s *o = NULL;
+    cvalue_s *o = NULL;
     va_list ap;
 
     cerrno_clear();
@@ -460,17 +434,15 @@ cvalue_t LIBEXPORT *cvalue_create(enum cl_type type, ...)
 
 cvalue_t LIBEXPORT *cvalue_create_with_spec(enum cl_type type, cspec_t *spec)
 {
-    struct cvalue_s *o = NULL;
+    cvalue_s *o = NULL;
 
     cerrno_clear();
 
     if (validate_cl_type(type) == false)
         return NULL;
 
-    if (NULL == spec) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(spec, CSPEC) == false)
         return NULL;
-    }
 
     o = new_cvalue_s(type);
 
@@ -487,7 +459,7 @@ int LIBEXPORT cvalue_destroy(cvalue_t *value)
     return cvalue_unref(value);
 }
 
-static int get_cvalue_sizeof(struct cvalue_s *o)
+static int get_cvalue_sizeof(cvalue_s *o)
 {
     switch (o->type) {
         case CL_VOID:
@@ -534,17 +506,15 @@ static int get_cvalue_sizeof(struct cvalue_s *o)
 
 int LIBEXPORT cvalue_sizeof(const cvalue_t *value)
 {
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cvalue_s *o;
     int s;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cvalue_unref(o);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return -1;
-    }
 
+    o = cvalue_ref((cvalue_t *)value);
     s = get_cvalue_sizeof(o);
     cvalue_unref(o);
 
@@ -553,17 +523,15 @@ int LIBEXPORT cvalue_sizeof(const cvalue_t *value)
 
 enum cl_type LIBEXPORT cvalue_type(const cvalue_t *value)
 {
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cvalue_s *o;
     enum cl_type type;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cvalue_unref(o);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return -1;
-    }
 
+    o = cvalue_ref((cvalue_t *)value);
     type = o->type;
     cvalue_unref(o);
 
@@ -572,14 +540,12 @@ enum cl_type LIBEXPORT cvalue_type(const cvalue_t *value)
 
 static int get_value_check(const cvalue_t *value, enum cl_type type)
 {
-    struct cvalue_s *o = (struct cvalue_s *)value;
+    cvalue_s *o = (cvalue_s *)value;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return -1;
-    }
 
     if (cvalue_is_of_type(value, type) == false) {
         cset_errno(CL_WRONG_TYPE);
@@ -600,29 +566,25 @@ static int get_value_check(const cvalue_t *value, enum cl_type type)
 
 bool LIBEXPORT cvalue_is_of_type(const cvalue_t *value, unsigned int type)
 {
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cvalue_s *o;
     bool b;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cvalue_unref(o);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return false;
-    }
 
-    if (validate_cl_type(type) == false) {
-        cvalue_unref(o);
+    if (validate_cl_type(type) == false)
         return false;
-    }
 
+    o = cvalue_ref((cvalue_t *)value);
     b = (o->type == type) ? true : false;
     cvalue_unref(o);
 
     return b;
 }
 
-static cstring_t *print_value(const struct cvalue_s *o)
+static cstring_t *print_value(const cvalue_s *o)
 {
     cstring_t *s = NULL;
     char *tmp;
@@ -701,17 +663,15 @@ static cstring_t *print_value(const struct cvalue_s *o)
 
 cstring_t LIBEXPORT *cvalue_to_cstring(const cvalue_t *value)
 {
-    cvalue_t *ref = cvalue_ref((cvalue_t *)value);
+    cvalue_t *ref;
     cstring_t *s = NULL;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cvalue_unref(ref);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return NULL;
-    }
 
+    ref = cvalue_ref((cvalue_t *)value);
     s = print_value(ref);
     cvalue_unref(ref);
 
@@ -725,10 +685,8 @@ cvalue_t LIBEXPORT *cvalue_from_cstring(const cstring_t *value)
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return NULL;
-    }
 
     ref = cstring_ref((cstring_t *)value);
 
@@ -746,14 +704,12 @@ cvalue_t LIBEXPORT *cvalue_from_cstring(const cstring_t *value)
 
 cvalue_t LIBEXPORT *cvalue_ref(cvalue_t *value)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return NULL;
-    }
 
     ref_inc(&v->ref);
 
@@ -762,14 +718,12 @@ cvalue_t LIBEXPORT *cvalue_ref(cvalue_t *value)
 
 int LIBEXPORT cvalue_unref(cvalue_t *value)
 {
-    struct cvalue_s *v = (struct cvalue_s *)value;
+    cvalue_s *v = (cvalue_s *)value;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return -1;
-    }
 
     ref_dec(&v->ref);
 
@@ -778,7 +732,7 @@ int LIBEXPORT cvalue_unref(cvalue_t *value)
 
 int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
 {
-    struct cvalue_s *o = cvalue_ref((cvalue_t *)value);
+    cvalue_s *o;
     va_list ap;
     char *pc, c, **cc;
     unsigned char *uc;
@@ -798,12 +752,10 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cvalue_unref((cvalue_t *)value);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(value, CVALUE) == false)
         return -1;
-    }
 
+    o = cvalue_ref((cvalue_t *)value);
     va_start(ap, fmt);
 
     while (*fmt) {

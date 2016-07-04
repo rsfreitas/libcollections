@@ -46,6 +46,8 @@
 #define PYCPLUGIN_T                     "pycplugin_t"
 #define PYSHUTDOWN_ARGS                 "pyshutargs"
 
+#include <cl/cl_typeof.h>
+
 /* error.c */
 void cerrno_clear(void);
 void cset_errno(enum cerror_code error_code);

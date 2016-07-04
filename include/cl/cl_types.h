@@ -133,9 +133,8 @@ typedef void                cjson_t;
 typedef void                cdatetime_t;
 typedef void                ctimeout_t;
 
-/** thread types */
+/** thread type */
 typedef void                cthread_t;
-typedef void                cthread_data_t;
 
 /** event types */
 typedef void                cevent_t;
