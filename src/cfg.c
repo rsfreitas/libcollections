@@ -42,7 +42,7 @@ enum cfg_line_type {
 struct cfg_line_s {
     clist_t             *prev;
     clist_t             *next;
-    struct cfg_key_s    *child;
+    struct line_s       *child;
     cstring_t           *name;
     cvalue_t            *value;
     cstring_t           *comment;

@@ -43,7 +43,6 @@ enum cl_object {
     CDATETIME,
     CTIMEOUT,
     CTHREAD,
-    CTHREAD_DATA,
     CTIMER,
     CTIMER_INFO,
     CTIMER_ARG,
@@ -60,7 +59,7 @@ enum cl_object {
 };
 
 struct cobject_hdr {
-    unsigned short int  lib_id;
+    unsigned long long  lib_id;
     enum cl_object      object;
 };
 
@@ -74,7 +73,10 @@ struct cobject_hdr {
     }
 
 #define cl_struct(name)                     \
-    struct cobject_##name
+    struct cl_obj_##name
+
+void set_typeof(enum cl_object type, void *p);
+bool validate_object(const void *p, enum cl_object type);
 
 #endif
 

@@ -74,10 +74,11 @@ OBJS =	\
 	ref.o			\
 	specs.o			\
 	string.o		\
-	stringlist.o		\
+	stringlist.o	\
 	thread.o		\
 	timeout.o		\
 	timer.o			\
+	typeof.o		\
 	util.o			\
 	value.o
 

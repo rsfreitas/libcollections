@@ -30,26 +30,25 @@
 
 #include "collections.h"
 
-struct spec_s {
-    enum cl_param_flags properties;
+#define cspec_members                                   \
+    cl_struct_member(enum cl_param_flags, properties)   \
+    cl_struct_member(cvalue_t *, max)                   \
+    cl_struct_member(cvalue_t *, min)                   \
+    cl_struct_member(unsigned int, max_length)
 
-    /* number */
-    cvalue_t            *max;
-    cvalue_t            *min;
+cl_struct_declare(cspec_s, cspec_members);
 
-    /* string */
-    unsigned int        max_length;
-};
+#define cspec_s             cl_struct(cspec_s)
 
-static struct spec_s *new_spec_s(enum cl_param_flags properties,
+static cspec_s *new_spec_s(enum cl_param_flags properties,
     cvalue_t *min, cvalue_t *max, unsigned int max_length)
 {
-    struct spec_s *s = NULL;
+    cspec_s *s = NULL;
 
-    s = calloc(1, sizeof(struct spec_s *));
+    s = calloc(1, sizeof(cspec_s *));
 
     if (NULL == s) {
-        cset_errno(CL_NULL_ARG);
+        cset_errno(CL_NO_MEM);
         return NULL;
     }
 
@@ -57,11 +56,12 @@ static struct spec_s *new_spec_s(enum cl_param_flags properties,
     s->max = (max != NULL) ? cvalue_ref(max) : NULL;
     s->min = (min != NULL) ? cvalue_ref(min) : NULL;
     s->max_length = max_length;
+    set_typeof(CSPEC, s);
 
     return s;
 }
 
-static void destroy_spec_s(struct spec_s *spec)
+static void destroy_spec_s(cspec_s *spec)
 {
     if (NULL == spec)
         return;
@@ -80,7 +80,13 @@ cspec_t LIBEXPORT *cspec_create(enum cl_param_flags properties,
 {
     cerrno_clear();
 
-    if ((NULL == min) || (NULL == max) || (max_length == 0)) {
+    if ((validate_object(min, CVALUE) == false) ||
+        (validate_object(max, CVALUE) == false))
+    {
+        return NULL;
+    }
+
+    if (max_length == 0) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -92,17 +98,15 @@ int LIBEXPORT cspec_destroy(cspec_t *spec)
 {
     cerrno_clear();
 
-    if (NULL == spec) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(spec, CSPEC) == false)
         return -1;
-    }
 
     destroy_spec_s(spec);
 
     return 0;
 }
 
-static bool validate_accessibility(const struct spec_s *spec, bool set)
+static bool validate_accessibility(const cspec_s *spec, bool set)
 {
     /* May write? */
     if ((set == true) && (!(spec->properties & CL_WRITABLE)))
@@ -115,7 +119,7 @@ static bool validate_accessibility(const struct spec_s *spec, bool set)
     return true;
 }
 
-static bool validate_char(const struct spec_s *spec, char value)
+static bool validate_char(const cspec_s *spec, char value)
 {
     char min, max;
 
@@ -128,7 +132,7 @@ static bool validate_char(const struct spec_s *spec, char value)
     return false;
 }
 
-static bool validate_uchar(const struct spec_s *spec, unsigned char value)
+static bool validate_uchar(const cspec_s *spec, unsigned char value)
 {
     unsigned char min, max;
 
@@ -141,7 +145,7 @@ static bool validate_uchar(const struct spec_s *spec, unsigned char value)
     return false;
 }
 
-static bool validate_int(const struct spec_s *spec, int value)
+static bool validate_int(const cspec_s *spec, int value)
 {
     int min, max;
 
@@ -154,7 +158,7 @@ static bool validate_int(const struct spec_s *spec, int value)
     return false;
 }
 
-static bool validate_uint(const struct spec_s *spec, unsigned int value)
+static bool validate_uint(const cspec_s *spec, unsigned int value)
 {
     unsigned int min, max;
 
@@ -167,7 +171,7 @@ static bool validate_uint(const struct spec_s *spec, unsigned int value)
     return false;
 }
 
-static bool validate_sint(const struct spec_s *spec, short int value)
+static bool validate_sint(const cspec_s *spec, short int value)
 {
     short int min, max;
 
@@ -180,7 +184,7 @@ static bool validate_sint(const struct spec_s *spec, short int value)
     return false;
 }
 
-static bool validate_usint(const struct spec_s *spec,
+static bool validate_usint(const cspec_s *spec,
      unsigned short int value)
 {
     unsigned short int min, max;
@@ -194,7 +198,7 @@ static bool validate_usint(const struct spec_s *spec,
     return false;
 }
 
-static bool validate_long(const struct spec_s *spec, long value)
+static bool validate_long(const cspec_s *spec, long value)
 {
     long min, max;
 
@@ -207,7 +211,7 @@ static bool validate_long(const struct spec_s *spec, long value)
     return false;
 }
 
-static bool validate_ulong(const struct spec_s *spec, unsigned long value)
+static bool validate_ulong(const cspec_s *spec, unsigned long value)
 {
     unsigned long min, max;
 
@@ -220,7 +224,7 @@ static bool validate_ulong(const struct spec_s *spec, unsigned long value)
     return false;
 }
 
-static bool validate_llong(const struct spec_s *spec, long long value)
+static bool validate_llong(const cspec_s *spec, long long value)
 {
     long long min, max;
 
@@ -233,7 +237,7 @@ static bool validate_llong(const struct spec_s *spec, long long value)
     return false;
 }
 
-static bool validate_ullong(const struct spec_s *spec,
+static bool validate_ullong(const cspec_s *spec,
     unsigned long long value)
 {
     unsigned long long min, max;
@@ -247,7 +251,7 @@ static bool validate_ullong(const struct spec_s *spec,
     return false;
 }
 
-static bool validate_float(const struct spec_s *spec, float value)
+static bool validate_float(const cspec_s *spec, float value)
 {
     float min, max;
 
@@ -260,7 +264,7 @@ static bool validate_float(const struct spec_s *spec, float value)
     return false;
 }
 
-static bool validate_double(const struct spec_s *spec, double value)
+static bool validate_double(const cspec_s *spec, double value)
 {
     double min, max;
 
@@ -281,7 +285,7 @@ static bool validate_boolean(bool value)
     return true;
 }
 
-static bool validate_string(const struct spec_s *spec, const char *s)
+static bool validate_string(const cspec_s *spec, const char *s)
 {
     if ((unsigned int)strlen(s) > spec->max_length)
         return false;
@@ -289,7 +293,7 @@ static bool validate_string(const struct spec_s *spec, const char *s)
     return true;
 }
 
-static bool validate_cstring(const struct spec_s *spec, cstring_t *s)
+static bool validate_cstring(const cspec_s *spec, cstring_t *s)
 {
     if ((unsigned int)cstring_length(s) > spec->max_length)
         return false;
@@ -297,7 +301,7 @@ static bool validate_cstring(const struct spec_s *spec, cstring_t *s)
     return true;
 }
 
-static bool validate_value(const struct spec_s *spec, cvalue_t *value,
+static bool validate_value(const cspec_s *spec, cvalue_t *value,
     va_list ap)
 {
     bool b, ret = false;
@@ -478,17 +482,18 @@ static bool validate_value(const struct spec_s *spec, cvalue_t *value,
 bool LIBEXPORT cspec_validate(const cspec_t *spec, cvalue_t *value,
     bool set_value, va_list ap)
 {
-    cvalue_t *ref = cvalue_ref((cvalue_t *)value);
+    cvalue_t *ref;
     bool ret;
 
     cerrno_clear();
 
-    if ((NULL == spec) || (NULL == value)) {
-        cvalue_unref(ref);
-        cset_errno(CL_NULL_ARG);
+    if ((validate_object(spec, CSPEC) == false) ||
+        (validate_object(value, CVALUE) == false))
+    {
         return false;
     }
 
+    ref = cvalue_ref(value);
     ret = validate_accessibility(spec, set_value);
 
     if (ret == false) {

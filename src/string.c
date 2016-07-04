@@ -35,17 +35,18 @@
 
 #include "collections.h"
 
-struct cstring_s {
-    uint32_t        size;
-    char            *str;
+#define cstring_members                 \
+    cl_struct_member(uint32_t, size)    \
+    cl_struct_member(char *, str)       \
+    cl_struct_member(struct ref_s, ref)
 
-    /* reference count */
-    struct ref_s    ref;
-};
+cl_struct_declare(cstring_s, cstring_members);
+
+#define cstring_s           cl_struct(cstring_s)
 
 static void destroy_string(const struct ref_s *ref)
 {
-    struct cstring_s *string = container_of(ref, struct cstring_s, ref);
+    cstring_s *string = container_of(ref, cstring_s, ref);
 
     if (NULL == string)
         return;
@@ -56,11 +57,11 @@ static void destroy_string(const struct ref_s *ref)
     free(string);
 }
 
-static struct cstring_s *new_cstring(void)
+static cstring_s *new_cstring(void)
 {
-    struct cstring_s *p = NULL;
+    cstring_s *p = NULL;
 
-    p = calloc(1, sizeof(struct cstring_s));
+    p = calloc(1, sizeof(cstring_s));
 
     if (NULL == p) {
         cset_errno(CL_NO_MEM);
@@ -68,6 +69,7 @@ static struct cstring_s *new_cstring(void)
     }
 
     p->str = NULL;
+    set_typeof(CSTRING, p);
 
     /* reference count initialization */
     p->ref.free = destroy_string;
@@ -78,14 +80,12 @@ static struct cstring_s *new_cstring(void)
 
 cstring_t LIBEXPORT *cstring_ref(cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)string;
+    cstring_s *p = (cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return NULL;
-    }
 
     ref_inc(&p->ref);
 
@@ -94,14 +94,12 @@ cstring_t LIBEXPORT *cstring_ref(cstring_t *string)
 
 int LIBEXPORT cstring_unref(cstring_t *string)
 {
-    struct cstring_s *p = (struct cstring_s *)string;
+    cstring_s *p = (cstring_s *)string;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
     ref_dec(&p->ref);
 
@@ -121,7 +119,7 @@ int LIBEXPORT cstring_destroy(cstring_t *string)
  */
 cstring_t LIBEXPORT *cstring_create(const char *fmt, ...)
 {
-    struct cstring_s *string = NULL;
+    cstring_s *string = NULL;
     va_list ap;
 
     cerrno_clear();
@@ -142,7 +140,7 @@ cstring_t LIBEXPORT *cstring_create(const char *fmt, ...)
 
 cstring_t LIBEXPORT *cstring_create_empty(unsigned int size)
 {
-    struct cstring_s *string = NULL;
+    cstring_s *string = NULL;
 
     cerrno_clear();
     string = new_cstring();
@@ -169,7 +167,7 @@ cstring_t LIBEXPORT *cstring_create_empty(unsigned int size)
  */
 cstring_t LIBEXPORT *cstring_create_random(unsigned int size)
 {
-    struct cstring_s *p = NULL;
+    cstring_s *p = NULL;
     unsigned int i;
     int n;
 
@@ -193,17 +191,15 @@ cstring_t LIBEXPORT *cstring_create_random(unsigned int size)
  */
 int LIBEXPORT cstring_length(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     int l = -1;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     l = p->size;
     cstring_unref(p);
 
@@ -215,17 +211,15 @@ int LIBEXPORT cstring_length(const cstring_t *string)
  */
 const char LIBEXPORT *cstring_valueof(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     char *ptr = NULL;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return NULL;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     ptr = p->str;
     cstring_unref(p);
 
@@ -237,16 +231,15 @@ const char LIBEXPORT *cstring_valueof(const cstring_t *string)
  */
 char LIBEXPORT cstring_at(const cstring_t *string, unsigned int index)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     char cnt = -1;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref((cstring_t *)string);
 
     if (index >= (unsigned int)cstring_length(p)) {
         cstring_unref(p);
@@ -265,15 +258,14 @@ char LIBEXPORT cstring_at(const cstring_t *string, unsigned int index)
  */
 int LIBEXPORT cstring_set(cstring_t *string, char c, unsigned int index)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref((cstring_t *)string);
 
     if (index >= (unsigned int)cstring_length(p)) {
         cstring_unref(p);
@@ -292,19 +284,17 @@ int LIBEXPORT cstring_set(cstring_t *string, char c, unsigned int index)
  */
 int LIBEXPORT cstring_cat(cstring_t *string, const char *fmt, ...)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     va_list ap;
     char *buff = NULL;
     int l=0;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     va_start(ap, fmt);
     l = vasprintf(&buff, fmt, ap);
     va_end(ap);
@@ -333,18 +323,19 @@ end_block:
  */
 int LIBEXPORT cstring_cmp(const cstring_t *s1, const cstring_t *s2)
 {
-    struct cstring_s *p1 = cstring_ref((cstring_t *)s1);
-    struct cstring_s *p2 = cstring_ref((cstring_t *)s2);
+    cstring_s *p1, *p2;
     int ret = -1;
 
     cerrno_clear();
 
-    if ((NULL == s1) || (NULL == s2)) {
-        cstring_unref(p2);
-        cstring_unref(p1);
-        cset_errno(CL_NULL_ARG);
+    if ((validate_object(s1, CSTRING) == false) ||
+        (validate_object(s2, CSTRING) == false))
+    {
         return -1;
     }
+
+    p1 = cstring_ref((cstring_t *)s1);
+    p2 = cstring_ref((cstring_t *)s2);
 
     ret = strcmp(p1->str, p2->str);
 
@@ -359,18 +350,19 @@ int LIBEXPORT cstring_cmp(const cstring_t *s1, const cstring_t *s2)
  */
 int LIBEXPORT cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
 {
-    struct cstring_s *p1 = cstring_ref((cstring_t *)s1);
-    struct cstring_s *p2 = cstring_ref((cstring_t *)s2);
+    cstring_s *p1, *p2;
     int ret = -1;
 
     cerrno_clear();
 
-    if ((NULL == s1) || (NULL == s2)) {
-        cstring_unref(p2);
-        cstring_unref(p1);
-        cset_errno(CL_NULL_ARG);
+    if ((validate_object(s1, CSTRING) == false) ||
+        (validate_object(s2, CSTRING) == false))
+    {
         return -1;
     }
+
+    p1 = cstring_ref((cstring_t *)s1);
+    p2 = cstring_ref((cstring_t *)s2);
 
     ret = strncmp(p1->str, p2->str, n);
 
@@ -382,17 +374,15 @@ int LIBEXPORT cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
 
 cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     cstring_t *d = NULL;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return NULL;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     d = cstring_create("%s", p->str);
     cstring_unref(p);
 
@@ -401,16 +391,15 @@ cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
 
 int LIBEXPORT cstring_upper(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref(string);
+    cstring_s *p;
     unsigned int i;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref(string);
 
     for (i = 0; i < p->size; i++)
         if (isascii(p->str[i]))
@@ -423,16 +412,15 @@ int LIBEXPORT cstring_upper(cstring_t *string)
 
 int LIBEXPORT cstring_lower(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref(string);
+    cstring_s *p;
     unsigned int i;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref(string);
 
     for (i = 0; i < p->size; i++)
         if (isascii(p->str[i]))
@@ -445,16 +433,14 @@ int LIBEXPORT cstring_lower(cstring_t *string)
 
 int LIBEXPORT cstring_capitalize(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref(string);
+    cstring_s *p;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref(string);
     p->str[0] = toupper(p->str[0]);
     cstring_unref(p);
 
@@ -463,16 +449,15 @@ int LIBEXPORT cstring_capitalize(cstring_t *string)
 
 int LIBEXPORT cstring_find(const cstring_t *string, char c)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     int i, idx = -1 /* character not found */;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref((cstring_t *)string);
 
     for (i = 0; i < cstring_length(p); i++)
         if (p->str[i] == c) {
@@ -487,16 +472,15 @@ int LIBEXPORT cstring_find(const cstring_t *string, char c)
 
 int LIBEXPORT cstring_rfind(const cstring_t *string, char c)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     int i, idx = 1 /* character not found */;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref((cstring_t *)string);
 
     for (i = cstring_length(p) - 1; i >= 0; i--)
         if (p->str[i] == c) {
@@ -511,16 +495,15 @@ int LIBEXPORT cstring_rfind(const cstring_t *string, char c)
 
 int LIBEXPORT cstring_cchr(const cstring_t *string, char c)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     int i, match = 0;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref((cstring_t *)string);
 
     for (i = 0; i < cstring_length(p); i++)
         if (p->str[i] == c)
@@ -533,17 +516,15 @@ int LIBEXPORT cstring_cchr(const cstring_t *string, char c)
 
 int LIBEXPORT cstring_ltrim(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref(string);
+    cstring_s *p;
     int size, i;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref(string);
     size = cstring_length(p);
 
     while (p->str[0] == ' ') {
@@ -562,17 +543,15 @@ int LIBEXPORT cstring_ltrim(cstring_t *string)
 
 int LIBEXPORT cstring_rtrim(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref(string);
+    cstring_s *p;
     int size, i;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref(string);
     size = cstring_length(p);
     i = size - 1;
 
@@ -590,36 +569,34 @@ int LIBEXPORT cstring_rtrim(cstring_t *string)
 
 int LIBEXPORT cstring_alltrim(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref(string);
+    cstring_s *p;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref(string);
 
     cstring_ltrim(p);
     cstring_rtrim(p);
+
+    cstring_unref(p);
 
     return 0;
 }
 
 cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
-    struct cstring_s *o = NULL;
+    cstring_s *p, *o;
     char *ptr = NULL;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return NULL;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     ptr = strstr(p->str, needle);
 
     if (NULL == ptr) {
@@ -638,17 +615,15 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
 
 int LIBEXPORT cstring_rplchr(cstring_t *string, char c1, char c2)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     int i, c = 0, index;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     c = cstring_cchr(p, c1);
 
     if (c <= 0) {
@@ -673,19 +648,22 @@ int LIBEXPORT cstring_rplchr(cstring_t *string, char c1, char c2)
 int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old,
     const char *new_)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     size_t l_old, l_new, l;
     char *s_in1, *s_in2, *s_out, *n;
     int n_old = 0;
 
     cerrno_clear();
 
-    if ((NULL == string) || (NULL == old) || (NULL == new_)) {
-        cstring_unref(p);
+    if (validate_object(string, CSTRING) == false)
+        return -1;
+
+    if ((NULL == old) || (NULL == new_)) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
+    p = cstring_ref(string);
     l_old = strlen(old);
     l_new = strlen(new_);
     s_in1 = p->str;
@@ -740,17 +718,15 @@ int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old,
  */
 bool LIBEXPORT cstring_isempty(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     bool b;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return false;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     b = (cstring_length(p) > 0) ? true : false;
     cstring_unref(p);
 
@@ -762,15 +738,14 @@ bool LIBEXPORT cstring_isempty(const cstring_t *string)
  */
 int LIBEXPORT cstring_clear(cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
+
+    p = cstring_ref((cstring_t *)string);
 
     if (p->str != NULL) {
         free(p->str);
@@ -880,19 +855,22 @@ static char *__strtok(const char *string, const char *delim, char **next_s)
 cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
     const char *delim)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     cstring_list_t *l = NULL;
     char *t = NULL, *tmp = NULL;
     cstring_t *data;
 
     cerrno_clear();
 
-    if ((NULL == string) || (NULL == delim)) {
-        cstring_unref(p);
+    if (validate_object(string, CSTRING) == false)
+        return NULL;
+
+    if (NULL == delim) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
+    p = cstring_ref((cstring_t *)string);
     l = cstring_list_create();
 
     if (NULL == l) {
@@ -926,18 +904,16 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
 
 int LIBEXPORT cstring_to_int(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     char *endptr = NULL;
     int v;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     errno = 0;
     v = strtol(p->str, &endptr, 10);
 
@@ -960,18 +936,16 @@ int LIBEXPORT cstring_to_int(const cstring_t *string)
 
 long LIBEXPORT cstring_to_long(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     char *endptr = NULL;
     long v;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     errno = 0;
     v = strtol(p->str, &endptr, 10);
 
@@ -994,18 +968,16 @@ long LIBEXPORT cstring_to_long(const cstring_t *string)
 
 long long LIBEXPORT cstring_to_long_long(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     char *endptr = NULL;
     long long v;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     errno = 0;
     v = strtoll(p->str, &endptr, 10);
 
@@ -1028,18 +1000,16 @@ long long LIBEXPORT cstring_to_long_long(const cstring_t *string)
 
 float LIBEXPORT cstring_to_float(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     char *endptr = NULL;
     float v;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     errno = 0;
     v = strtof(p->str, &endptr);
 
@@ -1062,18 +1032,16 @@ float LIBEXPORT cstring_to_float(const cstring_t *string)
 
 double LIBEXPORT cstring_to_double(const cstring_t *string)
 {
-    struct cstring_s *p = cstring_ref((cstring_t *)string);
+    cstring_s *p;
     char *endptr = NULL;
     double v;
 
     cerrno_clear();
 
-    if (NULL == string) {
-        cstring_unref(p);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    p = cstring_ref((cstring_t *)string);
     errno = 0;
     v = strtod(p->str, &endptr);
 
@@ -1096,18 +1064,16 @@ double LIBEXPORT cstring_to_double(const cstring_t *string)
 
 bool LIBEXPORT cstring_is_number(const cstring_t *string)
 {
-    cstring_t *value = cstring_ref((cstring_t *)string);
+    cstring_t *value;
     int i, l;
     bool ret = true;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cstring_unref(value);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return false;
-    }
 
+    value = cstring_ref((cstring_t *)string);
     l = cstring_length(value);
 
     for (i = 0; i < l; i++)
@@ -1123,18 +1089,16 @@ bool LIBEXPORT cstring_is_number(const cstring_t *string)
 
 bool LIBEXPORT cstring_is_float_number(const cstring_t *string)
 {
-    cstring_t *value = cstring_ref((cstring_t *)string);
+    cstring_t *value;
     int i, l;
     bool ret = true;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cstring_unref(value);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return false;
-    }
 
+    value = cstring_ref((cstring_t *)string);
     l = cstring_length(value);
 
     for (i = 0; i < l; i++) {
@@ -1153,18 +1117,16 @@ bool LIBEXPORT cstring_is_float_number(const cstring_t *string)
 
 bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
 {
-    cstring_t *value = cstring_ref((cstring_t *)string);
+    cstring_t *value;
     int i, l;
     bool ret = true;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cstring_unref(value);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return false;
-    }
 
+    value = cstring_ref((cstring_t *)string);
     l = cstring_length(value);
 
     for (i = 0; i < l; i++)
@@ -1180,17 +1142,15 @@ bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
 
 int LIBEXPORT cstring_idchr(cstring_t *string, unsigned int p)
 {
-    struct cstring_s *s = cstring_ref(string);
+    cstring_s *s;
     int size;
 
     cerrno_clear();
 
-    if (NULL == s) {
-        cstring_unref(s);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    s = cstring_ref(string);
     size = cstring_length(s);
 
     if (p > (unsigned int)size) {
@@ -1207,17 +1167,15 @@ int LIBEXPORT cstring_idchr(cstring_t *string, unsigned int p)
 
 int LIBEXPORT cstring_dchr(cstring_t *string, char c)
 {
-    cstring_t *value = cstring_ref(string);
+    cstring_t *value;
     int t, p;
 
     cerrno_clear();
 
-    if (NULL == value) {
-        cstring_unref(value);
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(string, CSTRING) == false)
         return -1;
-    }
 
+    value = cstring_ref(string);
     t = cstring_cchr(value, c);
 
     if (t == 0)

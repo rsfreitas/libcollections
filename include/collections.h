@@ -60,6 +60,7 @@ extern "C" {
 #include <cl/cl_thread.h>
 #include <cl/cl_timeout.h>
 #include <cl/cl_timer.h>
+#include <cl/cl_typeof.h>
 #include <cl/cl_util.h>
 #include <cl/cl_value.h>
 
