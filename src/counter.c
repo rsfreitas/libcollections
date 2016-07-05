@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#include <pthread.h>
+
 #include "collections.h"
 
 #define counter_members                                 \
@@ -37,6 +39,7 @@
     cl_struct_member(cvalue_t *, min)                   \
     cl_struct_member(cvalue_t *, max)                   \
     cl_struct_member(long long, start_value)            \
+    cl_struct_member(pthread_mutex_t, lock)             \
     cl_struct_member(struct ref_s, ref)
 
 cl_struct_declare(counter_s, counter_members);
@@ -121,6 +124,9 @@ static void destroy_counter_s(const struct ref_s *ref)
 
     if (c->max != NULL)
         cvalue_destroy(c->max);
+
+    pthread_mutex_destroy(&c->lock);
+    free(c);
 }
 
 static counter_s *new_counter_s(enum counter_precision precision,
@@ -144,6 +150,7 @@ static counter_s *new_counter_s(enum counter_precision precision,
     c->ref.count = 1;
 
     set_typeof(COUNTER, c);
+    pthread_mutex_init(&c->lock, NULL);
 
     /* Adjust counter limits */
     adjust_counter_limits(c, min, max);
@@ -192,7 +199,7 @@ int LIBEXPORT counter_destroy(counter_t *c)
 
 static int __counter_increase(counter_t *c, long long gap)
 {
-    counter_s *p = (counter_s *)c;
+    counter_s *p;
     long long v, max;
 
     cerrno_clear();
@@ -200,6 +207,8 @@ static int __counter_increase(counter_t *c, long long gap)
     if (validate_object(c, COUNTER) == false)
         return -1;
 
+    p = counter_ref(c);
+    pthread_mutex_lock(&p->lock);
     v = CVALUE_AS_LLONG(p->cnt) + gap;
     max = CVALUE_AS_LLONG(p->max);
 
@@ -211,6 +220,8 @@ static int __counter_increase(counter_t *c, long long gap)
     }
 
     cvalue_set(p->cnt, v, NULL);
+    pthread_mutex_unlock(&p->lock);
+    counter_unref(p);
 
     return 0;
 }
@@ -227,7 +238,7 @@ int LIBEXPORT counter_increase_by(counter_t *c, long long gap)
 
 static int __counter_decrease(counter_t *c, long long gap)
 {
-    counter_s *p = (counter_s *)c;
+    counter_s *p;
     long long v, min;
 
     cerrno_clear();
@@ -235,6 +246,8 @@ static int __counter_decrease(counter_t *c, long long gap)
     if (validate_object(c, COUNTER) == false)
         return -1;
 
+    p = counter_ref(c);
+    pthread_mutex_lock(&p->lock);
     v = CVALUE_AS_LLONG(p->cnt) - gap;
     min = CVALUE_AS_LLONG(p->min);
 
@@ -246,6 +259,8 @@ static int __counter_decrease(counter_t *c, long long gap)
     }
 
     cvalue_set(p->cnt, v, NULL);
+    pthread_mutex_unlock(&p->lock);
+    counter_unref(p);
 
     return 0;
 }
@@ -262,14 +277,20 @@ int LIBEXPORT counter_decrease_by(counter_t *c, long long gap)
 
 int LIBEXPORT counter_reset(counter_t *c)
 {
-    counter_s *p = (counter_s *)c;
+    counter_s *p;
 
     cerrno_clear();
 
     if (validate_object(c, COUNTER) == false)
         return -1;
 
+    p = counter_ref(c);
+    pthread_mutex_lock(&p->lock);
+
     cvalue_set(p->cnt, p->start_value, NULL);
+
+    pthread_mutex_unlock(&p->lock);
+    counter_unref(p);
 
     return 0;
 }
@@ -288,34 +309,46 @@ long long LIBEXPORT counter_get(counter_t *c)
 
 int LIBEXPORT counter_set_min(counter_t *c, long long min)
 {
-    counter_s *p = (counter_s *)c;
+    counter_s *p;
 
     cerrno_clear();
 
     if (validate_object(c, COUNTER) == false)
         return -1;
+
+    p = counter_ref(c);
+    pthread_mutex_lock(&p->lock);
 
     if (NULL == p->min)
         p->min = cvalue_create(CL_LLONG, min, NULL);
     else
         cvalue_set(p->min, min, NULL);
 
+    pthread_mutex_unlock(&p->lock);
+    counter_unref(p);
+
     return 0;
 }
 
 int LIBEXPORT counter_set_max(counter_t *c, long long max)
 {
-    counter_s *p = (counter_s *)c;
+    counter_s *p;
 
     cerrno_clear();
 
     if (validate_object(c, COUNTER) == false)
         return -1;
 
+    p = counter_ref(c);
+    pthread_mutex_lock(&p->lock);
+
     if (NULL == p->max)
         p->max = cvalue_create(CL_LLONG, max, NULL);
     else
         cvalue_set(p->max, max, NULL);
+
+    pthread_mutex_unlock(&p->lock);
+    counter_unref(p);
 
     return 0;
 }
@@ -461,7 +494,7 @@ static bool is_between_limits(long long value, const counter_s *c)
 
 long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
 {
-    counter_s *p = (counter_s *)c;
+    counter_s *p;
     long long v = -1;
 
     cerrno_clear();
@@ -469,32 +502,44 @@ long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
     if (validate_object(c, COUNTER) == false)
         return -1;
 
-    if (is_between_limits(new_value, p) == false) {
+    if (is_between_limits(new_value, (counter_s *)c) == false) {
         cset_errno(CL_INVALID_VALUE);
         return -1;
     }
 
+    p = counter_ref(c);
+    pthread_mutex_lock(&p->lock);
+
     v = CVALUE_AS_LLONG(p->cnt);
     cvalue_set(p->cnt, new_value, NULL);
+
+    pthread_mutex_unlock(&p->lock);
+    counter_unref(p);
 
     return v;
 }
 
 int LIBEXPORT counter_set(counter_t *c, long long new_value)
 {
-    counter_s *p = (counter_s *)c;
+    counter_s *p;
 
     cerrno_clear();
 
     if (validate_object(c, COUNTER) == false)
         return -1;
 
-    if (is_between_limits(new_value, p) == false) {
+    if (is_between_limits(new_value, (counter_s *)c) == false) {
         cset_errno(CL_INVALID_VALUE);
         return -1;
     }
 
+    p = counter_ref(c);
+    pthread_mutex_lock(&p->lock);
+
     cvalue_set(p->cnt, new_value, NULL);
+
+    pthread_mutex_unlock(&p->lock);
+    counter_unref(p);
 
     return 0;
 }
