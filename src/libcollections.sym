@@ -173,6 +173,7 @@ LIBCOLLECTIONS_0.1 {
         cstring_cchr;
         cstring_clear;
         cstring_cmp;
+        cstring_cpy;
         cstring_create;
         cstring_create_empty;
         cstring_create_random;

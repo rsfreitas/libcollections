@@ -479,5 +479,16 @@ int cstring_dchr(cstring_t *string, char c);
  */
 int cstring_idchr(cstring_t *string, unsigned int p);
 
+/**
+ * @name cstring_cpy
+ * @brief Copies a cstring_t object content to another cstring_t object.
+ *
+ * @param [out] dest: The cstring_t destination object.
+ * @param [in] src: The cstring_t source object.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cstring_cpy(cstring_t *dest, const cstring_t *src);
+
 #endif
 
