@@ -77,6 +77,9 @@ struct cobject_hdr {
 
 void set_typeof(enum cl_object type, void *p);
 bool validate_object(const void *p, enum cl_object type);
+void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset);
+bool validate_object_with_offset(const void *p, enum cl_object type,
+                                 unsigned int offset);
 
 #endif
 
