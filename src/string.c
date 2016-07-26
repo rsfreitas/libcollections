@@ -1192,3 +1192,27 @@ end_block:
     return 0;
 }
 
+int LIBEXPORT cstring_cpy(cstring_t *dest, const cstring_t *src)
+{
+    cstring_t *p, *q;
+
+    cerrno_clear();
+
+    if ((validate_object(dest, CSTRING) == false) ||
+        (validate_object(src, CSTRING) == false))
+    {
+        return -1;
+    }
+
+    p = cstring_ref(dest);
+    q = cstring_ref((cstring_t *)src);
+
+    cstring_clear(p);
+    cstring_cat(p, "%s", cstring_valueof(q));
+
+    cstring_unref(q);
+    cstring_unref(p);
+
+    return 0;
+}
+
