@@ -28,9 +28,9 @@
 
 #define LIBID       0xC011EC7105LL
 
-void set_typeof(enum cl_object type, void *p)
+void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset)
 {
-    struct cobject_hdr *hdr = p;
+    struct cobject_hdr *hdr = p + offset;
 
     if (NULL == hdr)
         return;
@@ -39,9 +39,14 @@ void set_typeof(enum cl_object type, void *p)
     hdr->object = type;
 }
 
-static bool validate_libid(void *p)
+void set_typeof(enum cl_object type, void *p)
 {
-    struct cobject_hdr *hdr = p;
+    set_typeof_with_offset(type, p, 0);
+}
+
+static bool validate_libid(void *p, unsigned int offset)
+{
+    struct cobject_hdr *hdr = p + offset;
 
     if (NULL == hdr)
         return false;
@@ -52,9 +57,9 @@ static bool validate_libid(void *p)
     return true;
 }
 
-static bool validate_typeof(void *p, enum cl_object type)
+static bool validate_typeof(void *p, enum cl_object type, unsigned int offset)
 {
-    struct cobject_hdr *hdr = p;
+    struct cobject_hdr *hdr = p + offset;
 
     if (NULL == hdr)
         return false;
@@ -65,23 +70,29 @@ static bool validate_typeof(void *p, enum cl_object type)
     return true;
 }
 
-bool validate_object(const void *p, enum cl_object type)
+bool validate_object_with_offset(const void *p, enum cl_object type,
+    unsigned int offset)
 {
     if (NULL == p) {
         cset_errno(CL_NULL_ARG);
         return false;
     }
 
-    if (validate_libid((void *)p) == false) {
+    if (validate_libid((void *)p, offset) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return false;
     }
 
-    if (validate_typeof((void *)p, type) == false) {
+    if (validate_typeof((void *)p, type, offset) == false) {
         cset_errno(CL_INVALID_VALUE);
         return false;
     }
 
     return true;
+}
+
+bool validate_object(const void *p, enum cl_object type)
+{
+    return validate_object_with_offset(p, type, 0);
 }
 

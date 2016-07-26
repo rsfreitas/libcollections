@@ -36,17 +36,22 @@
 
 #define CJSON_IS_REFERENCE              256
 
-#define cjson_members                       \
-    cl_struct_member(clist_t *, prev)       \
-    cl_struct_member(clist_t *, next)       \
-    cl_struct_member(void *, child)         \
-    cl_struct_member(cstring_t *, name)     \
-    cl_struct_member(enum cjson_type, type) \
-    cl_struct_member(cstring_t *, value)
+/*
+ * XXX: We know what we're doing here, that's because we strictly define the
+ *      structure members and do not use the macros defined in the cl_typeof.h
+ *      file.
+ */
+typedef struct cjson_s {
+    clist_t             *prev;
+    clist_t             *next;
+    struct cobject_hdr  hdr;
+    void                *child;
+    cstring_t           *name;
+    enum cjson_type     type;
+    cstring_t           *value;
+} cjson_s;
 
-cl_struct_declare(cjson_s, cjson_members);
-
-#define cjson_s             cl_struct(cjson_s)
+#define CJSON_OBJECT_OFFSET         (sizeof(clist_t *) + sizeof(clist_t *))
 
 struct jvalue_s {
     char            *value;
@@ -93,7 +98,7 @@ static cjson_s *cjson_new(void)
     }
 
     j->child = NULL;
-    set_typeof(CJSON, j);
+    set_typeof_with_offset(CJSON, j, CJSON_OBJECT_OFFSET);
 
     return j;
 }
@@ -603,7 +608,7 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
 
     cerrno_clear();
 
-    if (validate_object(j, CJSON) == false)
+    if (validate_object_with_offset(j, CJSON, CJSON_OBJECT_OFFSET) == false)
         return -1;
 
     if (NULL == filename) {
@@ -628,7 +633,7 @@ void LIBEXPORT cjson_delete(cjson_t *j)
 {
     cjson_s *c = (cjson_s *)j;
 
-    if (validate_object(j, CJSON) == false)
+    if (validate_object_with_offset(j, CJSON, CJSON_OBJECT_OFFSET) == false)
         return;
 
     cdll_free(c->child, __cjson_delete);
@@ -641,7 +646,7 @@ int LIBEXPORT cjson_get_array_size(const cjson_t *array)
 
     cerrno_clear();
 
-    if (validate_object(array, CJSON) == false)
+    if (validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false)
         return -1;
 
     if (p->type != CJSON_ARRAY)
@@ -657,7 +662,7 @@ cjson_t LIBEXPORT *cjson_get_array_item(const cjson_t *array, unsigned int item)
 
     cerrno_clear();
 
-    if (validate_object(array, CJSON) == false)
+    if (validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false)
         return NULL;
 
     size = cjson_get_array_size(array);
@@ -687,7 +692,7 @@ cjson_t LIBEXPORT *cjson_get_object_item(const cjson_t *json, const char *name)
 
     cerrno_clear();
 
-    if (validate_object(json, CJSON) == false)
+    if (validate_object_with_offset(json, CJSON, CJSON_OBJECT_OFFSET) == false)
         return NULL;
 
     if (NULL == name) {
@@ -706,7 +711,7 @@ cstring_t LIBEXPORT *cjson_get_object_name(const cjson_t *o)
 
     cerrno_clear();
 
-    if (validate_object(o, CJSON) == false)
+    if (validate_object_with_offset(o, CJSON, CJSON_OBJECT_OFFSET) == false)
         return NULL;
 
     return p->name;
@@ -718,7 +723,7 @@ cstring_t LIBEXPORT *cjson_get_object_value(const cjson_t *o)
 
     cerrno_clear();
 
-    if (validate_object(o, CJSON) == false)
+    if (validate_object_with_offset(o, CJSON, CJSON_OBJECT_OFFSET) == false)
         return NULL;
 
     return p->value;
@@ -730,7 +735,7 @@ enum cjson_type LIBEXPORT cjson_get_object_type(const cjson_t *o)
 
     cerrno_clear();
 
-    if (validate_object(o, CJSON) == false)
+    if (validate_object_with_offset(o, CJSON, CJSON_OBJECT_OFFSET) == false)
         return -1;
 
     return p->type;
@@ -760,7 +765,7 @@ cjson_t LIBEXPORT *cjson_dup(const cjson_t *root)
 
     cerrno_clear();
 
-    if (validate_object(root, CJSON) == false)
+    if (validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false)
         return NULL;
 
     l = __dup(r);
@@ -981,8 +986,8 @@ int LIBEXPORT cjson_add_item_to_array(cjson_t *array, const cjson_t *item)
 
     cerrno_clear();
 
-    if ((validate_object(array, CJSON) == false) ||
-        (validate_object(item, CJSON) == false))
+    if ((validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false) ||
+        (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }
@@ -1000,8 +1005,8 @@ int LIBEXPORT cjson_add_item_to_object(cjson_t *root, const char *name,
 
     cerrno_clear();
 
-    if ((validate_object(root, CJSON) == false) ||
-        (validate_object(item, CJSON) == false))
+    if ((validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false) ||
+        (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }
@@ -1037,8 +1042,8 @@ int LIBEXPORT cjson_add_item_reference_to_array(cjson_t *array, cjson_t *item)
 {
     cerrno_clear();
 
-    if ((validate_object(array, CJSON) == false) ||
-        (validate_object(item, CJSON) == false))
+    if ((validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false) ||
+        (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }
@@ -1051,8 +1056,8 @@ int LIBEXPORT cjson_add_item_reference_to_object(cjson_t *root, const char *name
 {
     cerrno_clear();
 
-    if ((validate_object(root, CJSON) == false) ||
-        (validate_object(item, CJSON) == false))
+    if ((validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false) ||
+        (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }
@@ -1072,7 +1077,7 @@ int LIBEXPORT cjson_delete_item_from_array(cjson_t *array, unsigned int index)
 
     cerrno_clear();
 
-    if (validate_object(array, CJSON) == false)
+    if (validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false)
         return -1;
 
     size = cjson_get_array_size(array);
@@ -1096,7 +1101,7 @@ int LIBEXPORT cjson_delete_item_from_object(cjson_t *json, const char *name)
 
     cerrno_clear();
 
-    if (validate_object(json, CJSON) == false)
+    if (validate_object_with_offset(json, CJSON, CJSON_OBJECT_OFFSET) == false)
         return -1;
 
     if (NULL == name) {
@@ -1123,8 +1128,8 @@ int LIBEXPORT cjson_replace_item_in_array(cjson_t *array, unsigned int index,
 
     cerrno_clear();
 
-    if ((validate_object(array, CJSON) == false) ||
-        (validate_object(new_item, CJSON) == false))
+    if ((validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false) ||
+        (validate_object_with_offset(new_item, CJSON, CJSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }
@@ -1160,8 +1165,8 @@ int LIBEXPORT cjson_replace_item_in_object(cjson_t *root, const char *name,
 
     cerrno_clear();
 
-    if ((validate_object(root, CJSON) == false) ||
-        (validate_object(new_item, CJSON) == false))
+    if ((validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false) ||
+        (validate_object_with_offset(new_item, CJSON, CJSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }
@@ -1495,7 +1500,7 @@ cstring_t LIBEXPORT *cjson_to_cstring(const cjson_t *j, bool friendly_output)
 
     cerrno_clear();
 
-    if (validate_object(j, CJSON) == false)
+    if (validate_object_with_offset(j, CJSON, CJSON_OBJECT_OFFSET) == false)
         return NULL;
 
     p = print_value((cjson_s *)j, 0, friendly_output);
