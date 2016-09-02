@@ -93,23 +93,23 @@ enum cl_type {
     CL_CSTRING      /* collections strings */
 };
 
-/** cvalue token types */
-#define CVALUE_CHAR         "b"
-#define CVALUE_UCHAR        "B"
-#define CVALUE_INT          "i"
-#define CVALUE_UINT         "I"
-#define CVALUE_SINT         "h"
-#define CVALUE_USINT        "H"
-#define CVALUE_FLOAT        "f"
-#define CVALUE_DOUBLE       "d"
-#define CVALUE_LONG         "l"
-#define CVALUE_ULONG        "k"
-#define CVALUE_LLONG        "L"
-#define CVALUE_ULLONG       "K"
-#define CVALUE_BOOLEAN      "Z"
-#define CVALUE_CSTRING      "z"
-#define CVALUE_STRING       "s"
-#define CVALUE_POINTER      "P"
+/** cobject token types */
+#define COBJECT_CHAR         "b"
+#define COBJECT_UCHAR        "B"
+#define COBJECT_INT          "i"
+#define COBJECT_UINT         "I"
+#define COBJECT_SINT         "h"
+#define COBJECT_USINT        "H"
+#define COBJECT_FLOAT        "f"
+#define COBJECT_DOUBLE       "d"
+#define COBJECT_LONG         "l"
+#define COBJECT_ULONG        "k"
+#define COBJECT_LLONG        "L"
+#define COBJECT_ULLONG       "K"
+#define COBJECT_BOOLEAN      "Z"
+#define COBJECT_CSTRING      "z"
+#define COBJECT_STRING       "s"
+#define COBJECT_POINTER      "P"
 
 /** error type */
 typedef int                 cerrno;
@@ -148,7 +148,7 @@ typedef union sigval        ctimer_arg_t;
 typedef void                chat_t;
 
 /** value type */
-typedef void                cvalue_t;
+typedef void                cobject_t;
 
 /** generic parameters specifications */
 typedef void                cspec_t;

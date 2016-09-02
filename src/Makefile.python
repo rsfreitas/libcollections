@@ -1,6 +1,10 @@
 
+.PHONY = clean purge install outputdir
+
 CC = gcc
-TARGET= ../bin/_cplugin.so
+
+TARGET_DIR = ../bin
+TARGET= $(TARGET_DIR)/_cplugin.so
 DEST_DIR = /usr/lib/python2.7
 
 INCLUDEDIR = -I../include
@@ -51,8 +55,7 @@ OBJS = 		\
 LINK_FLAGS = -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions \
 			 -Wl,-Bsymbolic-functions -Wl,-z,relro
 
-$(TARGET): $(OBJS)
-	rm -f $(TARGET)*
+$(TARGET): outputdir $(OBJS)
 	$(CC) $(LINK_FLAGS) -o $(TARGET) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean:
@@ -62,4 +65,9 @@ purge: clean $(TARGET)
 
 install:
 	cp -f $(TARGET) $(DEST_DIR)
+
+outputdir: $(TARGET_DIR)
+
+$(TARGET_DIR):
+	mkdir -p $(TARGET_DIR)
 

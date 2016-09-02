@@ -30,7 +30,7 @@
 
 static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
 {
-    cvalue_t *cplv = NULL;
+    cobject_t *cplv = NULL;
     PyObject *v = NULL;
     char *s = NULL;
 
@@ -39,7 +39,7 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
     if (NULL == cplv)
         return Py_BuildValue("s", "null");
 
-    switch (cvalue_type(cplv)) {
+    switch (cobject_type(cplv)) {
         case CL_VOID:
             /* noop */
             break;

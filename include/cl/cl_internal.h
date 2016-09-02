@@ -64,21 +64,21 @@ inline bool ref_bool_compare(const struct ref_s *ref, int old, int new);
 
 /* value.c */
 bool validate_cl_type(enum cl_type type);
-void cvalue_set_char(cvalue_t *value, char c);
-void cvalue_set_uchar(cvalue_t *value, unsigned char uc);
-void cvalue_set_int(cvalue_t *value, int i);
-void cvalue_set_uint(cvalue_t *value, unsigned int ui);
-void cvalue_set_sint(cvalue_t *value, short int si);
-void cvalue_set_usint(cvalue_t *value, unsigned short int usi);
-void cvalue_set_float(cvalue_t *value, float f);
-void cvalue_set_double(cvalue_t *value, double d);
-void cvalue_set_long(cvalue_t *value, long l);
-void cvalue_set_ulong(cvalue_t *value, unsigned long ul);
-void cvalue_set_llong(cvalue_t *value, long long ll);
-void cvalue_set_ullong(cvalue_t *value, unsigned long long ull);
-void cvalue_set_boolean(cvalue_t *value, bool b);
-void cvalue_set_string(cvalue_t *value, char *s);
-void cvalue_set_cstring(cvalue_t *value, cstring_t *s);
+void cobject_set_char(cobject_t *value, char c);
+void cobject_set_uchar(cobject_t *value, unsigned char uc);
+void cobject_set_int(cobject_t *value, int i);
+void cobject_set_uint(cobject_t *value, unsigned int ui);
+void cobject_set_sint(cobject_t *value, short int si);
+void cobject_set_usint(cobject_t *value, unsigned short int usi);
+void cobject_set_float(cobject_t *value, float f);
+void cobject_set_double(cobject_t *value, double d);
+void cobject_set_long(cobject_t *value, long l);
+void cobject_set_ulong(cobject_t *value, unsigned long ul);
+void cobject_set_llong(cobject_t *value, long long ll);
+void cobject_set_ullong(cobject_t *value, unsigned long long ull);
+void cobject_set_boolean(cobject_t *value, bool b);
+void cobject_set_string(cobject_t *value, char *s);
+void cobject_set_cstring(cobject_t *value, cstring_t *s);
 
 /* util.c */
 char *value_to_hex(void *p, unsigned int size);

@@ -197,7 +197,7 @@ CPLUGIN_OBJECT_EXPORT(foo_ullong)
 CPLUGIN_OBJECT_EXPORT(foo_args)
 {
     char *s;
-    cvalue_t *arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8, *arg9,
+    cobject_t *arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8, *arg9,
              *arg10, *arg11, *arg12, *arg13, *arg14;
 
     cout << "Number of arguments: " << CPLUGIN_ARG_COUNT() << endl;
@@ -234,20 +234,20 @@ CPLUGIN_OBJECT_EXPORT(foo_args)
     s = CVALUE_AS_STRING(arg14);
     cout << "arg14 value: " << s << endl;
 
-    cvalue_unref(arg14);
-    cvalue_unref(arg13);
-    cvalue_unref(arg12);
-    cvalue_unref(arg11);
-    cvalue_unref(arg10);
-    cvalue_unref(arg9);
-    cvalue_unref(arg8);
-    cvalue_unref(arg7);
-    cvalue_unref(arg6);
-    cvalue_unref(arg5);
-    cvalue_unref(arg4);
-    cvalue_unref(arg3);
-    cvalue_unref(arg2);
-    cvalue_unref(arg1);
+    cobject_unref(arg14);
+    cobject_unref(arg13);
+    cobject_unref(arg12);
+    cobject_unref(arg11);
+    cobject_unref(arg10);
+    cobject_unref(arg9);
+    cobject_unref(arg8);
+    cobject_unref(arg7);
+    cobject_unref(arg6);
+    cobject_unref(arg5);
+    cobject_unref(arg4);
+    cobject_unref(arg3);
+    cobject_unref(arg2);
+    cobject_unref(arg1);
 
     CPLUGIN_SET_RETURN_VALUE_AS_VOID();
 }

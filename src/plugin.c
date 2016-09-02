@@ -35,7 +35,7 @@
  * -- ARGUMENTS
  */
 
-cvalue_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
+cobject_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
     const char *arg_name)
 {
     struct cplugin_fdata_s *p = NULL;
@@ -54,7 +54,7 @@ cvalue_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
         return NULL;
     }
 
-    return cvalue_ref(p->value);
+    return cobject_ref(p->value);
 }
 
 int LIBEXPORT cplugin_arg_count(const cplugin_arg_t *args)
@@ -107,27 +107,27 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
 
     switch (type) {
         case CL_INT:
-            return_value->value = cvalue_create(CL_INT, va_arg(ap, int), NULL);
+            return_value->value = cobject_create(CL_INT, va_arg(ap, int), NULL);
             break;
 
         case CL_UINT:
-            return_value->value = cvalue_create(CL_UINT,
-                                                (unsigned int)va_arg(ap, int),
-                                                NULL);
+            return_value->value = cobject_create(CL_UINT,
+                                                 (unsigned int)va_arg(ap, int),
+                                                 NULL);
 
             break;
 
         case CL_SINT:
-            return_value->value = cvalue_create(CL_SINT,
-                                                (short int)va_arg(ap, int),
-                                                NULL);
+            return_value->value = cobject_create(CL_SINT,
+                                                 (short int)va_arg(ap, int),
+                                                 NULL);
             break;
 
         case CL_USINT:
-            return_value->value = cvalue_create(CL_USINT,
-                                                (unsigned short int)va_arg(ap,
-                                                                           int),
-                                                NULL);
+            return_value->value = cobject_create(CL_USINT,
+                                                 (unsigned short int)va_arg(ap,
+                                                                            int),
+                                                 NULL);
 
             break;
 
@@ -138,74 +138,74 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
         case CL_POINTER:
             p = va_arg(ap, void *);
             psize = va_arg(ap, int);
-            return_value->value = cvalue_create(CL_POINTER, true, p, psize,
-                                                NULL);
+            return_value->value = cobject_create(CL_POINTER, true, p, psize,
+                                                 NULL);
 
             break;
 
         case CL_STRING:
-            return_value->value = cvalue_create(CL_STRING, va_arg(ap, char *),
-                                                NULL);
+            return_value->value = cobject_create(CL_STRING, va_arg(ap, char *),
+                                                 NULL);
 
             break;
 
         case CL_CSTRING:
             p = va_arg(ap, void *);
-            return_value->value = cvalue_create(CL_CSTRING, p, NULL);
+            return_value->value = cobject_create(CL_CSTRING, p, NULL);
             break;
 
         case CL_CHAR:
-            return_value->value = cvalue_create(CL_CHAR, (char)va_arg(ap, int),
-                                                NULL);
+            return_value->value = cobject_create(CL_CHAR, (char)va_arg(ap, int),
+                                                 NULL);
 
             break;
 
         case CL_UCHAR:
-            return_value->value = cvalue_create(CL_UCHAR,
-                                                (unsigned char)va_arg(ap, int),
-                                                NULL);
+            return_value->value = cobject_create(CL_UCHAR,
+                                                 (unsigned char)va_arg(ap, int),
+                                                 NULL);
 
             break;
 
         case CL_FLOAT:
-            return_value->value = cvalue_create(CL_FLOAT, va_arg(ap, double),
-                                                NULL);
+            return_value->value = cobject_create(CL_FLOAT, va_arg(ap, double),
+                                                 NULL);
 
             break;
 
         case CL_DOUBLE:
-            return_value->value = cvalue_create(CL_DOUBLE, va_arg(ap, double),
-                                                NULL);
+            return_value->value = cobject_create(CL_DOUBLE, va_arg(ap, double),
+                                                 NULL);
 
             break;
 
         case CL_BOOLEAN:
-            return_value->value = cvalue_create(CL_BOOLEAN, va_arg(ap, int),
-                                                NULL);
+            return_value->value = cobject_create(CL_BOOLEAN, va_arg(ap, int),
+                                                 NULL);
 
             break;
 
         case CL_LONG:
-            return_value->value = cvalue_create(CL_LONG, va_arg(ap, long),
-                                                NULL);
+            return_value->value = cobject_create(CL_LONG, va_arg(ap, long),
+                                                 NULL);
 
             break;
 
         case CL_ULONG:
-            return_value->value = cvalue_create(CL_ULONG, va_arg(ap, long),
-                                                NULL);
+            return_value->value = cobject_create(CL_ULONG, va_arg(ap, long),
+                                                 NULL);
 
             break;
 
         case CL_LLONG:
-            return_value->value = cvalue_create(CL_LLONG, va_arg(ap, long),
-                                                NULL);
+            return_value->value = cobject_create(CL_LLONG, va_arg(ap, long),
+                                                 NULL);
 
             break;
 
         case CL_ULLONG:
-            return_value->value = cvalue_create(CL_ULLONG, va_arg(ap, long),
-                                                NULL);
+            return_value->value = cobject_create(CL_ULLONG, va_arg(ap, long),
+                                                 NULL);
 
             break;
 
@@ -426,14 +426,14 @@ enum cl_type LIBEXPORT cplugin_function_arg_type(const cplugin_info_t *info,
  * -- PLUGIN MANIPULATION
  */
 
-cvalue_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
+cobject_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
     const char *function_name, ...)
 {
     struct cplugin_s *pl = (struct cplugin_s *)cpl;
     struct cplugin_function_s *foo = NULL;
     va_list ap;
     int fargc = 0;
-    cvalue_t *cplv = NULL;
+    cobject_t *cplv = NULL;
     uint32_t caller_id = 0;
 
     cerrno_clear();

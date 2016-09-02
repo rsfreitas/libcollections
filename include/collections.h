@@ -61,7 +61,7 @@ extern "C" {
 #include <cl/cl_timeout.h>
 #include <cl/cl_timer.h>
 #include <cl/cl_util.h>
-#include <cl/cl_value.h>
+#include <cl/cl_object.h>
 
 #ifdef LIBCOLLECTIONS_COMPILE
 # include <cl/cl_internal.h>
