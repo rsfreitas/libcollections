@@ -80,8 +80,8 @@ cspec_t LIBEXPORT *cspec_create(enum cl_param_flags properties,
 {
     cerrno_clear();
 
-    if ((validate_object(min, CVALUE) == false) ||
-        (validate_object(max, CVALUE) == false))
+    if ((validate_object(min, COBJECT) == false) ||
+        (validate_object(max, COBJECT) == false))
     {
         return NULL;
     }
@@ -488,7 +488,7 @@ bool LIBEXPORT cspec_validate(const cspec_t *spec, cobject_t *value,
     cerrno_clear();
 
     if ((validate_object(spec, CSPEC) == false) ||
-        (validate_object(value, CVALUE) == false))
+        (validate_object(value, COBJECT) == false))
     {
         return false;
     }

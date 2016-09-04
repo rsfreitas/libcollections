@@ -68,6 +68,7 @@ OBJS =	\
 	error.o			\
 	event.o			\
 	file.o			\
+	glist.o			\
 	io.o			\
 	json.o			\
 	log.o			\

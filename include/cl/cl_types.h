@@ -119,8 +119,8 @@ typedef void                cfg_file_t;     /** config file */
 typedef void                cfg_section_t;  /** config section */
 typedef void                cfg_key_t;      /** config key */
 
-/** doubly linded list type */
-typedef void                clist_t;
+/** doubly linded list entry type */
+typedef void                clist_entry_t;
 
 /** string types */
 typedef void                cstring_t;      /** string */
@@ -163,6 +163,10 @@ typedef void                cplugin_info_t;
 
 /** log type */
 typedef void                clog_t;
+
+/* glist type */
+typedef void                clist_t;
+typedef void                clist_node_t;
 
 #endif
 

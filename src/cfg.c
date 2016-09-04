@@ -40,8 +40,8 @@ enum cfg_line_type {
 
 /** INI line structure */
 struct cfg_line_s {
-    clist_t             *prev;
-    clist_t             *next;
+    clist_entry_t       *prev;
+    clist_entry_t       *next;
     struct line_s       *child;
     cstring_t           *name;
     cobject_t            *value;

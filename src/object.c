@@ -31,29 +31,31 @@
 
 #include "collections.h"
 
-#define cobject_members                             \
-    cl_struct_member(enum cl_type, type)            \
-    cl_struct_member(unsigned int, size)            \
-    cl_struct_member(bool, dup_data)                \
-    cl_struct_member(void, (*free_object)(void *))  \
-    cl_struct_member(size_t, psize)                 \
-    cl_struct_member(cspec_t *, specs)              \
-    cl_struct_member(char, c)                       \
-    cl_struct_member(unsigned char, uc)             \
-    cl_struct_member(int, i)                        \
-    cl_struct_member(unsigned int, ui)              \
-    cl_struct_member(short int, si)                 \
-    cl_struct_member(unsigned short int, usi)       \
-    cl_struct_member(float, f)                      \
-    cl_struct_member(double, d)                     \
-    cl_struct_member(long, l)                       \
-    cl_struct_member(unsigned long, ul)             \
-    cl_struct_member(long long, ll)                 \
-    cl_struct_member(unsigned long long, ull)       \
-    cl_struct_member(cstring_t *, s)                \
-    cl_struct_member(bool, b)                       \
-    cl_struct_member(void *, p)                     \
-    cl_struct_member(struct ref_s, ref)
+#define cobject_members                                 \
+    cl_struct_member(enum cl_type, type)                \
+    cl_struct_member(unsigned int, size)                \
+    cl_struct_member(bool, dup_data)                    \
+    cl_struct_member(void, (*free_object)(void *))      \
+    cl_struct_member(size_t, psize)                     \
+    cl_struct_member(cspec_t *, specs)                  \
+    cl_struct_member(char, c)                           \
+    cl_struct_member(unsigned char, uc)                 \
+    cl_struct_member(int, i)                            \
+    cl_struct_member(unsigned int, ui)                  \
+    cl_struct_member(short int, si)                     \
+    cl_struct_member(unsigned short int, usi)           \
+    cl_struct_member(float, f)                          \
+    cl_struct_member(double, d)                         \
+    cl_struct_member(long, l)                           \
+    cl_struct_member(unsigned long, ul)                 \
+    cl_struct_member(long long, ll)                     \
+    cl_struct_member(unsigned long long, ull)           \
+    cl_struct_member(cstring_t *, s)                    \
+    cl_struct_member(bool, b)                           \
+    cl_struct_member(void *, p)                         \
+    cl_struct_member(struct ref_s, ref)                 \
+    cl_struct_member(bool, (*equals)(cobject_t *))      \
+    cl_struct_member(int, (*compare_to)(cobject_t *))
 
 cl_struct_declare(cobject_s, cobject_members);
 
@@ -133,7 +135,7 @@ static cobject_s *new_cobject_s(enum cl_type type)
     o->ref.free = destroy_cobject_s;
     o->ref.count = 1;
 
-    set_typeof(CVALUE, o);
+    set_typeof(COBJECT, o);
 
     return o;
 }
@@ -393,7 +395,7 @@ int LIBEXPORT cobject_set(cobject_t *object, ...)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
     o = cobject_ref(object);
@@ -511,7 +513,7 @@ int LIBEXPORT cobject_sizeof(const cobject_t *object)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
     o = cobject_ref((cobject_t *)object);
@@ -528,7 +530,7 @@ enum cl_type LIBEXPORT cobject_type(const cobject_t *object)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
     o = cobject_ref((cobject_t *)object);
@@ -544,7 +546,7 @@ static int get_object_check(const cobject_t *object, enum cl_type type)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
     if (cobject_is_of_type(object, type) == false) {
@@ -571,7 +573,7 @@ bool LIBEXPORT cobject_is_of_type(const cobject_t *object, unsigned int type)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return false;
 
     if (validate_cl_type(type) == false)
@@ -668,7 +670,7 @@ cstring_t LIBEXPORT *cobject_to_cstring(const cobject_t *object)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return NULL;
 
     ref = cobject_ref((cobject_t *)object);
@@ -685,7 +687,7 @@ cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return NULL;
 
     ref = cstring_ref((cstring_t *)object);
@@ -708,7 +710,7 @@ cobject_t LIBEXPORT *cobject_ref(cobject_t *object)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return NULL;
 
     ref_inc(&v->ref);
@@ -722,7 +724,7 @@ int LIBEXPORT cobject_unref(cobject_t *object)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
     ref_dec(&v->ref);
@@ -752,7 +754,7 @@ int LIBEXPORT cobject_get(const cobject_t *object, const char *fmt, ...)
 
     cerrno_clear();
 
-    if (validate_object(object, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
     o = cobject_ref((cobject_t *)object);
@@ -906,5 +908,85 @@ end_block:
     cobject_unref((cobject_t *)object);
 
     return ret;
+}
+
+int LIBEXPORT cobject_set_equals(cobject_t *object,
+    bool (*equals)(cobject_t *))
+{
+    cobject_s *v = (cobject_s *)object;
+
+    cerrno_clear();
+
+    if (validate_object(object, COBJECT) == false)
+        return -1;
+
+    if (NULL == equals) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
+    }
+
+    v->equals = equals;
+
+    return 0;
+}
+
+bool LIBEXPORT cobject_equals(const cobject_t *ob1, const cobject_t *ob2)
+{
+    cobject_s *v = (cobject_s *)ob1;
+
+    cerrno_clear();
+
+    if ((validate_object(ob1, COBJECT) == false) ||
+        (validate_object(ob2, COBJECT) == false))
+    {
+        return false;
+    }
+
+    if (NULL == v->equals) {
+        cset_errno(CL_NULL_DATA);
+        return false;
+    }
+
+    return (v->equals)((cobject_t *)ob2);
+}
+
+int LIBEXPORT cobject_set_compare_to(cobject_t *object,
+    int (*compare_to)(cobject_t *))
+{
+    cobject_s *v = (cobject_s *)object;
+
+    cerrno_clear();
+
+    if (validate_object(object, COBJECT) == false)
+        return -1;
+
+    if (NULL == compare_to) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
+    }
+
+    v->compare_to = compare_to;
+
+    return 0;
+}
+
+int LIBEXPORT cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2)
+{
+    cobject_s *v = (cobject_s *)ob1;
+
+    cerrno_clear();
+
+    if ((validate_object(ob1, COBJECT) == false) ||
+        (validate_object(ob2, COBJECT) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == v->compare_to) {
+        cset_errno(CL_NULL_DATA);
+        return -1;
+    }
+
+    return (v->compare_to)((cobject_t *)ob2);
 }
 

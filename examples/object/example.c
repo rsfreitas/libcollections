@@ -74,7 +74,7 @@ static void do_test_char(void)
     v = cobject_create(CL_CHAR, 'z', NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_CHAR, &c, NULL);
+    cobject_get(v, COBJECT_CHAR, &c, NULL);
     printf("%s: '%c'\n", __FUNCTION__, c);
 
     cobject_unref(v);
@@ -88,7 +88,7 @@ static void do_test_uchar(void)
     v = cobject_create(CL_UCHAR, 186, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_UCHAR, &c, NULL);
+    cobject_get(v, COBJECT_UCHAR, &c, NULL);
     printf("%s: '%d'\n", __FUNCTION__, c);
 
     cobject_unref(v);
@@ -102,7 +102,7 @@ static void do_test_int(void)
     v = cobject_create(CL_INT, 42, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_INT, &i, NULL);
+    cobject_get(v, COBJECT_INT, &i, NULL);
     printf("%s: '%d'\n", __FUNCTION__, i);
 
     cobject_unref(v);
@@ -116,7 +116,7 @@ static void do_test_uint(void)
     v = cobject_create(CL_UINT, 420000, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_UINT, &i, NULL);
+    cobject_get(v, COBJECT_UINT, &i, NULL);
     printf("%s: '%d'\n", __FUNCTION__, i);
 
     cobject_unref(v);
@@ -130,7 +130,7 @@ static void do_test_sint(void)
     v = cobject_create(CL_SINT, 3210, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_SINT, &i, NULL);
+    cobject_get(v, COBJECT_SINT, &i, NULL);
     printf("%s: '%hd'\n", __FUNCTION__, i);
 
     cobject_unref(v);
@@ -144,7 +144,7 @@ static void do_test_usint(void)
     v = cobject_create(CL_USINT, 63210, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_USINT, &i, NULL);
+    cobject_get(v, COBJECT_USINT, &i, NULL);
     printf("%s: '%hu'\n", __FUNCTION__, i);
 
     cobject_unref(v);
@@ -158,7 +158,7 @@ static void do_test_float(void)
     v = cobject_create(CL_FLOAT, 3.1415f, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_FLOAT, &f, NULL);
+    cobject_get(v, COBJECT_FLOAT, &f, NULL);
     printf("%s: '%f'\n", __FUNCTION__, f);
 
     cobject_unref(v);
@@ -172,7 +172,7 @@ static void do_test_double(void)
     v = cobject_create(CL_DOUBLE, 3.14159265f, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_DOUBLE, &f, NULL);
+    cobject_get(v, COBJECT_DOUBLE, &f, NULL);
     printf("%s: '%e'\n", __FUNCTION__, f);
 
     cobject_unref(v);
@@ -186,7 +186,7 @@ static void do_test_string(void)
     v = cobject_create(CL_STRING, "This is only a test", NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_STRING, &p, NULL);
+    cobject_get(v, COBJECT_STRING, &p, NULL);
     printf("%s: '%s'\n", __FUNCTION__, p);
     free(p);
 
@@ -203,7 +203,7 @@ static void do_test_cstring(void)
     cstring_unref(o);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_CSTRING, &p, NULL);
+    cobject_get(v, COBJECT_CSTRING, &p, NULL);
     printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(p));
     cstring_unref(p);
 
@@ -218,7 +218,7 @@ static void do_test_long(void)
     v = cobject_create(CL_LONG, 2147483647, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_LONG, &l, NULL);
+    cobject_get(v, COBJECT_LONG, &l, NULL);
     printf("%s: '%ld'\n", __FUNCTION__, l);
 
     cobject_unref(v);
@@ -232,7 +232,7 @@ static void do_test_ulong(void)
     v = cobject_create(CL_ULONG, -2147483647 - 1, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_ULONG, &l, NULL);
+    cobject_get(v, COBJECT_ULONG, &l, NULL);
     printf("%s: '%lu'\n", __FUNCTION__, l);
 
     cobject_unref(v);
@@ -246,7 +246,7 @@ static void do_test_llong(void)
     v = cobject_create(CL_LLONG, 1.12589990684e+15, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_LLONG, &l, NULL);
+    cobject_get(v, COBJECT_LLONG, &l, NULL);
     printf("%s: '%lld'\n", __FUNCTION__, l);
 
     cobject_unref(v);
@@ -260,7 +260,7 @@ static void do_test_ullong(void)
     v = cobject_create(CL_ULLONG, 9.22337203685e+18, NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, CVALUE_ULLONG, &l, NULL);
+    cobject_get(v, COBJECT_ULLONG, &l, NULL);
     printf("%s: '%llu'\n", __FUNCTION__, l);
 
     cobject_unref(v);
@@ -315,7 +315,7 @@ int main(int argc, char **argv)
             case 's':
                 test_string = true;
                 break;
-                
+
             case 'S':
                 test_cstring = true;
                 break;

@@ -43,14 +43,14 @@ OBJS = 		\
 	file.o			\
 	json.o			\
 	mem.o			\
+	object.o		\
 	plugin.o		\
 	random.o		\
 	ref.o			\
 	specs.o			\
 	string.o		\
-	stringlist.o	\
-	util.o			\
-	value.o
+	stringlist.o		\
+	util.o
 
 LINK_FLAGS = -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions \
 			 -Wl,-Bsymbolic-functions -Wl,-z,relro

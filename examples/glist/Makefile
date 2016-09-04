@@ -1,6 +1,6 @@
 
 CC = gcc
-TARGET = value
+TARGET = glist
 
 INCLUDEDIR = -I../../include
 CFLAGS = -Wall -O0 -ggdb -D_GNU_SOURCE $(INCLUDEDIR)

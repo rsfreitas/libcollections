@@ -52,8 +52,8 @@ struct ctimer_internal_data_s {
 
 /* Timer */
 struct ctimer_s {
-    clist_t                         *prev;
-    clist_t                         *next;
+    clist_entry_t                   *prev;
+    clist_entry_t                   *next;
     struct ctimer_internal_data_s   tid;
     enum ctimer_state               state;
     enum ctimer_interval_mode       imode;

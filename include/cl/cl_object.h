@@ -169,6 +169,63 @@ cobject_t *cobject_ref(cobject_t *object);
  */
 int cobject_unref(cobject_t *object);
 
+/**
+ * @name cobject_set_equals
+ * @brief Sets the object equals function.
+ *
+ * An object equals function is a function to indicate whether some other
+ * object is equal to another.
+ *
+ * It must return true if the objects are equal or false otherwise.
+ *
+ * @param [in,out] object: The cobject_t item.
+ * @param [in] equals: The equals function pointer.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cobject_set_equals(cobject_t *object, bool (*equals)(cobject_t *));
+
+/**
+ * @name cobject_equals
+ * @brief A function to indicate whether an object is equal to another.
+ *
+ * @param [in] ob1: The cobject_t object.
+ * @param [in] ob2: The object which will be compared.
+ *
+ * @return Returns true is \a ob1 is the same as the \a ob2 or false
+ *         otherwise.
+ */
+bool cobject_equals(const cobject_t *ob1, const cobject_t *ob2);
+
+/**
+ * @name cobject_set_compare_to
+ * @brief Sets the object compare_to function.
+ *
+ * An object compare_to function is a function to compare the object with
+ * another one for order.
+ *
+ * It must return negative, zero or a positive integer if the object is less
+ * than, equal to, or greater than the specified object.
+ *
+ * @param [in,out] object: The cobject_t item.
+ * @param [in] compare_to: The compare_to function.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cobject_set_compare_to(cobject_t *object, int (*compare_to)(cobject_t *));
+
+/**
+ * @name cobject_compare_to
+ * @brief A function to compare an object to another to order them.
+ *
+ * @param [in] ob1: The cobject_t object.
+ * @param [in] ob2: The object which will be compared.
+ *
+ * @return Returns a negative, zero or a positive integer if the object \a ob1
+ *         is less than, equal to, or greater than \a ob2.
+ */
+int cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2);
+
 /** Macros to get the cobject_t item object */
 #define COBJECT_AS_INT(v)       \
     ({ int __x; cobject_get(v, COBJECT_INT, &__x, NULL); __x; })

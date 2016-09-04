@@ -52,3 +52,19 @@ unsigned int LIBEXPORT cseed(void)
     return strtol(tmp, NULL, 16);
 }
 
+unsigned int LIBEXPORT crand(unsigned int random_max)
+{
+    unsigned int num_bins, num_rand, bin_size, defect, x;
+
+    num_bins = (unsigned int)random_max + 1;
+    num_rand = (unsigned int)RAND_MAX + 1;
+    bin_size = num_rand / num_bins;
+    defect = num_rand % num_bins;
+
+    do {
+        x = random();
+    } while (num_rand - defect <= x);
+
+    return x / bin_size;
+}
+

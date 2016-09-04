@@ -49,7 +49,7 @@ enum cl_object {
     CHAT,
     CLIST,
     CEVENT,
-    CVALUE,
+    COBJECT,
     CSPEC,
     COUNTER,
     CPLUGIN,

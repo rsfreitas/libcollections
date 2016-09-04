@@ -86,8 +86,8 @@ struct dl_plugin_driver {
 };
 
 struct cplugin_fdata_s {
-    clist_t         *prev;
-    clist_t         *next;
+    clist_entry_t   *prev;
+    clist_entry_t   *next;
 
     char            *name;
     enum cl_type    type;
@@ -96,8 +96,8 @@ struct cplugin_fdata_s {
 };
 
 struct cplugin_function_s {
-    clist_t                     *prev;
-    clist_t                     *next;
+    clist_entry_t               *prev;
+    clist_entry_t               *next;
 
     /* Function name */
     char                        *name;

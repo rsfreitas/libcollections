@@ -85,6 +85,9 @@ void LIBEXPORT *cdll_unshift(void *root, void *node)
     struct cdll_node *l = root;
     struct cdll_node *p = node;
 
+    if (NULL == node)
+        return root;
+
     if (NULL == root) {
         p->prev = NULL;
         p->next = NULL;
@@ -283,8 +286,7 @@ void LIBEXPORT *cdll_filter(void *root, int (*foo)(void *, void *), void *data)
         }
     }
 
-    if (p != NULL)
-        *pp = cdll_unshift(head, p);
+    *pp = cdll_unshift(head, p);
 
     return r;
 }
