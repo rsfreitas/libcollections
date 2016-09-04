@@ -258,13 +258,13 @@ enum cl_type cplugin_function_arg_type(const cplugin_info_t *info,
  * defined on the plugin API.
  *
  * To the case of a function with the CPLUGIN_ARG_FIXED arguments type,
- * they must be passed this way: "argument_name", value, "argument_name",
+ * they must be passed this way: "argument_name", object, "argument_name",
  * "value", NULL. Such as:
  *
  * cplugin_call(7, cpl, "foo", "arg1", value, "arg2", value, NULL);
  *
  * To the case of CPLUGIN_ARG_VAR arguments type, they must be passed in
- * this way: "argument_name", type, value, "argument_name", type, value,
+ * this way: "argument_name", type, object, "argument_name", type, object,
  * NULL. Such as:
  *
  * cplugin_call_ex(9, cpl, "foo", "arg1", type, value, "arg2", type, value,
@@ -278,11 +278,11 @@ enum cl_type cplugin_function_arg_type(const cplugin_info_t *info,
  * @param [in] function_name: The function name which will be called.
  * @param [in] ...: Function arguments.
  *
- * @return On success returns a cvalue_t with the called function return
- *         value or NULL otherwise.
+ * @return On success returns a cobject_t with the called function return
+ *         object or NULL otherwise.
  */
-cvalue_t *cplugin_call_ex(int argc, cplugin_t *cpl,
-                          const char *function_name, ...);
+cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
+                           const char *function_name, ...);
 
 /**
  * @name cplugin_set_return_value
@@ -292,7 +292,7 @@ cvalue_t *cplugin_call_ex(int argc, cplugin_t *cpl,
  * called as a C return statement, so a value may returned to the caller.
  *
  * It will block using a mutex to add the returned value into an internal list
- * of return values.
+ * of return objects.
  *
  * It is recommended that the CPLUGIN_RETURN_VALUE macro is called instead of a
  * direct call to this function.
@@ -315,7 +315,7 @@ int cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
 
 /**
  * @name cplugin_argument
- * @brief Gets the current argument value from an exported function.
+ * @brief Gets the current argument object from an exported function.
  *
  * It is recomended to use CPLUGIN_ARGUMENT macro instead of a direct call to
  * this function.
@@ -323,10 +323,10 @@ int cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
  * @param [in] args: The cplugin_arg_t object with function arguments.
  * @param [in] arg_name: The argument name.
  *
- * @return On success return a cvalue_t object with the arguemtn value or NULL
+ * @return On success return a cobject_t object with the arguemtn object or NULL
  *         otherwise.
  */
-cvalue_t *cplugin_argument(const cplugin_arg_t *args, const char *arg_name);
+cobject_t *cplugin_argument(const cplugin_arg_t *args, const char *arg_name);
 
 /**
  * @name cplugin_arg_count

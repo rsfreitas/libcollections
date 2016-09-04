@@ -45,51 +45,51 @@ static void fill_method_argument_value(JNIEnv *env, struct cplugin_fdata_s *arg,
             break;
 
         case CL_CHAR:
-            jarg->b = CVALUE_AS_CHAR(arg->value);
+            jarg->b = COBJECT_AS_CHAR(arg->value);
             break;
 
         case CL_UCHAR:
-            jarg->b = CVALUE_AS_UCHAR(arg->value);
+            jarg->b = COBJECT_AS_UCHAR(arg->value);
             break;
 
         case CL_INT:
-            jarg->i = CVALUE_AS_INT(arg->value);
+            jarg->i = COBJECT_AS_INT(arg->value);
             break;
 
         case CL_UINT:
-            jarg->i = CVALUE_AS_UINT(arg->value);
+            jarg->i = COBJECT_AS_UINT(arg->value);
             break;
 
         case CL_LONG:
-            jarg->i = CVALUE_AS_LONG(arg->value);
+            jarg->i = COBJECT_AS_LONG(arg->value);
             break;
 
         case CL_ULONG:
-            jarg->i = CVALUE_AS_ULONG(arg->value);
+            jarg->i = COBJECT_AS_ULONG(arg->value);
             break;
 
         case CL_SINT:
-            jarg->s = CVALUE_AS_SINT(arg->value);
+            jarg->s = COBJECT_AS_SINT(arg->value);
             break;
 
         case CL_USINT:
-            jarg->s = CVALUE_AS_USINT(arg->value);
+            jarg->s = COBJECT_AS_USINT(arg->value);
             break;
 
         case CL_FLOAT:
-            jarg->f = CVALUE_AS_FLOAT(arg->value);
+            jarg->f = COBJECT_AS_FLOAT(arg->value);
             break;
 
         case CL_DOUBLE:
-            jarg->d = CVALUE_AS_DOUBLE(arg->value);
+            jarg->d = COBJECT_AS_DOUBLE(arg->value);
             break;
 
         case CL_LLONG:
-            jarg->j = CVALUE_AS_LLONG(arg->value);
+            jarg->j = COBJECT_AS_LLONG(arg->value);
             break;
 
         case CL_ULLONG:
-            jarg->j = CVALUE_AS_ULLONG(arg->value);
+            jarg->j = COBJECT_AS_ULLONG(arg->value);
             break;
 
         case CL_POINTER:
@@ -98,11 +98,11 @@ static void fill_method_argument_value(JNIEnv *env, struct cplugin_fdata_s *arg,
             break;
 
         case CL_STRING:
-            jarg->l = (*env)->NewStringUTF(env, CVALUE_AS_STRING(arg->value));
+            jarg->l = (*env)->NewStringUTF(env, COBJECT_AS_STRING(arg->value));
             break;
 
         case CL_BOOLEAN:
-            jarg->z = CVALUE_AS_BOOLEAN(arg->value);
+            jarg->z = COBJECT_AS_BOOLEAN(arg->value);
             break;
     }
 }

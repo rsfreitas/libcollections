@@ -35,9 +35,9 @@
     cl_struct_member(enum counter_precision, precision) \
     cl_struct_member(bool, circular_counter)            \
     cl_struct_member(bool, negative_min)                \
-    cl_struct_member(cvalue_t *, cnt)                   \
-    cl_struct_member(cvalue_t *, min)                   \
-    cl_struct_member(cvalue_t *, max)                   \
+    cl_struct_member(cobject_t *, cnt)                  \
+    cl_struct_member(cobject_t *, min)                  \
+    cl_struct_member(cobject_t *, max)                  \
     cl_struct_member(long long, start_value)            \
     cl_struct_member(pthread_mutex_t, lock)             \
     cl_struct_member(struct ref_s, ref)
@@ -49,33 +49,33 @@ cl_struct_declare(counter_s, counter_members);
 static void adjust_8bit_counter(counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_create(CL_LLONG, UCHAR_MAX, NULL);
+        c->max = cobject_create(CL_LLONG, UCHAR_MAX, NULL);
     else
-        c->max = cvalue_create(CL_LLONG, max, NULL);
+        c->max = cobject_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_16bit_counter(counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_create(CL_LLONG, USHRT_MAX, NULL);
+        c->max = cobject_create(CL_LLONG, USHRT_MAX, NULL);
     else
-        c->max = cvalue_create(CL_LLONG, max, NULL);
+        c->max = cobject_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_32bit_counter(counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_create(CL_LLONG, UINT_MAX, NULL);
+        c->max = cobject_create(CL_LLONG, UINT_MAX, NULL);
     else
-        c->max = cvalue_create(CL_LLONG, max, NULL);
+        c->max = cobject_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_64bit_counter(counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cvalue_create(CL_LLONG, ULLONG_MAX, NULL);
+        c->max = cobject_create(CL_LLONG, ULLONG_MAX, NULL);
     else
-        c->max = cvalue_create(CL_LLONG, max, NULL);
+        c->max = cobject_create(CL_LLONG, max, NULL);
 }
 
 static void adjust_counter_limits(counter_s *c, long long min,
@@ -100,12 +100,12 @@ static void adjust_counter_limits(counter_s *c, long long min,
     }
 
     if (min == 0)
-        c->min = cvalue_create(CL_LLONG, 0, NULL);
+        c->min = cobject_create(CL_LLONG, 0, NULL);
     else {
         if (min < 0)
             c->negative_min = true;
 
-        c->min = cvalue_create(CL_LLONG, min, NULL);
+        c->min = cobject_create(CL_LLONG, min, NULL);
     }
 }
 
@@ -117,13 +117,13 @@ static void destroy_counter_s(const struct ref_s *ref)
         return;
 
     if (c->cnt != NULL)
-        cvalue_destroy(c->cnt);
+        cobject_destroy(c->cnt);
 
     if (c->min != NULL)
-        cvalue_destroy(c->min);
+        cobject_destroy(c->min);
 
     if (c->max != NULL)
-        cvalue_destroy(c->max);
+        cobject_destroy(c->max);
 
     pthread_mutex_destroy(&c->lock);
     free(c);
@@ -144,7 +144,7 @@ static counter_s *new_counter_s(enum counter_precision precision,
     c->precision = precision;
     c->circular_counter = circular;
     c->negative_min = false;
-    c->cnt = cvalue_create(CL_LLONG, start_value, NULL);
+    c->cnt = cobject_create(CL_LLONG, start_value, NULL);
     c->start_value = start_value;
     c->ref.free = destroy_counter_s;
     c->ref.count = 1;
@@ -209,17 +209,17 @@ static int __counter_increase(counter_t *c, long long gap)
 
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
-    v = CVALUE_AS_LLONG(p->cnt) + gap;
-    max = CVALUE_AS_LLONG(p->max);
+    v = COBJECT_AS_LLONG(p->cnt) + gap;
+    max = COBJECT_AS_LLONG(p->max);
 
     if (v > max) {
         if (p->circular_counter == false)
             v = max;
         else
-            v = CVALUE_AS_LLONG(p->min);
+            v = COBJECT_AS_LLONG(p->min);
     }
 
-    cvalue_set(p->cnt, v, NULL);
+    cobject_set(p->cnt, v, NULL);
     pthread_mutex_unlock(&p->lock);
     counter_unref(p);
 
@@ -248,17 +248,17 @@ static int __counter_decrease(counter_t *c, long long gap)
 
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
-    v = CVALUE_AS_LLONG(p->cnt) - gap;
-    min = CVALUE_AS_LLONG(p->min);
+    v = COBJECT_AS_LLONG(p->cnt) - gap;
+    min = COBJECT_AS_LLONG(p->min);
 
     if (v < min) {
         if (p->circular_counter == false)
             v = min;
         else
-            v = CVALUE_AS_LLONG(p->max);
+            v = COBJECT_AS_LLONG(p->max);
     }
 
-    cvalue_set(p->cnt, v, NULL);
+    cobject_set(p->cnt, v, NULL);
     pthread_mutex_unlock(&p->lock);
     counter_unref(p);
 
@@ -287,7 +287,7 @@ int LIBEXPORT counter_reset(counter_t *c)
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
-    cvalue_set(p->cnt, p->start_value, NULL);
+    cobject_set(p->cnt, p->start_value, NULL);
 
     pthread_mutex_unlock(&p->lock);
     counter_unref(p);
@@ -304,7 +304,7 @@ long long LIBEXPORT counter_get(counter_t *c)
     if (validate_object(c, COUNTER) == false)
         return -1;
 
-    return CVALUE_AS_LLONG(p->cnt);
+    return COBJECT_AS_LLONG(p->cnt);
 }
 
 int LIBEXPORT counter_set_min(counter_t *c, long long min)
@@ -320,9 +320,9 @@ int LIBEXPORT counter_set_min(counter_t *c, long long min)
     pthread_mutex_lock(&p->lock);
 
     if (NULL == p->min)
-        p->min = cvalue_create(CL_LLONG, min, NULL);
+        p->min = cobject_create(CL_LLONG, min, NULL);
     else
-        cvalue_set(p->min, min, NULL);
+        cobject_set(p->min, min, NULL);
 
     pthread_mutex_unlock(&p->lock);
     counter_unref(p);
@@ -343,9 +343,9 @@ int LIBEXPORT counter_set_max(counter_t *c, long long max)
     pthread_mutex_lock(&p->lock);
 
     if (NULL == p->max)
-        p->max = cvalue_create(CL_LLONG, max, NULL);
+        p->max = cobject_create(CL_LLONG, max, NULL);
     else
-        cvalue_set(p->max, max, NULL);
+        cobject_set(p->max, max, NULL);
 
     pthread_mutex_unlock(&p->lock);
     counter_unref(p);
@@ -376,7 +376,7 @@ bool LIBEXPORT counter_lt(const counter_t *c, long long value)
     if (validate_object(c, COUNTER) == false)
         return false;
 
-    v = CVALUE_AS_LLONG(p->cnt);
+    v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v < value)
@@ -398,7 +398,7 @@ bool LIBEXPORT counter_le(const counter_t *c, long long value)
     if (validate_object(c, COUNTER) == false)
         return false;
 
-    v = CVALUE_AS_LLONG(p->cnt);
+    v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v <= value)
@@ -420,7 +420,7 @@ bool LIBEXPORT counter_gt(const counter_t *c, long long value)
     if (validate_object(c, COUNTER) == false)
         return false;
 
-    v = CVALUE_AS_LLONG(p->cnt);
+    v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v > value)
@@ -442,7 +442,7 @@ bool LIBEXPORT counter_ge(const counter_t *c, long long value)
     if (validate_object(c, COUNTER) == false)
         return false;
 
-    v = CVALUE_AS_LLONG(p->cnt);
+    v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v >= value)
@@ -463,7 +463,7 @@ bool LIBEXPORT counter_eq(const counter_t *c, long long value)
     if (validate_object(c, COUNTER) == false)
         return false;
 
-    if (CVALUE_AS_LLONG(p->cnt) == value)
+    if (COBJECT_AS_LLONG(p->cnt) == value)
         return true;
 
     return false;
@@ -478,7 +478,7 @@ bool LIBEXPORT counter_ne(const counter_t *c, long long value)
     if (validate_object(c, COUNTER) == false)
         return false;
 
-    if (CVALUE_AS_LLONG(p->cnt) != value)
+    if (COBJECT_AS_LLONG(p->cnt) != value)
         return true;
 
     return false;
@@ -486,8 +486,11 @@ bool LIBEXPORT counter_ne(const counter_t *c, long long value)
 
 static bool is_between_limits(long long value, const counter_s *c)
 {
-    if ((value >= CVALUE_AS_LLONG(c->min)) && (value <= CVALUE_AS_LLONG(c->max)))
+    if ((value >= COBJECT_AS_LLONG(c->min)) &&
+        (value <= COBJECT_AS_LLONG(c->max)))
+    {
         return true;
+    }
 
     return false;
 }
@@ -510,8 +513,8 @@ long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
-    v = CVALUE_AS_LLONG(p->cnt);
-    cvalue_set(p->cnt, new_value, NULL);
+    v = COBJECT_AS_LLONG(p->cnt);
+    cobject_set(p->cnt, new_value, NULL);
 
     pthread_mutex_unlock(&p->lock);
     counter_unref(p);
@@ -536,7 +539,7 @@ int LIBEXPORT counter_set(counter_t *c, long long new_value)
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
-    cvalue_set(p->cnt, new_value, NULL);
+    cobject_set(p->cnt, new_value, NULL);
 
     pthread_mutex_unlock(&p->lock);
     counter_unref(p);

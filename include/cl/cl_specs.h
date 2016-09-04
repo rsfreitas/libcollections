@@ -38,21 +38,21 @@
  * @brief Creates a cspec_t object.
  *
  * The cspec_t is an object to add parameters specification to other objects,
- * such as value limits (maximum and minimum), flags indicating if the object
+ * such as object limits (maximum and minimum), flags indicating if the object
  * may be readable or writable, etc.
  *
  * @param [in] properties: Object properties.
- * @param [in] min: A cvalue_t indicating the minimum value that an object can
+ * @param [in] min: A cobject_t indicating the minimum object that an object can
  *                  have (this is optional, NULL may be used).
- * @param [in] max: A cvalue_t indicating the maximum value that an object can
+ * @param [in] max: A cobject_t indicating the maximum object that an object can
  *                  have (this is optional, NULL may be used).
- * @param [in] max_length: A integer value indicating the maximum size that an
+ * @param [in] max_length: An integer value indicating the maximum size that an
  *                         object of string type can have (this is optional).
  *
  * @return On success returns an object of cspec_t type or NULL otherwise.
  */
-cspec_t *cspec_create(enum cl_param_flags properties, cvalue_t *min,
-                      cvalue_t *max, unsigned int max_length);
+cspec_t *cspec_create(enum cl_param_flags properties, cobject_t *min,
+                      cobject_t *max, unsigned int max_length);
 
 /**
  * @name cspec_destroy
@@ -66,18 +66,20 @@ int cspec_destroy(cspec_t *spec);
 
 /**
  * @name cspec_validate
- * @brief Performs validations on a cvalue_t using a cspec_t content.
+ * @brief Performs validations on a cobject_t using a cspec_t content.
  *
- * The validations are executed according to the cvalue_t type and, if the
- * return is true, the cvalue_t internal value is updated.
+ * The validations are executed according to the cobject_t type and, if the
+ * return is true, the cobject_t internal object is updated.
  *
  * @param [in] spec: The cspec_t object parameters.
- * @param [in,out] value: The cvalue_t object.
- * @param [in] ap: Values that may be the cvalue_t if validations were true.
+ * @param [in,out] value: The cobject_t object.
+ * @param [in] set_value: Flag indicating what will be validated, if we can
+ *                        read or write the object.
+ * @param [in] ap: Values that the cobject_t may have if validations were true.
  *
  * @return On sucess returns true or false otherwise.
  */
-bool cspec_validate(const cspec_t *spec, cvalue_t *value, bool set_value,
+bool cspec_validate(const cspec_t *spec, cobject_t *value, bool set_value,
                     va_list ap);
 
 #endif

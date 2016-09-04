@@ -32,8 +32,8 @@
 #include "collections.h"
 
 struct event_condition_s {
-    clist_t                     *prev;
-    clist_t                     *next;
+    clist_entry_t               *prev;
+    clist_entry_t               *next;
     unsigned int                id;
     void                        *ptr;
     void                        *value;

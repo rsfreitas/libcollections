@@ -43,5 +43,15 @@
  */
 unsigned int cseed(void);
 
+/**
+ * @name crand
+ * @brief Generates a random number between 0 and \a random_max.
+ *
+ * @param [in] random_max: The maximum value of the random number.
+ *
+ * @return Returns the random number.
+ */
+unsigned int crand(unsigned int random_max);
+
 #endif
 

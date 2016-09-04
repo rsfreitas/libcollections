@@ -42,8 +42,8 @@
  *      file.
  */
 typedef struct cjson_s {
-    clist_t             *prev;
-    clist_t             *next;
+    clist_entry_t       *prev;
+    clist_entry_t       *next;
     struct cobject_hdr  hdr;
     void                *child;
     cstring_t           *name;
@@ -51,7 +51,8 @@ typedef struct cjson_s {
     cstring_t           *value;
 } cjson_s;
 
-#define CJSON_OBJECT_OFFSET         (sizeof(clist_t *) + sizeof(clist_t *))
+#define CJSON_OBJECT_OFFSET         \
+    (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
 
 struct jvalue_s {
     char            *value;

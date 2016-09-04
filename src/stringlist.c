@@ -29,9 +29,9 @@
 #include "collections.h"
 
 struct cstring_list_node_s {
-    clist_t     *prev;
-    clist_t     *next;
-    cstring_t   *s;
+    clist_entry_t       *prev;
+    clist_entry_t       *next;
+    cstring_t           *s;
 };
 
 #define cstring_list_members                                \

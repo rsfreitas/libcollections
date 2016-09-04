@@ -76,7 +76,7 @@ static cfg_section_t *get_section(cfg_file_t *cfg, const char *name)
 static int get_number_of_windows(cfg_section_t *section)
 {
     cfg_key_t *k;
-    cvalue_t *v;
+    cobject_t *v;
     int value = 0;
 
     k = cfg_get_key_from_section(section, "windows");
@@ -89,7 +89,7 @@ static int get_number_of_windows(cfg_section_t *section)
     v = cfg_key_value(k);
     value = CVALUE_INT(v);
     fprintf(stdout, "Value of key 'windows' is: %d\n", value);
-    cvalue_unref(v);
+    cobject_unref(v);
 
     return value;
 }
@@ -98,7 +98,7 @@ static void show_windows_config(cfg_file_t *cfg, int windows)
 {
     int i, w, h;
     char *s = NULL;
-    cvalue_t *v;
+    cobject_t *v;
     cfg_key_t *k;
 
     for (i = 0; i < windows; i++) {
@@ -115,7 +115,7 @@ static void show_windows_config(cfg_file_t *cfg, int windows)
 
         v = cfg_key_value(k);
         w = CVALUE_INT(v);
-        cvalue_unref(v);
+        cobject_unref(v);
 
         /* height */
         k = cfg_get_key(cfg, s, "height");
@@ -128,7 +128,7 @@ static void show_windows_config(cfg_file_t *cfg, int windows)
 
         v = cfg_key_value(k);
         h = CVALUE_INT(v);
-        cvalue_unref(v);
+        cobject_unref(v);
 
         fprintf(stdout, "Window [%d]: width=%d, height=%d\n", i + 1, w, h);
         free(s);

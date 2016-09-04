@@ -40,11 +40,11 @@ enum cfg_line_type {
 
 /** INI line structure */
 struct cfg_line_s {
-    clist_t             *prev;
-    clist_t             *next;
+    clist_entry_t       *prev;
+    clist_entry_t       *next;
     struct line_s       *child;
     cstring_t           *name;
-    cvalue_t            *value;
+    cobject_t            *value;
     cstring_t           *comment;
     enum cfg_line_type  line_type;
     char                delim;
@@ -93,7 +93,7 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
 
     if (value != NULL) {
         tmp = cstring_create("%s", value);
-        l->value = cvalue_from_cstring(tmp);
+        l->value = cobject_from_cstring(tmp);
         cstring_destroy(tmp);
     }
 
@@ -115,7 +115,7 @@ static void destroy_cfg_line_s(void *a)
         cstring_unref(l->comment);
 
     if (l->value != NULL)
-        cvalue_destroy(l->value);
+        cobject_destroy(l->value);
 
     if (l->name != NULL)
         cstring_unref(l->name);
@@ -432,7 +432,7 @@ static int write_line_to_file(void *a, void *b)
             break;
 
         case CFG_LINE_KEY:
-            v = cvalue_to_cstring(l->value);
+            v = cobject_to_cstring(l->value);
 
             if (l->line_type & CFG_LINE_COMMENT) {
                 cstring_cat(s, "%s=%s %c %s\n", cstring_valueof(l->name),
@@ -605,7 +605,7 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
         if (k->value != NULL)
             cstring_destroy(k->value);
 
-        k->value = cvalue_from_cstring(t);
+        k->value = cobject_from_cstring(t);
         cstring_destroy(t);
     }
 
@@ -718,7 +718,7 @@ cstring_t LIBEXPORT *cfg_key_name(const cfg_key_t *key)
 /*
  * Gets the actual value from a cfg_key_t object.
  */
-cvalue_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
+cobject_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
 {
     struct cfg_line_s *k = (struct cfg_line_s *)key;
 
@@ -729,7 +729,7 @@ cvalue_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
         return NULL;
     }
 
-    return cvalue_ref(k->value);
+    return cobject_ref(k->value);
 }
 
 cstring_t LIBEXPORT *cfg_to_cstring(const cfg_file_t *file)

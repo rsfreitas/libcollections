@@ -67,99 +67,99 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
 
         switch (arg->type) {
             case CL_CHAR:
-                arg->value = cvalue_create(CL_CHAR, (char)va_arg(ap, int),
-                                           NULL);
+                arg->value = cobject_create(CL_CHAR, (char)va_arg(ap, int),
+                                            NULL);
 
                 break;
 
             case CL_UCHAR:
-                arg->value = cvalue_create(CL_UCHAR,
-                                           (unsigned char)va_arg(ap, int),
-                                           NULL);
+                arg->value = cobject_create(CL_UCHAR,
+                                            (unsigned char)va_arg(ap, int),
+                                            NULL);
 
                 break;
 
             case CL_INT:
-                arg->value = cvalue_create(CL_INT, va_arg(ap, int), NULL);
+                arg->value = cobject_create(CL_INT, va_arg(ap, int), NULL);
                 break;
 
             case CL_UINT:
-                arg->value = cvalue_create(CL_UINT,
-                                           (unsigned int)va_arg(ap, int),
-                                           NULL);
+                arg->value = cobject_create(CL_UINT,
+                                            (unsigned int)va_arg(ap, int),
+                                            NULL);
 
                 break;
 
             case CL_SINT:
-                arg->value = cvalue_create(CL_SINT,
-                                           (short int)va_arg(ap, int), NULL);
+                arg->value = cobject_create(CL_SINT,
+                                            (short int)va_arg(ap, int), NULL);
 
                 break;
 
             case CL_USINT:
-                arg->value = cvalue_create(CL_USINT,
-                                           (unsigned short int)va_arg(ap, int),
-                                           NULL);
+                arg->value = cobject_create(CL_USINT,
+                                            (unsigned short int)va_arg(ap, int),
+                                            NULL);
 
                 break;
 
             case CL_FLOAT:
-                arg->value = cvalue_create(CL_FLOAT,
-                                           (float)va_arg(ap, double), NULL);
+                arg->value = cobject_create(CL_FLOAT,
+                                            (float)va_arg(ap, double), NULL);
 
                 break;
 
             case CL_DOUBLE:
-                arg->value = cvalue_create(CL_DOUBLE,
-                                           va_arg(ap, double), NULL);
+                arg->value = cobject_create(CL_DOUBLE,
+                                            va_arg(ap, double), NULL);
 
                 break;
 
             case CL_LONG:
-                arg->value = cvalue_create(CL_LONG,
-                                           va_arg(ap, long), NULL);
+                arg->value = cobject_create(CL_LONG,
+                                            va_arg(ap, long), NULL);
 
                 break;
 
             case CL_ULONG:
-                arg->value = cvalue_create(CL_ULONG,
-                                           va_arg(ap, unsigned long),
-                                           NULL);
+                arg->value = cobject_create(CL_ULONG,
+                                            va_arg(ap, unsigned long),
+                                            NULL);
 
                 break;
 
             case CL_LLONG:
-                arg->value = cvalue_create(CL_LLONG,
-                                           va_arg(ap, long long), NULL);
+                arg->value = cobject_create(CL_LLONG,
+                                            va_arg(ap, long long), NULL);
 
                 break;
 
             case CL_ULLONG:
-                arg->value = cvalue_create(CL_ULLONG,
-                                           va_arg(ap, unsigned long long),
-                                           NULL);
+                arg->value = cobject_create(CL_ULLONG,
+                                            va_arg(ap, unsigned long long),
+                                            NULL);
 
                 break;
 
             case CL_POINTER:
-                arg->value = cvalue_create(CL_POINTER, false,
-                                           va_arg(ap, void *), 0, NULL);
+                arg->value = cobject_create(CL_POINTER, false,
+                                            va_arg(ap, void *), 0, NULL);
 
                 break;
 
             case CL_BOOLEAN:
-                arg->value = cvalue_create(CL_BOOLEAN, va_arg(ap, int), NULL);
+                arg->value = cobject_create(CL_BOOLEAN, va_arg(ap, int), NULL);
                 break;
 
             case CL_STRING:
-                arg->value = cvalue_create(CL_STRING, va_arg(ap, char *),
-                                           NULL);
+                arg->value = cobject_create(CL_STRING, va_arg(ap, char *),
+                                            NULL);
 
                 break;
 
             case CL_CSTRING:
                 p = va_arg(ap, void *);
-                arg->value = cvalue_create(CL_CSTRING, p, NULL);
+                arg->value = cobject_create(CL_CSTRING, p, NULL);
                 cstring_unref(p);
                 break;
 

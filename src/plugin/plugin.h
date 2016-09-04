@@ -86,18 +86,18 @@ struct dl_plugin_driver {
 };
 
 struct cplugin_fdata_s {
-    clist_t         *prev;
-    clist_t         *next;
+    clist_entry_t   *prev;
+    clist_entry_t   *next;
 
     char            *name;
     enum cl_type    type;
-    cvalue_t        *value;
+    cobject_t        *value;
     uint32_t        caller_id;
 };
 
 struct cplugin_function_s {
-    clist_t                     *prev;
-    clist_t                     *next;
+    clist_entry_t               *prev;
+    clist_entry_t               *next;
 
     /* Function name */
     char                        *name;
@@ -206,9 +206,9 @@ struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
 
 /* rv.c */
-cvalue_t *cplugin_get_return_value(struct cplugin_s *cpl,
-                                   const char *function_name,
-                                   uint32_t caller_id);
+cobject_t *cplugin_get_return_value(struct cplugin_s *cpl,
+                                    const char *function_name,
+                                    uint32_t caller_id);
 
 #endif
 

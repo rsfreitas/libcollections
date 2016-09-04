@@ -155,10 +155,10 @@ cstring_t *cfg_key_name(const cfg_key_t *key);
  *
  * @param [in] key: cfg_key_t object.
  *
- * @return On success returns a reference to a cvalue_t object containing the key
+ * @return On success returns a reference to a cobject_t object containing the key
  *         value or NULL otherwise.
  */
-cvalue_t *cfg_key_value(const cfg_key_t *key);
+cobject_t *cfg_key_value(const cfg_key_t *key);
 
 /**
  * @name cfg_to_cstring

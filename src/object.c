@@ -1,6 +1,6 @@
 
 /*
- * Description: Simple API to handle a generic value for store any type
+ * Description: Simple API to handle a generic object for store any type
  *              of data.
  *
  * Author: Rodrigo Freitas
@@ -31,33 +31,35 @@
 
 #include "collections.h"
 
-#define cvalue_members                              \
-    cl_struct_member(enum cl_type, type)            \
-    cl_struct_member(unsigned int, size)            \
-    cl_struct_member(bool, dup_data)                \
-    cl_struct_member(void, (*free_value)(void *))   \
-    cl_struct_member(size_t, psize)                 \
-    cl_struct_member(cspec_t *, specs)              \
-    cl_struct_member(char, c)                       \
-    cl_struct_member(unsigned char, uc)             \
-    cl_struct_member(int, i)                        \
-    cl_struct_member(unsigned int, ui)              \
-    cl_struct_member(short int, si)                 \
-    cl_struct_member(unsigned short int, usi)       \
-    cl_struct_member(float, f)                      \
-    cl_struct_member(double, d)                     \
-    cl_struct_member(long, l)                       \
-    cl_struct_member(unsigned long, ul)             \
-    cl_struct_member(long long, ll)                 \
-    cl_struct_member(unsigned long long, ull)       \
-    cl_struct_member(cstring_t *, s)                \
-    cl_struct_member(bool, b)                       \
-    cl_struct_member(void *, p)                     \
-    cl_struct_member(struct ref_s, ref)
+#define cobject_members                                 \
+    cl_struct_member(enum cl_type, type)                \
+    cl_struct_member(unsigned int, size)                \
+    cl_struct_member(bool, dup_data)                    \
+    cl_struct_member(void, (*free_object)(void *))      \
+    cl_struct_member(size_t, psize)                     \
+    cl_struct_member(cspec_t *, specs)                  \
+    cl_struct_member(char, c)                           \
+    cl_struct_member(unsigned char, uc)                 \
+    cl_struct_member(int, i)                            \
+    cl_struct_member(unsigned int, ui)                  \
+    cl_struct_member(short int, si)                     \
+    cl_struct_member(unsigned short int, usi)           \
+    cl_struct_member(float, f)                          \
+    cl_struct_member(double, d)                         \
+    cl_struct_member(long, l)                           \
+    cl_struct_member(unsigned long, ul)                 \
+    cl_struct_member(long long, ll)                     \
+    cl_struct_member(unsigned long long, ull)           \
+    cl_struct_member(cstring_t *, s)                    \
+    cl_struct_member(bool, b)                           \
+    cl_struct_member(void *, p)                         \
+    cl_struct_member(struct ref_s, ref)                 \
+    cl_struct_member(bool, (*equals)(cobject_t *))      \
+    cl_struct_member(int, (*compare_to)(cobject_t *))
 
-cl_struct_declare(cvalue_s, cvalue_members);
+cl_struct_declare(cobject_s, cobject_members);
 
-#define cvalue_s        cl_struct(cvalue_s)
+#define cobject_s        cl_struct(cobject_s)
 
 bool validate_cl_type(enum cl_type type)
 {
@@ -87,17 +89,17 @@ bool validate_cl_type(enum cl_type type)
     return false;
 }
 
-static void free_value_data(cvalue_s *o)
+static void free_object_data(cobject_s *o)
 {
-    if (o->free_value != NULL)
-        (o->free_value)(o->p);
+    if (o->free_object != NULL)
+        (o->free_object)(o->p);
     else
         free(o->p);
 }
 
-static void destroy_cvalue_s(const struct ref_s *ref)
+static void destroy_cobject_s(const struct ref_s *ref)
 {
-    cvalue_s *o = container_of(ref, cvalue_s, ref);
+    cobject_s *o = container_of(ref, cobject_s, ref);
 
     if (NULL == o)
         return;
@@ -106,7 +108,7 @@ static void destroy_cvalue_s(const struct ref_s *ref)
         cstring_unref(o->s);
 
     if (o->dup_data == true)
-        free_value_data(o);
+        free_object_data(o);
 
     if (o->specs != NULL)
         cspec_destroy(o->specs);
@@ -114,11 +116,11 @@ static void destroy_cvalue_s(const struct ref_s *ref)
     free(o);
 }
 
-static cvalue_s *new_cvalue_s(enum cl_type type)
+static cobject_s *new_cobject_s(enum cl_type type)
 {
-    cvalue_s *o = NULL;
+    cobject_s *o = NULL;
 
-    o = calloc(1, sizeof(cvalue_s));
+    o = calloc(1, sizeof(cobject_s));
 
     if (NULL == o) {
         cset_errno(CL_NO_MEM);
@@ -130,149 +132,149 @@ static cvalue_s *new_cvalue_s(enum cl_type type)
     o->specs = NULL;
 
     /* ref count initialization */
-    o->ref.free = destroy_cvalue_s;
+    o->ref.free = destroy_cobject_s;
     o->ref.count = 1;
 
-    set_typeof(CVALUE, o);
+    set_typeof(COBJECT, o);
 
     return o;
 }
 
-void cvalue_set_char(cvalue_t *value, char c)
+void cobject_set_char(cobject_t *object, char c)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->c = c;
 }
 
-void cvalue_set_uchar(cvalue_t *value, unsigned char uc)
+void cobject_set_uchar(cobject_t *object, unsigned char uc)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->uc = uc;
 }
 
-void cvalue_set_int(cvalue_t *value, int i)
+void cobject_set_int(cobject_t *object, int i)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->i = i;
 }
 
-void cvalue_set_uint(cvalue_t *value, unsigned int ui)
+void cobject_set_uint(cobject_t *object, unsigned int ui)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->ui = ui;
 }
 
-void cvalue_set_sint(cvalue_t *value, short int si)
+void cobject_set_sint(cobject_t *object, short int si)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->si = si;
 }
 
-void cvalue_set_usint(cvalue_t *value, unsigned short int usi)
+void cobject_set_usint(cobject_t *object, unsigned short int usi)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->usi = usi;
 }
 
-void cvalue_set_float(cvalue_t *value, float f)
+void cobject_set_float(cobject_t *object, float f)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->f = f;
 }
 
-void cvalue_set_double(cvalue_t *value, double d)
+void cobject_set_double(cobject_t *object, double d)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->d = d;
 }
 
-void cvalue_set_long(cvalue_t *value, long l)
+void cobject_set_long(cobject_t *object, long l)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->l = l;
 }
 
-void cvalue_set_ulong(cvalue_t *value, unsigned long ul)
+void cobject_set_ulong(cobject_t *object, unsigned long ul)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->ul = ul;
 }
 
-void cvalue_set_llong(cvalue_t *value, long long ll)
+void cobject_set_llong(cobject_t *object, long long ll)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->ll = ll;
 }
 
-void cvalue_set_ullong(cvalue_t *value, unsigned long long ull)
+void cobject_set_ullong(cobject_t *object, unsigned long long ull)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->ull = ull;
 }
 
-void cvalue_set_boolean(cvalue_t *value, bool b)
+void cobject_set_boolean(cobject_t *object, bool b)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     v->b = b;
 }
 
-void cvalue_set_cstring(cvalue_t *value, cstring_t *s)
+void cobject_set_cstring(cobject_t *object, cstring_t *s)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     if (v->s != NULL)
@@ -281,11 +283,11 @@ void cvalue_set_cstring(cvalue_t *value, cstring_t *s)
     v->s = cstring_ref(s);
 }
 
-void cvalue_set_string(cvalue_t *value, char *s)
+void cobject_set_string(cobject_t *object, char *s)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
-    if (NULL == value)
+    if (NULL == object)
         return;
 
     if (v->s != NULL)
@@ -294,7 +296,7 @@ void cvalue_set_string(cvalue_t *value, char *s)
     v->s = cstring_create("%s", s);
 }
 
-static void set_cvalue_value(cvalue_s *o, va_list ap)
+static void set_cobject_object(cobject_s *o, va_list ap)
 {
     void *p;
 
@@ -304,51 +306,51 @@ static void set_cvalue_value(cvalue_s *o, va_list ap)
             break;
 
         case CL_CHAR:
-            cvalue_set_char(o, (char)va_arg(ap, int));
+            cobject_set_char(o, (char)va_arg(ap, int));
             break;
 
         case CL_UCHAR:
-            cvalue_set_uchar(o, (unsigned char)va_arg(ap, int));
+            cobject_set_uchar(o, (unsigned char)va_arg(ap, int));
             break;
 
         case CL_INT:
-            cvalue_set_int(o, va_arg(ap, int));
+            cobject_set_int(o, va_arg(ap, int));
             break;
 
         case CL_UINT:
-            cvalue_set_uint(o, va_arg(ap, unsigned int));
+            cobject_set_uint(o, va_arg(ap, unsigned int));
             break;
 
         case CL_SINT:
-            cvalue_set_sint(o, (short int)va_arg(ap, int));
+            cobject_set_sint(o, (short int)va_arg(ap, int));
             break;
 
         case CL_USINT:
-            cvalue_set_usint(o, (unsigned short int)va_arg(ap, unsigned int));
+            cobject_set_usint(o, (unsigned short int)va_arg(ap, unsigned int));
             break;
 
         case CL_FLOAT:
-            cvalue_set_float(o, (float)va_arg(ap, double));
+            cobject_set_float(o, (float)va_arg(ap, double));
             break;
 
         case CL_DOUBLE:
-            cvalue_set_double(o, va_arg(ap, double));
+            cobject_set_double(o, va_arg(ap, double));
             break;
 
         case CL_LONG:
-            cvalue_set_long(o, va_arg(ap, long));
+            cobject_set_long(o, va_arg(ap, long));
             break;
 
         case CL_ULONG:
-            cvalue_set_ulong(o, va_arg(ap, unsigned long));
+            cobject_set_ulong(o, va_arg(ap, unsigned long));
             break;
 
         case CL_LLONG:
-            cvalue_set_llong(o, va_arg(ap, long long));
+            cobject_set_llong(o, va_arg(ap, long long));
             break;
 
         case CL_ULLONG:
-            cvalue_set_ullong(o, va_arg(ap, unsigned long long));
+            cobject_set_ullong(o, va_arg(ap, unsigned long long));
             break;
 
         case CL_POINTER:
@@ -359,7 +361,7 @@ static void set_cvalue_value(cvalue_s *o, va_list ap)
 
             if (o->dup_data == true) {
                 if (o->p != NULL)
-                    free_value_data(o);
+                    free_object_data(o);
 
                 o->p = cmemdup(p, o->psize);
             } else
@@ -368,51 +370,51 @@ static void set_cvalue_value(cvalue_s *o, va_list ap)
             p = va_arg(ap, void *);
 
             if (p != NULL)
-                o->free_value = p;
+                o->free_object = p;
 
             break;
 
         case CL_CSTRING:
-            cvalue_set_cstring(o, va_arg(ap, void *));
+            cobject_set_cstring(o, va_arg(ap, void *));
             break;
 
         case CL_STRING:
-            cvalue_set_string(o, va_arg(ap, char *));
+            cobject_set_string(o, va_arg(ap, char *));
             break;
 
         case CL_BOOLEAN:
-            cvalue_set_boolean(o, va_arg(ap, int));
+            cobject_set_boolean(o, va_arg(ap, int));
             break;
     }
 }
 
-int LIBEXPORT cvalue_set(cvalue_t *value, ...)
+int LIBEXPORT cobject_set(cobject_t *object, ...)
 {
-    cvalue_s *o;
+    cobject_s *o;
     va_list ap;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
-    o = cvalue_ref(value);
+    o = cobject_ref(object);
     va_start(ap, NULL);
 
     if (o->specs != NULL) {
         if (cspec_validate(o->specs, o, true, ap) == false)
             return -1;
     } else
-        set_cvalue_value(o, ap);
+        set_cobject_object(o, ap);
 
     va_end(ap);
 
     return 0;
 }
 
-cvalue_t LIBEXPORT *cvalue_create(enum cl_type type, ...)
+cobject_t LIBEXPORT *cobject_create(enum cl_type type, ...)
 {
-    cvalue_s *o = NULL;
+    cobject_s *o = NULL;
     va_list ap;
 
     cerrno_clear();
@@ -420,21 +422,21 @@ cvalue_t LIBEXPORT *cvalue_create(enum cl_type type, ...)
     if (validate_cl_type(type) == false)
         return NULL;
 
-    o = new_cvalue_s(type);
+    o = new_cobject_s(type);
 
     if (NULL == o)
         return NULL;
 
     va_start(ap, NULL);
-    set_cvalue_value(o, ap);
+    set_cobject_object(o, ap);
     va_end(ap);
 
     return o;
 }
 
-cvalue_t LIBEXPORT *cvalue_create_with_spec(enum cl_type type, cspec_t *spec)
+cobject_t LIBEXPORT *cobject_create_with_spec(enum cl_type type, cspec_t *spec)
 {
-    cvalue_s *o = NULL;
+    cobject_s *o = NULL;
 
     cerrno_clear();
 
@@ -444,7 +446,7 @@ cvalue_t LIBEXPORT *cvalue_create_with_spec(enum cl_type type, cspec_t *spec)
     if (validate_object(spec, CSPEC) == false)
         return NULL;
 
-    o = new_cvalue_s(type);
+    o = new_cobject_s(type);
 
     if (NULL == o)
         return NULL;
@@ -454,12 +456,12 @@ cvalue_t LIBEXPORT *cvalue_create_with_spec(enum cl_type type, cspec_t *spec)
     return o;
 }
 
-int LIBEXPORT cvalue_destroy(cvalue_t *value)
+int LIBEXPORT cobject_destroy(cobject_t *object)
 {
-    return cvalue_unref(value);
+    return cobject_unref(object);
 }
 
-static int get_cvalue_sizeof(cvalue_s *o)
+static int get_cobject_sizeof(cobject_s *o)
 {
     switch (o->type) {
         case CL_VOID:
@@ -504,56 +506,56 @@ static int get_cvalue_sizeof(cvalue_s *o)
     return -1;
 }
 
-int LIBEXPORT cvalue_sizeof(const cvalue_t *value)
+int LIBEXPORT cobject_sizeof(const cobject_t *object)
 {
-    cvalue_s *o;
+    cobject_s *o;
     int s;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
-    o = cvalue_ref((cvalue_t *)value);
-    s = get_cvalue_sizeof(o);
-    cvalue_unref(o);
+    o = cobject_ref((cobject_t *)object);
+    s = get_cobject_sizeof(o);
+    cobject_unref(o);
 
     return s;
 }
 
-enum cl_type LIBEXPORT cvalue_type(const cvalue_t *value)
+enum cl_type LIBEXPORT cobject_type(const cobject_t *object)
 {
-    cvalue_s *o;
+    cobject_s *o;
     enum cl_type type;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
-    o = cvalue_ref((cvalue_t *)value);
+    o = cobject_ref((cobject_t *)object);
     type = o->type;
-    cvalue_unref(o);
+    cobject_unref(o);
 
     return type;
 }
 
-static int get_value_check(const cvalue_t *value, enum cl_type type)
+static int get_object_check(const cobject_t *object, enum cl_type type)
 {
-    cvalue_s *o = (cvalue_s *)value;
+    cobject_s *o = (cobject_s *)object;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
-    if (cvalue_is_of_type(value, type) == false) {
+    if (cobject_is_of_type(object, type) == false) {
         cset_errno(CL_WRONG_TYPE);
         return -1;
     }
 
     if (o->specs != NULL) {
-        if (cspec_validate(o->specs, (cvalue_t *)value, false,
+        if (cspec_validate(o->specs, (cobject_t *)object, false,
                            0) == false)
         {
             cset_errno(CL_INVALID_VALUE);
@@ -564,27 +566,27 @@ static int get_value_check(const cvalue_t *value, enum cl_type type)
     return 0;
 }
 
-bool LIBEXPORT cvalue_is_of_type(const cvalue_t *value, unsigned int type)
+bool LIBEXPORT cobject_is_of_type(const cobject_t *object, unsigned int type)
 {
-    cvalue_s *o;
+    cobject_s *o;
     bool b;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return false;
 
     if (validate_cl_type(type) == false)
         return false;
 
-    o = cvalue_ref((cvalue_t *)value);
+    o = cobject_ref((cobject_t *)object);
     b = (o->type == type) ? true : false;
-    cvalue_unref(o);
+    cobject_unref(o);
 
     return b;
 }
 
-static cstring_t *print_value(const cvalue_s *o)
+static cstring_t *print_object(const cobject_s *o)
 {
     cstring_t *s = NULL;
     char *tmp;
@@ -661,68 +663,68 @@ static cstring_t *print_value(const cvalue_s *o)
     return s;
 }
 
-cstring_t LIBEXPORT *cvalue_to_cstring(const cvalue_t *value)
+cstring_t LIBEXPORT *cobject_to_cstring(const cobject_t *object)
 {
-    cvalue_t *ref;
+    cobject_t *ref;
     cstring_t *s = NULL;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return NULL;
 
-    ref = cvalue_ref((cvalue_t *)value);
-    s = print_value(ref);
-    cvalue_unref(ref);
+    ref = cobject_ref((cobject_t *)object);
+    s = print_object(ref);
+    cobject_unref(ref);
 
     return s;
 }
 
-cvalue_t LIBEXPORT *cvalue_from_cstring(const cstring_t *value)
+cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
 {
-    cvalue_t *o = NULL;
+    cobject_t *o = NULL;
     cstring_t *ref = NULL;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return NULL;
 
-    ref = cstring_ref((cstring_t *)value);
+    ref = cstring_ref((cstring_t *)object);
 
     if (cstring_is_number(ref) == true)
-        o = cvalue_create(CL_INT, cstring_to_int(ref));
+        o = cobject_create(CL_INT, cstring_to_int(ref));
     else if (cstring_is_float_number(ref) == true)
-        o = cvalue_create(CL_FLOAT, cstring_to_int(ref));
+        o = cobject_create(CL_FLOAT, cstring_to_int(ref));
     else
-        o = cvalue_create(CL_STRING, ref);
+        o = cobject_create(CL_STRING, ref);
 
     cstring_unref(ref);
 
     return o;
 }
 
-cvalue_t LIBEXPORT *cvalue_ref(cvalue_t *value)
+cobject_t LIBEXPORT *cobject_ref(cobject_t *object)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return NULL;
 
     ref_inc(&v->ref);
 
-    return value;
+    return object;
 }
 
-int LIBEXPORT cvalue_unref(cvalue_t *value)
+int LIBEXPORT cobject_unref(cobject_t *object)
 {
-    cvalue_s *v = (cvalue_s *)value;
+    cobject_s *v = (cobject_s *)object;
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
     ref_dec(&v->ref);
@@ -730,9 +732,9 @@ int LIBEXPORT cvalue_unref(cvalue_t *value)
     return 0;
 }
 
-int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
+int LIBEXPORT cobject_get(const cobject_t *object, const char *fmt, ...)
 {
-    cvalue_s *o;
+    cobject_s *o;
     va_list ap;
     char *pc, c, **cc;
     unsigned char *uc;
@@ -752,16 +754,16 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
 
     cerrno_clear();
 
-    if (validate_object(value, CVALUE) == false)
+    if (validate_object(object, COBJECT) == false)
         return -1;
 
-    o = cvalue_ref((cvalue_t *)value);
+    o = cobject_ref((cobject_t *)object);
     va_start(ap, fmt);
 
     while (*fmt) {
         switch (*fmt++) {
             case 'b':
-                if (get_value_check(value, CL_CHAR) < 0)
+                if (get_object_check(object, CL_CHAR) < 0)
                     goto end_block;
 
                 c = o->c;
@@ -770,7 +772,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'B':
-                if (get_value_check(value, CL_UCHAR) < 0)
+                if (get_object_check(object, CL_UCHAR) < 0)
                     goto end_block;
 
                 uc = (unsigned char *)va_arg(ap, char *);
@@ -778,7 +780,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'i':
-                if (get_value_check(value, CL_INT) < 0)
+                if (get_object_check(object, CL_INT) < 0)
                     goto end_block;
 
                 i = va_arg(ap, int *);
@@ -786,7 +788,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'I':
-                if (get_value_check(value, CL_UINT) < 0)
+                if (get_object_check(object, CL_UINT) < 0)
                     goto end_block;
 
                 ui = (unsigned int *)va_arg(ap, int *);
@@ -794,7 +796,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'h':
-                if (get_value_check(value, CL_SINT) < 0)
+                if (get_object_check(object, CL_SINT) < 0)
                     goto end_block;
 
                 si = va_arg(ap, short *);
@@ -802,7 +804,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'H':
-                if (get_value_check(value, CL_USINT) < 0)
+                if (get_object_check(object, CL_USINT) < 0)
                     goto end_block;
 
                 usi = (unsigned short int *)va_arg(ap, short *);
@@ -810,7 +812,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'f':
-                if (get_value_check(value, CL_FLOAT) < 0)
+                if (get_object_check(object, CL_FLOAT) < 0)
                     goto end_block;
 
                 f = va_arg(ap, float *);
@@ -818,7 +820,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'd':
-                if (get_value_check(value, CL_DOUBLE) < 0)
+                if (get_object_check(object, CL_DOUBLE) < 0)
                     goto end_block;
 
                 d = va_arg(ap, double *);
@@ -826,7 +828,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'l':
-                if (get_value_check(value, CL_LONG) < 0)
+                if (get_object_check(object, CL_LONG) < 0)
                     goto end_block;
 
                 l = va_arg(ap, long *);
@@ -834,7 +836,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'k':
-                if (get_value_check(value, CL_ULONG) < 0)
+                if (get_object_check(object, CL_ULONG) < 0)
                     goto end_block;
 
                 ul = (unsigned long *)va_arg(ap, long *);
@@ -842,7 +844,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'L':
-                if (get_value_check(value, CL_LLONG) < 0)
+                if (get_object_check(object, CL_LLONG) < 0)
                     goto end_block;
 
                 ll = va_arg(ap, long long *);
@@ -850,7 +852,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'K':
-                if (get_value_check(value, CL_ULLONG) < 0)
+                if (get_object_check(object, CL_ULLONG) < 0)
                     goto end_block;
 
                 ull = (unsigned long long *)va_arg(ap, long long *);
@@ -858,7 +860,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'Z':
-                if (get_value_check(value, CL_BOOLEAN) < 0)
+                if (get_object_check(object, CL_BOOLEAN) < 0)
                     goto end_block;
 
                 b = va_arg(ap, bool *);
@@ -866,7 +868,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'z':
-                if (get_value_check(value, CL_CSTRING) < 0)
+                if (get_object_check(object, CL_CSTRING) < 0)
                     goto end_block;
 
                 pp = va_arg(ap, void **);
@@ -875,7 +877,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 's':
-                if (get_value_check(value, CL_STRING) < 0)
+                if (get_object_check(object, CL_STRING) < 0)
                     goto end_block;
 
                 cc = va_arg(ap, char **);
@@ -884,7 +886,7 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
                 break;
 
             case 'P':
-                if (get_value_check(value, CL_POINTER) < 0)
+                if (get_object_check(object, CL_POINTER) < 0)
                     goto end_block;
 
                 pp = va_arg(ap, void **);
@@ -903,8 +905,88 @@ int LIBEXPORT cvalue_get(const cvalue_t *value, const char *fmt, ...)
 
 end_block:
     va_end(ap);
-    cvalue_unref((cvalue_t *)value);
+    cobject_unref((cobject_t *)object);
 
     return ret;
+}
+
+int LIBEXPORT cobject_set_equals(cobject_t *object,
+    bool (*equals)(cobject_t *))
+{
+    cobject_s *v = (cobject_s *)object;
+
+    cerrno_clear();
+
+    if (validate_object(object, COBJECT) == false)
+        return -1;
+
+    if (NULL == equals) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
+    }
+
+    v->equals = equals;
+
+    return 0;
+}
+
+bool LIBEXPORT cobject_equals(const cobject_t *ob1, const cobject_t *ob2)
+{
+    cobject_s *v = (cobject_s *)ob1;
+
+    cerrno_clear();
+
+    if ((validate_object(ob1, COBJECT) == false) ||
+        (validate_object(ob2, COBJECT) == false))
+    {
+        return false;
+    }
+
+    if (NULL == v->equals) {
+        cset_errno(CL_NULL_DATA);
+        return false;
+    }
+
+    return (v->equals)((cobject_t *)ob2);
+}
+
+int LIBEXPORT cobject_set_compare_to(cobject_t *object,
+    int (*compare_to)(cobject_t *))
+{
+    cobject_s *v = (cobject_s *)object;
+
+    cerrno_clear();
+
+    if (validate_object(object, COBJECT) == false)
+        return -1;
+
+    if (NULL == compare_to) {
+        cset_errno(CL_INVALID_VALUE);
+        return -1;
+    }
+
+    v->compare_to = compare_to;
+
+    return 0;
+}
+
+int LIBEXPORT cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2)
+{
+    cobject_s *v = (cobject_s *)ob1;
+
+    cerrno_clear();
+
+    if ((validate_object(ob1, COBJECT) == false) ||
+        (validate_object(ob2, COBJECT) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == v->compare_to) {
+        cset_errno(CL_NULL_DATA);
+        return -1;
+    }
+
+    return (v->compare_to)((cobject_t *)ob2);
 }
 

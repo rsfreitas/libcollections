@@ -60,7 +60,7 @@ void destroy_cplugin_fdata_s(void *a)
         return;
 
     if (fdata->value != NULL)
-        cvalue_destroy(fdata->value);
+        cobject_destroy(fdata->value);
 
     if (fdata->name != NULL)
         free(fdata->name);

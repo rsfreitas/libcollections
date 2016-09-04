@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 #
-# Descricao:
+# Description:
 #
 # Author: Rodrigo Freitas
 # Date: Thu Oct 15 12:52:15 BRT 2015

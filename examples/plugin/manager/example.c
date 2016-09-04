@@ -129,7 +129,7 @@ static void show_plugin_info(cplugin_t *cpl)
     cplugin_info_unref(info);
 }
 
-static cstring_t *get_return_as_string(const char *name, cvalue_t *v)
+static cstring_t *get_return_as_string(const char *name, cobject_t *v)
 {
     cstring_t *s = cstring_create("%s return value: ", name);
     char *tmp;
@@ -175,7 +175,7 @@ static void call_functions(cplugin_t *cpl)
     cstring_list_t *l;
     int i, t;
     cstring_t *p, *s;
-    cvalue_t *ret;
+    cobject_t *ret;
 
     info = cplugin_info(cpl);
     l = cplugin_functions(info);
@@ -187,7 +187,7 @@ static void call_functions(cplugin_t *cpl)
         s = get_return_as_string(cstring_valueof(p), ret);
         printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
         cstring_unref(s);
-        cvalue_unref(ret);
+        cobject_unref(ret);
         cstring_unref(p);
     }
 
