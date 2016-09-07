@@ -1,9 +1,9 @@
 
 /*
- * Description: Memory related functions.
+ * Description:
  *
  * Author: Rodrigo Freitas
- * Created at: Tue Nov 24 15:44:01 2015
+ * Created at: Wed Sep  7 10:13:24 2016
  * Project: libcollections
  *
  * Copyright (C) 2015 Rodrigo Freitas
@@ -24,28 +24,29 @@
  * USA
  */
 
-#include <stdlib.h>
-#include <string.h>
+#ifndef _COLLECTIONS_CL_INIT_H
+#define _COLLECTIONS_CL_INIT_H     1
 
-#include "collections.h"
+#ifndef LIBCOLLECTIONS_COMPILE
+# ifndef _COLLECTIONS_H
+#  error "Never use <cl_cfg.h> directly; include <collections.h> instead."
+# endif
+#endif
 
-/*
- * Duplicates a specific buffer.
+/**
+ * @name collections_init
+ * @brief The function to initialize all library internals.
+ *
+ * This function must be the library first function called inside a code.
+ * Otherwise all other functions from it won't work.
  */
-void LIBEXPORT *cmemdup(const void *src, unsigned int len)
-{
-    void *p;
+void collections_init(void);
 
-    cerrno_clear();
+/**
+ * @name collections_uninit
+ * @brief The function to end all library internals.
+ */
+void collections_uninit(void);
 
-    if (library_initialized() == false)
-        return NULL;
-
-    p = calloc(1, len);
-
-    if (p != NULL)
-        memcpy(p, src, len);
-
-    return p;
-}
+#endif
 

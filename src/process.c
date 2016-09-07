@@ -65,6 +65,11 @@ static void close_all_opened_files(void)
 
 void LIBEXPORT cprcs_daemon_start(void)
 {
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return;
+
     if (fork())
         exit(0);
 
@@ -126,6 +131,10 @@ int LIBEXPORT csystem(bool close_parent_files, const char *fmt, ...)
     va_list ap;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
+
     p = fork();
 
     if (p < 0) {
@@ -161,6 +170,11 @@ void LIBEXPORT cmsleep(long mseconds)
 {
     struct timespec tv;
 
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return;
+
     tv.tv_sec = (time_t)mseconds / 1000;
     tv.tv_nsec = (long)(mseconds % 1000) * 1000000;
 
@@ -175,6 +189,11 @@ int LIBEXPORT ctrap(int signum, void (*f)(int))
      * TODO: Save oldact for user somehow.
      *       Validate signumber.
      */
+
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     memset(&s, 0, sizeof(struct sigaction));
     s.sa_handler = f;

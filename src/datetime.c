@@ -147,6 +147,9 @@ int LIBEXPORT cdt_destroy(cdatetime_t *dt)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(dt, CDATETIME) == false)
         return -1;
 
@@ -165,6 +168,10 @@ cdatetime_t LIBEXPORT *cdt_localtime(void)
     cdatetime_s *dt = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     dt = new_cdatetime_s();
 
     if (NULL == dt)
@@ -185,6 +192,9 @@ int LIBEXPORT cdt_day(const cdatetime_t *dt)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(dt, CDATETIME) == false)
         return -1;
 
@@ -196,6 +206,9 @@ int LIBEXPORT cdt_month(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(dt, CDATETIME) == false)
         return -1;
@@ -209,6 +222,9 @@ int LIBEXPORT cdt_year(const cdatetime_t *dt)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(dt, CDATETIME) == false)
         return -1;
 
@@ -220,6 +236,9 @@ int LIBEXPORT cdt_hour(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(dt, CDATETIME) == false)
         return -1;
@@ -233,6 +252,9 @@ int LIBEXPORT cdt_minute(const cdatetime_t *dt)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(dt, CDATETIME) == false)
         return -1;
 
@@ -244,6 +266,9 @@ int LIBEXPORT cdt_second(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(dt, CDATETIME) == false)
         return -1;
@@ -257,6 +282,9 @@ bool LIBEXPORT cdt_isdst(const cdatetime_t *dt)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if (validate_object(dt, CDATETIME) == false)
         return false;
 
@@ -268,6 +296,9 @@ bool LIBEXPORT cdt_leap_year(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if (validate_object(dt, CDATETIME) == false)
         return false;
@@ -281,6 +312,9 @@ enum cweekday LIBEXPORT cdt_weekday(const cdatetime_t *dt)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(dt, CDATETIME) == false)
         return -1;
 
@@ -292,6 +326,9 @@ unsigned int LIBEXPORT cdt_get_seconds(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return 0;
 
     if (validate_object(dt, CDATETIME) == false)
         return 0;
@@ -305,6 +342,9 @@ unsigned long long LIBEXPORT cdt_get_mseconds(const cdatetime_t *dt)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return 0;
+
     if (validate_object(dt, CDATETIME) == false)
         return 0;
 
@@ -316,6 +356,9 @@ unsigned long long LIBEXPORT cdt_get_useconds(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return 0;
 
     if (validate_object(dt, CDATETIME) == false)
         return 0;
@@ -329,6 +372,9 @@ cstring_t LIBEXPORT *cdt_month_of_year(const cdatetime_t *dt, bool full)
     int moy;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
@@ -345,6 +391,9 @@ cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
     int dow;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
@@ -393,6 +442,9 @@ cstring_t LIBEXPORT *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
     int i;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
@@ -540,6 +592,9 @@ int LIBEXPORT cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if ((validate_object(t1, CDATETIME) == false) ||
         (validate_object(t2, CDATETIME) == false))
     {
@@ -563,6 +618,9 @@ bool LIBEXPORT cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if ((validate_object(dt, CDATETIME) == false) ||
         (validate_object(other, CDATETIME) == false))
     {
@@ -583,6 +641,9 @@ bool LIBEXPORT cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
     unsigned int s1, s2;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if ((validate_object(dt, CDATETIME) == false) ||
         (validate_object(other, CDATETIME) == false))
@@ -605,6 +666,9 @@ bool LIBEXPORT cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if ((validate_object(dt, CDATETIME) == false) ||
         (validate_object(other, CDATETIME) == false))
     {
@@ -626,6 +690,9 @@ cdatetime_t LIBEXPORT *cdt_dup(const cdatetime_t *dt)
     bool UTC = false;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
@@ -652,6 +719,10 @@ cdatetime_t LIBEXPORT *cdt_gmtime(void)
     cdatetime_s *dt = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     dt = new_cdatetime_s();
 
     if (NULL == dt)
@@ -671,6 +742,9 @@ cdatetime_t LIBEXPORT *cdt_to_localtime(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt, *ddt = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
@@ -692,6 +766,9 @@ cdatetime_t LIBEXPORT *cdt_to_gmtime(const cdatetime_t *dt)
     cdatetime_s *t = (cdatetime_s *)dt, *ddt = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
@@ -749,6 +826,9 @@ cdatetime_t LIBEXPORT *cdt_mktime(unsigned int year, unsigned int month,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if ((is_month(month) == false) ||
         (is_day(day) == false) ||
         (is_hour(hour) == false) ||
@@ -784,6 +864,9 @@ cdatetime_t LIBEXPORT *cdt_mktime_from_cstring(const cstring_t *datetime)
     int day, month, year, hour, min, sec;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(datetime, CSTRING) == false)
         return NULL;
@@ -847,6 +930,9 @@ cdatetime_t LIBEXPORT *cdt_minus_years(const cdatetime_t *dt, unsigned int years
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
 
@@ -875,6 +961,9 @@ cdatetime_t LIBEXPORT *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
 
@@ -900,6 +989,9 @@ cdatetime_t LIBEXPORT *cdt_minus_seconds(const cdatetime_t *dt,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
 
@@ -917,21 +1009,11 @@ cdatetime_t LIBEXPORT *cdt_minus_seconds(const cdatetime_t *dt,
 cdatetime_t LIBEXPORT *cdt_minus_minutes(const cdatetime_t *dt,
     unsigned int minutes)
 {
-    cerrno_clear();
-
-    if (validate_object(dt, CDATETIME) == false)
-        return NULL;
-
     return cdt_minus_seconds(dt, minutes * 60);
 }
 
 cdatetime_t LIBEXPORT *cdt_minus_hours(const cdatetime_t *dt, unsigned int hours)
 {
-    cerrno_clear();
-
-    if (validate_object(dt, CDATETIME) == false)
-        return NULL;
-
     return cdt_minus_seconds(dt, hours * 3600);
 }
 
@@ -942,6 +1024,9 @@ cdatetime_t LIBEXPORT *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
     bool UTC = false;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
@@ -970,6 +1055,9 @@ cdatetime_t LIBEXPORT *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
 
@@ -997,6 +1085,9 @@ cdatetime_t LIBEXPORT *cdt_plus_seconds(const cdatetime_t *dt,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(dt, CDATETIME) == false)
         return NULL;
 
@@ -1014,21 +1105,11 @@ cdatetime_t LIBEXPORT *cdt_plus_seconds(const cdatetime_t *dt,
 cdatetime_t LIBEXPORT *cdt_plus_minutes(const cdatetime_t *dt,
     unsigned int minutes)
 {
-    cerrno_clear();
-
-    if (validate_object(dt, CDATETIME) == false)
-        return NULL;
-
     return cdt_plus_seconds(dt, minutes * 60);
 }
 
 cdatetime_t LIBEXPORT *cdt_plus_hours(const cdatetime_t *dt, unsigned int hours)
 {
-    cerrno_clear();
-
-    if (validate_object(dt, CDATETIME) == false)
-        return NULL;
-
     return cdt_plus_seconds(dt, hours * 3600);
 }
 
@@ -1038,6 +1119,10 @@ enum cweekday LIBEXPORT cdt_current_weekday(void)
     enum cweekday w;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
+
     dt = cdt_localtime();
 
     if (NULL == dt)
@@ -1055,6 +1140,10 @@ enum cmonth LIBEXPORT cdt_current_month(void)
     enum cmonth m;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
+
     dt = cdt_localtime();
 
     if (NULL == dt)
@@ -1072,6 +1161,10 @@ bool LIBEXPORT cdt_is_local_dst(void)
     struct tm tm;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
+
     time(&t);
     localtime_r(&t, &tm);
 
@@ -1087,6 +1180,10 @@ bool LIBEXPORT cdt_is_leap_year(void)
     struct tm tm;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
+
     time(&t);
     localtime_r(&t, &tm);
 

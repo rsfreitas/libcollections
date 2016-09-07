@@ -87,7 +87,7 @@ static int get_number_of_windows(cfg_section_t *section)
     }
 
     v = cfg_key_value(k);
-    value = CVALUE_INT(v);
+    value = COBJECT_AS_INT(v);
     fprintf(stdout, "Value of key 'windows' is: %d\n", value);
     cobject_unref(v);
 
@@ -114,7 +114,7 @@ static void show_windows_config(cfg_file_t *cfg, int windows)
         }
 
         v = cfg_key_value(k);
-        w = CVALUE_INT(v);
+        w = COBJECT_AS_INT(v);
         cobject_unref(v);
 
         /* height */
@@ -127,7 +127,7 @@ static void show_windows_config(cfg_file_t *cfg, int windows)
         }
 
         v = cfg_key_value(k);
-        h = CVALUE_INT(v);
+        h = COBJECT_AS_INT(v);
         cobject_unref(v);
 
         fprintf(stdout, "Window [%d]: width=%d, height=%d\n", i + 1, w, h);
@@ -165,6 +165,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    collections_init();
+
     /* loads configuration file */
     cfg = cfg_load(filename);
 
@@ -188,6 +190,8 @@ end_block:
 
     if (filename != NULL)
         free(filename);
+
+    collections_uninit();
 
     /* This makes valgrind report no memory leaks. */
     cexit();

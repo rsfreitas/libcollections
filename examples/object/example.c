@@ -349,6 +349,8 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
+    collections_init();
+
     if (test_all || test_char)
         do_test_char();
 
@@ -390,6 +392,8 @@ int main(int argc, char **argv)
 
     if (test_all || test_usint)
         do_test_usint();
+
+    collections_uninit();
 
     /* This makes valgrind report no memory leaks. */
     cexit();

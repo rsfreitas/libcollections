@@ -29,10 +29,6 @@
 
 #include <math.h>
 
-#ifdef USE_LIBMAGIC
-# include <magic.h>
-#endif
-
 #include "collections.h"
 #include "plugin.h"
 
@@ -42,10 +38,6 @@
 #include "dl_java.h"
 
 struct dl_plugin {
-#ifdef USE_LIBMAGIC
-    magic_t         cookie;
-#endif
-
     struct ref_s    ref;
 };
 
@@ -153,32 +145,14 @@ static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
     for (i = NDRIVERS - 1; i >= 0; i--)
         if (__dl_driver[i].enabled == true)
             (__dl_driver[i].library_uninit)(__dl_driver[i].data);
-
-#ifdef USE_LIBMAGIC
-    magic_close(__dl.cookie);
-#endif
 }
 
-static void dl_library_init(void)
+void dl_library_init(void)
 {
     int old = 0, new = 1;
     unsigned int i = 0;
 
     if (ref_bool_compare(&__dl.ref, old, new) == true) {
-        srandom(time(NULL) + cseed());
-
-#ifdef USE_LIBMAGIC
-        __dl.cookie = magic_open(MAGIC_MIME_TYPE);
-
-        if (NULL == __dl.cookie)
-            return;
-
-        if (magic_load(__dl.cookie, NULL) != 0) {
-            magic_close(__dl.cookie);
-            return;
-        }
-#endif
-
         __dl.ref.free = __dl_library_uninit;
 
         /* call all drivers init function */
@@ -197,10 +171,14 @@ static void dl_library_uninit(void)
 static cstring_t *get_file_info(const char *filename)
 {
     cstring_t *s = NULL;
+    magic_t *cookie = NULL;
 
-#ifdef USE_LIBMAGIC
-    s = cstring_create("%s", magic_file(__dl.cookie, filename));
-#endif
+    cookie = library_get_cookie();
+
+    if (NULL == cookie)
+        return s;
+
+    s = cstring_create("%s", magic_file(*cookie, filename));
 
     return s;
 }
@@ -221,6 +199,15 @@ static enum cplugin_type parse_plugin_type(cstring_t *s)
     /* Python */
     cstring_clear(p);
     cstring_cat(p, "text/x-python");
+
+    if (cstring_cmp(s, p) == 0) {
+        t = CPLUGIN_PYTHON;
+        goto ok;
+    }
+
+    /* Python again (since the mime type is wrong in some systems) */
+    cstring_clear(p);
+    cstring_cat(p, "text/plain");
 
     if (cstring_cmp(s, p) == 0) {
         t = CPLUGIN_PYTHON;
@@ -248,7 +235,6 @@ struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
     cstring_t *info = NULL;
     enum cplugin_type type;
 
-    dl_library_init();
     info = get_file_info(pathname);
 
     if (NULL == info)

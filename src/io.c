@@ -83,6 +83,11 @@ cstring_t LIBEXPORT *cstdin_getline(void)
     char *p;
     cstring_t *s;
 
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     p = cfreadline(stdin);
 
     if (NULL == p)
@@ -99,6 +104,11 @@ static int __stdin_timeout(void)
     struct timeval tv;
     fd_set rdfs;
     int n;
+
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (!isatty(STDIN_FILENO))
         return -1;
@@ -149,6 +159,9 @@ int LIBEXPORT cgetkey(bool block)
     struct termios oattr, attr;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (tcgetattr(STDIN_FILENO, &oattr) < 0) {
         cset_errno(CL_TTY_GET_ATTR);
@@ -225,6 +238,9 @@ int LIBEXPORT cdisable_echo(void)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (!isatty(STDIN_FILENO)) {
         cset_errno(CL_NO_TTY);
         return -1;
@@ -250,6 +266,9 @@ int LIBEXPORT cenable_echo(void)
     struct termios attr;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (!isatty(STDIN_FILENO)) {
         cset_errno(CL_NO_TTY);

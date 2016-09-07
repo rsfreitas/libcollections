@@ -74,6 +74,10 @@ cstring_list_t LIBEXPORT *cstring_list_create(void)
     cstring_list_s *l = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     l = calloc(1, sizeof(cstring_list_s));
 
     if (NULL == l) {
@@ -95,6 +99,9 @@ int LIBEXPORT cstring_list_destroy(cstring_list_t *l)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(l, CSTRINGLIST) == false)
         return -1;
 
@@ -112,6 +119,9 @@ int LIBEXPORT cstring_list_size(const cstring_list_t *l)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(l, CSTRINGLIST) == false)
         return -1;
 
@@ -124,6 +134,9 @@ int LIBEXPORT cstring_list_add(cstring_list_t *l, cstring_t *s)
     struct cstring_list_node_s *n = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((validate_object(l, CSTRINGLIST) == false) ||
         (validate_object(s, CSTRING) == false))
@@ -150,6 +163,9 @@ cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(l, CSTRINGLIST) == false)
         return NULL;
 
@@ -173,6 +189,9 @@ cstring_t LIBEXPORT *cstring_list_map(const cstring_list_t *l,
     struct cstring_list_node_s *n = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(l, CSTRINGLIST) == false)
         return NULL;

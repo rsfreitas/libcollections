@@ -395,6 +395,9 @@ int LIBEXPORT cobject_set(cobject_t *object, ...)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(object, COBJECT) == false)
         return -1;
 
@@ -419,6 +422,9 @@ cobject_t LIBEXPORT *cobject_create(enum cl_type type, ...)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_cl_type(type) == false)
         return NULL;
 
@@ -439,6 +445,9 @@ cobject_t LIBEXPORT *cobject_create_with_spec(enum cl_type type, cspec_t *spec)
     cobject_s *o = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_cl_type(type) == false)
         return NULL;
@@ -513,6 +522,9 @@ int LIBEXPORT cobject_sizeof(const cobject_t *object)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(object, COBJECT) == false)
         return -1;
 
@@ -529,6 +541,9 @@ enum cl_type LIBEXPORT cobject_type(const cobject_t *object)
     enum cl_type type;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(object, COBJECT) == false)
         return -1;
@@ -572,6 +587,9 @@ bool LIBEXPORT cobject_is_of_type(const cobject_t *object, unsigned int type)
     bool b;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if (validate_object(object, COBJECT) == false)
         return false;
@@ -670,6 +688,9 @@ cstring_t LIBEXPORT *cobject_to_cstring(const cobject_t *object)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(object, COBJECT) == false)
         return NULL;
 
@@ -686,6 +707,9 @@ cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
     cstring_t *ref = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(object, COBJECT) == false)
         return NULL;
@@ -710,6 +734,9 @@ cobject_t LIBEXPORT *cobject_ref(cobject_t *object)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(object, COBJECT) == false)
         return NULL;
 
@@ -723,6 +750,9 @@ int LIBEXPORT cobject_unref(cobject_t *object)
     cobject_s *v = (cobject_s *)object;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(object, COBJECT) == false)
         return -1;
@@ -753,6 +783,9 @@ int LIBEXPORT cobject_get(const cobject_t *object, const char *fmt, ...)
     bool *b;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(object, COBJECT) == false)
         return -1;
@@ -917,6 +950,9 @@ int LIBEXPORT cobject_set_equals(cobject_t *object,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(object, COBJECT) == false)
         return -1;
 
@@ -935,6 +971,9 @@ bool LIBEXPORT cobject_equals(const cobject_t *ob1, const cobject_t *ob2)
     cobject_s *v = (cobject_s *)ob1;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if ((validate_object(ob1, COBJECT) == false) ||
         (validate_object(ob2, COBJECT) == false))
@@ -957,6 +996,9 @@ int LIBEXPORT cobject_set_compare_to(cobject_t *object,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(object, COBJECT) == false)
         return -1;
 
@@ -975,6 +1017,9 @@ int LIBEXPORT cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2)
     cobject_s *v = (cobject_s *)ob1;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((validate_object(ob1, COBJECT) == false) ||
         (validate_object(ob2, COBJECT) == false))

@@ -602,6 +602,9 @@ chat_t LIBEXPORT *chat_create(enum chat_driver cd, enum chat_mode mode,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_chat_driver(cd) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return NULL;
@@ -666,6 +669,9 @@ int LIBEXPORT chat_set_info(chat_t *chat, ...)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == c) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -687,6 +693,9 @@ int LIBEXPORT chat_client_start(chat_t *chat)
     struct chat_s *c = (struct chat_s *)chat;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == c) {
         cset_errno(CL_NULL_ARG);
@@ -711,6 +720,9 @@ chat_t LIBEXPORT *chat_server_start(chat_t *chat, unsigned int accept_timeout)
     ipc_data_t *d = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == c) {
         cset_errno(CL_NULL_ARG);
@@ -753,6 +765,9 @@ int LIBEXPORT chat_send(chat_t *chat, void *data, unsigned int data_size)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == c) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -786,6 +801,9 @@ void LIBEXPORT *chat_recv(chat_t *chat, unsigned int recv_timeout,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == c) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -812,6 +830,9 @@ int LIBEXPORT chat_stop(chat_t *chat)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == chat) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -832,6 +853,9 @@ int LIBEXPORT chat_fd(chat_t *chat)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == chat) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -848,6 +872,9 @@ chat_t LIBEXPORT *chat_ref(chat_t *chat)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == chat) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -863,6 +890,9 @@ int LIBEXPORT chat_unref(chat_t *chat)
     struct chat_s *c = (struct chat_s *)chat;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == chat) {
         cset_errno(CL_NULL_ARG);

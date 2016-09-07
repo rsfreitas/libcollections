@@ -371,6 +371,9 @@ cevent_t LIBEXPORT *cevent_init(enum event_execution exec, const char *name,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_execution_type(exec) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return NULL;
@@ -406,6 +409,9 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
     struct event_condition_s *c = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((NULL == ev) || (NULL == ptr)) {
         cset_errno(CL_NULL_ARG);
@@ -484,6 +490,9 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == ev) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -521,6 +530,9 @@ int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
     int detachstate = PTHREAD_CREATE_JOINABLE;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == ev) {
         cset_errno(CL_NULL_ARG);
@@ -565,6 +577,9 @@ int LIBEXPORT cevent_uninstall(cevent_t *e)
     struct cevent_s *ev = (struct cevent_s *)e;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == ev) {
         cset_errno(CL_NULL_ARG);

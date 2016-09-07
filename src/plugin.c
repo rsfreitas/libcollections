@@ -42,6 +42,9 @@ cobject_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if ((NULL == args) || (NULL == arg_name)) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -60,6 +63,9 @@ cobject_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
 int LIBEXPORT cplugin_arg_count(const cplugin_arg_t *args)
 {
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == args) {
         cset_errno(CL_NULL_ARG);
@@ -84,6 +90,9 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
     int psize;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((NULL == cpl) || (NULL == function_name)) {
         cset_errno(CL_NULL_ARG);
@@ -235,6 +244,9 @@ cplugin_info_t LIBEXPORT *cplugin_info(const cplugin_t *cpl)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == cpl) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -250,6 +262,9 @@ cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
     struct dl_plugin_driver *pdriver = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == pathname) {
         cset_errno(CL_NULL_ARG);
@@ -281,6 +296,9 @@ int LIBEXPORT cplugin_info_unref(cplugin_info_t *info)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == info) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -295,6 +313,9 @@ const char LIBEXPORT *cplugin_name(const cplugin_info_t *info)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == info) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -306,6 +327,9 @@ const char LIBEXPORT *cplugin_name(const cplugin_info_t *info)
 const char LIBEXPORT *cplugin_version(const cplugin_info_t *info)
 {
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == info) {
         cset_errno(CL_NULL_ARG);
@@ -319,6 +343,9 @@ const char LIBEXPORT *cplugin_author(const cplugin_info_t *info)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == info) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -330,6 +357,9 @@ const char LIBEXPORT *cplugin_author(const cplugin_info_t *info)
 const char LIBEXPORT *cplugin_description(const cplugin_info_t *info)
 {
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == info) {
         cset_errno(CL_NULL_ARG);
@@ -344,6 +374,9 @@ cstring_t LIBEXPORT *cplugin_API(const cplugin_info_t *info)
     cjson_t *api;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == info) {
         cset_errno(CL_NULL_ARG);
@@ -362,6 +395,9 @@ cstring_list_t LIBEXPORT *cplugin_functions(const cplugin_info_t *info)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == info) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -374,6 +410,9 @@ enum cl_type LIBEXPORT cplugin_function_return_type(const cplugin_info_t *info,
     const char *function_name)
 {
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((NULL == info) || (NULL == function_name)) {
         cset_errno(CL_NULL_ARG);
@@ -388,6 +427,9 @@ cstring_list_t LIBEXPORT *cplugin_function_arguments(const cplugin_info_t *info,
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if ((NULL == info) || (NULL == function_name)) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -401,6 +443,9 @@ enum cplugin_arg LIBEXPORT cplugin_function_arg_mode(const cplugin_info_t *info,
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if ((NULL == info) || (NULL == function_name)) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -413,6 +458,9 @@ enum cl_type LIBEXPORT cplugin_function_arg_type(const cplugin_info_t *info,
     const char *function_name, const char *argument_name)
 {
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((NULL == info) || (NULL == function_name) || (NULL == argument_name)) {
         cset_errno(CL_NULL_ARG);
@@ -437,6 +485,9 @@ cobject_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
     uint32_t caller_id = 0;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == cpl) {
         cset_errno(CL_NULL_ARG);
@@ -513,6 +564,9 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == pathname) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -588,6 +642,9 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == cpl) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -610,6 +667,11 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
 
 void LIBEXPORT cplugin_set_supported_types(enum cplugin_type types)
 {
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return;
+
     dl_enable_plugin_types(types);
 }
 

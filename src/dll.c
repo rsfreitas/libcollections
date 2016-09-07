@@ -41,6 +41,9 @@ void LIBEXPORT *cdll_push(void *root, void *node)
 {
     struct cdll_node *l = root, *p = node;
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == root) {
         p->prev = NULL;
         p->next = NULL;
@@ -63,6 +66,9 @@ void LIBEXPORT *cdll_pop(void *root)
     struct cdll_node **pp = root;
     struct cdll_node *p = *pp;
 
+    if (library_initialized() == false)
+        return NULL;
+
     if ((NULL == p) || (NULL == p->next)) {
         *pp = NULL;
         return p;
@@ -84,6 +90,9 @@ void LIBEXPORT *cdll_unshift(void *root, void *node)
 {
     struct cdll_node *l = root;
     struct cdll_node *p = node;
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == node)
         return root;
@@ -115,6 +124,9 @@ void LIBEXPORT *cdll_shift(void *root)
     struct cdll_node *p = *pp;
     struct cdll_node *q;
 
+    if (library_initialized() == false)
+        return NULL;
+
     if ((NULL == p) || (NULL == p->next)) {
         *pp = NULL;
         return p;
@@ -142,6 +154,9 @@ int LIBEXPORT cdll_size(void *root)
     struct cdll_node *p = root;
     int c = 1;
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == root)
         return 0;
 
@@ -157,6 +172,9 @@ int LIBEXPORT cdll_size(void *root)
 void LIBEXPORT *cdll_map(void *root, int (*foo)(void *, void *), void *data)
 {
     struct cdll_node *p = NULL;
+
+    if (library_initialized() == false)
+        return NULL;
 
     for (p = root; p != NULL; p = p->next)
         if (foo(p, data))
@@ -174,6 +192,9 @@ void LIBEXPORT *cdll_map_indexed(void *root,
     struct cdll_node *p = NULL;
     unsigned int i;
 
+    if (library_initialized() == false)
+        return NULL;
+
     for (p = root, i = 0; p != NULL; p = p->next, i++)
         if (foo(i, p, data))
             return p;
@@ -188,6 +209,9 @@ void LIBEXPORT *cdll_map_reverse(void *root, int (*foo)(void *, void *),
     void *data)
 {
     struct cdll_node *l = root, *p = NULL;
+
+    if (library_initialized() == false)
+        return NULL;
 
     /* Move to the last node */
     while (l->next)
@@ -209,6 +233,9 @@ void LIBEXPORT *cdll_map_indexed_reverse(void *root,
     struct cdll_node *l = root, *p = NULL;
     unsigned int i;
 
+    if (library_initialized() == false)
+        return NULL;
+
     /* Move to the last node */
     while (l->next)
         l = l->next;
@@ -227,6 +254,9 @@ void LIBEXPORT cdll_free(void *root, void (*foo)(void *))
 {
     struct cdll_node *p;
 
+    if (library_initialized() == false)
+        return;
+
     if (NULL == foo)
         foo = free;
 
@@ -242,6 +272,9 @@ void LIBEXPORT *cdll_at(void *root, unsigned int index)
     struct cdll_node *p;
     unsigned int i;
 
+    if (library_initialized() == false)
+        return NULL;
+
     for (p = root, i = 0; p != NULL; p = p->next, i++)
         if (i == index)
             return p;
@@ -255,6 +288,9 @@ void LIBEXPORT *cdll_at(void *root, unsigned int index)
 void LIBEXPORT *cdll_move(void *root)
 {
     struct cdll_node *n = NULL, *p;
+
+    if (library_initialized() == false)
+        return NULL;
 
     while ((p = cdll_pop(&root)))
         n = cdll_unshift(n, p);
@@ -271,6 +307,9 @@ void LIBEXPORT *cdll_filter(void *root, int (*foo)(void *, void *), void *data)
     struct cdll_node *p = *pp;
     struct cdll_node *r = NULL, *head = NULL, *q = NULL;
     int v;
+
+    if (library_initialized() == false)
+        return NULL;
 
     while (p) {
         q = cdll_pop(&p);
@@ -299,6 +338,9 @@ void LIBEXPORT *cdll_delete(void *root, int (*filter)(void *, void *),
 {
     struct cdll_node *p = NULL;
 
+    if (library_initialized() == false)
+        return NULL;
+
     p = cdll_filter(root, filter, data);
 
     if ((p != NULL) && (foo != NULL)) {
@@ -321,6 +363,9 @@ void LIBEXPORT *cdll_delete_indexed(void *root, unsigned int index,
     int size = 0;
     unsigned int i;
     bool first = false, last = false;
+
+    if (library_initialized() == false)
+        return NULL;
 
     size = cdll_size(p);
 
@@ -424,6 +469,9 @@ void LIBEXPORT *cdll_mergesort(void *root, int (*cmp)(void *, void *))
 {
     struct cdll_node *p = root;
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (p && p->next) {
         p = cdll_split(root);
         root = cdll_merge(cdll_mergesort(root, cmp), cdll_mergesort(p, cmp),
@@ -438,6 +486,9 @@ bool LIBEXPORT cdll_contains(void *root, void *p,
 {
     struct cdll_node *q = NULL;
 
+    if (library_initialized() == false)
+        return false;
+
     q = cdll_map(root, foo, p);
 
     if (NULL == q)
@@ -451,6 +502,9 @@ int LIBEXPORT cdll_indexof(void *root, void *n, int (*foo)(void *, void *))
     struct cdll_node *p = NULL;
     int i;
 
+    if (library_initialized() == false)
+        return -1;
+
     for (p = root, i = 0; p != NULL; p = p->next, i++)
         if (foo(p, n))
             return i;
@@ -463,6 +517,9 @@ int LIBEXPORT cdll_last_indexof(void *root, void *n,
 {
     struct cdll_node *l = root, *p = NULL;
     int i, size = 0;
+
+    if (library_initialized() == false)
+        return -1;
 
     /* Move to the last node */
     while (l->next) {

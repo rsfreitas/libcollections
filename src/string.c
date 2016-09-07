@@ -84,6 +84,9 @@ cstring_t LIBEXPORT *cstring_ref(cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(string, CSTRING) == false)
         return NULL;
 
@@ -97,6 +100,9 @@ int LIBEXPORT cstring_unref(cstring_t *string)
     cstring_s *p = (cstring_s *)string;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -123,6 +129,10 @@ cstring_t LIBEXPORT *cstring_create(const char *fmt, ...)
     va_list ap;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     string = new_cstring();
 
     if (NULL == string)
@@ -143,6 +153,10 @@ cstring_t LIBEXPORT *cstring_create_empty(unsigned int size)
     cstring_s *string = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     string = new_cstring();
 
     if (NULL == string)
@@ -172,6 +186,10 @@ cstring_t LIBEXPORT *cstring_create_random(unsigned int size)
     int n;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     p = new_cstring();
 
     if (NULL == p)
@@ -196,6 +214,9 @@ int LIBEXPORT cstring_length(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -216,6 +237,9 @@ const char LIBEXPORT *cstring_valueof(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(string, CSTRING) == false)
         return NULL;
 
@@ -235,6 +259,9 @@ char LIBEXPORT cstring_at(const cstring_t *string, unsigned int index)
     char cnt = -1;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -261,6 +288,9 @@ int LIBEXPORT cstring_set(cstring_t *string, char c, unsigned int index)
     cstring_s *p;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -290,6 +320,9 @@ int LIBEXPORT cstring_cat(cstring_t *string, const char *fmt, ...)
     int l=0;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -328,6 +361,9 @@ int LIBEXPORT cstring_cmp(const cstring_t *s1, const cstring_t *s2)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if ((validate_object(s1, CSTRING) == false) ||
         (validate_object(s2, CSTRING) == false))
     {
@@ -355,6 +391,9 @@ int LIBEXPORT cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if ((validate_object(s1, CSTRING) == false) ||
         (validate_object(s2, CSTRING) == false))
     {
@@ -379,6 +418,9 @@ cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(string, CSTRING) == false)
         return NULL;
 
@@ -395,6 +437,9 @@ int LIBEXPORT cstring_upper(cstring_t *string)
     unsigned int i;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -417,6 +462,9 @@ int LIBEXPORT cstring_lower(cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -437,6 +485,9 @@ int LIBEXPORT cstring_capitalize(cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -453,6 +504,9 @@ int LIBEXPORT cstring_find(const cstring_t *string, char c)
     int i, idx = -1 /* character not found */;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -477,6 +531,9 @@ int LIBEXPORT cstring_rfind(const cstring_t *string, char c)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -500,6 +557,9 @@ int LIBEXPORT cstring_cchr(const cstring_t *string, char c)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -520,6 +580,9 @@ int LIBEXPORT cstring_ltrim(cstring_t *string)
     int size, i;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -548,6 +611,9 @@ int LIBEXPORT cstring_rtrim(cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -573,6 +639,9 @@ int LIBEXPORT cstring_alltrim(cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -592,6 +661,9 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
     char *ptr = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_object(string, CSTRING) == false)
         return NULL;
@@ -619,6 +691,9 @@ int LIBEXPORT cstring_rplchr(cstring_t *string, char c1, char c2)
     int i, c = 0, index;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -654,6 +729,9 @@ int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old,
     int n_old = 0;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -723,6 +801,9 @@ bool LIBEXPORT cstring_isempty(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if (validate_object(string, CSTRING) == false)
         return false;
 
@@ -741,6 +822,9 @@ int LIBEXPORT cstring_clear(cstring_t *string)
     cstring_s *p;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -862,6 +946,9 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(string, CSTRING) == false)
         return NULL;
 
@@ -910,6 +997,9 @@ int LIBEXPORT cstring_to_int(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -941,6 +1031,9 @@ long LIBEXPORT cstring_to_long(const cstring_t *string)
     long v;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -974,6 +1067,9 @@ long long LIBEXPORT cstring_to_long_long(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -1005,6 +1101,9 @@ float LIBEXPORT cstring_to_float(const cstring_t *string)
     float v;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -1038,6 +1137,9 @@ double LIBEXPORT cstring_to_double(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -1070,6 +1172,9 @@ bool LIBEXPORT cstring_is_number(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if (validate_object(string, CSTRING) == false)
         return false;
 
@@ -1094,6 +1199,9 @@ bool LIBEXPORT cstring_is_float_number(const cstring_t *string)
     bool ret = true;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if (validate_object(string, CSTRING) == false)
         return false;
@@ -1123,6 +1231,9 @@ bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if (validate_object(string, CSTRING) == false)
         return false;
 
@@ -1146,6 +1257,9 @@ int LIBEXPORT cstring_idchr(cstring_t *string, unsigned int p)
     int size;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(string, CSTRING) == false)
         return -1;
@@ -1172,6 +1286,9 @@ int LIBEXPORT cstring_dchr(cstring_t *string, char c)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(string, CSTRING) == false)
         return -1;
 
@@ -1197,6 +1314,9 @@ int LIBEXPORT cstring_cpy(cstring_t *dest, const cstring_t *src)
     cstring_t *p, *q;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((validate_object(dest, CSTRING) == false) ||
         (validate_object(src, CSTRING) == false))

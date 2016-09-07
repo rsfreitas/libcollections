@@ -47,6 +47,7 @@ extern "C" {
 #include <cl/cl_event.h>
 #include <cl/cl_file.h>
 #include <cl/cl_glist.h>
+#include <cl/cl_init.h>
 #include <cl/cl_io.h>
 #include <cl/cl_json.h>
 #include <cl/cl_log.h>

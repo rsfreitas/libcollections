@@ -135,6 +135,10 @@ int LIBEXPORT ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state)
     struct ctimer_internal_data_s *tid;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
+
     tid = arg.sival_ptr;
     timer_name = tid->name;
 
@@ -167,6 +171,9 @@ ctimer_t LIBEXPORT *ctimer_get_timer(const ctimer_t *timers_list,
     struct ctimer_s *t = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if ((NULL == tlist) || (timer_name == NULL)) {
         cset_errno(CL_NULL_ARG);
@@ -215,6 +222,9 @@ int LIBEXPORT ctimer_update_interval(ctimer_t *timer, unsigned int interval)
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == timer) {
         cset_errno(CL_NULL_ARG);
@@ -307,6 +317,9 @@ int LIBEXPORT ctimer_unload_info(ctimer_info_t *timer_info)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == tinfo) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -323,6 +336,9 @@ ctimer_info_t LIBEXPORT *ctimer_load_info(const ctimer_t *timer)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (NULL == timer) {
         cset_errno(CL_NULL_ARG);
         return NULL;
@@ -338,6 +354,9 @@ ctimer_info_t LIBEXPORT *ctimer_load_info_within_timer(ctimer_arg_t arg)
     struct ctimer_internal_data_s *tid;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     /* Extracts timer identifications */
     tid = arg.sival_ptr;
@@ -371,6 +390,9 @@ void LIBEXPORT *ctimer_get_info_data(const ctimer_info_t *timer_info,
     struct ctimer_info_s *tinfo = (struct ctimer_info_s *)timer_info;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == tinfo) {
         cset_errno(CL_NULL_ARG);
@@ -462,6 +484,9 @@ int LIBEXPORT ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
     struct ctimer_s *t;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if ((NULL == timer_name) || (NULL == timer_function)) {
         cset_errno(CL_NULL_ARG);
@@ -575,6 +600,9 @@ int LIBEXPORT ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if ((NULL == tlist) || (NULL == timer_name)) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -646,6 +674,9 @@ int LIBEXPORT ctimer_install(ctimer_t *timers_list)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == tlist) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -674,6 +705,9 @@ int LIBEXPORT ctimer_uninstall(ctimer_t *timers_list)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (NULL == tlist) {
         cset_errno(CL_NULL_ARG);
         return -1;
@@ -692,6 +726,9 @@ int LIBEXPORT ctimer_disarm(ctimer_t *timer)
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == timer) {
         cset_errno(CL_NULL_ARG);
@@ -724,6 +761,9 @@ int LIBEXPORT ctimer_arm(ctimer_t *timer)
     long nsec = 0;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == timer) {
         cset_errno(CL_NULL_ARG);

@@ -134,6 +134,11 @@ static counter_s *new_counter_s(enum counter_precision precision,
 {
     counter_s *c = NULL;
 
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     c = calloc(1, sizeof(counter_s));
 
     if (NULL == c) {
@@ -164,6 +169,9 @@ counter_t LIBEXPORT *counter_ref(counter_t *c)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(c, COUNTER) == false)
         return NULL;
 
@@ -177,6 +185,9 @@ int LIBEXPORT counter_unref(counter_t *c)
     counter_s *p = (counter_s *)c;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(c, COUNTER) == false)
         return -1;
@@ -203,6 +214,9 @@ static int __counter_increase(counter_t *c, long long gap)
     long long v, max;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(c, COUNTER) == false)
         return -1;
@@ -281,6 +295,9 @@ int LIBEXPORT counter_reset(counter_t *c)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(c, COUNTER) == false)
         return -1;
 
@@ -301,6 +318,9 @@ long long LIBEXPORT counter_get(counter_t *c)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(c, COUNTER) == false)
         return -1;
 
@@ -312,6 +332,9 @@ int LIBEXPORT counter_set_min(counter_t *c, long long min)
     counter_s *p;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(c, COUNTER) == false)
         return -1;
@@ -336,6 +359,9 @@ int LIBEXPORT counter_set_max(counter_t *c, long long max)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(c, COUNTER) == false)
         return -1;
 
@@ -357,6 +383,9 @@ int LIBEXPORT counter_set_range(counter_t *c, long long min, long long max)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(c, COUNTER) == false)
         return -1;
 
@@ -372,6 +401,9 @@ bool LIBEXPORT counter_lt(const counter_t *c, long long value)
     long long v;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if (validate_object(c, COUNTER) == false)
         return false;
@@ -395,6 +427,9 @@ bool LIBEXPORT counter_le(const counter_t *c, long long value)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if (validate_object(c, COUNTER) == false)
         return false;
 
@@ -416,6 +451,9 @@ bool LIBEXPORT counter_gt(const counter_t *c, long long value)
     long long v;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if (validate_object(c, COUNTER) == false)
         return false;
@@ -439,6 +477,9 @@ bool LIBEXPORT counter_ge(const counter_t *c, long long value)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if (validate_object(c, COUNTER) == false)
         return false;
 
@@ -460,6 +501,9 @@ bool LIBEXPORT counter_eq(const counter_t *c, long long value)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return false;
+
     if (validate_object(c, COUNTER) == false)
         return false;
 
@@ -474,6 +518,9 @@ bool LIBEXPORT counter_ne(const counter_t *c, long long value)
     counter_s *p = (counter_s *)c;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return false;
 
     if (validate_object(c, COUNTER) == false)
         return false;
@@ -502,6 +549,9 @@ long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(c, COUNTER) == false)
         return -1;
 
@@ -527,6 +577,9 @@ int LIBEXPORT counter_set(counter_t *c, long long new_value)
     counter_s *p;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(c, COUNTER) == false)
         return -1;

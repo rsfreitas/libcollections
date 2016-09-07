@@ -49,6 +49,8 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
+    collections_init();
+
     dt = cdt_mktime(2016, 3, 30, 10, 30, 40);
     s = cdt_to_cstring(dt, "%Y/%m/%d %H:%M:%S");
     printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
@@ -60,6 +62,7 @@ int main(int argc, char **argv)
     cstring_destroy(s);
 
     cdt_destroy(dt);
+    collections_uninit();
 
     return 0;
 }

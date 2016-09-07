@@ -108,7 +108,7 @@ int main(void)
     unsigned int n;
     struct node_example e = { 42, 43 };
 
-    srand(time(NULL));
+    collections_init();
     list = clist_create(destroy_node_example, compare_node_example,
                         filter_node_example, equals_node_example);
 
@@ -141,6 +141,8 @@ int main(void)
 
     if (lfilter != NULL)
         clist_destroy(lfilter);
+
+    collections_uninit();
 
     /* This makes valgrind report no memory leaks. */
     cexit();

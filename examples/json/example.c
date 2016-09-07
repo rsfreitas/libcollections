@@ -72,6 +72,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    collections_init();
     j = cjson_read_file(filename);
 
     if (NULL == j) {
@@ -90,6 +91,8 @@ int main(int argc, char **argv)
 
     if (filename != NULL)
         free(filename);
+
+    collections_uninit();
 
     /* This makes valgrind report no memory leaks. */
     cexit();

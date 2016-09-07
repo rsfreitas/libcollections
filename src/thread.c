@@ -84,6 +84,9 @@ void LIBEXPORT *cthread_get_user_data(cthread_t *arg)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if (validate_object(arg, CTHREAD) == false)
         return NULL;
 
@@ -97,6 +100,9 @@ int LIBEXPORT cthread_set_state(cthread_t *t, enum cthread_state state)
     cthread_s *td = (cthread_s *)t;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (validate_object(t, CTHREAD) == false)
         return -1;
@@ -116,6 +122,9 @@ int LIBEXPORT cthread_wait_startup(const cthread_t *t)
     cthread_s *td = (cthread_s *)t;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return -1;
 
     if (NULL == td) {
         cset_errno(CL_NULL_ARG);
@@ -137,6 +146,9 @@ int LIBEXPORT cthread_destroy(cthread_t *t)
 
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return -1;
+
     if (validate_object(t, CTHREAD) == false)
         return -1;
 
@@ -155,6 +167,10 @@ cthread_t LIBEXPORT *cthread_create(enum cthread_type type,
     int detachstate = PTHREAD_CREATE_JOINABLE;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     td = new_thread_data(user_data);
 
     if (NULL == td)
