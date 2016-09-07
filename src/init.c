@@ -44,7 +44,6 @@ static struct cl_data __cl_data = {
 
 static void __uninit(const struct ref_s *ref __attribute__((unused)))
 {
-    printf("%s\n", __FUNCTION__);
     magic_close(__cl_data.cookie);
 }
 
@@ -52,7 +51,6 @@ void LIBEXPORT collections_init(void)
 {
     int old = 0, new = 1;
 
-    printf("%s\n", __FUNCTION__);
     if (ref_bool_compare(&__cl_data.ref, old, new) == true) {
         /* Initialize libc random numbers seed */
         srandom(time(NULL) + cseed());

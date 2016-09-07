@@ -711,7 +711,7 @@ cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
     if (library_initialized() == false)
         return NULL;
 
-    if (validate_object(object, COBJECT) == false)
+    if (validate_object(object, CSTRING) == false)
         return NULL;
 
     ref = cstring_ref((cstring_t *)object);

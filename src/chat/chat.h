@@ -98,23 +98,18 @@ struct chat_driver_info_s {
                                                   unsigned int *);
 };
 
-struct chat_s {
-    struct ref_s                ref;
+#define chat_members        \
+    cl_struct_member(struct ref_s, ref)                         \
+    cl_struct_member(enum chat_mode, mode)                      \
+    cl_struct_member(enum chat_driver, driver_id)               \
+    cl_struct_member(struct chat_driver_info_s *, driver_info)  \
+    cl_struct_member(struct chat_ipc_methods_s *, ipc_methods)  \
+    cl_struct_member(bool, sigpipe)                             \
+    cl_struct_member(struct sigaction, sa_pipe)                 \
+    cl_struct_member(ipc_data_t *, ipc_data)                    \
+    cl_struct_member(drv_data_t *, drv_data)
 
-    /* Configurations */
-    enum chat_mode              mode;
-    enum chat_driver            driver_id;
-    struct chat_driver_info_s   *driver_info;
-    struct chat_ipc_methods_s   *ipc_methods;
-    bool                        sigpipe;
-    struct sigaction            sa_pipe;
-
-    /* IPC internal informations */
-    ipc_data_t                  *ipc_data;
-
-    /* Internal Protocol informations */
-    drv_data_t                  *drv_data;
-};
+cl_struct_declare(chat_s, chat_members);
 
 /* chat_misc.c */
 struct chat_data_s *new_chat_data_s(unsigned int data_size);

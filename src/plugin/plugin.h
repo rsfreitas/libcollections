@@ -116,11 +116,11 @@ struct cplugin_function_s {
 };
 
 struct cplugin_s {
-    enum cplugin_type        type;
-    void                            *handle;
-    struct cplugin_function_s       *functions; /** Plugin functions list */
-    cplugin_info_t                  *info;      /** Plugin information */
-    struct dl_plugin_driver         *dl;        /** Plugin driver */
+    enum cplugin_type           type;
+    void                        *handle;
+    struct cplugin_function_s   *functions; /** Plugin functions list */
+    cplugin_info_t              *info;      /** Plugin information */
+    struct dl_plugin_driver     *dl;        /** Plugin driver */
 };
 
 /* api_parser.c */
