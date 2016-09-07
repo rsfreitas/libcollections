@@ -58,7 +58,6 @@ enum cplugin_info {
 /** Structures */
 
 struct cplugin_function_s;
-struct cplugin_s;
 
 struct dl_plugin_driver {
     enum cplugin_type   type;
@@ -73,7 +72,7 @@ struct dl_plugin_driver {
     void                *(*open)(void *, const char *);
     int                 (*close)(void *, void *);
     void                (*call)(void *, struct cplugin_function_s *,
-                                uint32_t, struct cplugin_s *);
+                                uint32_t, cplugin_t *);
 
     int                 (*plugin_startup)(void *, void *,
                                           cplugin_info_t *);
@@ -86,14 +85,17 @@ struct dl_plugin_driver {
 };
 
 struct cplugin_fdata_s {
-    clist_entry_t   *prev;
-    clist_entry_t   *next;
-
-    char            *name;
-    enum cl_type    type;
-    cobject_t        *value;
-    uint32_t        caller_id;
+    clist_entry_t       *prev;
+    clist_entry_t       *next;
+    struct cobject_hdr  hdr;
+    char                *name;
+    enum cl_type        type;
+    cobject_t           *value;
+    uint32_t            caller_id;
 };
+
+#define CPLUGIN_ARG_OBJECT_OFFSET   \
+    (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
 
 struct cplugin_function_s {
     clist_entry_t               *prev;
@@ -115,13 +117,16 @@ struct cplugin_function_s {
     void                        *symbol;
 };
 
-struct cplugin_s {
-    enum cplugin_type           type;
-    void                        *handle;
-    struct cplugin_function_s   *functions; /** Plugin functions list */
-    cplugin_info_t              *info;      /** Plugin information */
-    struct dl_plugin_driver     *dl;        /** Plugin driver */
-};
+#define cplugin_members                                         \
+    cl_struct_member(enum cplugin_type, type)                   \
+    cl_struct_member(void *, handle)                            \
+    cl_struct_member(struct cplugin_function_s *, functions)    \
+    cl_struct_member(cplugin_info_t *, info)                    \
+    cl_struct_member(struct dl_plugin_driver *, dl)
+
+cl_struct_declare(cplugin_s, cplugin_members);
+
+#define cplugin_s           cl_struct(cplugin_s)
 
 /* api_parser.c */
 cjson_t *api_load(const char *api_data);
@@ -154,10 +159,10 @@ int dl_load_functions(struct dl_plugin_driver *drv,
                       struct cplugin_function_s *flist, void *handle);
 
 cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle);
-void dl_call(struct cplugin_s *cpl, struct cplugin_function_s *foo,
+void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
              uint32_t caller_id);
 
-int dl_plugin_shutdown(struct cplugin_s *cpl);
+int dl_plugin_shutdown(cplugin_s *cpl);
 int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
                       cplugin_info_t *info);
 
@@ -185,8 +190,8 @@ struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,
                                             uint32_t caller_id);
 
 void destroy_cplugin_fdata_s(void *a);
-struct cplugin_s *new_cplugin_s(void);
-int destroy_cplugin_s(struct cplugin_s *cpl);
+cplugin_s *new_cplugin_s(void);
+int destroy_cplugin_s(cplugin_s *cpl);
 
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
                                                   enum cl_type return_value,
@@ -206,7 +211,7 @@ struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
 
 /* rv.c */
-cobject_t *cplugin_get_return_value(struct cplugin_s *cpl,
+cobject_t *cplugin_get_return_value(cplugin_s *cpl,
                                     const char *function_name,
                                     uint32_t caller_id);
 

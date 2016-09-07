@@ -43,18 +43,18 @@ enum cl_object {
     CDATETIME,
     CTIMEOUT,
     CTHREAD,
-    CTIMER,         /* TODO */
-    CTIMER_INFO,    /* TODO */
-    CTIMER_ARG,     /* TODO */
+    CTIMER,
+    CTIMER_INFO,
+    CTIMER_ARG,     /* This is not our type, so we can't validate it */
     CHAT,
     CLIST,
-    CEVENT,         /* TODO */
+    CEVENT,
     COBJECT,
     CSPEC,
     COUNTER,
-    CPLUGIN,        /* TODO */
-    CPLUGIN_ARG,    /* TODO */
-    CPLUGIN_INFO,   /* TODO */
+    CPLUGIN,
+    CPLUGIN_ARG,
+    CPLUGIN_INFO,
     CLOG
 };
 

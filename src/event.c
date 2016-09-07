@@ -41,26 +41,25 @@ struct event_condition_s {
     int                         (*v_function)(void *, void *);
 };
 
-struct cevent_s {
-    struct event_condition_s    *evc_or;
-    struct event_condition_s    *evc_and;
-    pthread_t                   t_id;
-    pthread_mutex_t             m_evc;
-    enum event_execution        exec_type;
-    char                        *name;
-    bool                        sort;
-    bool                        end_thread;
-    int                         total_or_cond;
-    int                         total_and_cond;
+#define cevent_members                                              \
+    cl_struct_member(struct event_condition_s *, evc_or)            \
+    cl_struct_member(struct event_condition_s *, evc_and)           \
+    cl_struct_member(pthread_t, t_id)                               \
+    cl_struct_member(pthread_mutex_t, m_evc)                        \
+    cl_struct_member(enum event_execution, exec_type)               \
+    cl_struct_member(char *, name)                                  \
+    cl_struct_member(bool, sort)                                    \
+    cl_struct_member(bool, end_thread)                              \
+    cl_struct_member(int, total_or_cond)                            \
+    cl_struct_member(int, total_and_cond)                           \
+    cl_struct_member(void, (*ev_function)(void *))                  \
+    cl_struct_member(void *, arg)                                   \
+    cl_struct_member(void, (*reset_cond)(void *))                   \
+    cl_struct_member(void *, reset_arg)
 
-    /* Event function */
-    void                        (*ev_function)(void *);
-    void                        *arg;
+cl_struct_declare(cevent_s, cevent_members);
 
-    /* Function to reset conditions */
-    void                        (*reset_cond)(void *);
-    void                        *reset_arg;
-};
+#define cevent_s        cl_struct(cevent_s)
 
 bool validate_execution_type(enum event_execution exec_type)
 {
@@ -86,7 +85,7 @@ bool validate_comparison_type(enum event_comparison_type cmp_type)
     return true;
 }
 
-bool validate_conditions(struct cevent_s *ev)
+bool validate_conditions(cevent_s *ev)
 {
     /*
      * If they are being used together, the condition lists must have,
@@ -112,11 +111,11 @@ static struct event_condition_s *new_event_condition(void)
     return c;
 }
 
-static struct cevent_s *new_event(void)
+static cevent_s *new_event(void)
 {
-    struct cevent_s *e = NULL;
+    cevent_s *e = NULL;
 
-    e = calloc(1, sizeof(struct cevent_s));
+    e = calloc(1, sizeof(cevent_s));
 
     if (NULL == e) {
         cset_errno(CL_NO_MEM);
@@ -128,12 +127,13 @@ static struct cevent_s *new_event(void)
     e->reset_cond = NULL;
     e->reset_arg = NULL;
 
+    set_typeof(CEVENT, e);
     pthread_mutex_init(&e->m_evc, NULL);
 
     return e;
 }
 
-static void destroy_event(struct cevent_s *ev)
+static void destroy_event(cevent_s *ev)
 {
     if (ev->name != NULL)
         free(ev->name);
@@ -147,7 +147,7 @@ static void destroy_event(struct cevent_s *ev)
     free(ev);
 }
 
-static void update_total_conditions(struct cevent_s *ev)
+static void update_total_conditions(cevent_s *ev)
 {
     ev->total_or_cond = cdll_size(ev->evc_or);
     ev->total_and_cond = cdll_size(ev->evc_and);
@@ -160,7 +160,7 @@ static int call_validation_function(void *a, void *b __attribute__((unused)))
     return (evc->v_function)(evc->ptr, evc->value);
 }
 
-static bool or_validation(struct cevent_s *ev)
+static bool or_validation(cevent_s *ev)
 {
     struct event_condition_s *p = NULL;
 
@@ -173,7 +173,7 @@ static bool or_validation(struct cevent_s *ev)
     return false;
 }
 
-static bool and_validation(struct cevent_s *ev)
+static bool and_validation(cevent_s *ev)
 {
     struct event_condition_s *ret = NULL;
 
@@ -190,7 +190,7 @@ static bool and_validation(struct cevent_s *ev)
 /*
  * Call validation functions previously registered.
  */
-static bool may_call_event(struct cevent_s *ev)
+static bool may_call_event(cevent_s *ev)
 {
     bool st_or = false, st_and = false;
 
@@ -216,12 +216,12 @@ static bool may_call_event(struct cevent_s *ev)
     return false;
 }
 
-static void call_event(struct cevent_s *ev)
+static void call_event(cevent_s *ev)
 {
     (ev->ev_function)(ev->arg);
 }
 
-static void reset_event_conditions(struct cevent_s *ev)
+static void reset_event_conditions(cevent_s *ev)
 {
     if (ev->reset_cond != NULL)
         (ev->reset_cond)(ev->reset_arg);
@@ -229,10 +229,10 @@ static void reset_event_conditions(struct cevent_s *ev)
 
 static void *cevent_thread(void *param)
 {
-    struct cevent_s *event;
+    cevent_s *event;
     bool event_executed = false;
 
-    event = (struct cevent_s *)param;
+    event = (cevent_s *)param;
 
     while (event_executed == false) {
         cmsleep(1);
@@ -277,7 +277,7 @@ static int cmp_condition(void *a, void *b)
     return 1;
 }
 
-static void sort_event_conditions(struct cevent_s *ev)
+static void sort_event_conditions(cevent_s *ev)
 {
     pthread_mutex_lock(&ev->m_evc);
 
@@ -367,7 +367,7 @@ cevent_t LIBEXPORT *cevent_init(enum event_execution exec, const char *name,
     void (*event)(void *), void *arg, void (*reset_conditions)(void *),
     void *reset_arg)
 {
-    struct cevent_s *ev = NULL;
+    cevent_s *ev = NULL;
 
     cerrno_clear();
 
@@ -405,7 +405,7 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
     unsigned int id, void *ptr, void *value,
     int (*custom_v_function)(void *, void *))
 {
-    struct cevent_s *ev = (struct cevent_s *)e;
+    cevent_s *ev = (cevent_s *)e;
     struct event_condition_s *c = NULL;
 
     cerrno_clear();
@@ -413,7 +413,10 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
     if (library_initialized() == false)
         return -1;
 
-    if ((NULL == ev) || (NULL == ptr)) {
+    if (validate_object(e, CEVENT) == false)
+        return -1;
+
+    if (NULL == ptr) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -484,7 +487,7 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
 int LIBEXPORT cevent_condition_unregister(cevent_t *e,
     enum event_comparison_type cmp_type, unsigned int cond_id)
 {
-    struct cevent_s *ev = (struct cevent_s *)e;
+    cevent_s *ev = (cevent_s *)e;
     struct event_condition_s *evc = NULL, *list = NULL;
     unsigned int *p_id = &cond_id;
 
@@ -493,10 +496,8 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
     if (library_initialized() == false)
         return -1;
 
-    if (NULL == ev) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(e, CEVENT) == false)
         return -1;
-    }
 
     if (validate_comparison_type(cmp_type) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
@@ -525,7 +526,7 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
 
 int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
 {
-    struct cevent_s *ev = (struct cevent_s *)e;
+    cevent_s *ev = (cevent_s *)e;
     pthread_attr_t t_attr;
     int detachstate = PTHREAD_CREATE_JOINABLE;
 
@@ -534,10 +535,8 @@ int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
     if (library_initialized() == false)
         return -1;
 
-    if (NULL == ev) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(e, CEVENT) == false)
         return -1;
-    }
 
     /* Checks if the conditions were correctly inserted. */
     if (validate_conditions(ev) == false) {
@@ -574,17 +573,15 @@ int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
 
 int LIBEXPORT cevent_uninstall(cevent_t *e)
 {
-    struct cevent_s *ev = (struct cevent_s *)e;
+    cevent_s *ev = (cevent_s *)e;
 
     cerrno_clear();
 
     if (library_initialized() == false)
         return -1;
 
-    if (NULL == ev) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(e, CEVENT) == false)
         return -1;
-    }
 
     if (ev->exec_type == EVENT_EXEC_UNLIMITED) {
         ev->end_thread = true;

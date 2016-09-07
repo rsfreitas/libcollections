@@ -170,7 +170,7 @@ int c_close(void *data __attribute__((unused)), void *handle)
 }
 
 void c_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
-    uint32_t caller_id, struct cplugin_s *cpl)
+    uint32_t caller_id, cplugin_t *cpl)
 {
     c_exported_function f;
 

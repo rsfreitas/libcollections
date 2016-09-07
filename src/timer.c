@@ -35,10 +35,13 @@
 #define DEFAULT_TIMER_FINISH_TIMEOUT                200 /* milliseconds */
 
 /* Structure to constant informations about a timer for the user */
-struct ctimer_info_s {
-    char    **info;
-    void    *data;
-};
+#define ctimer_info_members         \
+    cl_struct_member(char **, info) \
+    cl_struct_member(void *, data)
+
+cl_struct_declare(ctimer_info_s, ctimer_info_members);
+
+#define ctimer_info_s       cl_struct(ctimer_info_s)
 
 /* Internal timer information */
 struct ctimer_internal_data_s {
@@ -54,6 +57,7 @@ struct ctimer_internal_data_s {
 struct ctimer_s {
     clist_entry_t                   *prev;
     clist_entry_t                   *next;
+    struct cobject_hdr              hdr;
     struct ctimer_internal_data_s   tid;
     enum ctimer_state               state;
     enum ctimer_interval_mode       imode;
@@ -71,6 +75,9 @@ struct ctimer_s {
     int                             (*init)(void *);
     int                             (*uninit)(void *);
 };
+
+#define CTIMER_OBJECT_OFFSET            \
+    (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
 
 static int __search_timer(void *a, void *b)
 {
@@ -175,7 +182,13 @@ ctimer_t LIBEXPORT *ctimer_get_timer(const ctimer_t *timers_list,
     if (library_initialized() == false)
         return NULL;
 
-    if ((NULL == tlist) || (timer_name == NULL)) {
+    if (validate_object_with_offset(tlist, CTIMER,
+                                    CTIMER_OBJECT_OFFSET) == false)
+    {
+        return NULL;
+    }
+
+    if (timer_name == NULL) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -244,11 +257,11 @@ int LIBEXPORT ctimer_update_interval(ctimer_t *timer, unsigned int interval)
     return 0;
 }
 
-static struct ctimer_info_s *new_timer_info(struct ctimer_s *timer)
+static ctimer_info_s *new_timer_info(struct ctimer_s *timer)
 {
-    struct ctimer_info_s *i;
+    ctimer_info_s *i;
 
-    i = calloc(1, sizeof(struct ctimer_info_s));
+    i = calloc(1, sizeof(ctimer_info_s));
 
     if (NULL == i) {
         cset_errno(CL_NO_MEM);
@@ -280,11 +293,12 @@ static struct ctimer_info_s *new_timer_info(struct ctimer_s *timer)
              translate_imode(timer->imode));
 
     i->data = timer->tid.data;
+    set_typeof(CTIMER_INFO, i);
 
     return i;
 }
 
-static void destroy_timer_info(struct ctimer_info_s *info)
+static void destroy_timer_info(ctimer_info_s *info)
 {
     int i;
 
@@ -299,9 +313,9 @@ static void destroy_timer_info(struct ctimer_info_s *info)
     free(info);
 }
 
-static struct ctimer_info_s *get_timer_info(struct ctimer_s *timer)
+static ctimer_info_s *get_timer_info(struct ctimer_s *timer)
 {
-    struct ctimer_info_s *inode;
+    ctimer_info_s *inode;
 
     inode = new_timer_info(timer);
 
@@ -313,17 +327,15 @@ static struct ctimer_info_s *get_timer_info(struct ctimer_s *timer)
 
 int LIBEXPORT ctimer_unload_info(ctimer_info_t *timer_info)
 {
-    struct ctimer_info_s *tinfo = (struct ctimer_info_s *)timer_info;
+    ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
 
     cerrno_clear();
 
     if (library_initialized() == false)
         return -1;
 
-    if (NULL == tinfo) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(timer_info, CTIMER_INFO) == false)
         return -1;
-    }
 
     destroy_timer_info(tinfo);
 
@@ -387,17 +399,15 @@ ctimer_info_t LIBEXPORT *ctimer_load_info_within_timer(ctimer_arg_t arg)
 void LIBEXPORT *ctimer_get_info_data(const ctimer_info_t *timer_info,
     enum ctimer_info_field info)
 {
-    struct ctimer_info_s *tinfo = (struct ctimer_info_s *)timer_info;
+    ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
 
     cerrno_clear();
 
     if (library_initialized() == false)
         return NULL;
 
-    if (NULL == tinfo) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object(timer_info, CTIMER_INFO) == false)
         return NULL;
-    }
 
     if (info >= TIMER_MAX_INFO) {
         cset_errno(CL_UNSUPPORTED_TYPE);
@@ -426,6 +436,7 @@ static struct ctimer_s *new_timer(const char *timer_name)
     }
 
     t->tid.name = strdup(timer_name);
+    set_typeof_with_offset(CTIMER, t, CTIMER_OBJECT_OFFSET);
     set_state(t, TIMER_ST_CREATED);
 
     return t;
@@ -487,6 +498,13 @@ int LIBEXPORT ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
 
     if (library_initialized() == false)
         return -1;
+
+    if ((*tlist != NULL) &&
+        (validate_object_with_offset(*tlist, CTIMER,
+                                     CTIMER_OBJECT_OFFSET) == false))
+    {
+        return -1;
+    }
 
     if ((NULL == timer_name) || (NULL == timer_function)) {
         cset_errno(CL_NULL_ARG);
@@ -603,7 +621,13 @@ int LIBEXPORT ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
     if (library_initialized() == false)
         return -1;
 
-    if ((NULL == tlist) || (NULL == timer_name)) {
+    if (validate_object_with_offset(tlist, CTIMER,
+                                    CTIMER_OBJECT_OFFSET) == false)
+    {
+        return -1;
+    }
+
+    if (NULL == timer_name) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -677,8 +701,9 @@ int LIBEXPORT ctimer_install(ctimer_t *timers_list)
     if (library_initialized() == false)
         return -1;
 
-    if (NULL == tlist) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object_with_offset(tlist, CTIMER,
+                                    CTIMER_OBJECT_OFFSET) == false)
+    {
         return -1;
     }
 
@@ -730,8 +755,9 @@ int LIBEXPORT ctimer_disarm(ctimer_t *timer)
     if (library_initialized() == false)
         return -1;
 
-    if (NULL == timer) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object_with_offset(timer, CTIMER,
+                                    CTIMER_OBJECT_OFFSET) == false)
+    {
         return -1;
     }
 
@@ -765,8 +791,9 @@ int LIBEXPORT ctimer_arm(ctimer_t *timer)
     if (library_initialized() == false)
         return -1;
 
-    if (NULL == timer) {
-        cset_errno(CL_NULL_ARG);
+    if (validate_object_with_offset(timer, CTIMER,
+                                    CTIMER_OBJECT_OFFSET) == false)
+    {
         return -1;
     }
 

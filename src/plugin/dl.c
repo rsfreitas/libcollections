@@ -351,7 +351,7 @@ end_block:
  * Call the plugin shutdown function. It should return 0 on success or
  * something different otherwise.
  */
-int dl_plugin_shutdown(struct cplugin_s *cpl)
+int dl_plugin_shutdown(cplugin_s *cpl)
 {
     int ret = -1;
     struct dl_plugin_driver *drv = NULL;
@@ -369,7 +369,7 @@ end_block:
     return ret;
 }
 
-void dl_call(struct cplugin_s *cpl, struct cplugin_function_s *foo,
+void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
     uint32_t caller_id)
 {
     struct dl_plugin_driver *drv = NULL;

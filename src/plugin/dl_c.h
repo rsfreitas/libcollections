@@ -40,7 +40,7 @@ int c_load_functions(void *data, struct cplugin_function_s *flist, void *handle)
 void *c_open(void *data, const char *pathname);
 int c_close(void *data, void *handle);
 void c_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
-            struct cplugin_s *cpl);
+            cplugin_t *cpl);
 
 int c_plugin_startup(void *data, void *handle, cplugin_info_t *info);
 int c_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
