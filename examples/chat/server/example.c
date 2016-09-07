@@ -97,6 +97,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    collections_init();
     memset(&sa_int, 0, sizeof(struct sigaction));
     sa_int.sa_handler = signal_handler;
     sigaction(SIGINT, &sa_int, NULL);
@@ -141,6 +142,7 @@ end_block:
         chat_destroy(n);
 
     chat_destroy(c);
+    collections_uninit();
     cexit();
 
     return 0;

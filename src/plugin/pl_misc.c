@@ -48,6 +48,7 @@ struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,
     f->type = type;
     f->caller_id = caller_id;
     f->value = NULL;
+    set_typeof_with_offset(CPLUGIN_ARG, f, CPLUGIN_ARG_OBJECT_OFFSET);
 
     return f;
 }
@@ -111,11 +112,11 @@ void destroy_cplugin_function_s_list(struct cplugin_function_s *flist)
     cdll_free(flist, destroy_cplugin_function_s);
 }
 
-struct cplugin_s *new_cplugin_s(void)
+cplugin_s *new_cplugin_s(void)
 {
-    struct cplugin_s *p = NULL;
+    cplugin_s *p = NULL;
 
-    p = calloc(1, sizeof(struct cplugin_s));
+    p = calloc(1, sizeof(cplugin_s));
 
     if (NULL == p) {
         cset_errno(CL_NO_MEM);
@@ -123,11 +124,12 @@ struct cplugin_s *new_cplugin_s(void)
     }
 
     p->functions = NULL;
+    set_typeof(CPLUGIN, p);
 
     return p;
 }
 
-int destroy_cplugin_s(struct cplugin_s *cpl)
+int destroy_cplugin_s(cplugin_s *cpl)
 {
     if (NULL == cpl) {
         cset_errno(CL_NULL_ARG);

@@ -63,6 +63,7 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
+    collections_init();
     c = counter_create(CNT_8BIT, -10, 110, cv, true);
     tmp = cbool_to_string(counter_lt(c, v));
     printf("%s: %lld < %lld: %s\n", __FUNCTION__, counter_get(c),
@@ -71,6 +72,7 @@ int main(int argc, char **argv)
     printf("%s: error = %s\n", __FUNCTION__, cstrerror(cget_last_error()));
     free(tmp);
     counter_destroy(c);
+    collections_uninit();
 
     return 0;
 }

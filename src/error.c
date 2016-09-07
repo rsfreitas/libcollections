@@ -82,7 +82,8 @@ static const char *__cdescriptions[] = {
     "Plugin shutdown error",
     "Failed to load python plugin",
     "Failed to get python object dictionary",
-    "Data convertion failed"
+    "Data convertion failed",
+    "The library was not initialized"
 };
 
 static const char *__cunknown_error = "Unknown error";
@@ -108,6 +109,11 @@ cerrno LIBEXPORT *cerrno_storage(void)
 {
     cerrno *error = NULL;
 
+    /*
+     * XXX: We don't check library initialization here since a call to this
+     *      function is usually done in global variables.
+     */
+
     pthread_once(&cerrno_once, cerrno_init);
     error = pthread_getspecific(cerrno_key);
 
@@ -128,6 +134,9 @@ cerrno LIBEXPORT *cerrno_storage(void)
  */
 void LIBEXPORT cexit(void)
 {
+    if (library_initialized() == false)
+        return;
+
     if (dl_is_plugin_enabled(CPLUGIN_JAVA)) {
         /* Does nothing here. It hangs if pthread_exit is called */
         return;
@@ -153,6 +162,9 @@ void cset_errno(enum cerror_code error_code)
  */
 enum cerror_code LIBEXPORT cget_last_error(void)
 {
+    if (library_initialized() == false)
+        return -1;
+
     return __cerrno;
 }
 
@@ -161,6 +173,9 @@ enum cerror_code LIBEXPORT cget_last_error(void)
  */
 const char LIBEXPORT *cstrerror(enum cerror_code error_code)
 {
+    if (library_initialized() == false)
+        return NULL;
+
     if (error_code >= CL_MAX_ERROR_CODE)
         return __cunknown_error;
 

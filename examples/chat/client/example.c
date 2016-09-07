@@ -103,6 +103,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    collections_init();
     memset(&sa_int, 0, sizeof(struct sigaction));
     sa_int.sa_handler = signal_handler;
     sigaction(SIGINT, &sa_int, NULL);
@@ -147,6 +148,7 @@ end_block:
     if (ip != NULL)
         free(ip);
 
+    collections_uninit();
     cexit();
 
     return 0;

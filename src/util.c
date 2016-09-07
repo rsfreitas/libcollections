@@ -33,6 +33,9 @@ cstring_t LIBEXPORT *cbool_to_cstring(bool flag)
 {
     cerrno_clear();
 
+    if (library_initialized() == false)
+        return NULL;
+
     if ((flag != true) && (flag != false)) {
         cset_errno(CL_INVALID_VALUE);
         return NULL;
@@ -45,6 +48,11 @@ char LIBEXPORT *cbool_to_string(bool flag)
 {
     cstring_t *s = NULL;
     char *t = NULL;
+
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     s = cbool_to_cstring(flag);
 
@@ -61,6 +69,11 @@ char LIBEXPORT *collections_version(void)
 {
     char *s = NULL;
 
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     if (asprintf(&s, "%d.%d.%d", MAJOR_VERSION, MINOR_VERSION, BUILD) < 0)
         return NULL;
 
@@ -76,6 +89,9 @@ cstring_t LIBEXPORT *cl_type_to_cstring(enum cl_type value)
         "cstring" };
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (validate_cl_type(value) == false) {
         cset_errno(CL_INVALID_VALUE);

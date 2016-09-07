@@ -24,10 +24,11 @@ INCLUDEDIR += -I/usr/lib/jvm/default-java/include
 
 LIBDIR = -L/usr/local/lib
 LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/i386/server/
+
 LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm
 
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
-		 -D_GNU_SOURCE -DLINUX -DUSE_LIBMAGIC $(INCLUDEDIR)
+		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
 
 CHAT_PATH = ./chat
 PLUGIN_PATH = ./plugin
@@ -69,6 +70,7 @@ OBJS =	\
 	event.o			\
 	file.o			\
 	glist.o			\
+	init.o			\
 	io.o			\
 	json.o			\
 	log.o			\

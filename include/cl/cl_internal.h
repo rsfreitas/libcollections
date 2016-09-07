@@ -27,6 +27,10 @@
 #ifndef _COLLECTIONS_INTERNAL_H
 #define _COLLECTIONS_INTERNAL_H         1
 
+#ifndef _MAGIC
+# include <magic.h>
+#endif
+
 #include <stddef.h>
 
 #ifndef LIBEXPORT
@@ -85,7 +89,12 @@ char *value_to_hex(void *p, unsigned int size);
 char *strip_filename(const char *pathname);
 
 /* plugin.c */
+void dl_library_init(void);
 bool dl_is_plugin_enabled(enum cplugin_type type);
+
+/* init.c */
+bool library_initialized(void);
+magic_t *library_get_cookie(void);
 
 #endif
 

@@ -39,7 +39,7 @@ int py_load_functions(void *data, struct cplugin_function_s *flist, void *handle
 void *py_open(void *data, const char *pathname);
 int py_close(void *data, void *ptr);
 void py_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
-             struct cplugin_s *cpl);
+             cplugin_t *cpl);
 
 int py_plugin_startup(void *data, void *handle, cplugin_info_t *info);
 int py_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);

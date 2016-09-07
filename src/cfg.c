@@ -42,19 +42,26 @@ enum cfg_line_type {
 struct cfg_line_s {
     clist_entry_t       *prev;
     clist_entry_t       *next;
+    struct cobject_hdr  hdr;
     struct line_s       *child;
     cstring_t           *name;
-    cobject_t            *value;
+    cobject_t           *value;
     cstring_t           *comment;
     enum cfg_line_type  line_type;
     char                delim;
 };
 
+#define CFG_LINE_OFFSET         \
+    (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
+
 /** INI file structure */
-struct cfg_file_s {
-    cstring_t               *filename;
-    struct cfg_line_s       *section;
-};
+#define cfg_file_members                            \
+    cl_struct_member(cstring_t *, filename)         \
+    cl_struct_member(struct cfg_line_s *, section)
+
+cl_struct_declare(cfg_file_s, cfg_file_members);
+
+#define cfg_file_s          cl_struct(cfg_file_s)
 
 static bool is_section(const char *line)
 {
@@ -82,6 +89,7 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
 {
     struct cfg_line_s *l = NULL;
     cstring_t *tmp;
+    enum cl_object object;
 
     l = calloc(1, sizeof(struct cfg_line_s));
 
@@ -103,6 +111,13 @@ static struct cfg_line_s *new_cfg_line_s(cstring_t *name, const char *value,
     l->delim = delim;
     l->line_type = type;
     l->child = NULL;
+
+    if (type == CFG_LINE_SECTION)
+        object = CFG_SECTION;
+    else
+        object = CFG_KEY;
+
+    set_typeof_with_offset(object, l, CFG_LINE_OFFSET);
 
     return l;
 }
@@ -126,24 +141,25 @@ static void destroy_cfg_line_s(void *a)
     free(l);
 }
 
-static struct cfg_file_s *new_cfg_file_s(const char *filename)
+static cfg_file_s *new_cfg_file_s(const char *filename)
 {
-    struct cfg_file_s *p = NULL;
+    cfg_file_s *p = NULL;
 
-    p = calloc(1, sizeof(struct cfg_file_s));
+    p = calloc(1, sizeof(cfg_file_s));
 
     if (NULL == p) {
         cset_errno(CL_NO_MEM);
         return NULL;
     }
 
+    set_typeof(CFG_FILE, p);
     p->filename = cstring_create("%s", filename);
     p->section = NULL;
 
     return p;
 }
 
-static void destroy_cfg_file_s(struct cfg_file_s *file)
+static void destroy_cfg_file_s(cfg_file_s *file)
 {
     if (NULL == file)
         return;
@@ -316,11 +332,11 @@ end_block:
     return cline;
 }
 
-static struct cfg_file_s *__cfg_load(const char *filename)
+static cfg_file_s *__cfg_load(const char *filename)
 {
     FILE *fp;
     char *line = NULL;
-    struct cfg_file_s *file = NULL;
+    cfg_file_s *file = NULL;
     struct cfg_line_s *cline = NULL, *section = NULL;
 
     fp = fopen(filename, "r");
@@ -454,7 +470,7 @@ static int write_line_to_file(void *a, void *b)
     return 0;
 }
 
-static cstring_t *print_cfg(const struct cfg_file_s *file)
+static cstring_t *print_cfg(const cfg_file_s *file)
 {
     cstring_t *s = NULL;
 
@@ -472,9 +488,12 @@ static cstring_t *print_cfg(const struct cfg_file_s *file)
  */
 cfg_file_t LIBEXPORT *cfg_load(const char *filename)
 {
-    struct cfg_file_s *file = NULL;
+    cfg_file_s *file = NULL;
 
     cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
 
     if (NULL == filename) {
         cset_errno(CL_NULL_ARG);
@@ -493,10 +512,11 @@ int LIBEXPORT cfg_unload(cfg_file_t *file)
 {
     cerrno_clear();
 
-    if (NULL == file) {
-        cset_errno(CL_NULL_ARG);
+    if (library_initialized() == false)
         return -1;
-    }
+
+    if (validate_object(file, CFG_FILE) == false)
+        return -1;
 
     destroy_cfg_file_s(file);
 
@@ -509,17 +529,18 @@ int LIBEXPORT cfg_unload(cfg_file_t *file)
  */
 int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
 {
-    struct cfg_file_s *f = (struct cfg_file_s *)file;
+    cfg_file_s *f = (cfg_file_s *)file;
     FILE *fp;
     const char *p;
     cstring_t *s;
 
     cerrno_clear();
 
-    if (NULL == file) {
-        cset_errno(CL_NULL_ARG);
+    if (library_initialized() == false)
         return -1;
-    }
+
+    if (validate_object(file, CFG_FILE) == false)
+        return -1;
 
     p = (filename == NULL) ? cstring_valueof(f->filename) : filename;
     fp = fopen(p, "w+");
@@ -549,7 +570,7 @@ int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
 int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     const char *key, const char *fmt, ...)
 {
-    struct cfg_file_s *f = (struct cfg_file_s *)file;
+    cfg_file_s *f = (cfg_file_s *)file;
     struct cfg_line_s *s = NULL, *k = NULL;
     va_list ap;
     char *b = NULL;
@@ -557,7 +578,13 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
 
     cerrno_clear();
 
-    if ((NULL == file) || (NULL == section) || (NULL == key)) {
+    if (library_initialized() == false)
+        return -1;
+
+    if (validate_object(file, CFG_FILE) == false)
+        return -1;
+
+    if ((NULL == section) || (NULL == key)) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -622,12 +649,18 @@ end_block:
 cfg_section_t LIBEXPORT *cfg_get_section(const cfg_file_t *file,
     const char *section)
 {
-    struct cfg_file_s *f = (struct cfg_file_s *)file;
+    cfg_file_s *f = (cfg_file_s *)file;
     struct cfg_line_s *l = NULL;
 
     cerrno_clear();
 
-    if ((NULL == file) || (NULL == section)) {
+    if (library_initialized() == false)
+        return NULL;
+
+    if (validate_object(file, CFG_FILE) == false)
+        return NULL;
+
+    if (NULL == section) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -666,7 +699,16 @@ cfg_key_t LIBEXPORT *cfg_get_key_from_section(const cfg_section_t *section,
 
     cerrno_clear();
 
-    if ((NULL == section) || (NULL == key)) {
+    if (library_initialized() == false)
+        return NULL;
+
+    if (validate_object_with_offset(section, CFG_SECTION,
+                                    CFG_LINE_OFFSET) == false)
+    {
+        return NULL;
+    }
+
+    if (NULL == key) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
@@ -690,8 +732,12 @@ cstring_t LIBEXPORT *cfg_section_name(const cfg_section_t *section)
 
     cerrno_clear();
 
-    if (NULL == section) {
-        cset_errno(CL_NULL_ARG);
+    if (library_initialized() == false)
+        return NULL;
+
+    if (validate_object_with_offset(section, CFG_SECTION,
+                                    CFG_LINE_OFFSET) == false)
+    {
         return NULL;
     }
 
@@ -707,10 +753,11 @@ cstring_t LIBEXPORT *cfg_key_name(const cfg_key_t *key)
 
     cerrno_clear();
 
-    if (NULL == key) {
-        cset_errno(CL_NULL_ARG);
+    if (library_initialized() == false)
         return NULL;
-    }
+
+    if (validate_object_with_offset(key, CFG_KEY, CFG_LINE_OFFSET) == false)
+        return NULL;
 
     return k->name;
 }
@@ -724,10 +771,11 @@ cobject_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
 
     cerrno_clear();
 
-    if (NULL == key) {
-        cset_errno(CL_NULL_ARG);
+    if (library_initialized() == false)
         return NULL;
-    }
+
+    if (validate_object_with_offset(key, CFG_KEY, CFG_LINE_OFFSET) == false)
+        return NULL;
 
     return cobject_ref(k->value);
 }
@@ -738,10 +786,11 @@ cstring_t LIBEXPORT *cfg_to_cstring(const cfg_file_t *file)
 
     cerrno_clear();
 
-    if (NULL == file) {
-        cset_errno(CL_NULL_ARG);
+    if (library_initialized() == false)
         return NULL;
-    }
+
+    if (validate_object(file, CFG_FILE) == false)
+        return NULL;
 
     s = print_cfg(file);
 

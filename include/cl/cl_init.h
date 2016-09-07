@@ -3,7 +3,7 @@
  * Description:
  *
  * Author: Rodrigo Freitas
- * Created at: Tue Apr 12 15:14:33 2016
+ * Created at: Wed Sep  7 10:13:24 2016
  * Project: libcollections
  *
  * Copyright (C) 2015 Rodrigo Freitas
@@ -24,26 +24,29 @@
  * USA
  */
 
-#ifndef _COLLECTIONS_DL_C_H
-#define _COLLECTIONS_DL_C_H     1
+#ifndef _COLLECTIONS_CL_INIT_H
+#define _COLLECTIONS_CL_INIT_H     1
 
 #ifndef LIBCOLLECTIONS_COMPILE
 # ifndef _COLLECTIONS_H
-#  error "Never use <dl_c.h> directly; include <collections.h> instead."
+#  error "Never use <cl_cfg.h> directly; include <collections.h> instead."
 # endif
 #endif
 
-void *c_library_init(void);
-void c_library_uninit(void *data);
-cplugin_info_t *c_load_info(void *data, void *handle);
-int c_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
-void *c_open(void *data, const char *pathname);
-int c_close(void *data, void *handle);
-void c_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
-            cplugin_t *cpl);
+/**
+ * @name collections_init
+ * @brief The function to initialize all library internals.
+ *
+ * This function must be the library first function called inside a code.
+ * Otherwise all other functions from it won't work.
+ */
+void collections_init(void);
 
-int c_plugin_startup(void *data, void *handle, cplugin_info_t *info);
-int c_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
+/**
+ * @name collections_uninit
+ * @brief The function to end all library internals.
+ */
+void collections_uninit(void);
 
 #endif
 

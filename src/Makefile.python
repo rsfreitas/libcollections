@@ -41,6 +41,7 @@ OBJS = 		\
 	dll.o			\
 	error.o			\
 	file.o			\
+	init.o			\
 	json.o			\
 	mem.o			\
 	object.o		\
@@ -50,6 +51,7 @@ OBJS = 		\
 	specs.o			\
 	string.o		\
 	stringlist.o		\
+	typeof.o		\
 	util.o
 
 LINK_FLAGS = -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions \

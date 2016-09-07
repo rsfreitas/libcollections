@@ -45,7 +45,7 @@ enum cl_object {
     CTHREAD,
     CTIMER,
     CTIMER_INFO,
-    CTIMER_ARG,
+    CTIMER_ARG,     /* This is not our type, so we can't validate it */
     CHAT,
     CLIST,
     CEVENT,

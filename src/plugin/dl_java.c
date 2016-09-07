@@ -303,13 +303,14 @@ int jni_close(void *data, void *handle __attribute__((unused)))
 }
 
 void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
-    struct cplugin_s *cpl)
+    cplugin_t *cpl)
 {
     struct jdriver *j = (struct jdriver *)data;
+    cplugin_s *c = (cplugin_s *)cpl;
     struct jinfo *jinfo = NULL;
     jobject ret, args;
 
-    jinfo = (struct jinfo *)info_get_custom_data(cpl->info);
+    jinfo = (struct jinfo *)info_get_custom_data(c->info);
 
     if (NULL == jinfo)
         return;

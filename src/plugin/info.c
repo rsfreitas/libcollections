@@ -31,22 +31,22 @@
 #include "collections.h"
 #include "plugin.h"
 
-struct info_s {
-    char            *name;
-    char            *version;
-    char            *author;
-    char            *description;
-    cjson_t         *api;
+#define cinfo_members                       \
+    cl_struct_member(char *, name)          \
+    cl_struct_member(char *, version)       \
+    cl_struct_member(char *, author)        \
+    cl_struct_member(char *, description)   \
+    cl_struct_member(cjson_t *, api)        \
+    cl_struct_member(void *, data)          \
+    cl_struct_member(struct ref_s, ref)
 
-    /* Plugin custom internal data */
-    void            *data;
+cl_struct_declare(cinfo_s, cinfo_members);
 
-    struct ref_s    ref;
-};
+#define cinfo_s         cl_struct(cinfo_s)
 
 static void __destroy_info_s(const struct ref_s *ref)
 {
-    struct info_s *info = container_of(ref, struct info_s, ref);
+    cinfo_s *info = container_of(ref, cinfo_s, ref);
 
     if (NULL == info)
         return;
@@ -61,12 +61,12 @@ static void __destroy_info_s(const struct ref_s *ref)
     free(info);
 }
 
-static struct info_s *new_info_s(const char *name,
+static cinfo_s *new_info_s(const char *name,
     const char *version, const char *description, const char *author)
 {
-    struct info_s *i = NULL;
+    cinfo_s *i = NULL;
 
-    i = calloc(1, sizeof(struct info_s));
+    i = calloc(1, sizeof(cinfo_s));
 
     if (NULL == i) {
         cset_errno(CL_NO_MEM);
@@ -83,12 +83,14 @@ static struct info_s *new_info_s(const char *name,
     i->ref.count = 1;
     i->ref.free = __destroy_info_s;
 
+    set_typeof(CPLUGIN_INFO, i);
+
     return i;
 }
 
 cplugin_info_t *info_ref(cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return NULL;
@@ -100,7 +102,7 @@ cplugin_info_t *info_ref(cplugin_info_t *info)
 
 void info_unref(cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return;
@@ -112,7 +114,7 @@ cplugin_info_t *info_create_from_data(const char *name,
     const char *version, const char *author, const char *description,
     const char *api)
 {
-    struct info_s *info = NULL;
+    cinfo_s *info = NULL;
 
     info = new_info_s(name, version, description, author);
 
@@ -131,7 +133,7 @@ cplugin_info_t *info_create_from_data(const char *name,
 
 cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry)
 {
-    struct info_s *info = NULL;
+    cinfo_s *info = NULL;
 
     info = new_info_s(entry->name, entry->version, entry->description,
                       entry->author);
@@ -151,7 +153,7 @@ cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry)
 
 cjson_t *info_get_api(const cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return NULL;
@@ -161,7 +163,7 @@ cjson_t *info_get_api(const cplugin_info_t *info)
 
 char *info_get_name(const cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return NULL;
@@ -171,7 +173,7 @@ char *info_get_name(const cplugin_info_t *info)
 
 char *info_get_version(const cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return NULL;
@@ -181,7 +183,7 @@ char *info_get_version(const cplugin_info_t *info)
 
 char *info_get_description(const cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return NULL;
@@ -191,7 +193,7 @@ char *info_get_description(const cplugin_info_t *info)
 
 char *info_get_author(const cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return NULL;
@@ -201,7 +203,7 @@ char *info_get_author(const cplugin_info_t *info)
 
 void info_set_custom_data(cplugin_info_t *info, void *ptr)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if ((NULL == i) || (NULL == ptr))
         return;
@@ -211,7 +213,7 @@ void info_set_custom_data(cplugin_info_t *info, void *ptr)
 
 void *info_get_custom_data(cplugin_info_t *info)
 {
-    struct info_s *i = (struct info_s *)info;
+    cinfo_s *i = (cinfo_s *)info;
 
     if ((NULL == i) || (NULL == i->data))
         return NULL;

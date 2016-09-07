@@ -217,21 +217,21 @@ CPLUGIN_OBJECT_EXPORT(foo_args)
     arg13 = CPLUGIN_ARGUMENT("arg13");
     arg14 = CPLUGIN_ARGUMENT("arg14");
 
-    cout << "arg1 value: " << CVALUE_AS_INT(arg1) << endl;
-    cout << "arg2 value: " << CVALUE_AS_UINT(arg2) << endl;
-    cout << "arg3 value: " << CVALUE_AS_SINT(arg3) << endl;
-    cout << "arg4 value: " << CVALUE_AS_USINT(arg4) << endl;
-    cout << "arg5 value: " << CVALUE_AS_CHAR(arg5) << endl;
-    cout << "arg6 value: " << CVALUE_AS_UCHAR(arg6) << endl;
-    cout << "arg7 value: " << CVALUE_AS_FLOAT(arg7) << endl;
-    cout << "arg8 value: " << CVALUE_AS_DOUBLE(arg8) << endl;
-    cout << "arg9 value: " << CVALUE_AS_LONG(arg9) << endl;
-    cout << "arg10 value: " << CVALUE_AS_ULONG(arg10) << endl;
-    cout << "arg11 value: " << CVALUE_AS_LLONG(arg11) << endl;
-    cout << "arg12 value: " << CVALUE_AS_ULLONG(arg12) << endl;
-    cout << "arg13 value: " << CVALUE_AS_BOOLEAN(arg13) << endl;
+    cout << "arg1 value: " << COBJECT_AS_INT(arg1) << endl;
+    cout << "arg2 value: " << COBJECT_AS_UINT(arg2) << endl;
+    cout << "arg3 value: " << COBJECT_AS_SINT(arg3) << endl;
+    cout << "arg4 value: " << COBJECT_AS_USINT(arg4) << endl;
+    cout << "arg5 value: " << COBJECT_AS_CHAR(arg5) << endl;
+    cout << "arg6 value: " << COBJECT_AS_UCHAR(arg6) << endl;
+    cout << "arg7 value: " << COBJECT_AS_FLOAT(arg7) << endl;
+    cout << "arg8 value: " << COBJECT_AS_DOUBLE(arg8) << endl;
+    cout << "arg9 value: " << COBJECT_AS_LONG(arg9) << endl;
+    cout << "arg10 value: " << COBJECT_AS_ULONG(arg10) << endl;
+    cout << "arg11 value: " << COBJECT_AS_LLONG(arg11) << endl;
+    cout << "arg12 value: " << COBJECT_AS_ULLONG(arg12) << endl;
+    cout << "arg13 value: " << COBJECT_AS_BOOLEAN(arg13) << endl;
 
-    s = CVALUE_AS_STRING(arg14);
+    s = COBJECT_AS_STRING(arg14);
     cout << "arg14 value: " << s << endl;
 
     cobject_unref(arg14);

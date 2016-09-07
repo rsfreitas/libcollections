@@ -36,6 +36,11 @@ void LIBEXPORT *cmemdup(const void *src, unsigned int len)
 {
     void *p;
 
+    cerrno_clear();
+
+    if (library_initialized() == false)
+        return NULL;
+
     p = calloc(1, len);
 
     if (p != NULL)

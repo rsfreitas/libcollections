@@ -222,7 +222,7 @@ int py_close(void *data __attribute__((unused)), void *ptr)
 }
 
 void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
-    uint32_t caller_id, struct cplugin_s *cpl)
+    uint32_t caller_id, cplugin_t *cpl)
 {
     PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL;
 

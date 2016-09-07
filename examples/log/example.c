@@ -87,6 +87,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    collections_init();
     log = clog_open(filename, CLOG_SYNC_ALL_MSGS, CLOG_INFO, 30);
 
     if (NULL == log) {
@@ -107,7 +108,9 @@ int main(int argc, char **argv)
     if (filename != NULL)
         free(filename);
 
+    collections_uninit();
     cexit();
+
     return 0;
 }
 

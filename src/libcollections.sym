@@ -295,6 +295,8 @@ LIBCOLLECTIONS_0.1 {
         clist_indexof;
         clist_last_indexof;
         clist_contains;
+        collections_init;
+        collections_uninit;
     local:
         *;
 };

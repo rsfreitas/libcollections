@@ -134,37 +134,37 @@ static cstring_t *get_return_as_string(const char *name, cobject_t *v)
     cstring_t *s = cstring_create("%s return value: ", name);
     char *tmp;
 
-    if (CVALUE_ischar(v))
-        cstring_cat(s, "%c", CVALUE_AS_CHAR(v));
-    else if (CVALUE_isuchar(v))
-        cstring_cat(s, "%d", CVALUE_AS_UCHAR(v));
-    else if (CVALUE_isint(v))
-        cstring_cat(s, "%d", CVALUE_AS_INT(v));
-    else if (CVALUE_isuint(v))
-        cstring_cat(s, "%u", CVALUE_AS_UINT(v));
-    else if (CVALUE_issint(v))
-        cstring_cat(s, "%d", CVALUE_AS_SINT(v));
-    else if (CVALUE_isusint(v))
-        cstring_cat(s, "%d", CVALUE_AS_USINT(v));
-    else if (CVALUE_isfloat(v))
-        cstring_cat(s, "%f", CVALUE_AS_FLOAT(v));
-    else if (CVALUE_isdouble(v))
-        cstring_cat(s, "%f", CVALUE_AS_DOUBLE(v));
-    else if (CVALUE_islong(v))
-        cstring_cat(s, "%ld", CVALUE_AS_LONG(v));
-    else if (CVALUE_isulong(v))
-        cstring_cat(s, "%lu", CVALUE_AS_ULONG(v));
-    else if (CVALUE_isllong(v))
-        cstring_cat(s, "%lld", CVALUE_AS_LLONG(v));
-    else if (CVALUE_isullong(v))
-        cstring_cat(s, "%llu", CVALUE_AS_ULLONG(v));
-    else if (CVALUE_isstring(v)) {
-        tmp = CVALUE_AS_STRING(v);
+    if (COBJECT_ischar(v))
+        cstring_cat(s, "%c", COBJECT_AS_CHAR(v));
+    else if (COBJECT_isuchar(v))
+        cstring_cat(s, "%d", COBJECT_AS_UCHAR(v));
+    else if (COBJECT_isint(v))
+        cstring_cat(s, "%d", COBJECT_AS_INT(v));
+    else if (COBJECT_isuint(v))
+        cstring_cat(s, "%u", COBJECT_AS_UINT(v));
+    else if (COBJECT_issint(v))
+        cstring_cat(s, "%d", COBJECT_AS_SINT(v));
+    else if (COBJECT_isusint(v))
+        cstring_cat(s, "%d", COBJECT_AS_USINT(v));
+    else if (COBJECT_isfloat(v))
+        cstring_cat(s, "%f", COBJECT_AS_FLOAT(v));
+    else if (COBJECT_isdouble(v))
+        cstring_cat(s, "%f", COBJECT_AS_DOUBLE(v));
+    else if (COBJECT_islong(v))
+        cstring_cat(s, "%ld", COBJECT_AS_LONG(v));
+    else if (COBJECT_isulong(v))
+        cstring_cat(s, "%lu", COBJECT_AS_ULONG(v));
+    else if (COBJECT_isllong(v))
+        cstring_cat(s, "%lld", COBJECT_AS_LLONG(v));
+    else if (COBJECT_isullong(v))
+        cstring_cat(s, "%llu", COBJECT_AS_ULLONG(v));
+    else if (COBJECT_isstring(v)) {
+        tmp = COBJECT_AS_STRING(v);
 
         if (tmp != NULL)
             cstring_cat(s, "%s", tmp);
-    } else if (CVALUE_isboolean(v))
-        cstring_cat(s, "%d", CVALUE_AS_BOOLEAN(v));
+    } else if (COBJECT_isboolean(v))
+        cstring_cat(s, "%d", COBJECT_AS_BOOLEAN(v));
 
     return s;
 }
@@ -229,6 +229,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    collections_init();
+
     if (info == true) {
         load_and_show_plugin_info(filename);
         return 0;
@@ -269,6 +271,8 @@ int main(int argc, char **argv)
 
     if (filename != NULL)
         free(filename);
+
+    collections_uninit();
 
     /* This makes valgrind report no memory leaks. */
     cexit();
