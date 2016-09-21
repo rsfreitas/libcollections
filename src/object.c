@@ -405,7 +405,7 @@ int LIBEXPORT cobject_set(cobject_t *object, ...)
     va_start(ap, NULL);
 
     if (o->specs != NULL) {
-        if (cspec_validate(o->specs, o, true, ap) == false)
+        if (cspec_validate(o->specs, o, true, CL_VALIDATE_IGNORED, ap) == false)
             return -1;
     } else
         set_cobject_object(o, ap);
@@ -571,7 +571,7 @@ static int get_object_check(const cobject_t *object, enum cl_type type)
 
     if (o->specs != NULL) {
         if (cspec_validate(o->specs, (cobject_t *)object, false,
-                           0) == false)
+                           CL_VALIDATE_IGNORED, 0) == false)
         {
             cset_errno(CL_INVALID_VALUE);
             return -1;

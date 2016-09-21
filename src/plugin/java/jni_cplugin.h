@@ -38,7 +38,7 @@
 #endif
 
 #ifndef _COLLECTIONS_PLUGIN_H
-# include "../plugin/plugin.h"
+# include "../plugin.h"
 #endif
 
 /* jni_CpluginArguments.c */

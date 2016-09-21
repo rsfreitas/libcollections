@@ -129,6 +129,7 @@ static bool validate_char(const cspec_s *spec, char value,
     cobject_get(spec->max, COBJECT_CHAR, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -197,6 +198,7 @@ static bool validate_uchar(const cspec_s *spec, unsigned char value,
     cobject_get(spec->max, COBJECT_UCHAR, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -265,6 +267,7 @@ static bool validate_int(const cspec_s *spec, int value,
     cobject_get(spec->max, COBJECT_INT, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -333,6 +336,7 @@ static bool validate_uint(const cspec_s *spec, unsigned int value,
     cobject_get(spec->max, COBJECT_UINT, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -401,6 +405,7 @@ static bool validate_sint(const cspec_s *spec, short int value,
     cobject_get(spec->max, COBJECT_SINT, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -469,6 +474,7 @@ static bool validate_usint(const cspec_s *spec,
     cobject_get(spec->max, COBJECT_USINT, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -537,6 +543,7 @@ static bool validate_long(const cspec_s *spec, long value,
     cobject_get(spec->max, COBJECT_LONG, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -605,6 +612,7 @@ static bool validate_ulong(const cspec_s *spec, unsigned long value,
     cobject_get(spec->max, COBJECT_ULONG, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -673,6 +681,7 @@ static bool validate_llong(const cspec_s *spec, long long value,
     cobject_get(spec->max, COBJECT_LLONG, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -741,6 +750,7 @@ static bool validate_ullong(const cspec_s *spec,
     cobject_get(spec->max, COBJECT_ULLONG, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -809,6 +819,7 @@ static bool validate_float(const cspec_s *spec, float value,
     cobject_get(spec->max, COBJECT_FLOAT, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
@@ -877,6 +888,7 @@ static bool validate_double(const cspec_s *spec, double value,
     cobject_get(spec->max, COBJECT_DOUBLE, &max);
 
     switch (validation) {
+        case CL_VALIDATE_IGNORED:
         case CL_VALIDATE_RANGE:
             if ((value >= min) && (value <= max))
                 return true;
