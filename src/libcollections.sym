@@ -167,6 +167,10 @@ LIBCOLLECTIONS_0.1 {
         cspec_create;
         cspec_destroy;
         cspec_validate;
+        cspec_set_min;
+        cspec_set_max;
+        cspec_set_max_length;
+        cspec_set_accessibility;
         cstring_alltrim;
         cstring_at;
         cstring_capitalize;

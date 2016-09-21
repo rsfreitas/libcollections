@@ -65,13 +65,6 @@
 #define CL_PP_NARG(...)                  \
      CL_PP_NARG_(__VA_ARGS__, CL_PP_RSEQ_N())
 
-/** param flags */
-enum cl_param_flags {
-    CL_PRIVATE = (1 << 0),
-    CL_READABLE = (1 << 1),
-    CL_WRITABLE = (1 << 2)
-};
-
 /** types */
 enum cl_type {
     CL_VOID,
