@@ -36,11 +36,6 @@
 
 #define CJSON_IS_REFERENCE              256
 
-/*
- * XXX: We know what we're doing here, that's because we strictly define the
- *      structure members and do not use the macros defined in the cl_typeof.h
- *      file.
- */
 typedef struct cjson_s {
     clist_entry_t       *prev;
     clist_entry_t       *next;
@@ -159,19 +154,39 @@ static int get_string_length(const char *s)
     return l;
 }
 
+/*
+ * Here we skip all lines beginning with a comment char.
+ */
+static const char *skip_comment(const char *s)
+{
+    while (*s == '#') {
+        while (s && *s && (*s != '\n'))
+            s++;
+
+        s = skip_chars(s);
+    }
+
+    return s;
+}
+
 static const char *parse_string(cjson_s *n, const char *s)
 {
-    const char *ptr = s + 1;
+    const char *ptr;
     char *ptr2;
     int len = 0;
     unsigned uc, uc2;
     cstring_t *out;
+
+    /* Ignore comment lines */
+    if (*s == '#')
+        s = skip_chars(skip_comment(s));
 
     if (*s != '\"') {
         cset_errno(CL_PARSE_ERROR);
         return NULL;
     }
 
+    ptr = s + 1;
     len = get_string_length(s);
     out = cstring_create_empty(len + 1);
 
@@ -519,6 +534,10 @@ static const char *parse(cjson_s *n, const char *s)
             n->type = __jvalues[i].type;
             return s + __jvalues[i].vlen;
         }
+
+    /* Ignore comment lines */
+    if (*s == '#')
+        s = skip_chars(skip_comment(s));
 
     switch (*s) {
         case '\"':
