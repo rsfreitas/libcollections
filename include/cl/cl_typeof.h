@@ -55,7 +55,8 @@ enum cl_object {
     CPLUGIN,
     CPLUGIN_ARG,
     CPLUGIN_INFO,
-    CLOG
+    CLOG,
+    CIMAGE
 };
 
 struct cobject_hdr {

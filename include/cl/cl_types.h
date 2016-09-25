@@ -41,6 +41,12 @@
 # include <stdbool.h>
 #endif
 
+#define cl_fourcc(a, b, c, d)           \
+    (((__u32)(a) << 0) |                \
+     ((__u32)(b) << 8) |                \
+     ((__u32)(c) << 16) |               \
+     ((__u32)(d) << 24))
+
 #define CL_PP_RSEQ_N()                  \
     63,62,61,60,                        \
     59,58,57,56,55,54,53,52,51,50,      \
@@ -157,9 +163,12 @@ typedef void                cplugin_info_t;
 /** log type */
 typedef void                clog_t;
 
-/* glist type */
+/** glist type */
 typedef void                clist_t;
 typedef void                clist_node_t;
+
+/** image type */
+typedef void                cimage_t;
 
 #endif
 

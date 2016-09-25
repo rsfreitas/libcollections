@@ -301,6 +301,27 @@ LIBCOLLECTIONS_0.1 {
         clist_contains;
         collections_init;
         collections_uninit;
+        cimage_ref;
+        cimage_unref;
+        cimage_create;
+        cimage_destroy;
+        cimage_fill;
+        cimage_load;
+        cimage_load_from_file;
+        cimage_save;
+        cimage_save_to_file;
+        cimage_dup;
+        cimage_resize;
+        cimage_extract;
+        cimage_raw_export;
+        cimage_raw_import;
+        cimage_cv_export;
+        cimage_cv_import;
+        cimage_size;
+        cimage_width;
+        cimage_height;
+        cimage_type;
+        cimage_format;
     local:
         *;
 };

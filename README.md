@@ -25,4 +25,6 @@ LGPLv2
 * python-enum34 for python extension
 * libmagic
 * Java 1.6 JDK
+* OpenCv 2 (libtiff, libjpeg, libpng)
+* libswscale
 

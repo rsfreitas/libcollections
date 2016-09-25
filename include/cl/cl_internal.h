@@ -87,6 +87,7 @@ void cobject_set_cstring(cobject_t *value, cstring_t *s);
 /* util.c */
 char *value_to_hex(void *p, unsigned int size);
 char *strip_filename(const char *pathname);
+char *file_extension(const char *pathname);
 
 /* plugin.c */
 void dl_library_init(void);

@@ -149,3 +149,18 @@ char *strip_filename(const char *pathname)
     return n;
 }
 
+/*
+ * Returns a file name extension.
+ */
+char *file_extension(const char *pathname)
+{
+    char *ext = NULL;
+
+    ext = strrchr(pathname, '.');
+
+    if (NULL == ext)
+        return NULL;
+
+    return strdup(ext);
+}
+

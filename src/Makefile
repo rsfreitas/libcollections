@@ -25,7 +25,8 @@ INCLUDEDIR += -I/usr/lib/jvm/default-java/include
 LIBDIR = -L/usr/local/lib
 LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/i386/server/
 
-LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm
+OPENCV_LIBS = /usr/lib/libopencv_highgui.a
+LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm $(OPENCV_LIBS)
 
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
@@ -47,7 +48,7 @@ JNI_OBJS =		\
 	jni_CpluginType.o
 
 PLUGIN_OBJS =	\
-	api_parser.o	\
+	api_parser.o		\
 	call.o			\
 	dl.o			\
 	dl_c.o			\
@@ -59,8 +60,8 @@ PLUGIN_OBJS =	\
 	$(JNI_OBJS)
 
 OBJS =	\
-	$(CHAT_OBJS)	\
-	$(PLUGIN_OBJS)	\
+	$(CHAT_OBJS)		\
+	$(PLUGIN_OBJS)		\
 	cfg.o			\
 	chat.o			\
 	counter.o		\
@@ -70,6 +71,7 @@ OBJS =	\
 	event.o			\
 	file.o			\
 	glist.o			\
+	image.o			\
 	init.o			\
 	io.o			\
 	json.o			\
