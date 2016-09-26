@@ -1073,71 +1073,33 @@ static unsigned char *convert_raw_image(cimage_s *image,
     return b;
 }
 
+/*
+ * Convert an image format using OpenCv. We need to receive the @out_extension
+ * with the format: .extension, i.e, for a JPG image .jpg, for a PNG .png, etc.
+ */
+static unsigned char *cv_cvt_image_type(cimage_s *image,
+    const char *out_extension, unsigned int *bsize)
+{
+    IplImage *d = NULL;
+    CvMat *mat;
+    unsigned char *b = NULL;
+    int color = 0;
+
+    if (image->format != CIMAGE_FMT_GRAY)
+        color = 1;
+
+    mat = cvEncodeImage(out_extension, image->image, 0);
+    d = cvDecodeImage(mat, color);
+    b = (unsigned char *)d->imageData;
+    *bsize = d->imageSize;
+    cvReleaseImageHeader(&d);
+
+    return b;
+}
+
 static unsigned char *jpg_to_raw(cimage_s *image, unsigned int *bsize)
 {
     return NULL;
-}
-
-static unsigned char *jpg_to_bmp(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg_to_png(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg_to_jpg2k(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg_to_tiff(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg_to_ppm(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *convert_jpg_image(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (type) {
-        case CIMAGE_RAW:
-            b = jpg_to_raw(image, bsize);
-            break;
-
-        case CIMAGE_BMP:
-            b = jpg_to_bmp(image, bsize);
-            break;
-
-        case CIMAGE_PNG:
-            b = jpg_to_png(image, bsize);
-            break;
-
-        case CIMAGE_JPG2K:
-            b = jpg_to_jpg2k(image, bsize);
-            break;
-
-        case CIMAGE_TIFF:
-            b = jpg_to_tiff(image, bsize);
-            break;
-
-        case CIMAGE_PPM:
-            b = jpg_to_ppm(image, bsize);
-            break;
-
-        default:
-            break;
-    }
-
-    return b;
 }
 
 static unsigned char *bmp_to_raw(cimage_s *image, unsigned int *bsize)
@@ -1145,133 +1107,9 @@ static unsigned char *bmp_to_raw(cimage_s *image, unsigned int *bsize)
     return NULL;
 }
 
-static unsigned char *bmp_to_jpg(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *bmp_to_png(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *bmp_to_bmp2k(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *bmp_to_tiff(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *bmp_to_ppm(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *convert_bmp_image(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (type) {
-        case CIMAGE_RAW:
-            b = bmp_to_raw(image, bsize);
-            break;
-
-        case CIMAGE_JPG:
-            b = bmp_to_jpg(image, bsize);
-            break;
-
-        case CIMAGE_PNG:
-            b = bmp_to_png(image, bsize);
-            break;
-
-        case CIMAGE_JPG2K:
-            b = bmp_to_bmp2k(image, bsize);
-            break;
-
-        case CIMAGE_TIFF:
-            b = bmp_to_tiff(image, bsize);
-            break;
-
-        case CIMAGE_PPM:
-            b = bmp_to_ppm(image, bsize);
-            break;
-
-        default:
-            break;
-    }
-
-    return b;
-}
-
 static unsigned char *png_to_raw(cimage_s *image, unsigned int *bsize)
 {
     return NULL;
-}
-
-static unsigned char *png_to_jpg(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *png_to_bmp(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *png_to_png2k(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *png_to_tiff(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *png_to_ppm(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *convert_png_image(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (type) {
-        case CIMAGE_RAW:
-            b = png_to_raw(image, bsize);
-            break;
-
-        case CIMAGE_JPG:
-            b = png_to_jpg(image, bsize);
-            break;
-
-        case CIMAGE_BMP:
-            b = png_to_bmp(image, bsize);
-            break;
-
-        case CIMAGE_JPG2K:
-            b = png_to_png2k(image, bsize);
-            break;
-
-        case CIMAGE_TIFF:
-            b = png_to_tiff(image, bsize);
-            break;
-
-        case CIMAGE_PPM:
-            b = png_to_ppm(image, bsize);
-            break;
-
-        default:
-            break;
-    }
-
-    return b;
 }
 
 static unsigned char *jpg2k_to_raw(cimage_s *image, unsigned int *bsize)
@@ -1279,133 +1117,9 @@ static unsigned char *jpg2k_to_raw(cimage_s *image, unsigned int *bsize)
     return NULL;
 }
 
-static unsigned char *jpg2k_to_jpg(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg2k_to_bmp(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg2k_to_png(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg2k_to_tiff(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *jpg2k_to_ppm(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *convert_jpg2k_image(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (type) {
-        case CIMAGE_RAW:
-            b = jpg2k_to_raw(image, bsize);
-            break;
-
-        case CIMAGE_JPG:
-            b = jpg2k_to_jpg(image, bsize);
-            break;
-
-        case CIMAGE_BMP:
-            b = jpg2k_to_bmp(image, bsize);
-            break;
-
-        case CIMAGE_PNG:
-            b = jpg2k_to_png(image, bsize);
-            break;
-
-        case CIMAGE_TIFF:
-            b = jpg2k_to_tiff(image, bsize);
-            break;
-
-        case CIMAGE_PPM:
-            b = jpg2k_to_ppm(image, bsize);
-            break;
-
-        default:
-            break;
-    }
-
-    return b;
-}
-
 static unsigned char *tiff_to_raw(cimage_s *image, unsigned int *bsize)
 {
     return NULL;
-}
-
-static unsigned char *tiff_to_jpg(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *tiff_to_bmp(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *tiff_to_png(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *tiff_to_jpg2k(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *tiff_to_ppm(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *convert_tiff_image(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (type) {
-        case CIMAGE_RAW:
-            b = tiff_to_raw(image, bsize);
-            break;
-
-        case CIMAGE_JPG:
-            b = tiff_to_jpg(image, bsize);
-            break;
-
-        case CIMAGE_BMP:
-            b = tiff_to_bmp(image, bsize);
-            break;
-
-        case CIMAGE_PNG:
-            b = tiff_to_png(image, bsize);
-            break;
-
-        case CIMAGE_JPG2K:
-            b = tiff_to_jpg2k(image, bsize);
-            break;
-
-        case CIMAGE_PPM:
-            b = tiff_to_ppm(image, bsize);
-            break;
-
-        default:
-            break;
-    }
-
-    return b;
 }
 
 static unsigned char *ppm_to_raw(cimage_s *image, unsigned int *bsize)
@@ -1413,59 +1127,33 @@ static unsigned char *ppm_to_raw(cimage_s *image, unsigned int *bsize)
     return NULL;
 }
 
-static unsigned char *ppm_to_jpg(cimage_s *image, unsigned int *bsize)
+static unsigned char *convert_image_to_raw(cimage_s *image, unsigned int *bsize)
 {
-    return NULL;
-}
+    unsigned char *b = NULL;
 
-static unsigned char *ppm_to_bmp(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *ppm_to_png(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *ppm_to_jpg2k(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *ppm_to_tiff(cimage_s *image, unsigned int *bsize)
-{
-    return NULL;
-}
-
-static unsigned char *convert_ppm_image(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (type) {
-        case CIMAGE_RAW:
-            b = ppm_to_raw(image, bsize);
-            break;
-
+    switch (image->type) {
         case CIMAGE_JPG:
-            b = ppm_to_jpg(image, bsize);
+            b = jpg_to_raw(image, bsize);
             break;
 
         case CIMAGE_BMP:
-            b = ppm_to_bmp(image, bsize);
+            b = bmp_to_raw(image, bsize);
             break;
 
         case CIMAGE_PNG:
-            b = ppm_to_png(image, bsize);
+            b = png_to_raw(image, bsize);
             break;
 
         case CIMAGE_JPG2K:
-            b = ppm_to_jpg2k(image, bsize);
+            b = jpg2k_to_raw(image, bsize);
             break;
 
         case CIMAGE_TIFF:
-            b = ppm_to_tiff(image, bsize);
+            b = tiff_to_raw(image, bsize);
+            break;
+
+        case CIMAGE_PPM:
+            b = ppm_to_raw(image, bsize);
             break;
 
         default:
@@ -1479,6 +1167,7 @@ static unsigned char *convert_image_formats(cimage_s *image,
     enum cimage_type type, unsigned int *bsize)
 {
     unsigned char *buffer = NULL;
+    char *ext, *cv_ext = NULL;
 
     /* Don't need to convert the image */
     if (type == image->type) {
@@ -1486,34 +1175,26 @@ static unsigned char *convert_image_formats(cimage_s *image,
         return (unsigned char *)image->image->imageData;
     }
 
-    switch (image->type) {
-        case CIMAGE_RAW:
-            buffer = convert_raw_image(image, type, bsize);
-            break;
-
-        case CIMAGE_JPG:
-            buffer = convert_jpg_image(image, type, bsize);
-            break;
-
-        case CIMAGE_BMP:
-            buffer = convert_bmp_image(image, type, bsize);
-            break;
-
-        case CIMAGE_PNG:
-            buffer = convert_png_image(image, type, bsize);
-            break;
-
-        case CIMAGE_JPG2K:
-            buffer = convert_jpg2k_image(image, type, bsize);
-            break;
-
-        case CIMAGE_TIFF:
-            buffer = convert_tiff_image(image, type, bsize);
-            break;
-
-        case CIMAGE_PPM:
-            buffer = convert_ppm_image(image, type, bsize);
-            break;
+    /*
+     * If we're holding a RAW image is a special case, and we need to manually
+     * convert to the required format.
+     */
+    if (image->type == CIMAGE_RAW) {
+        buffer = convert_raw_image(image, type, bsize);
+    } else {
+        /*
+         * If the desired output is also a RAW image and we have another one
+         * we're going to need to convert it.
+         */
+        if (type == CIMAGE_RAW)
+            buffer = convert_image_to_raw(image, bsize);
+        else {
+            ext = cimage_type_to_extension(type);
+            asprintf(&cv_ext, ".%s", ext);
+            buffer = cv_cvt_image_type(image, cv_ext, bsize);
+            free(cv_ext);
+            free(ext);
+        }
     }
 
     return buffer;
