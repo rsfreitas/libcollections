@@ -1007,7 +1007,7 @@ int LIBEXPORT cstring_to_int(const cstring_t *string)
     errno = 0;
     v = strtol(p->str, &endptr, 10);
 
-    if ((errno == ERANGE) && ((v == LONG_MAX) || (v == LONG_MIN))) {
+    if ((errno == ERANGE) && ((v == INT_MAX) || (v == INT_MIN))) {
         cstring_unref(p);
         cset_errno(CL_NUMBER_RANGE);
         return -1;

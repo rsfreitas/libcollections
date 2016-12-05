@@ -3,10 +3,23 @@
     uninstall
 
 CC = gcc
+GCCVERSION = 4
+ARCH_TEST := $(shell uname -m)
+GCCVERSION_TEST := $(shell expr `gcc -dumpversion | cut -f1 -d.` \>= 4)
 
-MAJOR_VERSION = $(shell grep MAJOR_VERSION ../include/collections.h | awk '{print $$4}')
-MINOR_VERSION = $(shell grep MINOR_VERSION ../include/collections.h | awk '{print $$4}')
-BUILD = $(shell grep BUILD ../include/collections.h | awk '{print $$4}')
+ifeq ($(ARCH_TEST), x86_64)
+    ARCH = amd64
+else
+    ARCH = i386
+endif
+
+ifeq ($(GCCVERSION_TEST), 1)
+    GCCVERSION = 5
+endif
+
+MAJOR_VERSION := $(shell grep MAJOR_VERSION ../include/collections.h | awk '{print $$4}')
+MINOR_VERSION := $(shell grep MINOR_VERSION ../include/collections.h | awk '{print $$4}')
+BUILD := $(shell grep BUILD ../include/collections.h | awk '{print $$4}')
 
 USR_DIR = /usr/local/lib
 PREFIX = libcollections
@@ -21,15 +34,25 @@ TARGET_DEST = $(TARGET_DIR)/$(DEST_LIBNAME)
 INCLUDEDIR = -I../include
 INCLUDEDIR += -I/usr/include/python2.7
 INCLUDEDIR += -I/usr/lib/jvm/default-java/include
+INCLUDEDIR += -I/usr/lib/jvm/default-java/include/linux
 
 LIBDIR = -L/usr/local/lib
-LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/i386/server/
+LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/$(ARCH)/server/
 
-OPENCV_LIBS = /usr/lib/libopencv_highgui.a
+ifeq ($(ARCH), i386)
+    OPENCV_LIBS = /usr/lib/libopencv_highgui.a
+else
+    OPENCV_LIBS = -lopencv_highgui
+endif
+
 LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm $(OPENCV_LIBS)
 
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
+
+ifeq ($(GCCVERSION), 5)
+    CFLAGS += -fgnu89-inline
+endif
 
 CHAT_PATH = ./chat
 PLUGIN_PATH = ./plugin
