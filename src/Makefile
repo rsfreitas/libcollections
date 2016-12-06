@@ -45,10 +45,20 @@ LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/$(ARCH)/server/
 #    OPENCV_LIBS = -lopencv_highgui
 #endif
 
-LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm $(OPENCV_LIBS)
+PYTHON_LIBS = -lpython2.7
+#JAVA_LIBS = -ljvm
+PLUGIN_LIBS = $(PYTHON_LIBS) $(JAVA_LIBS)
 
+LIBS = -lpthread -lm -lrt -ldl -lmagic $(PLUGIN_LIBS) $(OPENCV_LIBS)
+
+# TODO: Fix here
+PLUGIN_C = -DPLUGIN_C
+#PLUGIN_PYTHON = -DPLUGIN_PYTHON
+#PLUGIN_JAVA = -DPLUGIN_JAVA
+
+PLUGINS = $(PLUGIN_C) $(PLUGIN_PYTHON) $(PLUGIN_JAVA)
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
-		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
+		 -D_GNU_SOURCE -DLINUX $(PLUGINS) $(INCLUDEDIR)
 
 ifeq ($(GCCVERSION), 5)
     CFLAGS += -fgnu89-inline
@@ -65,18 +75,20 @@ CHAT_OBJS =	\
 	ipc_tcp.o			\
 	ipc_udp.o
 
-JNI_OBJS =		\
+# TODO: Fix here
+#JNI_OBJS =		\
 	jni_CpluginArguments.o		\
 	jni_CpluginObject.o		\
 	jni_CpluginType.o
+
+#	dl_python.o		\
+#	dl_java.o		\
 
 PLUGIN_OBJS =	\
 	api_parser.o		\
 	call.o			\
 	dl.o			\
 	dl_c.o			\
-	dl_python.o		\
-	dl_java.o		\
 	info.o			\
 	pl_misc.o		\
 	rv.o			\

@@ -38,10 +38,21 @@
 #include "collections.h"
 
 struct glist_node_s {
-    clist_entry_t   *prev;
-    clist_entry_t   *next;
-    void            *p;
+    clist_entry_t       *prev;
+    clist_entry_t       *next;
+    struct cobject_hdr  hdr;
+    void                *content;
+    struct ref_s        ref;
+
+    /*
+     * We save the pointer to the node free function here so we don't need
+     * the list when release one.
+     */
+    void                (*free_data)(void *);
 };
+
+#define CLIST_NODE_OFFSET           \
+    (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
 
 #define clist_members                                                       \
     cl_struct_member(struct glist_node_s *, list)                           \
@@ -84,7 +95,7 @@ static bool is_list_of_cobjects(clist_s *list)
     if (NULL == node)
         return false;
 
-    return validate_object(node->p, COBJECT);
+    return validate_object(node->content, COBJECT);
 }
 
 /*
@@ -95,8 +106,8 @@ static int compare_cobjects(void *a, void *b)
 {
     struct glist_node_s *node_a = (struct glist_node_s *)a;
     struct glist_node_s *node_b = (struct glist_node_s *)b;
-    cobject_t *ob1 = (cobject_t *)node_a->p;
-    cobject_t *ob2 = (cobject_t *)node_b->p;
+    cobject_t *ob1 = (cobject_t *)node_a->content;
+    cobject_t *ob2 = (cobject_t *)node_b->content;
 
     return cobject_compare_to(ob1, ob2);
 }
@@ -109,30 +120,54 @@ static int cobjects_are_equal(void *a, void *b)
 {
     struct glist_node_s *node_a = (struct glist_node_s *)a;
     struct glist_node_s *node_b = (struct glist_node_s *)b;
-    cobject_t *ob1 = (cobject_t *)node_a->p;
-    cobject_t *ob2 = (cobject_t *)node_b->p;
+    cobject_t *ob1 = (cobject_t *)node_a->content;
+    cobject_t *ob2 = (cobject_t *)node_b->content;
 
     return cobject_equals(ob1, ob2);
 }
 
 /*
- * Releases a struct glist_node_s from memory without releasing its content,
- * so we can still use it somewhere.
+ * Releases a struct glist_node_s from memory. Its content will also be released
+ * if @free_content is true. In this case the function checks which _free_
+ * function will be used according the type of a node content.
  */
-static void release_node(void *p)
+static void destroy_node(struct glist_node_s *node, bool free_content)
 {
-    struct glist_node_s *node = (struct glist_node_s *)p;
-
-    if (NULL == p)
+    if (NULL == node)
         return;
+
+    if (free_content == true) {
+        if (node->free_data != NULL)
+            (node->free_data)(node->content);
+        else {
+            /*
+             * If we're holding cobject_t pointers we know how to destroy them.
+             */
+            if (validate_object(node->content, COBJECT) == true)
+                cobject_destroy(node->content);
+            else
+                free(node->content);
+        }
+    }
 
     free(node);
 }
 
 /*
+ * The function to release a node called when a reference count from them drops
+ * to 0.
+ */
+static void __destroy_node(const struct ref_s *ref)
+{
+    struct glist_node_s *node = container_of(ref, struct glist_node_s, ref);
+
+    destroy_node(node, true);
+}
+
+/*
  * Creates a new struct glist_node_s with @content inside.
  */
-static struct glist_node_s *new_node(void *content)
+static struct glist_node_s *new_node(void *content, clist_s *list)
 {
     struct glist_node_s *n = NULL;
 
@@ -143,33 +178,14 @@ static struct glist_node_s *new_node(void *content)
         return NULL;
     }
 
-    n->p = content;
+    n->content = content;
+    n->free_data = list->free_data;
+    n->ref.free = __destroy_node;
+    n->ref.count = 1;
+
+    set_typeof_with_offset(CLIST_NODE, n, CLIST_NODE_OFFSET);
 
     return n;
-}
-
-/*
- * Destroy a struct glist_node_s from memory. The function checks which _free_
- * function will be used according the type of a node content.
- */
-static int destroy_node(void *a, void *b)
-{
-    struct glist_node_s *node = (struct glist_node_s *)a;
-    clist_s *list = (clist_s *)b;
-
-    if (list->free_data != NULL)
-        (list->free_data)(node->p);
-    else {
-        /*
-         * If we're holding cobject_t pointers we know how to destroy them.
-         */
-        if (validate_object(node->p, COBJECT) == true)
-            cobject_destroy(node->p);
-        else
-            free(node->p);
-    }
-
-    return 0;
 }
 
 /*
@@ -184,10 +200,8 @@ static void destroy_list(const struct ref_s *ref)
     if (NULL == list)
         return;
 
-    while ((p = cdll_pop(&list->list)) != NULL) {
-        destroy_node(p, list);
-        release_node(p);
-    }
+    while ((p = cdll_pop(&list->list)) != NULL)
+        clist_node_unref(p);
 
     pthread_mutex_destroy(&list->lock);
     free(list);
@@ -215,6 +229,26 @@ static clist_s *new_clist(void)
     l->ref.count = 1;
 
     return l;
+}
+
+clist_node_t LIBEXPORT *clist_node_ref(clist_node_t *node)
+{
+    struct glist_node_s *n = (struct glist_node_s *)node;
+
+    __clib_function_init_ex__(true, node, CLIST_NODE, CLIST_NODE_OFFSET, NULL);
+    ref_inc(&n->ref);
+
+    return node;
+}
+
+int LIBEXPORT clist_node_unref(clist_node_t *node)
+{
+    struct glist_node_s *n = (struct glist_node_s *)node;
+
+    __clib_function_init_ex__(true, node, CLIST_NODE, CLIST_NODE_OFFSET, -1);
+    ref_dec(&n->ref);
+
+    return 0;
 }
 
 clist_t LIBEXPORT *clist_ref(clist_t *list)
@@ -285,7 +319,7 @@ int LIBEXPORT clist_push(clist_t *list, void *node_content)
     struct glist_node_s *node = NULL;
 
     __clib_function_init__(true, list, CLIST, -1);
-    node = new_node(node_content);
+    node = new_node(node_content, l);
 
     if (NULL == node)
         return -1;
@@ -317,8 +351,8 @@ void LIBEXPORT *clist_pop(clist_t *list)
     if (NULL == node)
         return NULL;
 
-    p = node->p;
-    release_node(node);
+    p = node->content;
+    destroy_node(node, false);
 
     /* Warning, the user is responsible for releasing @p */
     return (is_list_of_cobjects(l) == true) ? cobject_ref(p) : p;
@@ -328,7 +362,7 @@ void LIBEXPORT *clist_shift(clist_t *list)
 {
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
-    void *p = NULL;
+    void *content = NULL;
 
     __clib_function_init__(true, list, CLIST, NULL);
 
@@ -343,11 +377,12 @@ void LIBEXPORT *clist_shift(clist_t *list)
     if (NULL == node)
         return NULL;
 
-    p = node->p;
-    release_node(node);
+    /* We save the node content to return it soon. */
+    content = node->content;
+    destroy_node(node, false);
 
     /* Warning, the user is responsible for releasing @p */
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(p) : p;
+    return (is_list_of_cobjects(l) == true) ? cobject_ref(content) : content;
 }
 
 int LIBEXPORT clist_unshift(clist_t *list, void *node_content)
@@ -356,7 +391,7 @@ int LIBEXPORT clist_unshift(clist_t *list, void *node_content)
     struct glist_node_s *node = NULL;
 
     __clib_function_init__(true, list, CLIST, -1);
-    node = new_node(node_content);
+    node = new_node(node_content, l);
 
     if (NULL == node)
         return -1;
@@ -387,7 +422,8 @@ void LIBEXPORT *clist_map(const clist_t *list,
     if (NULL == node)
         return NULL;
 
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->p) : node->p;
+    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->content)
+                                            : node->content;
 }
 
 void LIBEXPORT *clist_map_indexed(const clist_t *list,
@@ -408,7 +444,8 @@ void LIBEXPORT *clist_map_indexed(const clist_t *list,
     if (NULL == node)
         return NULL;
 
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->p) : node->p;
+    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->content)
+                                            : node->content;
 }
 
 void LIBEXPORT *clist_map_reverse(const clist_t *list,
@@ -429,7 +466,8 @@ void LIBEXPORT *clist_map_reverse(const clist_t *list,
     if (NULL == node)
         return NULL;
 
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->p) : node->p;
+    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->content)
+                                            : node->content;
 }
 
 void LIBEXPORT *clist_map_reverse_indexed(const clist_t *list,
@@ -450,7 +488,8 @@ void LIBEXPORT *clist_map_reverse_indexed(const clist_t *list,
     if (NULL == node)
         return NULL;
 
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->p) : node->p;
+    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->content)
+                                            : node->content;
 }
 
 void LIBEXPORT *clist_at(const clist_t *list, unsigned int index)
@@ -464,7 +503,8 @@ void LIBEXPORT *clist_at(const clist_t *list, unsigned int index)
     if (NULL == node)
         return NULL;
 
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->p) : node->p;
+    return (is_list_of_cobjects(l) == true) ? cobject_ref(node->content)
+                                            : node->content;
 }
 
 /* TODO: Maybe return the number of deleted elements */
@@ -483,8 +523,13 @@ int LIBEXPORT clist_delete(clist_t *list, void *data)
     pthread_mutex_lock(&l->lock);
     node = cdll_delete(l->list, l->filter, data, NULL);
 
-    if (node)
-        destroy_node(list, node);
+    if (node) {
+        /*
+         * Since the node is removed from the list we need to really remove it
+         * from the memory.
+         */
+        destroy_node(node, true);
+    }
 
     pthread_mutex_unlock(&l->lock);
 
@@ -501,8 +546,13 @@ int LIBEXPORT clist_delete_indexed(clist_t *list, unsigned int index)
     pthread_mutex_lock(&l->lock);
     node = cdll_delete_indexed(l->list, index, NULL);
 
-    if (node)
-        destroy_node(list, node);
+    if (node) {
+        /*
+         * Since the node is removed from the list we need to really remove it
+         * from the memory.
+         */
+        destroy_node(node, true);
+    }
 
     pthread_mutex_unlock(&l->lock);
 
@@ -575,7 +625,7 @@ void LIBEXPORT *clist_node_content(const clist_node_t *node)
         return NULL;
     }
 
-    return n->p;
+    return n->content;
 }
 
 int LIBEXPORT clist_sort(clist_t *list)
@@ -616,7 +666,7 @@ static int get_indexof(const clist_t *list, void *object, bool last_index)
         return -1;
     }
 
-    node = new_node(object);
+    node = new_node(object, l);
 
     if (NULL == node)
         return -1;
@@ -630,7 +680,7 @@ static int get_indexof(const clist_t *list, void *object, bool last_index)
                                 (list_cobjects == true) ? cobjects_are_equal
                                                         : l->equals);
 
-    release_node(node);
+    destroy_node(node, false);
 
     return idx;
 }
@@ -660,7 +710,7 @@ bool LIBEXPORT clist_contains(const clist_t *list, void *object)
         return -1;
     }
 
-    node = new_node(object);
+    node = new_node(object, l);
 
     if (NULL == node)
         return -1;
@@ -669,7 +719,7 @@ bool LIBEXPORT clist_contains(const clist_t *list, void *object)
                        (list_cobjects == true) ? cobjects_are_equal
                                                : l->equals);
 
-    release_node(node);
+    destroy_node(node, false);
 
     return st;
 }

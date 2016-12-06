@@ -48,6 +48,30 @@
 void *clist_node_content(const clist_node_t *node);
 
 /**
+ * @name clist_node_ref
+ * @brief Increases the reference count for a clist_node_t item.
+ *
+ * @param [in,out] node: The clist_node_t item.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+clist_node_t *clist_node_ref(clist_node_t *node);
+
+/**
+ * @name clist_node_unref
+ * @brief Decreases the reference count for a clist_node_t item.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] node: The clist_node_t item.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int clist_node_unref(clist_node_t *node);
+
+/**
  * @name clist_ref
  * @brief Increases the reference count for a clist_t item.
  *

@@ -51,6 +51,7 @@ static struct dl_plugin_driver __dl_driver[] = {
         .enabled            = false,
     },
 
+#ifdef PLUGIN_C
     {
         .type               = CPLUGIN_C,
         .enabled            = true,
@@ -65,10 +66,12 @@ static struct dl_plugin_driver __dl_driver[] = {
         .plugin_shutdown    = c_plugin_shutdown,
         .data               = NULL,
     },
+#endif
 
+#ifdef PLUGIN_PYTHON
     {
         .type               = CPLUGIN_PYTHON,
-        .enabled            = true,
+        .enabled            = false,
         .library_init       = py_library_init,
         .library_uninit     = py_library_uninit,
         .load_info          = py_load_info,
@@ -80,15 +83,16 @@ static struct dl_plugin_driver __dl_driver[] = {
         .plugin_shutdown    = py_plugin_shutdown,
         .data               = NULL,
     },
+#endif
 
 /*
  * Does not need to compile this with the python version from the library,
  * since we don't want another library dependency (libjvm).
  */
-#ifndef LIB_PYTHON
+#ifdef PLUGIN_JAVA
     {
         .type               = CPLUGIN_JAVA,
-        .enabled            = true,
+        .enabled            = false,
         .library_init       = jni_library_init,
         .library_uninit     = jni_library_uninit,
         .load_info          = jni_load_info,
@@ -120,8 +124,14 @@ void dl_enable_plugin_types(enum cplugin_type types)
 
 bool dl_is_plugin_enabled(enum cplugin_type type)
 {
-    if (__dl_driver[type].enabled == true)
-        return true;
+    int index = 0, value = type;
+
+    while (value >>= 1)
+        index++;
+
+    if ((unsigned int)index < NDRIVERS)
+        if (__dl_driver[index].enabled == true)
+            return true;
 
     return false;
 }
