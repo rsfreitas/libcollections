@@ -78,10 +78,7 @@ static void destroy_spec_s(cspec_s *spec)
 cspec_t LIBEXPORT *cspec_create(enum cl_spec_attrib properties,
     cobject_t *min, cobject_t *max, unsigned int max_length)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if ((validate_object(min, COBJECT) == false) ||
         (validate_object(max, COBJECT) == false))
@@ -94,14 +91,7 @@ cspec_t LIBEXPORT *cspec_create(enum cl_spec_attrib properties,
 
 int LIBEXPORT cspec_destroy(cspec_t *spec)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(spec, CSPEC) == false)
-        return -1;
-
+    __clib_function_init__(true, spec, CSPEC, -1);
     destroy_spec_s(spec);
 
     return 0;
@@ -1156,10 +1146,7 @@ bool LIBEXPORT cspec_validate(const cspec_t *spec, cobject_t *value,
     cobject_t *ref;
     bool ret;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
+    __clib_function_init__(false, NULL, -1, false);
 
     if ((validate_object(spec, CSPEC) == false) ||
         (validate_object(value, COBJECT) == false))
@@ -1191,10 +1178,7 @@ int LIBEXPORT cspec_set_min(cspec_t *spec, cobject_t *min)
 {
     cspec_s *s = (cspec_s *)spec;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object(spec, CSPEC) == false) ||
         (validate_object(min, COBJECT) == false))
@@ -1212,10 +1196,7 @@ int LIBEXPORT cspec_set_max(cspec_t *spec, cobject_t *max)
 {
     cspec_s *s = (cspec_s *)spec;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object(spec, CSPEC) == false) ||
         (validate_object(max, COBJECT) == false))
@@ -1233,14 +1214,7 @@ int LIBEXPORT cspec_set_max_length(cspec_t *spec, unsigned int max_length)
 {
     cspec_s *s = (cspec_s *)spec;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(spec, CSPEC) == false)
-        return -1;
-
+    __clib_function_init__(true, spec, CSPEC, -1);
     s->max_length = max_length;
 
     return 0;
@@ -1250,14 +1224,7 @@ int LIBEXPORT cspec_set_accessibility(cspec_t *spec, enum cl_spec_attrib attrib)
 {
     cspec_s *s = (cspec_s *)spec;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(spec, CSPEC) == false)
-        return -1;
-
+    __clib_function_init__(true, spec, CSPEC, -1);
     s->properties = attrib;
 
     return 0;

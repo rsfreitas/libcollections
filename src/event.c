@@ -369,10 +369,7 @@ cevent_t LIBEXPORT *cevent_init(enum event_execution exec, const char *name,
 {
     cevent_s *ev = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (validate_execution_type(exec) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
@@ -408,13 +405,7 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
     cevent_s *ev = (cevent_s *)e;
     struct event_condition_s *c = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(e, CEVENT) == false)
-        return -1;
+    __clib_function_init__(true, e, CEVENT, -1);
 
     if (NULL == ptr) {
         cset_errno(CL_NULL_ARG);
@@ -491,13 +482,7 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
     struct event_condition_s *evc = NULL, *list = NULL;
     unsigned int *p_id = &cond_id;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(e, CEVENT) == false)
-        return -1;
+    __clib_function_init__(true, e, CEVENT, -1);
 
     if (validate_comparison_type(cmp_type) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
@@ -530,13 +515,7 @@ int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
     pthread_attr_t t_attr;
     int detachstate = PTHREAD_CREATE_JOINABLE;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(e, CEVENT) == false)
-        return -1;
+    __clib_function_init__(true, e, CEVENT, -1);
 
     /* Checks if the conditions were correctly inserted. */
     if (validate_conditions(ev) == false) {
@@ -575,13 +554,7 @@ int LIBEXPORT cevent_uninstall(cevent_t *e)
 {
     cevent_s *ev = (cevent_s *)e;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(e, CEVENT) == false)
-        return -1;
+    __clib_function_init__(true, e, CEVENT, -1);
 
     if (ev->exec_type == EVENT_EXEC_UNLIMITED) {
         ev->end_thread = true;

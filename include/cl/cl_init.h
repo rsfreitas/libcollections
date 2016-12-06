@@ -29,7 +29,7 @@
 
 #ifndef LIBCOLLECTIONS_COMPILE
 # ifndef _COLLECTIONS_H
-#  error "Never use <cl_cfg.h> directly; include <collections.h> instead."
+#  error "Never use <cl_init.h> directly; include <collections.h> instead."
 # endif
 #endif
 

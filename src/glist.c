@@ -221,14 +221,7 @@ clist_t LIBEXPORT *clist_ref(clist_t *list)
 {
     clist_s *l = (clist_s *)list;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
-
+    __clib_function_init__(true, list, CLIST, NULL);
     ref_inc(&l->ref);
 
     return list;
@@ -238,14 +231,7 @@ int LIBEXPORT clist_unref(clist_t *list)
 {
     clist_s *l = (clist_s *)list;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
-
+    __clib_function_init__(true, list, CLIST, -1);
     ref_dec(&l->ref);
 
     return 0;
@@ -258,11 +244,7 @@ clist_t LIBEXPORT *clist_create(void (*free_data)(void *),
 {
     clist_s *l = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     l = new_clist();
 
     if (NULL == l)
@@ -292,13 +274,7 @@ int LIBEXPORT clist_size(const clist_t *list)
 {
     clist_s *l = (clist_s *)list;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
+    __clib_function_init__(true, list, CLIST, -1);
 
     return l->size;
 }
@@ -308,14 +284,7 @@ int LIBEXPORT clist_push(clist_t *list, void *node_content)
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
-
+    __clib_function_init__(true, list, CLIST, -1);
     node = new_node(node_content);
 
     if (NULL == node)
@@ -335,13 +304,7 @@ void LIBEXPORT *clist_pop(clist_t *list)
     struct glist_node_s *node = NULL;
     void *p = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
+    __clib_function_init__(true, list, CLIST, NULL);
 
     pthread_mutex_lock(&l->lock);
     node = cdll_pop(&l->list);
@@ -367,13 +330,7 @@ void LIBEXPORT *clist_shift(clist_t *list)
     struct glist_node_s *node = NULL;
     void *p = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
+    __clib_function_init__(true, list, CLIST, NULL);
 
     pthread_mutex_lock(&l->lock);
     node = cdll_shift(&l->list);
@@ -398,14 +355,7 @@ int LIBEXPORT clist_unshift(clist_t *list, void *node_content)
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
-
+    __clib_function_init__(true, list, CLIST, -1);
     node = new_node(node_content);
 
     if (NULL == node)
@@ -425,13 +375,7 @@ void LIBEXPORT *clist_map(const clist_t *list,
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
+    __clib_function_init__(true, list, CLIST, NULL);
 
     if (NULL == foo) {
         cset_errno(CL_NULL_DATA);
@@ -452,13 +396,7 @@ void LIBEXPORT *clist_map_indexed(const clist_t *list,
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
+    __clib_function_init__(true, list, CLIST, NULL);
 
     if (NULL == foo) {
         cset_errno(CL_NULL_DATA);
@@ -479,13 +417,7 @@ void LIBEXPORT *clist_map_reverse(const clist_t *list,
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
+    __clib_function_init__(true, list, CLIST, NULL);
 
     if (NULL == foo) {
         cset_errno(CL_NULL_DATA);
@@ -506,13 +438,7 @@ void LIBEXPORT *clist_map_reverse_indexed(const clist_t *list,
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
+    __clib_function_init__(true, list, CLIST, NULL);
 
     if (NULL == foo) {
         cset_errno(CL_NULL_DATA);
@@ -532,14 +458,7 @@ void LIBEXPORT *clist_at(const clist_t *list, unsigned int index)
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
-
+    __clib_function_init__(true, list, CLIST, NULL);
     node = cdll_at(l->list, index);
 
     if (NULL == node)
@@ -548,19 +467,13 @@ void LIBEXPORT *clist_at(const clist_t *list, unsigned int index)
     return (is_list_of_cobjects(l) == true) ? cobject_ref(node->p) : node->p;
 }
 
-/* TODO: Maybe return the number of extracted elements */
+/* TODO: Maybe return the number of deleted elements */
 int LIBEXPORT clist_delete(clist_t *list, void *data)
 {
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
+    __clib_function_init__(true, list, CLIST, -1);
 
     if (NULL == l->filter) {
         cset_errno(CL_NULL_DATA);
@@ -583,10 +496,7 @@ int LIBEXPORT clist_delete_indexed(clist_t *list, unsigned int index)
     clist_s *l = (clist_s *)list;
     struct glist_node_s *node = NULL;
 
-    cerrno_clear();
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
+    __clib_function_init__(true, list, CLIST, -1);
 
     pthread_mutex_lock(&l->lock);
     node = cdll_delete_indexed(l->list, index, NULL);
@@ -603,14 +513,7 @@ clist_t LIBEXPORT *clist_move(clist_t *list)
 {
     clist_s *l = (clist_s *)list, *n = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
-
+    __clib_function_init__(true, list, CLIST, NULL);
     n = new_clist();
 
     if (NULL == n)
@@ -634,13 +537,7 @@ clist_t LIBEXPORT *clist_filter(clist_t *list, void *data)
 {
     clist_s *l = (clist_s *)list, *n = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(list, CLIST) == false)
-        return NULL;
+    __clib_function_init__(true, list, CLIST, NULL);
 
     if (NULL == l->filter) {
         cset_errno(CL_NULL_DATA);
@@ -671,10 +568,7 @@ void LIBEXPORT *clist_node_content(const clist_node_t *node)
 {
     struct glist_node_s *n = (struct glist_node_s *)node;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (NULL == node) {
         cset_errno(CL_NULL_ARG);
@@ -689,14 +583,7 @@ int LIBEXPORT clist_sort(clist_t *list)
     clist_s *l = (clist_s *)list;
     bool list_cobjects;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
-
+    __clib_function_init__(true, list, CLIST, -1);
     list_cobjects = is_list_of_cobjects(l);
 
     if ((list_cobjects == false) && (NULL == l->compare_to)) {
@@ -721,14 +608,7 @@ static int get_indexof(const clist_t *list, void *object, bool last_index)
     bool list_cobjects;
     int idx;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
-
+    __clib_function_init__(true, list, CLIST, -1);
     list_cobjects = is_list_of_cobjects(l);
 
     if ((list_cobjects == false) && (NULL == l->equals)) {
@@ -772,14 +652,7 @@ bool LIBEXPORT clist_contains(const clist_t *list, void *object)
     struct glist_node_s *node = NULL;
     bool st;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(list, CLIST) == false)
-        return -1;
-
+    __clib_function_init__(true, list, CLIST, -1);
     list_cobjects = is_list_of_cobjects(l);
 
     if ((list_cobjects == false) && (NULL == l->equals)) {

@@ -142,7 +142,7 @@ int clist_size(const clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_push(clist_t *list, clist_node_t *node_content);
+int clist_push(clist_t *list, void *node_content);
 
 /**
  * @name clist_pop
@@ -157,7 +157,7 @@ void *clist_pop(clist_t *list);
 
 /**
  * @name clist_shift
- * @brief Shifts a node onto from the far end of a list.
+ * @brief Shifts a node from the far end of a list.
  *
  * @param [in,out] list: The clist_t object.
  *
@@ -175,7 +175,7 @@ void *clist_shift(clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_unshift(clist_t *list, clist_node_t *node_content);
+int clist_unshift(clist_t *list, void *node_content);
 
 /**
  * @name clist_map

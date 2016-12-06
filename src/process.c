@@ -65,10 +65,7 @@ static void close_all_opened_files(void)
 
 void LIBEXPORT cprcs_daemon_start(void)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return;
+    __clib_function_init_ex2__(false, NULL, -1);
 
     if (fork())
         exit(0);
@@ -130,11 +127,7 @@ int LIBEXPORT csystem(bool close_parent_files, const char *fmt, ...)
     char *cmd = NULL, **argv;
     va_list ap;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
+    __clib_function_init__(false, NULL, -1, -1);
     p = fork();
 
     if (p < 0) {
@@ -170,10 +163,7 @@ void LIBEXPORT cmsleep(long mseconds)
 {
     struct timespec tv;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return;
+    __clib_function_init_ex2__(false, NULL, -1);
 
     tv.tv_sec = (time_t)mseconds / 1000;
     tv.tv_nsec = (long)(mseconds % 1000) * 1000000;
@@ -190,10 +180,7 @@ int LIBEXPORT ctrap(int signum, void (*f)(int))
      *       Validate signumber.
      */
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     memset(&s, 0, sizeof(struct sigaction));
     s.sa_handler = f;

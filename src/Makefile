@@ -39,11 +39,11 @@ INCLUDEDIR += -I/usr/lib/jvm/default-java/include/linux
 LIBDIR = -L/usr/local/lib
 LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/$(ARCH)/server/
 
-ifeq ($(ARCH), i386)
-    OPENCV_LIBS = /usr/lib/libopencv_highgui.a
-else
-    OPENCV_LIBS = -lopencv_highgui
-endif
+#ifeq ($(ARCH), i386)
+#    OPENCV_LIBS = /usr/lib/libopencv_highgui.a
+#else
+#    OPENCV_LIBS = -lopencv_highgui
+#endif
 
 LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm $(OPENCV_LIBS)
 
@@ -94,7 +94,6 @@ OBJS =	\
 	event.o			\
 	file.o			\
 	glist.o			\
-	image.o			\
 	init.o			\
 	io.o			\
 	json.o			\

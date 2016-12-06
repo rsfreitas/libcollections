@@ -71,10 +71,7 @@ unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
 
 int LIBEXPORT cfunload(unsigned char *buffer)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if (NULL == buffer) {
         cset_errno(CL_NULL_ARG);
@@ -92,10 +89,7 @@ int LIBEXPORT cfsave(const char *filename, const unsigned char *buffer,
 {
     FILE *f;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((NULL == filename) || (NULL == buffer)) {
         cset_errno(CL_NULL_ARG);
@@ -137,10 +131,7 @@ char LIBEXPORT *cfreadline(FILE *infile)
     char *line, *nline;
     int n = 0, ch, size = INITIAL_BUFFER_SIZE;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (NULL == infile)
         return NULL;

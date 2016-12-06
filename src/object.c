@@ -393,14 +393,7 @@ int LIBEXPORT cobject_set(cobject_t *object, ...)
     cobject_s *o;
     va_list ap;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
-
+    __clib_function_init__(true, object, COBJECT, -1);
     o = cobject_ref(object);
     va_start(ap, NULL);
 
@@ -420,10 +413,7 @@ cobject_t LIBEXPORT *cobject_create(enum cl_type type, ...)
     cobject_s *o = NULL;
     va_list ap;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (validate_cl_type(type) == false)
         return NULL;
@@ -444,10 +434,7 @@ cobject_t LIBEXPORT *cobject_create_with_spec(enum cl_type type, cspec_t *spec)
 {
     cobject_s *o = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (validate_cl_type(type) == false)
         return NULL;
@@ -520,13 +507,7 @@ int LIBEXPORT cobject_sizeof(const cobject_t *object)
     cobject_s *o;
     int s;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
+    __clib_function_init__(true, object, COBJECT, -1);
 
     o = cobject_ref((cobject_t *)object);
     s = get_cobject_sizeof(o);
@@ -540,13 +521,7 @@ enum cl_type LIBEXPORT cobject_type(const cobject_t *object)
     cobject_s *o;
     enum cl_type type;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
+    __clib_function_init__(true, object, COBJECT, -1);
 
     o = cobject_ref((cobject_t *)object);
     type = o->type;
@@ -558,11 +533,6 @@ enum cl_type LIBEXPORT cobject_type(const cobject_t *object)
 static int get_object_check(const cobject_t *object, enum cl_type type)
 {
     cobject_s *o = (cobject_s *)object;
-
-    cerrno_clear();
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
 
     if (cobject_is_of_type(object, type) == false) {
         cset_errno(CL_WRONG_TYPE);
@@ -586,13 +556,7 @@ bool LIBEXPORT cobject_is_of_type(const cobject_t *object, unsigned int type)
     cobject_s *o;
     bool b;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
-
-    if (validate_object(object, COBJECT) == false)
-        return false;
+    __clib_function_init__(true, object, COBJECT, false);
 
     if (validate_cl_type(type) == false)
         return false;
@@ -686,13 +650,7 @@ cstring_t LIBEXPORT *cobject_to_cstring(const cobject_t *object)
     cobject_t *ref;
     cstring_t *s = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(object, COBJECT) == false)
-        return NULL;
+    __clib_function_init__(true, object, COBJECT, NULL);
 
     ref = cobject_ref((cobject_t *)object);
     s = print_object(ref);
@@ -706,14 +664,7 @@ cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
     cobject_t *o = NULL;
     cstring_t *ref = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(object, CSTRING) == false)
-        return NULL;
-
+    __clib_function_init__(true, object, CSTRING, NULL);
     ref = cstring_ref((cstring_t *)object);
 
     if (cstring_is_number(ref) == true)
@@ -732,14 +683,7 @@ cobject_t LIBEXPORT *cobject_ref(cobject_t *object)
 {
     cobject_s *v = (cobject_s *)object;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(object, COBJECT) == false)
-        return NULL;
-
+    __clib_function_init__(true, object, COBJECT, NULL);
     ref_inc(&v->ref);
 
     return object;
@@ -749,14 +693,7 @@ int LIBEXPORT cobject_unref(cobject_t *object)
 {
     cobject_s *v = (cobject_s *)object;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
-
+    __clib_function_init__(true, object, COBJECT, -1);
     ref_dec(&v->ref);
 
     return 0;
@@ -782,14 +719,7 @@ int LIBEXPORT cobject_get(const cobject_t *object, const char *fmt, ...)
     cstring_t *s;
     bool *b;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
-
+    __clib_function_init__(true, object, COBJECT, -1);
     o = cobject_ref((cobject_t *)object);
     va_start(ap, fmt);
 
@@ -948,13 +878,7 @@ int LIBEXPORT cobject_set_equals(cobject_t *object,
 {
     cobject_s *v = (cobject_s *)object;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
+    __clib_function_init__(true, object, COBJECT, -1);
 
     if (NULL == equals) {
         cset_errno(CL_INVALID_VALUE);
@@ -970,10 +894,7 @@ bool LIBEXPORT cobject_equals(const cobject_t *ob1, const cobject_t *ob2)
 {
     cobject_s *v = (cobject_s *)ob1;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
+    __clib_function_init__(false, NULL, -1, false);
 
     if ((validate_object(ob1, COBJECT) == false) ||
         (validate_object(ob2, COBJECT) == false))
@@ -994,13 +915,7 @@ int LIBEXPORT cobject_set_compare_to(cobject_t *object,
 {
     cobject_s *v = (cobject_s *)object;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(object, COBJECT) == false)
-        return -1;
+    __clib_function_init__(true, object, COBJECT, -1);
 
     if (NULL == compare_to) {
         cset_errno(CL_INVALID_VALUE);
@@ -1016,10 +931,7 @@ int LIBEXPORT cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2)
 {
     cobject_s *v = (cobject_s *)ob1;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object(ob1, COBJECT) == false) ||
         (validate_object(ob2, COBJECT) == false))

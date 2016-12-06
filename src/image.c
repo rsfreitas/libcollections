@@ -1210,11 +1210,7 @@ cimage_t LIBEXPORT *cimage_ref(cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return NULL;
-
+    __clib_function_init__(true, image, CIMAGE, NULL);
     ref_inc(&i->ref);
 
     return image;
@@ -1224,11 +1220,7 @@ int LIBEXPORT cimage_unref(cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
-
+    __clib_function_init__(true, image, CIMAGE, -1);
     ref_dec(&i->ref);
 
     return 0;
@@ -1243,7 +1235,7 @@ cimage_t LIBEXPORT *cimage_create(void)
 {
     cimage_s *i = NULL;
 
-    cerrno_clear();
+    __clib_function_init__(false, NULL, -1, -1);
     i = new_cimage();
 
     if (NULL == i)
@@ -1258,10 +1250,7 @@ int LIBEXPORT cimage_fill(cimage_t *image, const unsigned char *buffer,
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if ((NULL == buffer) || (bsize == 0)) {
         cset_errno(CL_NULL_ARG);
@@ -1276,7 +1265,7 @@ cimage_t LIBEXPORT *cimage_load(const unsigned char *buffer, unsigned int bsize,
 {
     cimage_s *i = NULL;
 
-    cerrno_clear();
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if ((NULL == buffer) || (bsize == 0)) {
         cset_errno(CL_NULL_ARG);
@@ -1306,7 +1295,7 @@ cimage_t LIBEXPORT *cimage_load_from_file(const char *filename)
     char *tmp = NULL, *ext = NULL;
     bool was_renamed = false;
 
-    cerrno_clear();
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (NULL == filename) {
         cset_errno(CL_NULL_ARG);
@@ -1369,10 +1358,7 @@ int LIBEXPORT cimage_save(const cimage_t *image, unsigned char **buffer,
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (i->type == CIMAGE_RAW) {
         if (raw_save_to_mem(image, buffer, bsize) < 0)
@@ -1391,10 +1377,7 @@ int LIBEXPORT cimage_save_to_file(const cimage_t *image, const char *filename,
     char *disc_filename = NULL;
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (NULL == i->image) {
         cset_errno(CL_NULL_DATA);
@@ -1431,10 +1414,7 @@ int LIBEXPORT cimage_save_to_file(const cimage_t *image, const char *filename,
 
 cimage_t LIBEXPORT *cimage_dup(const cimage_t *image)
 {
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return NULL;
+    __clib_function_init__(true, image, CIMAGE, NULL);
 
     return duplicate_image((cimage_s *)image);
 }
@@ -1444,10 +1424,7 @@ cimage_t LIBEXPORT *cimage_resize(const cimage_t *image, unsigned int width,
 {
     cimage_s *i = (cimage_s *)image, *p = NULL;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return NULL;
+    __clib_function_init__(true, image, CIMAGE, NULL);
 
     if ((width == 0) || (height == 0) ||
         (width >= UINT_MAX) || (height >= UINT_MAX))
@@ -1484,10 +1461,7 @@ cimage_t LIBEXPORT *cimage_extract(const cimage_t *image, unsigned int x,
 {
     cimage_s *i = (cimage_s *)image, *p;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return NULL;
+    __clib_function_init__(true, image, CIMAGE, NULL);
 
     if ((w == 0) || (h == 0)) {
         cset_errno(CL_NUMBER_RANGE);
@@ -1526,10 +1500,7 @@ unsigned char LIBEXPORT *cimage_raw_export(const cimage_t *image,
     cimage_s *i = (cimage_s *)image;
     unsigned char *buffer = NULL;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return NULL;
+    __clib_function_init__(true, image, CIMAGE, NULL);
 
     *width = i->image->width;
     *height = i->image->height;
@@ -1553,10 +1524,7 @@ int LIBEXPORT cimage_raw_import(cimage_t *image, const unsigned char *buffer,
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if ((NULL == buffer) || (bsize == 0)) {
         cset_errno(CL_NULL_ARG);
@@ -1570,10 +1538,7 @@ IplImage LIBEXPORT *cimage_cv_export(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return NULL;
+    __clib_function_init__(true, image, CIMAGE, NULL);
 
     if (NULL == i->image) {
         cset_errno(CL_NULL_DATA);
@@ -1591,10 +1556,7 @@ int LIBEXPORT cimage_cv_import(cimage_t *image, IplImage *cv_image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (NULL == cv_image) {
         cset_errno(CL_NULL_ARG);
@@ -1617,10 +1579,7 @@ int LIBEXPORT cimage_size(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (NULL == i->image) {
         cset_errno(CL_NULL_DATA);
@@ -1634,10 +1593,7 @@ int LIBEXPORT cimage_width(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (NULL == i->image) {
         cset_errno(CL_NULL_DATA);
@@ -1651,10 +1607,7 @@ int LIBEXPORT cimage_height(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (NULL == i->image) {
         cset_errno(CL_NULL_DATA);
@@ -1668,10 +1621,7 @@ enum cimage_type LIBEXPORT cimage_type(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (NULL == i->image) {
         cset_errno(CL_NULL_DATA);
@@ -1685,10 +1635,7 @@ enum cimage_format LIBEXPORT cimage_format(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
-    cerrno_clear();
-
-    if (validate_object(image, CIMAGE) == false)
-        return -1;
+    __clib_function_init__(true, image, CIMAGE, -1);
 
     if (NULL == i->image) {
         cset_errno(CL_NULL_DATA);
