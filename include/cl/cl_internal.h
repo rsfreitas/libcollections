@@ -176,55 +176,5 @@ bool dl_is_plugin_enabled(enum cplugin_type type);
 bool library_initialized(void);
 magic_t *library_get_cookie(void);
 
-/* glist.c */
-void *glist_node_ref(void *node, enum cl_object object);
-int glist_node_unref(void *node, enum cl_object object);
-void *glist_ref(void *list, enum cl_object object);
-int glist_unref(void *list, enum cl_object object);
-void *glist_create(enum cl_object object, void (*free_data)(void *),
-                   int (*compare_to)(clist_node_t *, clist_node_t *),
-                   int (*filter)(clist_node_t *, void *),
-                   int (*equals)(clist_node_t *, clist_node_t *));
-
-int glist_destroy(void *list, enum cl_object object);
-int glist_size(const void *list, enum cl_object object);
-int glist_push(void *list, enum cl_object object, void *node_content,
-               enum cl_object node_object);
-
-void *glist_pop(void *list, enum cl_object object);
-void *glist_shift(void *list, enum cl_object object);
-int glist_unshift(void *list, enum cl_object object, void *node_content,
-                  enum cl_object node_object);
-
-void *glist_map(const void *list, enum cl_object object,
-                int (*foo)(clist_node_t *, void *), void *data);
-
-void *glist_map_indexed(const void *list, enum cl_object object,
-                        int (*foo)(unsigned int, clist_node_t *, void *),
-                        void *data);
-
-void *glist_map_reverse(const void *list, enum cl_object object,
-                        int (*foo)(clist_node_t *, void *), void *data);
-
-void *glist_map_reverse_indexed(const void *list, enum cl_object object,
-                                int (*foo)(unsigned int, clist_node_t *, void *),
-                                void *data);
-
-void *glist_at(const void *list, enum cl_object object, unsigned int index);
-int glist_delete(void *list, enum cl_object object, void *data);
-int glist_delete_indexed(void *list, enum cl_object object, unsigned int index);
-void *glist_move(void *list, enum cl_object object);
-void *glist_filter(void *list, enum cl_object object, void *data);
-void *glist_node_content(const void *node);
-int glist_sort(void *list, enum cl_object object);
-int glist_indexof(const void *list, enum cl_object object, void *content,
-                  enum cl_object node_object);
-
-int glist_last_indexof(const void *list, enum cl_object object, void *content,
-                       enum cl_object node_object);
-
-bool glist_contains(const void *list, enum cl_object object, void *content,
-                    enum cl_object node_object);
-
 #endif
 

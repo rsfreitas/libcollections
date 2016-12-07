@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name clist_node_content
+ * @name cglist_node_content
  * @brief A function to retrieve the content of a list node.
  *
  * This function must be used by the user to get a reference to its own object
@@ -42,61 +42,66 @@
  * to _map_ functions.
  *
  * @param [in] node: A list node.
+ * @param [in] object: The type of the node.
  *
  * @return On success returns the content of the node or NULL otherwise.
  */
-void *clist_node_content(const clist_node_t *node);
+void *cglist_node_content(const void *node, enum cl_object object);
 
 /**
- * @name clist_node_ref
- * @brief Increases the reference count for a clist_node_t item.
+ * @name cglist_node_ref
+ * @brief Increases the reference count for a void item.
  *
- * @param [in,out] node: The clist_node_t item.
+ * @param [in,out] node: The void item.
+ * @param [in] object: The type of the node.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-clist_node_t *clist_node_ref(clist_node_t *node);
+void *cglist_node_ref(void *node, enum cl_object object);
 
 /**
- * @name clist_node_unref
- * @brief Decreases the reference count for a clist_node_t item.
+ * @name cglist_node_unref
+ * @brief Decreases the reference count for a void item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] node: The clist_node_t item.
+ * @param [in,out] node: The void item.
+ * @param [in] object: The type of the node.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_node_unref(clist_node_t *node);
+int cglist_node_unref(void *node, enum cl_object object);
 
 /**
- * @name clist_ref
- * @brief Increases the reference count for a clist_t item.
+ * @name cglist_ref
+ * @brief Increases the reference count for a void item.
  *
- * @param [in,out] list: The clist_t item.
+ * @param [in,out] list: The void item.
+ * @param [in] object: The type of the list.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-clist_t *clist_ref(clist_t *list);
+void *cglist_ref(void *list, enum cl_object object);
 
 /**
- * @name clist_unref
- * @brief Decreases the reference count for a clist_t item.
+ * @name cglist_unref
+ * @brief Decreases the reference count for a void item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] list: The clist_t item.
+ * @param [in,out] list: The void item.
+ * @param [in] object: The type of the list.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_unref(clist_t *list);
+int cglist_unref(void *list, enum cl_object object);
 
 /**
- * @name clist_create
+ * @name cglist_create
  * @brief Creates a new list object.
  *
  * This function creates a new list object to manipulate all kind of data. It is
@@ -114,287 +119,317 @@ int clist_unref(clist_t *list);
  * Their prototypes are the following:
  *
  * void free_data(void *);
- * int compare_to(clist_node_t *, clist_node_t *);
- * int filter(clist_node_t *, void *);
- * int equals(clist_node_t *, clist_node_t *);
+ * int compare_to(void *, void *);
+ * int filter(void *, void *);
+ * int equals(void *, void *);
  *
  * If the type of a node content if of a cobject_t kind it is not necessary to
  * pass the arguments \a free_data, \a compare_to and \a equals, since them can
  * exist inside a cobject_t object.
  *
+ * @param [in] object: The type of the list.
  * @param [in] free_data: The free_data function pointer.
  * @param [in] compare_to: The compare_to function pointer.
  * @param [in] filter: The filter function pointer.
  * @param [in] equals: The equals function pointer.
  *
- * @return On success a clist_t object will be returned or NULL otherwise.
+ * @return On success a void object will be returned or NULL otherwise.
  */
-clist_t *clist_create(void (*free_data)(clist_node_t *),
-                      int (*compare_to)(clist_node_t *, clist_node_t *),
-                      int (*filter)(clist_node_t *, void *),
-                      int (*equals)(clist_node_t *, clist_node_t *));
+void *cglist_create(enum cl_object object, void (*free_data)(void *),
+                    int (*compare_to)(void *, void *),
+                    int (*filter)(void *, void *),
+                    int (*equals)(void *, void *));
 
 /**
- * @name clist_destroy
- * @brief Releases a clist_t from memory.
+ * @name cglist_destroy
+ * @brief Releases a void from memory.
  *
  * When releasing a node from the list, the \a free_data function passed while
  * creating the list is called.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_destroy(clist_t *list);
+int cglist_destroy(void *list, enum cl_object object);
 
 /**
- * @name clist_size
+ * @name cglist_size
  * @brief Gets the list size.
  *
- * @param [in] list: The clist_t object.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
  *
  * @return On success returns the size of the list or -1 otherwise.
  */
-int clist_size(const clist_t *list);
+int cglist_size(const void *list, enum cl_object object);
 
 /**
- * @name clist_push
+ * @name cglist_push
  * @brief Pushes a new node onto the list.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] node_content: The content of the new node.
+ * @param [in] node_object: The type of the node.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_push(clist_t *list, void *node_content);
+int cglist_push(void *list, enum cl_object object, const void *node_content,
+                enum cl_object node_object);
 
 /**
- * @name clist_pop
+ * @name cglist_pop
  * @brief Pop a node from a list.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  *
  * @return On success returns the pop'ed node, and the user is responsible
  *         for releasing it, or NULL otherwise.
  */
-void *clist_pop(clist_t *list);
+void *cglist_pop(void *list, enum cl_object object);
 
 /**
- * @name clist_shift
+ * @name cglist_shift
  * @brief Shifts a node from the far end of a list.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  *
  * @return On success returns the node shifted off the list, and the user is
  *         responsible for releasing it, or NULL otherwise.
  */
-void *clist_shift(clist_t *list);
+void *cglist_shift(void *list, enum cl_object object);
 
 /**
- * @name clist_unshift
+ * @name cglist_unshift
  * @brief Shifts a node onto the far end of a list.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] node_content: The content of the new node.
+ * @param [in] node_object: The type of the node.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_unshift(clist_t *list, void *node_content);
+int cglist_unshift(void *list, enum cl_object object, const void *node_content,
+                   enum cl_object node_object);
 
 /**
- * @name clist_map
+ * @name cglist_map
  * @brief Maps a function to every node on a list.
  *
  * The \a foo function receives as arguments a node from the list and some
  * \a data. Its prototype must be something of this type:
- * int foo(clist_node_t *, void *);
+ * int foo(void *, void *);
  *
- * @param [in] list: The clist_t object.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is list of cobject_t objects returns a new reference
- *         to it. If not returns NULL.
+ *         content, and if it is list of cobject_t objects returns a new
+ *         reference to it. If not returns NULL.
  */
-void *clist_map(const clist_t *list, int (*foo)(clist_node_t *, void *),
-                void *data);
+void *cglist_map(const void *list, enum cl_object object,
+                 int (*foo)(void *, void *), void *data);
 
 /**
- * @name clist_map_indexed
+ * @name cglist_map_indexed
  * @brief Maps a function to every node on a list.
  *
  * The \a foo function receives as arguments the current node index inside the
  * list, a node from the list and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, clist_node_t *, void *);
+ * something of this kind: int foo(unsigned int, void *, void *);
  *
- * @param [in] list: The clist_t object.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is list of cobject_t objects returns a new reference
- *         to it. If not returns NULL.
+ *         content, and if it is list of cobject_t objects returns a new
+ *         reference to it. If not returns NULL.
  */
-void *clist_map_indexed(const clist_t *list,
-                        int (*foo)(unsigned int, clist_node_t *, void *),
-                        void *data);
+void *cglist_map_indexed(const void *list, enum cl_object object,
+                         int (*foo)(unsigned int, void *, void *),
+                         void *data);
+
 
 /**
- * @name clist_map_reverse
+ * @name cglist_map_reverse
  * @brief Maps a functions to every onde on a list from the end to the top.
  *
  * The \a foo function receives as arguments a node from the list and some
  * \a data. Its prototype must be something of this type:
- * int foo(clist_node_t *, void *);
+ * int foo(void *, void *);
  *
- * @param [in] list: The clist_t object.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is list of cobject_t objects returns a new reference
- *         to it. If not returns NULL.
+ *         content, and if it is list of cobject_t objects returns a new
+ *         reference to it. If not returns NULL.
  */
-void *clist_map_reverse(const clist_t *list,
-                        int (*foo)(clist_node_t *, void *), void *data);
+void *cglist_map_reverse(const void *list, enum cl_object object,
+                         int (*foo)(void *, void *), void *data);
 
 /**
- * @name clist_map_reverse_indexed
+ * @name cglist_map_reverse_indexed
  * @brief Maps a function to every node on a list from the end to the top.
  *
  * The \a foo function receives as arguments the current node index inside the
  * list, a node from the list and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, clist_node_t *, void *);
+ * something of this kind: int foo(unsigned int, void *, void *);
  *
- * @param [in] list: The clist_t object.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is list of cobject_t objects returns a new reference
- *         to it. If not returns NULL.
+ *         content, and if it is list of cobject_t objects returns a new
+ *         reference to it. If not returns NULL.
  */
-void *clist_map_reverse_indexed(const clist_t *list,
-                                int (*foo)(unsigned int, clist_node_t *,
-                                           void *),
-                                void *data);
+void *cglist_map_reverse_indexed(const void *list, enum cl_object object,
+                                 int (*foo)(unsigned int, void *, void *),
+                                 void *data);
 
 /**
- * @name clist_at
+ * @name cglist_at
  * @brief Gets a pointer to a specific node inside a list.
  *
- * @param [in] list: The clist_t object.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] index: The node index inside the list.
  *
  * @return On success returns the node content, and if it is a list of cobject_t
  *         objects returns a new reference to it, or NULL otherwise.
  */
-void *clist_at(const clist_t *list, unsigned int index);
+void *cglist_at(const void *list, enum cl_object object, unsigned int index);
 
 /**
- * @name clist_delete
+ * @name cglist_delete
  * @brief Deletes elements from a lista according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
  * from the list and released from memory. This function uses the \a filter
  * function inside.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] data: Some custom data passed to the filter function.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_delete(clist_t *list, void *data);
+int cglist_delete(void *list, enum cl_object object, void *data);
 
 /**
- * @name clist_delete_indexed
+ * @name cglist_delete_indexed
  * @brief Deletes an element from a list at a specific position.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] index: The element position on the list.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_delete_indexed(clist_t *list, unsigned int index);
+int cglist_delete_indexed(void *list, enum cl_object object, unsigned int index);
 
 /**
- * @name clist_move
+ * @name cglist_move
  * @brief Moves all elements from a list to another.
  *
- * @param [in] list: The original clist_t object.
+ * @param [in] list: The original void object.
+ * @param [in] object: The type of the list.
  *
  * @return Returns the new list.
  */
-clist_t *clist_move(clist_t *list);
+void *cglist_move(void *list, enum cl_object object);
 
 /**
- * @name clist_filter
+ * @name cglist_filter
  * @brief Extracts elements from a list according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
  * This function uses the \a filter function to apply the filter on all elements
  * from the list.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  * @param [in] data: Some custom data passed to the filter function.
  *
  * @return Returns a list containing all extracted elements from the original
  *         list.
  */
-clist_t *clist_filter(clist_t *list, void *data);
+void *cglist_filter(void *list, enum cl_object object, void *data);
 
 /**
- * @name clist_sort
+ * @name cglist_sort
  * @brief Sort all elements from a list.
  *
  * This function uses the \a compare_to function to compare two elements from
  * the list and sort them.
  *
- * @param [in,out] list: The clist_t object.
+ * @param [in,out] list: The void object.
+ * @param [in] object: The type of the list.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_sort(clist_t *list);
+int cglist_sort(void *list, enum cl_object object);
 
 /**
- * @name clist_indexof
+ * @name cglist_indexof
  * @brief Gets the index of the first occurrence of an element inside the list.
  *
  * This function uses the \a equals function to compare objects from the list.
  *
- * @param [in] list: The clist_t object.
- * @param [in] object: The element which will be sought through the list.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
+ * @param [in] content: The element which will be sought through the list.
+ * @param [in] node_object: The type of the node.
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int clist_indexof(const clist_t *list, void *object);
+int cglist_indexof(const void *list, enum cl_object object, void *content,
+                   enum cl_object node_object);
 
 /**
- * @name clist_last_indexof
+ * @name cglist_last_indexof
  * @brief Gets the index of the last occurrence of an element inside the list.
  *
  * This function uses the \a equals function to compare objects from the list.
  *
- * @param [in] list: The clist_t object.
- * @param [in] object: The element which will be sought through the list.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
+ * @param [in] content: The element which will be sought through the list.
+ * @param [in] node_object: The type of the node.
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int clist_last_indexof(const clist_t *list, void *object);
+int cglist_last_indexof(const void *list, enum cl_object object, void *content,
+                        enum cl_object node_object);
 
 /**
- * @name clist_contains
+ * @name cglist_contains
  * @brief Checks if a list contains a specific element.
  *
  * This function uses the \a equals function to compare objects from the list.
  *
- * @param [in] list: The clist_t object.
- * @param [in] object: The element which will be sought through the list.
+ * @param [in] list: The void object.
+ * @param [in] object: The type of the list.
+ * @param [in] content: The element which will be sought through the list.
+ * @param [in] node_object: The type of the node.
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool clist_contains(const clist_t *list, void *object);
+bool cglist_contains(const void *list, enum cl_object object, void *content,
+                     enum cl_object node_object);
 
 #endif
 

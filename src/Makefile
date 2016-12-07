@@ -71,7 +71,7 @@ VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)
 
 CHAT_OBJS =	\
 	chat_misc.o			\
-	drv_raw_socket.o		\
+	drv_raw_socket.o	\
 	ipc_tcp.o			\
 	ipc_udp.o
 
@@ -85,7 +85,7 @@ CHAT_OBJS =	\
 #	dl_java.o		\
 
 PLUGIN_OBJS =	\
-	api_parser.o		\
+	api_parser.o	\
 	call.o			\
 	dl.o			\
 	dl_c.o			\
@@ -95,8 +95,8 @@ PLUGIN_OBJS =	\
 	$(JNI_OBJS)
 
 OBJS =	\
-	$(CHAT_OBJS)		\
-	$(PLUGIN_OBJS)		\
+	$(CHAT_OBJS)	\
+	$(PLUGIN_OBJS)	\
 	cfg.o			\
 	chat.o			\
 	counter.o		\
@@ -109,7 +109,6 @@ OBJS =	\
 	init.o			\
 	io.o			\
 	json.o			\
-	list.o			\
 	log.o			\
 	mem.o			\
 	object.o		\
@@ -119,7 +118,7 @@ OBJS =	\
 	ref.o			\
 	specs.o			\
 	string.o		\
-	stringlist.o		\
+	stringlist.o	\
 	thread.o		\
 	timeout.o		\
 	timer.o			\

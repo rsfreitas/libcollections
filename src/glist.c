@@ -29,6 +29,8 @@
  *
  * Add API to change internal list functions like compare_to, filter and
  * equals on the fly.
+ *
+ * peek
  */
 
 #include <stdlib.h>
@@ -59,9 +61,9 @@ struct gnode_s {
     cl_struct_member(unsigned int, size)                                    \
     cl_struct_member(struct ref_s, ref)                                     \
     cl_struct_member(void, (*free_data)(void *))                            \
-    cl_struct_member(int, (*compare_to)(clist_node_t *, clist_node_t *))    \
-    cl_struct_member(int, (*filter)(clist_node_t *, void *))                \
-    cl_struct_member(int, (*equals)(clist_node_t *, clist_node_t *))        \
+    cl_struct_member(int, (*compare_to)(void *, void *))    \
+    cl_struct_member(int, (*filter)(void *, void *))                \
+    cl_struct_member(int, (*equals)(void *, void *))        \
     cl_struct_member(pthread_mutex_t, lock)
 
 cl_struct_declare(clist_s, clist_members);
@@ -167,7 +169,7 @@ static void __destroy_node(const struct ref_s *ref)
 /*
  * Creates a new struct gnode_s with @content inside.
  */
-static struct gnode_s *new_node(void *content, clist_s *list,
+static struct gnode_s *new_node(const void *content, clist_s *list,
     enum cl_object object)
 {
     struct gnode_s *n = NULL;
@@ -179,7 +181,7 @@ static struct gnode_s *new_node(void *content, clist_s *list,
         return NULL;
     }
 
-    n->content = content;
+    n->content = (void *)content;
     n->free_data = list->free_data;
     n->ref.free = __destroy_node;
     n->ref.count = 1;
@@ -208,7 +210,7 @@ static void destroy_list(const struct ref_s *ref)
         node_object = CQUEUE_NODE;
 
     while ((p = cdll_pop(&list->list)) != NULL)
-        glist_node_unref(p, node_object);
+        cglist_node_unref(p, node_object);
 
     pthread_mutex_destroy(&list->lock);
     free(list);
@@ -238,7 +240,7 @@ static clist_s *new_clist(enum cl_object object)
     return l;
 }
 
-void *glist_node_ref(void *node, enum cl_object object)
+void LIBEXPORT *cglist_node_ref(void *node, enum cl_object object)
 {
     struct gnode_s *n = (struct gnode_s *)node;
 
@@ -248,7 +250,7 @@ void *glist_node_ref(void *node, enum cl_object object)
     return node;
 }
 
-int glist_node_unref(void *node, enum cl_object object)
+int LIBEXPORT cglist_node_unref(void *node, enum cl_object object)
 {
     struct gnode_s *n = (struct gnode_s *)node;
 
@@ -258,7 +260,7 @@ int glist_node_unref(void *node, enum cl_object object)
     return 0;
 }
 
-void *glist_ref(void *list, enum cl_object object)
+void LIBEXPORT *cglist_ref(void *list, enum cl_object object)
 {
     clist_s *l = (clist_s *)list;
 
@@ -268,7 +270,7 @@ void *glist_ref(void *list, enum cl_object object)
     return list;
 }
 
-int glist_unref(void *list, enum cl_object object)
+int LIBEXPORT cglist_unref(void *list, enum cl_object object)
 {
     clist_s *l = (clist_s *)list;
 
@@ -278,10 +280,9 @@ int glist_unref(void *list, enum cl_object object)
     return 0;
 }
 
-void *glist_create(enum cl_object object, void (*free_data)(void *),
-    int (*compare_to)(clist_node_t *, clist_node_t *),
-    int (*filter)(clist_node_t *, void *),
-    int (*equals)(clist_node_t *, clist_node_t *))
+void LIBEXPORT *cglist_create(enum cl_object object, void (*free_data)(void *),
+    int (*compare_to)(void *, void *), int (*filter)(void *, void *),
+    int (*equals)(void *, void *))
 {
     clist_s *l = NULL;
 
@@ -306,12 +307,12 @@ void *glist_create(enum cl_object object, void (*free_data)(void *),
     return l;
 }
 
-int glist_destroy(void *list, enum cl_object object)
+int LIBEXPORT cglist_destroy(void *list, enum cl_object object)
 {
-    return glist_unref(list, object);
+    return cglist_unref(list, object);
 }
 
-int glist_size(const void *list, enum cl_object object)
+int LIBEXPORT cglist_size(const void *list, enum cl_object object)
 {
     clist_s *l = (clist_s *)list;
 
@@ -320,8 +321,8 @@ int glist_size(const void *list, enum cl_object object)
     return l->size;
 }
 
-int glist_push(void *list, enum cl_object object, void *node_content,
-    enum cl_object node_object)
+int LIBEXPORT cglist_push(void *list, enum cl_object object,
+    const void *node_content, enum cl_object node_object)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -340,7 +341,7 @@ int glist_push(void *list, enum cl_object object, void *node_content,
     return 0;
 }
 
-void *glist_pop(void *list, enum cl_object object)
+void LIBEXPORT *cglist_pop(void *list, enum cl_object object)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -366,7 +367,7 @@ void *glist_pop(void *list, enum cl_object object)
     return (is_list_of_cobjects(l) == true) ? cobject_ref(p) : p;
 }
 
-void *glist_shift(void *list, enum cl_object object)
+void LIBEXPORT *cglist_shift(void *list, enum cl_object object)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -393,8 +394,8 @@ void *glist_shift(void *list, enum cl_object object)
     return (is_list_of_cobjects(l) == true) ? cobject_ref(content) : content;
 }
 
-int glist_unshift(void *list, enum cl_object object, void *node_content,
-    enum cl_object node_object)
+int LIBEXPORT cglist_unshift(void *list, enum cl_object object,
+    const void *node_content, enum cl_object node_object)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -413,8 +414,8 @@ int glist_unshift(void *list, enum cl_object object, void *node_content,
     return 0;
 }
 
-void *glist_map(const void *list, enum cl_object object,
-    int (*foo)(clist_node_t *, void *), void *data)
+void LIBEXPORT *cglist_map(const void *list, enum cl_object object,
+    int (*foo)(void *, void *), void *data)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -435,8 +436,8 @@ void *glist_map(const void *list, enum cl_object object,
                                             : node->content;
 }
 
-void *glist_map_indexed(const void *list, enum cl_object object,
-    int (*foo)(unsigned int, clist_node_t *, void *), void *data)
+void LIBEXPORT *cglist_map_indexed(const void *list, enum cl_object object,
+    int (*foo)(unsigned int, void *, void *), void *data)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -457,8 +458,8 @@ void *glist_map_indexed(const void *list, enum cl_object object,
                                             : node->content;
 }
 
-void *glist_map_reverse(const void *list, enum cl_object object,
-    int (*foo)(clist_node_t *, void *), void *data)
+void LIBEXPORT *cglist_map_reverse(const void *list, enum cl_object object,
+    int (*foo)(void *, void *), void *data)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -479,8 +480,9 @@ void *glist_map_reverse(const void *list, enum cl_object object,
                                             : node->content;
 }
 
-void *glist_map_reverse_indexed(const void *list, enum cl_object object,
-    int (*foo)(unsigned int, clist_node_t *, void *), void *data)
+void LIBEXPORT *cglist_map_reverse_indexed(const void *list,
+    enum cl_object object, int (*foo)(unsigned int, void *, void *),
+    void *data)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -501,7 +503,8 @@ void *glist_map_reverse_indexed(const void *list, enum cl_object object,
                                             : node->content;
 }
 
-void *glist_at(const void *list, enum cl_object object, unsigned int index)
+void LIBEXPORT *cglist_at(const void *list, enum cl_object object,
+    unsigned int index)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -517,7 +520,7 @@ void *glist_at(const void *list, enum cl_object object, unsigned int index)
 }
 
 /* TODO: Maybe return the number of deleted elements */
-int glist_delete(void *list, enum cl_object object, void *data)
+int LIBEXPORT cglist_delete(void *list, enum cl_object object, void *data)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -545,7 +548,8 @@ int glist_delete(void *list, enum cl_object object, void *data)
     return 0;
 }
 
-int glist_delete_indexed(void *list, enum cl_object object, unsigned int index)
+int LIBEXPORT cglist_delete_indexed(void *list, enum cl_object object,
+    unsigned int index)
 {
     clist_s *l = (clist_s *)list;
     struct gnode_s *node = NULL;
@@ -568,7 +572,7 @@ int glist_delete_indexed(void *list, enum cl_object object, unsigned int index)
     return 0;
 }
 
-void *glist_move(void *list, enum cl_object object)
+void LIBEXPORT *cglist_move(void *list, enum cl_object object)
 {
     clist_s *l = (clist_s *)list, *n = NULL;
 
@@ -592,7 +596,7 @@ void *glist_move(void *list, enum cl_object object)
     return n;
 }
 
-void *glist_filter(void *list, enum cl_object object, void *data)
+void LIBEXPORT *cglist_filter(void *list, enum cl_object object, void *data)
 {
     clist_s *l = (clist_s *)list, *n = NULL;
 
@@ -623,21 +627,16 @@ void *glist_filter(void *list, enum cl_object object, void *data)
  * object from events function, like compare_to, filter, equals and
  * functions passed to _map_ functions.
  */
-void *glist_node_content(const void *node)
+void LIBEXPORT *cglist_node_content(const void *node, enum cl_object object)
 {
     struct gnode_s *n = (struct gnode_s *)node;
 
-    __clib_function_init__(false, NULL, -1, NULL);
-
-    if (NULL == node) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
+    __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
 
     return n->content;
 }
 
-int glist_sort(void *list, enum cl_object object)
+int LIBEXPORT cglist_sort(void *list, enum cl_object object)
 {
     clist_s *l = (clist_s *)list;
     bool list_cobjects;
@@ -695,20 +694,20 @@ static int get_indexof(const void *list, enum cl_object object, void *content,
     return idx;
 }
 
-int glist_indexof(const void *list, enum cl_object object, void *content,
-    enum cl_object node_object)
+int LIBEXPORT cglist_indexof(const void *list, enum cl_object object,
+    void *content, enum cl_object node_object)
 {
     return get_indexof(list, object, content, node_object, false);
 }
 
-int glist_last_indexof(const void *list, enum cl_object object, void *content,
-    enum cl_object node_object)
+int LIBEXPORT cglist_last_indexof(const void *list, enum cl_object object,
+    void *content, enum cl_object node_object)
 {
     return get_indexof(list, object, content, node_object, true);
 }
 
-bool glist_contains(const void *list, enum cl_object object, void *content,
-    enum cl_object node_object)
+bool LIBEXPORT cglist_contains(const void *list, enum cl_object object,
+    void *content, enum cl_object node_object)
 {
     clist_s *l = (clist_s *)list;
     bool list_cobjects;
