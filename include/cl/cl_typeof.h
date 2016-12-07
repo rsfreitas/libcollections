@@ -57,7 +57,11 @@ enum cl_object {
     CPLUGIN_INFO,
     CLOG,
     CIMAGE,
-    CLIST_NODE
+    CLIST_NODE,
+    CSTACK,
+    CSTACK_NODE,
+    CQUEUE,
+    CQUEUE_NODE
 };
 
 struct cobject_hdr {

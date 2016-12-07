@@ -109,6 +109,7 @@ OBJS =	\
 	init.o			\
 	io.o			\
 	json.o			\
+	list.o			\
 	log.o			\
 	mem.o			\
 	object.o		\
