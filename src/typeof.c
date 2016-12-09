@@ -37,6 +37,8 @@ void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset)
 
     hdr->lib_id = LIBID;
     hdr->object = type;
+
+    printf("%s: %p\n", __FUNCTION__, hdr);
 }
 
 void set_typeof(enum cl_object type, void *p)
@@ -50,6 +52,8 @@ static bool validate_libid(void *p, unsigned int offset)
 
     if (NULL == hdr)
         return false;
+
+    printf("%s: %p, %d\n", __FUNCTION__, hdr, hdr->object);
 
     if (hdr->lib_id != LIBID)
         return false;
@@ -78,6 +82,7 @@ bool validate_object_with_offset(const void *p, enum cl_object type,
         return false;
     }
 
+    printf("%s: %d\n", __FUNCTION__, offset);
     if (validate_libid((void *)p, offset) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return false;

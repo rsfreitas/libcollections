@@ -52,7 +52,7 @@ void *cglist_node_content(const void *node, enum cl_object object);
  * @name cglist_node_ref
  * @brief Increases the reference count for a void item.
  *
- * @param [in,out] node: The void item.
+ * @param [in,out] node: The node item.
  * @param [in] object: The type of the node.
  *
  * @return On success returns the item itself with its reference count
@@ -67,7 +67,7 @@ void *cglist_node_ref(void *node, enum cl_object object);
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] node: The void item.
+ * @param [in,out] node: The node item.
  * @param [in] object: The type of the node.
  *
  * @return On success returns 0 or -1 otherwise.
@@ -78,7 +78,7 @@ int cglist_node_unref(void *node, enum cl_object object);
  * @name cglist_ref
  * @brief Increases the reference count for a void item.
  *
- * @param [in,out] list: The void item.
+ * @param [in,out] list: The list item.
  * @param [in] object: The type of the list.
  *
  * @return On success returns the item itself with its reference count
@@ -93,7 +93,7 @@ void *cglist_ref(void *list, enum cl_object object);
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] list: The void item.
+ * @param [in,out] list: The list item.
  * @param [in] object: The type of the list.
  *
  * @return On success returns 0 or -1 otherwise.
@@ -147,7 +147,7 @@ void *cglist_create(enum cl_object object, void (*free_data)(void *),
  * When releasing a node from the list, the \a free_data function passed while
  * creating the list is called.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  *
  * @return On success returns 0 or -1 otherwise.
@@ -158,7 +158,7 @@ int cglist_destroy(void *list, enum cl_object object);
  * @name cglist_size
  * @brief Gets the list size.
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  *
  * @return On success returns the size of the list or -1 otherwise.
@@ -169,7 +169,7 @@ int cglist_size(const void *list, enum cl_object object);
  * @name cglist_push
  * @brief Pushes a new node onto the list.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] node_content: The content of the new node.
  * @param [in] node_object: The type of the node.
@@ -183,7 +183,7 @@ int cglist_push(void *list, enum cl_object object, const void *node_content,
  * @name cglist_pop
  * @brief Pop a node from a list.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  *
  * @return On success returns the pop'ed node, and the user is responsible
@@ -195,7 +195,7 @@ void *cglist_pop(void *list, enum cl_object object);
  * @name cglist_shift
  * @brief Shifts a node from the far end of a list.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  *
  * @return On success returns the node shifted off the list, and the user is
@@ -207,7 +207,7 @@ void *cglist_shift(void *list, enum cl_object object);
  * @name cglist_unshift
  * @brief Shifts a node onto the far end of a list.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] node_content: The content of the new node.
  * @param [in] node_object: The type of the node.
@@ -225,7 +225,7 @@ int cglist_unshift(void *list, enum cl_object object, const void *node_content,
  * \a data. Its prototype must be something of this type:
  * int foo(void *, void *);
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
@@ -245,7 +245,7 @@ void *cglist_map(const void *list, enum cl_object object,
  * list, a node from the list and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, void *, void *);
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
@@ -258,7 +258,6 @@ void *cglist_map_indexed(const void *list, enum cl_object object,
                          int (*foo)(unsigned int, void *, void *),
                          void *data);
 
-
 /**
  * @name cglist_map_reverse
  * @brief Maps a functions to every onde on a list from the end to the top.
@@ -267,7 +266,7 @@ void *cglist_map_indexed(const void *list, enum cl_object object,
  * \a data. Its prototype must be something of this type:
  * int foo(void *, void *);
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
@@ -287,7 +286,7 @@ void *cglist_map_reverse(const void *list, enum cl_object object,
  * list, a node from the list and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, void *, void *);
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
@@ -304,7 +303,7 @@ void *cglist_map_reverse_indexed(const void *list, enum cl_object object,
  * @name cglist_at
  * @brief Gets a pointer to a specific node inside a list.
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] index: The node index inside the list.
  *
@@ -321,7 +320,7 @@ void *cglist_at(const void *list, enum cl_object object, unsigned int index);
  * from the list and released from memory. This function uses the \a filter
  * function inside.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] data: Some custom data passed to the filter function.
  *
@@ -333,7 +332,7 @@ int cglist_delete(void *list, enum cl_object object, void *data);
  * @name cglist_delete_indexed
  * @brief Deletes an element from a list at a specific position.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] index: The element position on the list.
  *
@@ -360,7 +359,7 @@ void *cglist_move(void *list, enum cl_object object);
  * This function uses the \a filter function to apply the filter on all elements
  * from the list.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] data: Some custom data passed to the filter function.
  *
@@ -376,7 +375,7 @@ void *cglist_filter(void *list, enum cl_object object, void *data);
  * This function uses the \a compare_to function to compare two elements from
  * the list and sort them.
  *
- * @param [in,out] list: The void object.
+ * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  *
  * @return On success returns 0 or -1 otherwise.
@@ -389,7 +388,7 @@ int cglist_sort(void *list, enum cl_object object);
  *
  * This function uses the \a equals function to compare objects from the list.
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] content: The element which will be sought through the list.
  * @param [in] node_object: The type of the node.
@@ -405,7 +404,7 @@ int cglist_indexof(const void *list, enum cl_object object, void *content,
  *
  * This function uses the \a equals function to compare objects from the list.
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] content: The element which will be sought through the list.
  * @param [in] node_object: The type of the node.
@@ -421,7 +420,7 @@ int cglist_last_indexof(const void *list, enum cl_object object, void *content,
  *
  * This function uses the \a equals function to compare objects from the list.
  *
- * @param [in] list: The void object.
+ * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] content: The element which will be sought through the list.
  * @param [in] node_object: The type of the node.
