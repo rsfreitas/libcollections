@@ -50,6 +50,9 @@ struct cobject_hdr {
 #define cl_struct(name)                     \
     struct cl_obj_##name
 
+#define COBJECT_HEADER_ID_SIZE              \
+    sizeof(struct cobject_hdr)
+
 void set_typeof(enum cl_object type, void *p);
 bool validate_object(const void *p, enum cl_object type);
 void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset);

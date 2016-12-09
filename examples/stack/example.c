@@ -90,7 +90,7 @@ static int print_node(cstack_node_t *node, void *data)
 
 int main(void)
 {
-    int numbers[] = {1, 5};//, 0, 0, 2, 4, 5, 7};
+    int numbers[] = {1, 5, 0, 0, 2, 4, 5, 7};
     cstack_t *stack = NULL;
     int i;
     struct node_example e = { 7 };
@@ -100,26 +100,24 @@ int main(void)
                           NULL, equals_node_example);
 
     for (i = 0; i < (sizeof(numbers) / sizeof(numbers[0])); i++)
-        cstack_push(stack, new_node_example(numbers[i]));
+        cstack_push(stack, new_node_example(numbers[i]),
+                    sizeof(struct node_example));
 
     printf("Stack size = %d\n", cstack_size(stack));
-//    cstack_map(stack, print_node, NULL);
+    cstack_map(stack, print_node, NULL);
 
     printf("Sorted stack\n");
-//    cstack_sort(stack);
-//    cstack_map(stack, print_node, NULL);
+    cstack_sort(stack);
+    cstack_map(stack, print_node, NULL);
 
-    if (cstack_contains(stack, &e) == true) {
-//        printf("Index of item with value = %d => %d\n", e.value,
-//               cstack_indexof(stack, &e));
+    if (cstack_contains(stack, &e, sizeof(struct node_example)) == true) {
+        printf("Index of item with value = %d => %d\n", e.value,
+               cstack_indexof(stack, &e, sizeof(struct node_example)));
     }
 
-//    cstack_destroy(stack);
+    cstack_destroy(stack);
 
     collections_uninit();
-
-    /* This makes valgrind report no memory leaks. */
-//    cexit();
 
     return 0;
 }

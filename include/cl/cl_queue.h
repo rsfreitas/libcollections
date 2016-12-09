@@ -180,11 +180,12 @@
  *
  * @param [in,out] queue: The queue object.
  * @param [in] node_content: The content of the new node.
+ * @param [in] size: The size in bytes of the content.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cqueue_dequeue(queue, node_content)                     \
-    cglist_unshift((cqueue_t *)queue, CQUEUE, node_content, CQUEUE_NODE)
+#define cqueue_dequeue(queue, node_content, size)                   \
+    cglist_unshift((cqueue_t *)queue, CQUEUE, node_content, size, CQUEUE_NODE)
 
 /**
  * @name cqueue_map
@@ -352,12 +353,13 @@
  * This function uses the \a equals function to compare objects from the stack.
  *
  * @param [in] stack: The stack object.
- * @param [in] content: The element which will be sought through the stack.
+ * @param [in] element: The element which will be sought through the stack.
+ * @param [in] size: The size in bytes of the element.
  *
  * @return Returns the element index or -1 if it is not found.
  */
-#define cqueue_indexof(queue, content)                          \
-    cglist_indexof((cqueue_t *)queue, CQUEUE, content, CQUEUE_NODE)
+#define cqueue_indexof(queue, element, size)                        \
+    cglist_indexof((cqueue_t *)queue, CQUEUE, element, size, CQUEUE_NODE)
 
 /**
  * @name cqueue_last_indexof
@@ -366,12 +368,13 @@
  * This function uses the \a equals function to compare objects from the stack.
  *
  * @param [in] stack: The stack object.
- * @param [in] content: The element which will be sought through the stack.
+ * @param [in] element: The element which will be sought through the stack.
+ * @param [in] size: The size in bytes of the element.
  *
  * @return Returns the element index or -1 if it is not found.
  */
-#define cqueue_last_indexof(queue, content)                     \
-    cglist_last_indexof((cqueue_t *)queue, CQUEUE, content, CQUEUE_NODE)
+#define cqueue_last_indexof(queue, element, size)                   \
+    cglist_last_indexof((cqueue_t *)queue, CQUEUE, element, size, CQUEUE_NODE)
 
 /**
  * @name cqueue_contains
@@ -380,12 +383,13 @@
  * This function uses the \a equals function to compare objects from the stack.
  *
  * @param [in] stack: The stack object.
- * @param [in] content: The element which will be sought through the stack.
+ * @param [in] element: The element which will be sought through the stack.
+ * @param [in] size: The size in bytes of the element.
  *
  * @return Returns true if the element is found or false otherwise.
  */
-#define cqueue_contains(queue, content)                         \
-    cglist_contains((cqueue_t *)queue, CQUEUE, content, CQUEUE_NODE)
+#define cqueue_contains(queue, element, size)                       \
+    cglist_contains((cqueue_t *)queue, CQUEUE, element, size, CQUEUE_NODE)
 
 #endif
 

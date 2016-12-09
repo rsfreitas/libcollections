@@ -44,6 +44,7 @@ struct gnode_s {
     clist_entry_t       *next;
     struct cobject_hdr  hdr;
     void                *content;
+    unsigned int        content_size;
     struct ref_s        ref;
 
     /*
@@ -97,7 +98,13 @@ static bool is_list_of_cobjects(glist_s *list)
     if (NULL == node)
         return false;
 
-    printf("%s: %d\n", __FUNCTION__, node->content == NULL);
+    /*
+     * If we're holding information smaller than a cobject_hdr structure we
+     * don't even need to validate it.
+     */
+    if (node->content_size < COBJECT_HEADER_ID_SIZE)
+        return false;
+
     return validate_object(node->content, COBJECT);
 }
 
@@ -170,8 +177,8 @@ static void __destroy_node(const struct ref_s *ref)
 /*
  * Creates a new struct gnode_s with @content inside.
  */
-static struct gnode_s *new_node(const void *content, glist_s *list,
-    enum cl_object object)
+static struct gnode_s *new_node(const void *content, unsigned int content_size,
+    glist_s *list, enum cl_object object)
 {
     struct gnode_s *n = NULL;
 
@@ -183,12 +190,12 @@ static struct gnode_s *new_node(const void *content, glist_s *list,
     }
 
     n->content = (void *)content;
+    n->content_size = content_size;
     n->free_data = list->free_data;
     n->ref.free = __destroy_node;
     n->ref.count = 1;
 
     set_typeof_with_offset(object, n, CLIST_NODE_OFFSET);
-    printf("%s: %p, %d\n", __FUNCTION__, &n->hdr, n->hdr.object);
 
     return n;
 }
@@ -324,13 +331,13 @@ int LIBEXPORT cglist_size(const void *list, enum cl_object object)
 }
 
 int LIBEXPORT cglist_push(void *list, enum cl_object object,
-    const void *node_content, enum cl_object node_object)
+    const void *node_content, unsigned int size, enum cl_object node_object)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
 
     __clib_function_init__(true, list, object, -1);
-    node = new_node(node_content, l, node_object);
+    node = new_node(node_content, size, l, node_object);
 
     if (NULL == node)
         return -1;
@@ -397,13 +404,13 @@ void LIBEXPORT *cglist_shift(void *list, enum cl_object object)
 }
 
 int LIBEXPORT cglist_unshift(void *list, enum cl_object object,
-    const void *node_content, enum cl_object node_object)
+    const void *node_content, unsigned int size, enum cl_object node_object)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
 
     __clib_function_init__(true, list, object, -1);
-    node = new_node(node_content, l, node_object);
+    node = new_node(node_content, size, l, node_object);
 
     if (NULL == node)
         return -1;
@@ -662,7 +669,7 @@ int LIBEXPORT cglist_sort(void *list, enum cl_object object)
 }
 
 static int get_indexof(const void *list, enum cl_object object, void *content,
-    enum cl_object node_content, bool bottom_up)
+    unsigned int size, enum cl_object node_content, bool bottom_up)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
@@ -677,7 +684,7 @@ static int get_indexof(const void *list, enum cl_object object, void *content,
         return -1;
     }
 
-    node = new_node(content, l, node_content);
+    node = new_node(content, size, l, node_content);
 
     if (NULL == node)
         return -1;
@@ -697,19 +704,19 @@ static int get_indexof(const void *list, enum cl_object object, void *content,
 }
 
 int LIBEXPORT cglist_indexof(const void *list, enum cl_object object,
-    void *content, enum cl_object node_object)
+    void *content, unsigned int size, enum cl_object node_object)
 {
-    return get_indexof(list, object, content, node_object, false);
+    return get_indexof(list, object, content, size, node_object, false);
 }
 
 int LIBEXPORT cglist_last_indexof(const void *list, enum cl_object object,
-    void *content, enum cl_object node_object)
+    void *content, unsigned int size, enum cl_object node_object)
 {
-    return get_indexof(list, object, content, node_object, true);
+    return get_indexof(list, object, content, size, node_object, true);
 }
 
 bool LIBEXPORT cglist_contains(const void *list, enum cl_object object,
-    void *content, enum cl_object node_object)
+    void *content, unsigned int size, enum cl_object node_object)
 {
     glist_s *l = (glist_s *)list;
     bool list_of_cobjects;
@@ -724,8 +731,7 @@ bool LIBEXPORT cglist_contains(const void *list, enum cl_object object,
         return -1;
     }
 
-    st = false;
-/*    node = new_node(content, l, node_object);
+    node = new_node(content, size, l, node_object);
 
     if (NULL == node)
         return -1;
@@ -734,7 +740,7 @@ bool LIBEXPORT cglist_contains(const void *list, enum cl_object object,
                        (list_of_cobjects == true) ? cobjects_are_equal
                                                   : l->equals);
 
-    destroy_node(node, false);*/
+    destroy_node(node, false);
 
     return st;
 }

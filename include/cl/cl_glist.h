@@ -172,12 +172,13 @@ int cglist_size(const void *list, enum cl_object object);
  * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] node_content: The content of the new node.
+ * @param [in] size: The size in bytes of the content.
  * @param [in] node_object: The type of the node.
  *
  * @return On success returns 0 or -1 otherwise.
  */
 int cglist_push(void *list, enum cl_object object, const void *node_content,
-                enum cl_object node_object);
+                unsigned int size, enum cl_object node_object);
 
 /**
  * @name cglist_pop
@@ -210,12 +211,13 @@ void *cglist_shift(void *list, enum cl_object object);
  * @param [in,out] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] node_content: The content of the new node.
+ * @param [in] size: The size in bytes of the content.
  * @param [in] node_object: The type of the node.
  *
  * @return On success returns 0 or -1 otherwise.
  */
 int cglist_unshift(void *list, enum cl_object object, const void *node_content,
-                   enum cl_object node_object);
+                   unsigned int size, enum cl_object node_object);
 
 /**
  * @name cglist_map
@@ -391,12 +393,13 @@ int cglist_sort(void *list, enum cl_object object);
  * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] content: The element which will be sought through the list.
+ * @param [in] size: The size in bytes of the element.
  * @param [in] node_object: The type of the node.
  *
  * @return Returns the element index or -1 if it is not found.
  */
 int cglist_indexof(const void *list, enum cl_object object, void *content,
-                   enum cl_object node_object);
+                   unsigned int size, enum cl_object node_object);
 
 /**
  * @name cglist_last_indexof
@@ -407,12 +410,13 @@ int cglist_indexof(const void *list, enum cl_object object, void *content,
  * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] content: The element which will be sought through the list.
+ * @param [in] size: The size in bytes of the element.
  * @param [in] node_object: The type of the node.
  *
  * @return Returns the element index or -1 if it is not found.
  */
 int cglist_last_indexof(const void *list, enum cl_object object, void *content,
-                        enum cl_object node_object);
+                        unsigned int size, enum cl_object node_object);
 
 /**
  * @name cglist_contains
@@ -423,12 +427,13 @@ int cglist_last_indexof(const void *list, enum cl_object object, void *content,
  * @param [in] list: The list object.
  * @param [in] object: The type of the list.
  * @param [in] content: The element which will be sought through the list.
+ * @param [in] size: The size in bytes of the element.
  * @param [in] node_object: The type of the node.
  *
  * @return Returns true if the element is found or false otherwise.
  */
 bool cglist_contains(const void *list, enum cl_object object, void *content,
-                     enum cl_object node_object);
+                     unsigned int size, enum cl_object node_object);
 
 #endif
 

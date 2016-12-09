@@ -168,11 +168,12 @@
  *
  * @param [in,out] stack: The stack object.
  * @param [in] node_content: The content of the new node.
+ * @param [in] size: The size in bytes of the element.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_push(stack, node_content)                        \
-    cglist_push((cstack_t *)stack, CSTACK, node_content, CSTACK_NODE)
+#define cstack_push(stack, node_content, size)                      \
+    cglist_push((cstack_t *)stack, CSTACK, node_content, size, CSTACK_NODE)
 
 /**
  * @name cstack_pop
@@ -199,7 +200,7 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         element, and if it is stack of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cstack_map(stack, foo, data)                            \
@@ -218,7 +219,7 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         element, and if it is stack of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cstack_map_indexed(stack, foo, data)                    \
@@ -237,7 +238,7 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         element, and if it is stack of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cstack_map_reverse(stack, foo, data)                    \
@@ -256,7 +257,7 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         element, and if it is stack of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cstack_map_reverse_indexed(stack, foo, data)            \
@@ -269,7 +270,7 @@
  * @param [in] stack: The stack object.
  * @param [in] index: The node index inside the stack.
  *
- * @return On success returns the node content, and if it is a stack of cobject_t
+ * @return On success returns the node element, and if it is a stack of cobject_t
  *         objects returns a new reference to it, or NULL otherwise.
  */
 #define cstack_at(stack, index)     \
@@ -352,12 +353,13 @@
  * This function uses the \a equals function to compare objects from the stack.
  *
  * @param [in] stack: The stack object.
- * @param [in] content: The element which will be sought through the stack.
+ * @param [in] element: The element which will be sought through the stack.
+ * @param [in] size: The size in bytes of the element.
  *
  * @return Returns the element index or -1 if it is not found.
  */
-#define cstack_indexof(stack, content)                          \
-    cglist_indexof((cstack_t *)stack, CSTACK, content, CSTACK_NODE)
+#define cstack_indexof(stack, element, size)                    \
+    cglist_indexof((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE)
 
 /**
  * @name cstack_last_indexof
@@ -366,12 +368,13 @@
  * This function uses the \a equals function to compare objects from the stack.
  *
  * @param [in] stack: The stack object.
- * @param [in] content: The element which will be sought through the stack.
+ * @param [in] element: The element which will be sought through the stack.
+ * @param [in] size: The size in bytes of the element.
  *
  * @return Returns the element index or -1 if it is not found.
  */
-#define cstack_last_indexof(stack, content)                     \
-    cglist_last_indexof((cstack_t *)stack, CSTACK, content, CSTACK_NODE)
+#define cstack_last_indexof(stack, element, size)                   \
+    cglist_last_indexof((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE)
 
 /**
  * @name cstack_contains
@@ -380,12 +383,13 @@
  * This function uses the \a equals function to compare objects from the stack.
  *
  * @param [in] stack: The stack object.
- * @param [in] content: The element which will be sought through the stack.
+ * @param [in] element: The element which will be sought through the stack.
+ * @param [in] size: The size in bytes of the element.
  *
  * @return Returns true if the element is found or false otherwise.
  */
-#define cstack_contains(stack, content)                         \
-    cglist_contains((cstack_t *)stack, CSTACK, content, CSTACK_NODE)
+#define cstack_contains(stack, element, size)                       \
+    cglist_contains((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE)
 
 #endif
 
