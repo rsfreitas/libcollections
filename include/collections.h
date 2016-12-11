@@ -51,14 +51,17 @@ extern "C" {
 #include <cl/cl_init.h>
 #include <cl/cl_io.h>
 #include <cl/cl_json.h>
+#include <cl/cl_list.h>
 #include <cl/cl_log.h>
 #include <cl/cl_mem.h>
 #include <cl/cl_object.h>
+#include <cl/cl_queue.h>
 #include <cl/cl_plugin_macros.h>
 #include <cl/cl_plugin.h>
 #include <cl/cl_process.h>
 #include <cl/cl_random.h>
 #include <cl/cl_specs.h>
+#include <cl/cl_stack.h>
 #include <cl/cl_string.h>
 #include <cl/cl_stringlist.h>
 #include <cl/cl_thread.h>

@@ -33,33 +33,6 @@
 # endif
 #endif
 
-enum cl_object {
-    CSTRING,
-    CSTRINGLIST,
-    CFG_FILE,
-    CFG_SECTION,
-    CFG_KEY,
-    CJSON,
-    CDATETIME,
-    CTIMEOUT,
-    CTHREAD,
-    CTIMER,
-    CTIMER_INFO,
-    CTIMER_ARG,     /* This is not our type, so we can't validate it */
-    CHAT,
-    CLIST,
-    CEVENT,
-    COBJECT,
-    CSPEC,
-    COUNTER,
-    CPLUGIN,
-    CPLUGIN_ARG,
-    CPLUGIN_INFO,
-    CLOG,
-    CIMAGE,
-    CLIST_NODE
-};
-
 struct cobject_hdr {
     unsigned long long  lib_id;
     enum cl_object      object;
@@ -76,6 +49,9 @@ struct cobject_hdr {
 
 #define cl_struct(name)                     \
     struct cl_obj_##name
+
+#define COBJECT_HEADER_ID_SIZE              \
+    sizeof(struct cobject_hdr)
 
 void set_typeof(enum cl_object type, void *p);
 bool validate_object(const void *p, enum cl_object type);
