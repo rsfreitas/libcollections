@@ -107,6 +107,7 @@ LIBCOLLECTIONS_0.1 {
         cdll_contains;
         cdll_indexof;
         cdll_last_indexof;
+        cdll_peek;
         cerrno_storage;
         cexit;
         cget_last_error;
@@ -277,6 +278,8 @@ LIBCOLLECTIONS_0.1 {
         clog_set_separator;
         clog_vprintf;
         cglist_node_content;
+        cglist_node_ref;
+        cglist_node_unref;
         cglist_ref;
         cglist_unref;
         cglist_create;
@@ -299,6 +302,8 @@ LIBCOLLECTIONS_0.1 {
         cglist_indexof;
         cglist_last_indexof;
         cglist_contains;
+        cglist_peek;
+        cglist_is_empty;
         collections_init;
         collections_uninit;
         cimage_ref;

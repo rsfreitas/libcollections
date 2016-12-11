@@ -435,5 +435,30 @@ int cglist_last_indexof(const void *list, enum cl_object object, void *content,
 bool cglist_contains(const void *list, enum cl_object object, void *content,
                      unsigned int size, enum cl_object node_object);
 
+/**
+ * @name cglist_peek
+ * @brief Retrieves, but does not remove, the head of the list.
+ *
+ * @param [in] list: The list object.
+ * @param [in] object: The type of the list.
+ *
+ * @return Returns the head of the list on success or NULL otherwise. The head
+ *         will be a node from the list, so the user will have to use the
+ *         function to get the content of it.
+ */
+void *cglist_peek(const void *list, enum cl_object object,
+                  enum cl_object node_object);
+
+/**
+ * @name cglist_is_empty
+ * @brief Tests to see if the list is empty or not.
+ *
+ * @param [in] list: The list object.
+ * @param [in] object: The type of the list.
+ *
+ * @return Returns true if the list is empty or false otherwise.
+ */
+bool cglist_is_empty(const void *list, enum cl_object object);
+
 #endif
 

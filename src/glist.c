@@ -29,8 +29,6 @@
  *
  * Add API to change internal list functions like compare_to, filter and
  * equals on the fly.
- *
- * peek
  */
 
 #include <stdlib.h>
@@ -151,12 +149,19 @@ static void destroy_node(struct gnode_s *node, bool free_content)
             (node->free_data)(node->content);
         else {
             /*
-             * If we're holding cobject_t pointers we know how to destroy them.
+             * If we're holding information smaller than a cobject_hdr structure
+             * we don't even need to validate it and call free on it.
              */
-            if (validate_object(node->content, COBJECT) == true)
-                cobject_destroy(node->content);
-            else
+            if (node->content_size < COBJECT_HEADER_ID_SIZE)
                 free(node->content);
+            else {
+                /*
+                 * If we're holding cobject_t pointers we know how to destroy
+                 * them.
+                 */
+                if (validate_object(node->content, COBJECT) == true)
+                    cobject_destroy(node->content);
+            }
         }
     }
 
@@ -354,7 +359,6 @@ void LIBEXPORT *cglist_pop(void *list, enum cl_object object)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
-    void *p = NULL;
 
     __clib_function_init__(true, list, object, NULL);
 
@@ -369,18 +373,13 @@ void LIBEXPORT *cglist_pop(void *list, enum cl_object object)
     if (NULL == node)
         return NULL;
 
-    p = node->content;
-    destroy_node(node, false);
-
-    /* Warning, the user is responsible for releasing @p */
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(p) : p;
+    return node;
 }
 
 void LIBEXPORT *cglist_shift(void *list, enum cl_object object)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
-    void *content = NULL;
 
     __clib_function_init__(true, list, object, NULL);
 
@@ -395,12 +394,7 @@ void LIBEXPORT *cglist_shift(void *list, enum cl_object object)
     if (NULL == node)
         return NULL;
 
-    /* We save the node content to return it soon. */
-    content = node->content;
-    destroy_node(node, false);
-
-    /* Warning, the user is responsible for releasing @p */
-    return (is_list_of_cobjects(l) == true) ? cobject_ref(content) : content;
+    return node;
 }
 
 int LIBEXPORT cglist_unshift(void *list, enum cl_object object,
@@ -633,7 +627,7 @@ void LIBEXPORT *cglist_filter(void *list, enum cl_object object, void *data)
 
 /*
  * This function must be used by the user to get a reference to its own
- * object from events function, like compare_to, filter, equals and
+ * object from within events function, like compare_to, filter, equals and
  * functions passed to _map_ functions.
  */
 void LIBEXPORT *cglist_node_content(const void *node, enum cl_object object)
@@ -661,7 +655,7 @@ int LIBEXPORT cglist_sort(void *list, enum cl_object object)
     pthread_mutex_lock(&l->lock);
     l->list = cdll_mergesort(l->list,
                              (list_of_cobjects == true) ? compare_cobjects
-                                                     : l->compare_to);
+                                                        : l->compare_to);
 
     pthread_mutex_unlock(&l->lock);
 
@@ -743,5 +737,27 @@ bool LIBEXPORT cglist_contains(const void *list, enum cl_object object,
     destroy_node(node, false);
 
     return st;
+}
+
+void LIBEXPORT *cglist_peek(const void *list, enum cl_object object,
+    enum cl_object node_object)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node;
+
+    __clib_function_init__(true, list, object, NULL);
+    node = cdll_peek(l->list);
+
+    if (NULL == node)
+        return NULL;
+
+    return cglist_node_ref(node, node_object);
+}
+
+bool LIBEXPORT cglist_is_empty(const void *list, enum cl_object object)
+{
+    __clib_function_init__(true, list, object, false);
+
+    return (NULL == list) ? true : false;
 }
 

@@ -289,5 +289,15 @@ int cdll_indexof(void *root, void *n, int (*foo)(void *, void *));
  */
 int cdll_last_indexof(void *root, void *n, int (*foo)(void *, void *));
 
+/**
+ * @name cdll_peek
+ * @brief Retrieves, but does not remove, the head of the list.
+ *
+ * @param [in] list: The list.
+ *
+ * @return Returns NULL if the list is empty or the head of it otherwise.
+ */
+void *cdll_peek(void *root);
+
 #endif
 
