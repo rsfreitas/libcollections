@@ -35,13 +35,13 @@
 
 /**
  * @name cqueue_node_content
- * @brief A function to retrieve the content of a stack node.
+ * @brief A function to retrieve the content of a queue node.
  *
  * This function must be used by the user to get a reference to its own object
  * from events functions, like compare_to, filter, equals and functions passed
  * to _map_ functions.
  *
- * @param [in] node: A stack node.
+ * @param [in] node: A queue node.
  *
  * @return On success returns the content of the node or NULL otherwise.
  */
@@ -78,7 +78,7 @@
  * @name cqueue_ref
  * @brief Increases the reference count for a void item.
  *
- * @param [in,out] stack: The stack item.
+ * @param [in,out] queue: The queue item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
@@ -93,7 +93,7 @@
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] stack: The stack item.
+ * @param [in,out] queue: The queue item.
  *
  * @return On success returns 0 or -1 otherwise.
  */
@@ -102,17 +102,17 @@
 
 /**
  * @name cqueue_create
- * @brief Creates a new stack object.
+ * @brief Creates a new queue object.
  *
- * This function creates a new stack object to manipulate all kind of data. It is
+ * This function creates a new queue object to manipulate all kind of data. It is
  * not recommended manipulate primitive types.
  *
  * The function receives a few function pointers to be used by its API,
- * \a free_data is a function used to release the content of a stack node,
- * \a compare_to is a function to be used while sorting a stack it must return
+ * \a free_data is a function used to release the content of a queue node,
+ * \a compare_to is a function to be used while sorting a queue it must return
  * a negative value, zero or a positive value if the nodes are less then, equal
  * to or, greater then one another, \a filter is a function used to extract
- * elements from the stack if it returns a positive value and \a equals is also a
+ * elements from the queue if it returns a positive value and \a equals is also a
  * function to compare two nodes except that it must return a positive value
  * when the nodes are equal or zero otherwise.
  *
@@ -141,10 +141,10 @@
  * @name cqueue_destroy
  * @brief Releases a void from memory.
  *
- * When releasing a node from the stack, the \a free_data function passed while
- * creating the stack is called.
+ * When releasing a node from the queue, the \a free_data function passed while
+ * creating the queue is called.
  *
- * @param [in,out] stack: The stack object.
+ * @param [in,out] queue: The queue object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
@@ -153,11 +153,11 @@
 
 /**
  * @name cqueue_size
- * @brief Gets the stack size.
+ * @brief Gets the queue size.
  *
- * @param [in] stack: The stack object.
+ * @param [in] queue: The queue object.
  *
- * @return On success returns the size of the stack or -1 otherwise.
+ * @return On success returns the size of the queue or -1 otherwise.
  */
 #define cqueue_size(queue)          \
     cglist_size((cqueue_t *)queue, CQUEUE)
@@ -189,18 +189,18 @@
 
 /**
  * @name cqueue_map
- * @brief Maps a function to every node on a stack.
+ * @brief Maps a function to every node on a queue.
  *
- * The \a foo function receives as arguments a node from the stack and some
+ * The \a foo function receives as arguments a node from the queue and some
  * \a data. Its prototype must be something of this type:
  * int foo(cqueue_node_t *, void *);
  *
- * @param [in] stack: The stack object.
+ * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         content, and if it is queue of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cqueue_map(queue, foo, data)                            \
@@ -208,18 +208,18 @@
 
 /**
  * @name cqueue_map_indexed
- * @brief Maps a function to every node on a stack.
+ * @brief Maps a function to every node on a queue.
  *
  * The \a foo function receives as arguments the current node index inside the
- * stack, a node from the stack and some custom \a data. Its prototype must be
+ * queue, a node from the queue and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
  *
- * @param [in] stack: The stack object.
+ * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         content, and if it is queue of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cqueue_map_indexed(queue, foo, data)                    \
@@ -227,18 +227,18 @@
 
 /**
  * @name cqueue_map_reverse
- * @brief Maps a functions to every onde on a stack from the end to the top.
+ * @brief Maps a functions to every onde on a queue from the end to the top.
  *
- * The \a foo function receives as arguments a node from the stack and some
+ * The \a foo function receives as arguments a node from the queue and some
  * \a data. Its prototype must be something of this type:
  * int foo(cqueue_node_t *, void *);
  *
- * @param [in] stack: The stack object.
+ * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         content, and if it is queue of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cqueue_map_reverse(queue, foo, data)                    \
@@ -246,18 +246,18 @@
 
 /**
  * @name cqueue_map_reverse_indexed
- * @brief Maps a function to every node on a stack from the end to the top.
+ * @brief Maps a function to every node on a queue from the end to the top.
  *
  * The \a foo function receives as arguments the current node index inside the
- * stack, a node from the stack and some custom \a data. Its prototype must be
+ * queue, a node from the queue and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
  *
- * @param [in] stack: The stack object.
+ * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content, and if it is stack of cobject_t objects returns a new
+ *         content, and if it is queue of cobject_t objects returns a new
  *         reference to it. If not returns NULL.
  */
 #define cqueue_map_reverse_indexed(queue, foo, data)            \
@@ -265,12 +265,12 @@
 
 /**
  * @name cqueue_at
- * @brief Gets a pointer to a specific node inside a stack.
+ * @brief Gets a pointer to a specific node inside a queue.
  *
- * @param [in] stack: The stack object.
- * @param [in] index: The node index inside the stack.
+ * @param [in] queue: The queue object.
+ * @param [in] index: The node index inside the queue.
  *
- * @return On success returns the node content, and if it is a stack of cobject_t
+ * @return On success returns the node content, and if it is a queue of cobject_t
  *         objects returns a new reference to it, or NULL otherwise.
  */
 #define cqueue_at(queue, index)     \
@@ -281,10 +281,10 @@
  * @brief Deletes elements from a lista according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
- * from the stack and released from memory. This function uses the \a filter
+ * from the queue and released from memory. This function uses the \a filter
  * function inside.
  *
- * @param [in,out] stack: The stack object.
+ * @param [in,out] queue: The queue object.
  * @param [in] data: Some custom data passed to the filter function.
  *
  * @return On success returns 0 or -1 otherwise.
@@ -294,10 +294,10 @@
 
 /**
  * @name cqueue_delete_indexed
- * @brief Deletes an element from a stack at a specific position.
+ * @brief Deletes an element from a queue at a specific position.
  *
- * @param [in,out] stack: The stack object.
- * @param [in] index: The element position on the stack.
+ * @param [in,out] queue: The queue object.
+ * @param [in] index: The element position on the queue.
  *
  * @return On success returns 0 or -1 otherwise.
  */
@@ -306,40 +306,40 @@
 
 /**
  * @name cqueue_move
- * @brief Moves all elements from a stack to another.
+ * @brief Moves all elements from a queue to another.
  *
- * @param [in] stack: The original void object.
+ * @param [in] queue: The original void object.
  *
- * @return Returns the new stack.
+ * @return Returns the new queue.
  */
 #define cqueue_move(queue)          \
     cglist_move((cqueue_t *)queue, CQUEUE)
 
 /**
  * @name cqueue_filter
- * @brief Extracts elements from a stack according a specific filter.
+ * @brief Extracts elements from a queue according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
  * This function uses the \a filter function to apply the filter on all elements
- * from the stack.
+ * from the queue.
  *
- * @param [in,out] stack: The stack object.
+ * @param [in,out] queue: The queue object.
  * @param [in] data: Some custom data passed to the filter function.
  *
- * @return Returns a stack containing all extracted elements from the original
- *         stack.
+ * @return Returns a queue containing all extracted elements from the original
+ *         queue.
  */
 #define cqueue_filter(queue, data)  \
     cglist_filter((cqueue_t *)queue, CQUEUE, data)
 
 /**
  * @name cqueue_sort
- * @brief Sort all elements from a stack.
+ * @brief Sort all elements from a queue.
  *
  * This function uses the \a compare_to function to compare two elements from
- * the stack and sort them.
+ * the queue and sort them.
  *
- * @param [in,out] stack: The stack object.
+ * @param [in,out] queue: The queue object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
@@ -348,12 +348,12 @@
 
 /**
  * @name cqueue_indexof
- * @brief Gets the index of the first occurrence of an element inside the stack.
+ * @brief Gets the index of the first occurrence of an element inside the queue.
  *
- * This function uses the \a equals function to compare objects from the stack.
+ * This function uses the \a equals function to compare objects from the queue.
  *
- * @param [in] stack: The stack object.
- * @param [in] element: The element which will be sought through the stack.
+ * @param [in] queue: The queue object.
+ * @param [in] element: The element which will be sought through the queue.
  * @param [in] size: The size in bytes of the element.
  *
  * @return Returns the element index or -1 if it is not found.
@@ -363,12 +363,12 @@
 
 /**
  * @name cqueue_last_indexof
- * @brief Gets the index of the last occurrence of an element inside the stack.
+ * @brief Gets the index of the last occurrence of an element inside the queue.
  *
- * This function uses the \a equals function to compare objects from the stack.
+ * This function uses the \a equals function to compare objects from the queue.
  *
- * @param [in] stack: The stack object.
- * @param [in] element: The element which will be sought through the stack.
+ * @param [in] queue: The queue object.
+ * @param [in] element: The element which will be sought through the queue.
  * @param [in] size: The size in bytes of the element.
  *
  * @return Returns the element index or -1 if it is not found.
@@ -378,12 +378,12 @@
 
 /**
  * @name cqueue_contains
- * @brief Checks if a stack contains a specific element.
+ * @brief Checks if a queue contains a specific element.
  *
- * This function uses the \a equals function to compare objects from the stack.
+ * This function uses the \a equals function to compare objects from the queue.
  *
- * @param [in] stack: The stack object.
- * @param [in] element: The element which will be sought through the stack.
+ * @param [in] queue: The queue object.
+ * @param [in] element: The element which will be sought through the queue.
  * @param [in] size: The size in bytes of the element.
  *
  * @return Returns true if the element is found or false otherwise.

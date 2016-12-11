@@ -64,8 +64,8 @@ ifeq ($(JAVAPLUGIN), 1)
 	dl_java.o
 
     JNI_OBJS =		\
-	jni_CpluginArguments.o		\
-	jni_CpluginObject.o		\
+	jni_CpluginArguments.o	\
+	jni_CpluginObject.o	\
 	jni_CpluginType.o
 endif
 
@@ -87,54 +87,55 @@ JNI_PATH = ./plugin/java
 VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)
 
 CHAT_OBJS =	\
-	chat_misc.o			\
-	drv_raw_socket.o		\
-	ipc_tcp.o			\
+	chat_misc.o		\
+	drv_raw_socket.o	\
+	ipc_tcp.o		\
 	ipc_udp.o
 
 DL_OBJS = $(PY_DL_OBJS) $(JAVA_DL_OBJS)
 
 PLUGIN_OBJS =	\
-	api_parser.o		\
-	call.o			\
-	dl.o			\
-	dl_c.o			\
-	info.o			\
-	pl_misc.o		\
-	rv.o			\
-	$(DL_OBJS)		\
+	api_parser.o	\
+	call.o		\
+	dl.o		\
+	dl_c.o		\
+	info.o		\
+	pl_misc.o	\
+	rv.o		\
+	$(DL_OBJS)	\
 	$(JNI_OBJS)
 
 OBJS =	\
-	$(CHAT_OBJS)		\
-	$(PLUGIN_OBJS)		\
-	cfg.o			\
-	chat.o			\
-	counter.o		\
-	datetime.o		\
-	dll.o			\
-	error.o			\
-	event.o			\
-	file.o			\
-	glist.o			\
-	init.o			\
-	io.o			\
-	json.o			\
-	log.o			\
-	mem.o			\
-	object.o		\
-	plugin.o		\
-	process.o		\
-	random.o		\
-	ref.o			\
-	specs.o			\
-	string.o		\
-	stringlist.o		\
-	thread.o		\
-	timeout.o		\
-	timer.o			\
-	typeof.o		\
-	util.o			\
+	$(CHAT_OBJS)	\
+	$(PLUGIN_OBJS)	\
+	array.o		\
+	cfg.o		\
+	chat.o		\
+	counter.o	\
+	datetime.o	\
+	dll.o		\
+	error.o		\
+	event.o		\
+	file.o		\
+	glist.o		\
+	init.o		\
+	io.o		\
+	json.o		\
+	log.o		\
+	mem.o		\
+	object.o	\
+	plugin.o	\
+	process.o	\
+	random.o	\
+	ref.o		\
+	specs.o		\
+	string.o	\
+	stringlist.o	\
+	thread.o	\
+	timeout.o	\
+	timer.o		\
+	typeof.o	\
+	util.o		\
 	$(IMAGE_OBJ)
 
 $(TARGET): outputdir $(OBJS)
