@@ -512,3 +512,13 @@ int LIBEXPORT cdll_last_indexof(void *root, void *n,
     return -1;
 }
 
+void LIBEXPORT *cdll_peek(void *root)
+{
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (NULL == root)
+        return NULL;
+
+    return root;
+}
+

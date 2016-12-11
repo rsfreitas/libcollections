@@ -108,7 +108,6 @@ PLUGIN_OBJS =	\
 OBJS =	\
 	$(CHAT_OBJS)	\
 	$(PLUGIN_OBJS)	\
-	array.o		\
 	cfg.o		\
 	chat.o		\
 	counter.o	\

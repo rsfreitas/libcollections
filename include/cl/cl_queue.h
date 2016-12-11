@@ -46,7 +46,7 @@
  * @return On success returns the content of the node or NULL otherwise.
  */
 #define cqueue_node_content(node)   \
-    cglist_node_content((cqueue_queue_t *)node, CQUEUE_NODE)
+    cglist_node_content((cqueue_node_t *)node, CQUEUE_NODE)
 
 /**
  * @name cqueue_node_ref
@@ -58,7 +58,7 @@
  *         increased or NULL otherwise.
  */
 #define cqueue_node_ref(node)       \
-    (cqueue_queue_t *)cglist_node_ref((cqueue_queue_t *)node, CQUEUE_NODE)
+    (cqueue_node_t *)cglist_node_ref((cqueue_node_t *)node, CQUEUE_NODE)
 
 /**
  * @name cqueue_node_unref
@@ -72,7 +72,7 @@
  * @return On success returns 0 or -1 otherwise.
  */
 #define cqueue_node_unref(node)     \
-    cglist_node_unref((cqueue_queue_t *)node, CQUEUE_NODE)
+    cglist_node_unref((cqueue_node_t *)node, CQUEUE_NODE)
 
 /**
  * @name cqueue_ref
@@ -163,20 +163,20 @@
     cglist_size((cqueue_t *)queue, CQUEUE)
 
 /**
- * @name cqueue_enqueue
- * @brief Shifts a node from the far end of a queue.
+ * @name cqueue_dequeue
+ * @brief Retrieves and removes the head of the queue.
  *
  * @param [in,out] queue: The queue object.
  *
  * @return On success returns the node shifted off the list, and the user is
  *         responsible for releasing it, or NULL otherwise.
  */
-#define cqueue_enqueue(queue)       \
-    cglist_shift((cqueue_t *)queue, CQUEUE)
+#define cqueue_dequeue(queue)       \
+    (cqueue_node_t *)cglist_pop((cqueue_t *)queue, CQUEUE)
 
 /**
- * @name cqueue_dequeue
- * @brief Shifts a node onto the far end of a queue.
+ * @name cqueue_enqueue
+ * @brief Inserts an element into the queue.
  *
  * @param [in,out] queue: The queue object.
  * @param [in] node_content: The content of the new node.
@@ -184,7 +184,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cqueue_dequeue(queue, node_content, size)                   \
+#define cqueue_enqueue(queue, node_content, size)                   \
     cglist_unshift((cqueue_t *)queue, CQUEUE, node_content, size, CQUEUE_NODE)
 
 /**
@@ -390,6 +390,28 @@
  */
 #define cqueue_contains(queue, element, size)                       \
     cglist_contains((cqueue_t *)queue, CQUEUE, element, size, CQUEUE_NODE)
+
+/**
+ * @name cqueue_front
+ * @brief Retrieves, but does not remove, the head of the queue.
+ *
+ * @param [in] queue: The queue object.
+ *
+ * @return Returns NULL if the queue is empty or the head of it.
+ */
+#define cqueue_front(queue)          \
+    (cqueue_node_t *)cglist_peek((cqueue_t *)queue, CQUEUE, CQUEUE_NODE)
+
+/**
+ * @name cqueue_is_empty
+ * @brief Tests to see if the queue is empty or not.
+ *
+ * @param [in] queue: The queue object.
+ *
+ * @return Returns true if the list is empty or false otherwise.
+ */
+#define cqueue_is_empty(queue)      \
+    cglist_is_empty((cqueue_t *)queue, CQUEUE)
 
 #endif
 

@@ -185,7 +185,7 @@
  *         for releasing it, or NULL otherwise.
  */
 #define cstack_pop(stack)           \
-    cglist_pop((cstack_t *)stack, CSTACK)
+    (cstack_node_t *)cglist_shift((cstack_t *)stack, CSTACK)
 
 /**
  * @name cstack_map
@@ -390,6 +390,28 @@
  */
 #define cstack_contains(stack, element, size)                       \
     cglist_contains((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE)
+
+/**
+ * @name cstack_peek
+ * @brief Retrieves, but does not remove, the head of the stack.
+ *
+ * @param [in] stack: The stack object.
+ *
+ * @return Returns NULL if the stack is empty or the head of it.
+ */
+#define cstack_peek(stack)          \
+    (cstack_node_t *)cglist_peek((cstack_t *)stack, CSTACK, CSTACK_NODE)
+
+/**
+ * @name cstack_is_empty
+ * @brief Tests to see if the stack is empty or not.
+ *
+ * @param [in] stack: The stack object.
+ *
+ * @return Returns true if the list is empty or false otherwise.
+ */
+#define cstack_is_empty(stack)      \
+    cglist_is_empty((cstack_t *)stack, CSTACK)
 
 #endif
 
