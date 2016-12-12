@@ -1235,7 +1235,7 @@ cimage_t LIBEXPORT *cimage_create(void)
 {
     cimage_s *i = NULL;
 
-    __clib_function_init__(false, NULL, -1, -1);
+    __clib_function_init__(false, NULL, -1, NULL);
     i = new_cimage();
 
     if (NULL == i)

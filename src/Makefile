@@ -81,6 +81,10 @@ ifeq ($(GCCVERSION), 5)
     CFLAGS += -fgnu89-inline
 endif
 
+ifeq ($(IMAGEAPI), 1)
+    CFLAGS += -DIMAGEAPI
+endif
+
 CHAT_PATH = ./chat
 PLUGIN_PATH = ./plugin
 JNI_PATH = ./plugin/java

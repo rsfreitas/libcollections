@@ -33,7 +33,7 @@
 #endif
 
 #ifndef __OPENCV_CORE_C_H__
-//# include <opencv2/core/core_c.h>
+# include <opencv2/core/core_c.h>
 #endif
 
 /** Supported image formats */
