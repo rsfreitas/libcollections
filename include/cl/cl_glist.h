@@ -460,5 +460,44 @@ void *cglist_peek(const void *list, enum cl_object object,
  */
 bool cglist_is_empty(const void *list, enum cl_object object);
 
+/**
+ * @name cglist_set_compare_to
+ * @brief Updates the internal object compare function.
+ *
+ * @param [in] list: The list object.
+ * @param [in] object: The type of the list.
+ * @param [in] compare_to: The compare function pointer.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cglist_set_compare_to(const void *list, enum cl_object object,
+                          int (*compare_to)(void *, void *));
+
+/**
+ * @name cglist_set_filter
+ * @brief Updates the internal filter function.
+ *
+ * @param [in] list: The list object.
+ * @param [in] object: The type of the list.
+ * @param [in] filter: The filter function pointer.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cglist_set_filter(const void *list, enum cl_object object,
+                      int (*filter)(void *, void *));
+
+/**
+ * @name cglist_set_equals
+ * @brief Updates the internal equals function.
+ *
+ * @param [in] list: The list object.
+ * @param [in] object: The type of the list.
+ * @param [in] equals: The equals function pointer.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cglist_set_equals(const void *list, enum cl_object object,
+                      int (*equals)(void *, void *));
+
 #endif
 

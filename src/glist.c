@@ -24,13 +24,6 @@
  * USA
  */
 
-/*
- * TODO:
- *
- * Add API to change internal list functions like compare_to, filter and
- * equals on the fly.
- */
-
 #include <stdlib.h>
 
 #include <pthread.h>
@@ -56,13 +49,13 @@ struct gnode_s {
     (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
 
 #define clist_members                                                       \
-    cl_struct_member(struct gnode_s *, list)                           \
+    cl_struct_member(struct gnode_s *, list)                                \
     cl_struct_member(unsigned int, size)                                    \
     cl_struct_member(struct ref_s, ref)                                     \
     cl_struct_member(void, (*free_data)(void *))                            \
-    cl_struct_member(int, (*compare_to)(void *, void *))    \
-    cl_struct_member(int, (*filter)(void *, void *))                \
-    cl_struct_member(int, (*equals)(void *, void *))        \
+    cl_struct_member(int, (*compare_to)(void *, void *))                    \
+    cl_struct_member(int, (*filter)(void *, void *))                        \
+    cl_struct_member(int, (*equals)(void *, void *))                        \
     cl_struct_member(pthread_mutex_t, lock)
 
 cl_struct_declare(glist_s, clist_members);
@@ -759,5 +752,38 @@ bool LIBEXPORT cglist_is_empty(const void *list, enum cl_object object)
     __clib_function_init__(true, list, object, false);
 
     return (NULL == list) ? true : false;
+}
+
+int LIBEXPORT cglist_set_compare_to(const void *list, enum cl_object object,
+    int (*compare_to)(void *, void *))
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, -1);
+    l->compare_to = compare_to;
+
+    return 0;
+}
+
+int LIBEXPORT cglist_set_filter(const void *list, enum cl_object object,
+    int (*filter)(void *, void *))
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, -1);
+    l->filter = filter;
+
+    return 0;
+}
+
+int LIBEXPORT cglist_set_equals(const void *list, enum cl_object object,
+    int (*equals)(void *, void *))
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, -1);
+    l->equals = equals;
+
+    return 0;
 }
 

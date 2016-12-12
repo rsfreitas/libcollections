@@ -304,6 +304,9 @@ LIBCOLLECTIONS_0.1 {
         cglist_contains;
         cglist_peek;
         cglist_is_empty;
+        cglist_set_compare_to;
+        cglist_set_filter;
+        cglist_set_equals;
         collections_init;
         collections_uninit;
         cimage_ref;
