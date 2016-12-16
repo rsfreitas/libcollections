@@ -31,7 +31,7 @@
 
 #include "collections.h"
 #include "plugin.h"
-#include "../java/jni_cplugin.h"
+#include "java/jni_cplugin.h"
 
 /*
  * With our custom classpath we need to able to load the 'cplugin.jar'

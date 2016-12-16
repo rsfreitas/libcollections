@@ -81,11 +81,7 @@ ctimeout_t LIBEXPORT *ctimeout_create(unsigned int interval,
 {
     ctimeout_s *t;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     t = new_ctimeout_s(interval, precision);
 
     if (NULL == t)
@@ -98,14 +94,7 @@ int LIBEXPORT ctimeout_destroy(ctimeout_t *t)
 {
     ctimeout_s *ct = (ctimeout_s *)t;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(t, CTIMEOUT) == false)
-        return -1;
-
+    __clib_function_init__(true, t, CTIMEOUT, -1);
     destroy_ctimeout_s(ct);
 
     return 0;
@@ -116,13 +105,7 @@ int LIBEXPORT ctimeout_reset(ctimeout_t *t, unsigned int interval,
 {
     ctimeout_s *ct = (ctimeout_s *)t;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(t, CTIMEOUT) == false)
-        return -1;
+    __clib_function_init__(true, t, CTIMEOUT, -1);
 
     if (ct->dt != NULL)
         cdt_destroy(ct->dt);
@@ -145,14 +128,7 @@ bool LIBEXPORT ctimeout_expired(const ctimeout_t *t)
     unsigned int i;
     unsigned long long l;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(t, CTIMEOUT) == false)
-        return -1;
-
+    __clib_function_init__(true, t, CTIMEOUT, -1);
     gettimeofday(&tv, NULL);
 
     switch (ct->precision) {

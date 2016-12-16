@@ -36,11 +36,6 @@
 
 #define CJSON_IS_REFERENCE              256
 
-/*
- * XXX: We know what we're doing here, that's because we strictly define the
- *      structure members and do not use the macros defined in the cl_typeof.h
- *      file.
- */
 typedef struct cjson_s {
     clist_entry_t       *prev;
     clist_entry_t       *next;
@@ -159,19 +154,39 @@ static int get_string_length(const char *s)
     return l;
 }
 
+/*
+ * Here we skip all lines beginning with a comment char.
+ */
+static const char *skip_comment(const char *s)
+{
+    while (*s == '#') {
+        while (s && *s && (*s != '\n'))
+            s++;
+
+        s = skip_chars(s);
+    }
+
+    return s;
+}
+
 static const char *parse_string(cjson_s *n, const char *s)
 {
-    const char *ptr = s + 1;
+    const char *ptr;
     char *ptr2;
     int len = 0;
     unsigned uc, uc2;
     cstring_t *out;
+
+    /* Ignore comment lines */
+    if (*s == '#')
+        s = skip_chars(skip_comment(s));
 
     if (*s != '\"') {
         cset_errno(CL_PARSE_ERROR);
         return NULL;
     }
 
+    ptr = s + 1;
     len = get_string_length(s);
     out = cstring_create_empty(len + 1);
 
@@ -520,6 +535,10 @@ static const char *parse(cjson_s *n, const char *s)
             return s + __jvalues[i].vlen;
         }
 
+    /* Ignore comment lines */
+    if (*s == '#')
+        s = skip_chars(skip_comment(s));
+
     switch (*s) {
         case '\"':
             return parse_string(n, s);
@@ -551,13 +570,7 @@ cjson_t LIBEXPORT *cjson_parse(const cstring_t *string)
 {
     cjson_s *c = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(string, CSTRING) == false)
-        return NULL;
+    __clib_function_init__(true, string, CSTRING, NULL);
 
     if (cstring_length(string) == 0) {
         cset_errno(CL_INVALID_VALUE);
@@ -585,10 +598,7 @@ cjson_t LIBEXPORT *cjson_read_file(const char *filename)
     cjson_t *j = NULL;
     cstring_t *s = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (NULL == filename) {
         cset_errno(CL_NULL_ARG);
@@ -613,13 +623,7 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
     cstring_t *s;
     int ret;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(j, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return -1;
+    __clib_function_init_ex__(true, j, CJSON, CJSON_OBJECT_OFFSET, -1);
 
     if (NULL == filename) {
         cset_errno(CL_NULL_ARG);
@@ -657,13 +661,7 @@ int LIBEXPORT cjson_get_array_size(const cjson_t *array)
 {
     cjson_s *p = (cjson_s *)array;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return -1;
+    __clib_function_init_ex__(true, array, CJSON, CJSON_OBJECT_OFFSET, -1);
 
     if (p->type != CJSON_ARRAY)
         return -1;
@@ -676,14 +674,7 @@ cjson_t LIBEXPORT *cjson_get_array_item(const cjson_t *array, unsigned int item)
     cjson_s *p = (cjson_s *)array, *n;
     int size;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return NULL;
-
+    __clib_function_init_ex__(true, array, CJSON, CJSON_OBJECT_OFFSET, NULL);
     size = cjson_get_array_size(array);
 
     if ((size < 0) || ((int)item >= size))
@@ -709,13 +700,7 @@ cjson_t LIBEXPORT *cjson_get_object_item(const cjson_t *json, const char *name)
 {
     cjson_s *p = NULL, *root = (cjson_s *)json;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(json, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return NULL;
+    __clib_function_init_ex__(true, json, CJSON, CJSON_OBJECT_OFFSET, NULL);
 
     if (NULL == name) {
         cset_errno(CL_NULL_ARG);
@@ -731,13 +716,7 @@ cstring_t LIBEXPORT *cjson_get_object_name(const cjson_t *o)
 {
     cjson_s *p = (cjson_s *)o;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(o, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return NULL;
+    __clib_function_init_ex__(true, o, CJSON, CJSON_OBJECT_OFFSET, NULL);
 
     return p->name;
 }
@@ -746,13 +725,7 @@ cstring_t LIBEXPORT *cjson_get_object_value(const cjson_t *o)
 {
     cjson_s *p = (cjson_s *)o;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(o, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return NULL;
+    __clib_function_init_ex__(true, o, CJSON, CJSON_OBJECT_OFFSET, NULL);
 
     return p->value;
 }
@@ -761,13 +734,7 @@ enum cjson_type LIBEXPORT cjson_get_object_type(const cjson_t *o)
 {
     cjson_s *p = (cjson_s *)o;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(o, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return -1;
+    __clib_function_init_ex__(true, o, CJSON, CJSON_OBJECT_OFFSET, -1);
 
     return p->type;
 }
@@ -794,13 +761,7 @@ cjson_t LIBEXPORT *cjson_dup(const cjson_t *root)
     cjson_s *r = (cjson_s *)root;
     cjson_s *l = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return NULL;
+    __clib_function_init_ex__(true, root, CJSON, CJSON_OBJECT_OFFSET, NULL);
 
     l = __dup(r);
     l->type = r->type & (~CJSON_IS_REFERENCE);
@@ -813,11 +774,7 @@ cjson_t LIBEXPORT *cjson_create_array(void)
 {
     cjson_s *p = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -832,11 +789,7 @@ cjson_t LIBEXPORT *cjson_create_object(void)
 {
     cjson_s *p = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -851,11 +804,7 @@ cjson_t LIBEXPORT *cjson_create_null(void)
 {
     cjson_s *p = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -870,11 +819,7 @@ cjson_t LIBEXPORT *cjson_create_false(void)
 {
     cjson_s *p = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -889,11 +834,7 @@ cjson_t LIBEXPORT *cjson_create_true(void)
 {
     cjson_s *p = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -909,11 +850,7 @@ cjson_t LIBEXPORT *cjson_create_number(int n)
     cjson_s *p = NULL;
     cstring_t *s = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -931,11 +868,7 @@ cjson_t LIBEXPORT *cjson_create_number_float(float n)
     cjson_s *p = NULL;
     cstring_t *s = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -953,11 +886,7 @@ cjson_t LIBEXPORT *cjson_create_string(const char *string)
     cjson_s *p = NULL;
     cstring_t *s = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     p = cjson_new();
 
     if (NULL == p)
@@ -975,11 +904,7 @@ cjson_t LIBEXPORT *cjson_create_int_array(const int *values, int size)
     int i;
     cjson_s *a = NULL, *n;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     a = cjson_create_array();
 
     if (NULL == a)
@@ -1002,11 +927,7 @@ cjson_t LIBEXPORT *cjson_create_float_array(const float *values, int size)
     int i;
     cjson_s *a = NULL, *n;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     a = cjson_create_array();
 
     if (NULL == a)
@@ -1029,14 +950,7 @@ cjson_t LIBEXPORT *cjson_create_string_array(const cstring_list_t *values)
     int i, size;
     cjson_s *a = NULL, *n;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(values, CSTRINGLIST) == false)
-        return NULL;
-
+    __clib_function_init__(true, values, CSTRINGLIST, NULL);
     a = cjson_create_array();
 
     if (NULL == a)
@@ -1061,10 +975,7 @@ int LIBEXPORT cjson_add_item_to_array(cjson_t *array, const cjson_t *item)
     cjson_s *a = (cjson_s *)array;
     cjson_s *n = (cjson_s *)item;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false) ||
         (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
@@ -1083,10 +994,7 @@ int LIBEXPORT cjson_add_item_to_object(cjson_t *root, const char *name,
     cjson_s *r = (cjson_s *)root;
     cjson_s *n = (cjson_s *)item;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false) ||
         (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
@@ -1123,10 +1031,7 @@ static cjson_t *create_reference(cjson_s *item)
 
 int LIBEXPORT cjson_add_item_reference_to_array(cjson_t *array, cjson_t *item)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false) ||
         (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
@@ -1140,10 +1045,7 @@ int LIBEXPORT cjson_add_item_reference_to_array(cjson_t *array, cjson_t *item)
 int LIBEXPORT cjson_add_item_reference_to_object(cjson_t *root, const char *name,
     cjson_t *item)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false) ||
         (validate_object_with_offset(item, CJSON, CJSON_OBJECT_OFFSET) == false))
@@ -1164,14 +1066,7 @@ int LIBEXPORT cjson_delete_item_from_array(cjson_t *array, unsigned int index)
     cjson_s *p, *root = (cjson_s *)array;
     int size;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return -1;
-
+    __clib_function_init_ex__(true, array, CJSON, CJSON_OBJECT_OFFSET, -1);
     size = cjson_get_array_size(array);
 
     if ((size < 0) || ((int)index >= size))
@@ -1191,13 +1086,7 @@ int LIBEXPORT cjson_delete_item_from_object(cjson_t *json, const char *name)
 {
     cjson_s *p = NULL, *root = (cjson_s *)json;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(json, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return -1;
+    __clib_function_init_ex__(true, json, CJSON, CJSON_OBJECT_OFFSET, -1);
 
     if (NULL == name) {
         cset_errno(CL_NULL_ARG);
@@ -1221,10 +1110,7 @@ int LIBEXPORT cjson_replace_item_in_array(cjson_t *array, unsigned int index,
     cjson_s *p = NULL, *n;
     unsigned int i = 0;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object_with_offset(array, CJSON, CJSON_OBJECT_OFFSET) == false) ||
         (validate_object_with_offset(new_item, CJSON, CJSON_OBJECT_OFFSET) == false))
@@ -1261,10 +1147,7 @@ int LIBEXPORT cjson_replace_item_in_object(cjson_t *root, const char *name,
     cjson_s *a = (cjson_s *)root;
     cjson_s *p = NULL, *n;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object_with_offset(root, CJSON, CJSON_OBJECT_OFFSET) == false) ||
         (validate_object_with_offset(new_item, CJSON, CJSON_OBJECT_OFFSET) == false))
@@ -1599,14 +1482,7 @@ cstring_t LIBEXPORT *cjson_to_cstring(const cjson_t *j, bool friendly_output)
     char *p = NULL;
     cstring_t *out;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(j, CJSON, CJSON_OBJECT_OFFSET) == false)
-        return NULL;
-
+    __clib_function_init_ex__(true, j, CJSON, CJSON_OBJECT_OFFSET, NULL);
     p = print_value((cjson_s *)j, 0, friendly_output);
 
     if (NULL == p)

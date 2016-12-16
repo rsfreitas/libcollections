@@ -406,10 +406,7 @@ clog_t LIBEXPORT *clog_open_ex(const char *pathname, enum clog_mode mode,
 {
     clog_s *log = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (NULL == pathname) {
         cset_errno(CL_NULL_ARG);
@@ -457,14 +454,7 @@ int LIBEXPORT clog_close(clog_t *log)
 {
     clog_s *l = (clog_s *)log;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(log, CLOG) == false)
-        return -1;
-
+    __clib_function_init__(true, log, CLOG, -1);
     ref_dec(&l->ref);
 
     return 0;
@@ -475,13 +465,7 @@ int LIBEXPORT clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
 {
     char *msg = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(log, CLOG) == false)
-        return -1;
+    __clib_function_init__(true, log, CLOG, -1);
 
     if (is_level_valid(level) == false) {
         cset_errno(CL_INVALID_VALUE);
@@ -521,13 +505,7 @@ int LIBEXPORT clog_printf(clog_t *log, enum clog_level level,
     va_list ap;
     int ret = -1;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(log, CLOG) == false)
-        return -1;
+    __clib_function_init__(true, log, CLOG, -1);
 
     va_start(ap, fmt);
     ret = clog_vprintf(log, level, fmt, ap);
@@ -539,13 +517,7 @@ int LIBEXPORT clog_printf(clog_t *log, enum clog_level level,
 int LIBEXPORT clog_bprint(clog_t *log, enum clog_level level, const void *data,
     unsigned int dsize)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(log, CLOG) == false)
-        return -1;
+    __clib_function_init__(true, log, CLOG, -1);
 
     if ((NULL == data) || (dsize == 0)) {
         cset_errno(CL_NULL_DATA);
@@ -590,13 +562,7 @@ int LIBEXPORT clog_set_log_level(clog_t *log, enum clog_level level)
 {
     clog_s *l = (clog_s *)log;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(log, CLOG) == false)
-        return -1;
+    __clib_function_init__(true, log, CLOG, -1);
 
     if (is_level_valid(level) == false) {
         cset_errno(CL_INVALID_VALUE);
@@ -612,13 +578,7 @@ int LIBEXPORT clog_set_separator(clog_t *log, char separator)
 {
     clog_s *l = (clog_s *)log;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(log, CLOG) == false)
-        return -1;
+    __clib_function_init__(true, log, CLOG, -1);
 
     if (is_separator_valid(separator) == false) {
         cset_errno(CL_INVALID_VALUE);

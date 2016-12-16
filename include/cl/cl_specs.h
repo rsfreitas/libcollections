@@ -33,6 +33,31 @@
 # endif
 #endif
 
+/** A cspec_t attribute for read/write access */
+enum cl_spec_attrib {
+    CL_PRIVATE = (1 << 0),
+    CL_READABLE = (1 << 1),
+    CL_WRITABLE = (1 << 2)
+};
+
+/** Validation format of a cspec_t with another value */
+enum cl_spec_validation_fmt {
+    CL_VALIDATE_IGNORED,
+    CL_VALIDATE_RANGE,
+    CL_VALIDATE_MIN_LE,
+    CL_VALIDATE_MIN_LT,
+    CL_VALIDATE_MIN_GE,
+    CL_VALIDATE_MIN_GT,
+    CL_VALIDATE_MIN_EQ,
+    CL_VALIDATE_MIN_NE,
+    CL_VALIDATE_MAX_LE,
+    CL_VALIDATE_MAX_LT,
+    CL_VALIDATE_MAX_GE,
+    CL_VALIDATE_MAX_GT,
+    CL_VALIDATE_MAX_EQ,
+    CL_VALIDATE_MAX_NE
+};
+
 /**
  * @name cspec_create
  * @brief Creates a cspec_t object.
@@ -42,16 +67,16 @@
  * may be readable or writable, etc.
  *
  * @param [in] properties: Object properties.
- * @param [in] min: A cobject_t indicating the minimum object that an object can
+ * @param [in] min: A cobject_t indicating the minimum value that an object can
  *                  have (this is optional, NULL may be used).
- * @param [in] max: A cobject_t indicating the maximum object that an object can
+ * @param [in] max: A cobject_t indicating the maximum value that an object can
  *                  have (this is optional, NULL may be used).
  * @param [in] max_length: An integer value indicating the maximum size that an
  *                         object of string type can have (this is optional).
  *
  * @return On success returns an object of cspec_t type or NULL otherwise.
  */
-cspec_t *cspec_create(enum cl_param_flags properties, cobject_t *min,
+cspec_t *cspec_create(enum cl_spec_attrib properties, cobject_t *min,
                       cobject_t *max, unsigned int max_length);
 
 /**
@@ -75,12 +100,60 @@ int cspec_destroy(cspec_t *spec);
  * @param [in,out] value: The cobject_t object.
  * @param [in] set_value: Flag indicating what will be validated, if we can
  *                        read or write the object.
+ * @param [in] validation: Validation which will be applied.
  * @param [in] ap: Values that the cobject_t may have if validations were true.
  *
- * @return On sucess returns true or false otherwise.
+ * @return On success returns true or false otherwise.
  */
 bool cspec_validate(const cspec_t *spec, cobject_t *value, bool set_value,
-                    va_list ap);
+                    enum cl_spec_validation_fmt validation, va_list ap);
+
+/**
+ * @name cspec_set_min
+ * @brief Updates the minimum value of a cspec_t object.
+ *
+ * @param [in,out] spec: The cspec_t object.
+ * @param [in] min: The new minimum value.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cspec_set_min(cspec_t *spec, cobject_t *min);
+
+/**
+ * @name cspec_set_max
+ * @brief Updates the maximum value of a cspec_t object.
+ *
+ * @param [in,out] spec: The cspec_t object.
+ * @param [in] max: The new maximum value.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cspec_set_max(cspec_t *spec, cobject_t *max);
+
+/**
+ * @name cspec_set_max_length
+ * @brief Updates the maximum length value of a cspec_t object.
+ *
+ * This function is valid if we're dealing with a CL_STRING or a CL_CSTRING
+ * object.
+ *
+ * @param [in,out] spec: The cspec_t object.
+ * @param [in] max_length: The new maximum length.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cspec_set_max_length(cspec_t *spec, unsigned int max_length);
+
+/**
+ * @name cspec_set_accessibility
+ * @brief Updates the cspec_t object accessbility attribute.
+ *
+ * @param [in,out] spec: The cspec_t object.
+ * @param [in] attrib: The new cspec_t attribute.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cspec_set_accessibility(cspec_t *spec, enum cl_spec_attrib attrib);
 
 #endif
 

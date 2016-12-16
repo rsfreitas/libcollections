@@ -29,7 +29,7 @@
 #include <stdlib.h>
 
 #include "collections.h"
-#include "../plugin/plugin.h"
+#include "../plugin.h"
 
 struct tmp_s {
     JNIEnv      *env;

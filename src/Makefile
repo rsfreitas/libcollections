@@ -4,9 +4,23 @@
 
 CC = gcc
 
-MAJOR_VERSION = $(shell grep MAJOR_VERSION ../include/collections.h | awk '{print $$4}')
-MINOR_VERSION = $(shell grep MINOR_VERSION ../include/collections.h | awk '{print $$4}')
-BUILD = $(shell grep BUILD ../include/collections.h | awk '{print $$4}')
+GCCVERSION = 4
+ARCH_TEST := $(shell uname -m)
+GCCVERSION_TEST := $(shell expr `gcc -dumpversion | cut -f1 -d.` \> 4)
+
+ifeq ($(ARCH_TEST), x86_64)
+    ARCH = amd64
+else
+    ARCH = i386
+endif
+
+ifeq ($(GCCVERSION_TEST), 1)
+    GCCVERSION = 5
+endif
+
+MAJOR_VERSION := $(shell grep MAJOR_VERSION ../include/collections.h | awk '{print $$4}')
+MINOR_VERSION := $(shell grep MINOR_VERSION ../include/collections.h | awk '{print $$4}')
+BUILD := $(shell grep BUILD ../include/collections.h | awk '{print $$4}')
 
 USR_DIR = /usr/local/lib
 PREFIX = libcollections
@@ -19,75 +33,109 @@ TARGET = $(TARGET_DIR)/$(SONAME)
 TARGET_DEST = $(TARGET_DIR)/$(DEST_LIBNAME)
 
 INCLUDEDIR = -I../include
-INCLUDEDIR += -I/usr/include/python2.7
-INCLUDEDIR += -I/usr/lib/jvm/default-java/include
 
 LIBDIR = -L/usr/local/lib
-LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/i386/server/
 
-LIBS = -lpthread -lm -lrt -ldl -lpython2.7 -lmagic -ljvm
+ifeq ($(IMAGEAPI), 1)
+    ifeq ($(ARCH), i386)
+        OPENCV_LIBS = /usr/lib/libopencv_highgui.a
+    else
+        OPENCV_LIBS = -lopencv_highgui
+    endif
 
+    IMAGE_OBJ = image.o
+endif
+
+ifeq ($(PYPLUGIN), 1)
+    PYTHON_LIBS = -lpython2.7
+    PLUGIN_PYTHON = -DPLUGIN_PYTHON
+    INCLUDEDIR += -I/usr/include/python2.7
+    PY_DL_OBJS =	\
+	dl_python.o
+endif
+
+ifeq ($(JAVAPLUGIN), 1)
+    JAVA_LIBS = -ljvm
+    PLUGIN_JAVA = -DPLUGIN_JAVA
+    INCLUDEDIR += -I/usr/lib/jvm/default-java/include
+    INCLUDEDIR += -I/usr/lib/jvm/default-java/include/linux
+    LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/$(ARCH)/server/
+    JAVA_DL_OBJS =	\
+	dl_java.o
+
+    JNI_OBJS =		\
+	jni_CpluginArguments.o	\
+	jni_CpluginObject.o	\
+	jni_CpluginType.o
+endif
+
+PLUGIN_LIBS = $(PYTHON_LIBS) $(JAVA_LIBS)
+LIBS = -lpthread -lm -lrt -ldl -lmagic $(PLUGIN_LIBS) $(OPENCV_LIBS)
+
+PLUGIN_C = -DPLUGIN_C
+PLUGINS = $(PLUGIN_C) $(PLUGIN_PYTHON) $(PLUGIN_JAVA)
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
-		 -D_GNU_SOURCE -DLINUX $(INCLUDEDIR)
+		 -D_GNU_SOURCE -DLINUX $(PLUGINS) $(INCLUDEDIR)
+
+ifeq ($(GCCVERSION), 5)
+    CFLAGS += -fgnu89-inline
+endif
 
 CHAT_PATH = ./chat
 PLUGIN_PATH = ./plugin
-JNI_PATH = ./java
+JNI_PATH = ./plugin/java
 VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)
 
 CHAT_OBJS =	\
-	chat_misc.o			\
-	drv_raw_socket.o		\
-	ipc_tcp.o			\
+	chat_misc.o		\
+	drv_raw_socket.o	\
+	ipc_tcp.o		\
 	ipc_udp.o
 
-JNI_OBJS =		\
-	jni_CpluginArguments.o		\
-	jni_CpluginObject.o		\
-	jni_CpluginType.o
+DL_OBJS = $(PY_DL_OBJS) $(JAVA_DL_OBJS)
 
 PLUGIN_OBJS =	\
 	api_parser.o	\
-	call.o			\
-	dl.o			\
-	dl_c.o			\
-	dl_python.o		\
-	dl_java.o		\
-	info.o			\
-	pl_misc.o		\
-	rv.o			\
+	call.o		\
+	dl.o		\
+	dl_c.o		\
+	info.o		\
+	pl_misc.o	\
+	rv.o		\
+	$(DL_OBJS)	\
 	$(JNI_OBJS)
 
 OBJS =	\
 	$(CHAT_OBJS)	\
 	$(PLUGIN_OBJS)	\
-	cfg.o			\
-	chat.o			\
-	counter.o		\
-	datetime.o		\
-	dll.o			\
-	error.o			\
-	event.o			\
-	file.o			\
-	glist.o			\
-	init.o			\
-	io.o			\
-	json.o			\
-	log.o			\
-	mem.o			\
-	object.o		\
-	plugin.o		\
-	process.o		\
-	random.o		\
-	ref.o			\
-	specs.o			\
-	string.o		\
-	stringlist.o		\
-	thread.o		\
-	timeout.o		\
-	timer.o			\
-	typeof.o		\
-	util.o
+	cfg.o		\
+	chat.o		\
+	counter.o	\
+	datetime.o	\
+	dll.o		\
+	error.o		\
+	event.o		\
+	file.o		\
+	glist.o		\
+	init.o		\
+	io.o		\
+	json.o		\
+	log.o		\
+	mem.o		\
+	object.o	\
+	plugin.o	\
+	process.o	\
+	random.o	\
+	ref.o		\
+	specs.o		\
+	string.o	\
+	stringlist.o	\
+	thread.o	\
+	timeout.o	\
+	timer.o		\
+	typeof.o	\
+	util.o		\
+	$(IMAGE_OBJ)
 
 $(TARGET): outputdir $(OBJS)
 	$(CC) -shared -Wl,-soname,$(SONAME),--version-script,$(PREFIX).sym -o $(TARGET_DEST) $(OBJS) $(LIBDIR) $(LIBS)

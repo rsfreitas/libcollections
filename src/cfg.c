@@ -490,10 +490,7 @@ cfg_file_t LIBEXPORT *cfg_load(const char *filename)
 {
     cfg_file_s *file = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (NULL == filename) {
         cset_errno(CL_NULL_ARG);
@@ -510,14 +507,7 @@ cfg_file_t LIBEXPORT *cfg_load(const char *filename)
  */
 int LIBEXPORT cfg_unload(cfg_file_t *file)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(file, CFG_FILE) == false)
-        return -1;
-
+    __clib_function_init__(true, file, CFG_FILE, -1);
     destroy_cfg_file_s(file);
 
     return 0;
@@ -534,14 +524,7 @@ int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
     const char *p;
     cstring_t *s;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(file, CFG_FILE) == false)
-        return -1;
-
+    __clib_function_init__(true, file, CFG_FILE, -1);
     p = (filename == NULL) ? cstring_valueof(f->filename) : filename;
     fp = fopen(p, "w+");
 
@@ -576,13 +559,7 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     char *b = NULL;
     cstring_t *t;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(file, CFG_FILE) == false)
-        return -1;
+    __clib_function_init__(true, file, CFG_FILE, -1);
 
     if ((NULL == section) || (NULL == key)) {
         cset_errno(CL_NULL_ARG);
@@ -652,13 +629,7 @@ cfg_section_t LIBEXPORT *cfg_get_section(const cfg_file_t *file,
     cfg_file_s *f = (cfg_file_s *)file;
     struct cfg_line_s *l = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(file, CFG_FILE) == false)
-        return NULL;
+    __clib_function_init__(true, file, CFG_FILE, NULL);
 
     if (NULL == section) {
         cset_errno(CL_NULL_ARG);
@@ -697,16 +668,8 @@ cfg_key_t LIBEXPORT *cfg_get_key_from_section(const cfg_section_t *section,
     struct cfg_line_s *s = (struct cfg_line_s *)section;
     struct cfg_line_s *l = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(section, CFG_SECTION,
-                                    CFG_LINE_OFFSET) == false)
-    {
-        return NULL;
-    }
+    __clib_function_init_ex__(true, section, CFG_SECTION, CFG_LINE_OFFSET,
+                              NULL);
 
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
@@ -730,16 +693,8 @@ cstring_t LIBEXPORT *cfg_section_name(const cfg_section_t *section)
 {
     struct cfg_line_s *s = (struct cfg_line_s *)section;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(section, CFG_SECTION,
-                                    CFG_LINE_OFFSET) == false)
-    {
-        return NULL;
-    }
+    __clib_function_init_ex__(true, section, CFG_SECTION, CFG_LINE_OFFSET,
+                              NULL);
 
     return s->name;
 }
@@ -751,13 +706,7 @@ cstring_t LIBEXPORT *cfg_key_name(const cfg_key_t *key)
 {
     struct cfg_line_s *k = (struct cfg_line_s *)key;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(key, CFG_KEY, CFG_LINE_OFFSET) == false)
-        return NULL;
+    __clib_function_init_ex__(true, key, CFG_KEY, CFG_LINE_OFFSET, NULL);
 
     return k->name;
 }
@@ -769,13 +718,7 @@ cobject_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
 {
     struct cfg_line_s *k = (struct cfg_line_s *)key;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(key, CFG_KEY, CFG_LINE_OFFSET) == false)
-        return NULL;
+    __clib_function_init_ex__(true, key, CFG_KEY, CFG_LINE_OFFSET, NULL);
 
     return cobject_ref(k->value);
 }
@@ -784,14 +727,7 @@ cstring_t LIBEXPORT *cfg_to_cstring(const cfg_file_t *file)
 {
     cstring_t *s = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(file, CFG_FILE) == false)
-        return NULL;
-
+    __clib_function_init__(true, file, CFG_FILE, NULL);
     s = print_cfg(file);
 
     return s;

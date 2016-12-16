@@ -73,11 +73,7 @@ cstring_list_t LIBEXPORT *cstring_list_create(void)
 {
     cstring_list_s *l = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     l = calloc(1, sizeof(cstring_list_s));
 
     if (NULL == l) {
@@ -97,13 +93,7 @@ int LIBEXPORT cstring_list_destroy(cstring_list_t *l)
 {
     cstring_list_s *p = (cstring_list_s *)l;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(l, CSTRINGLIST) == false)
-        return -1;
+    __clib_function_init__(true, l, CSTRINGLIST, -1);
 
     if (p->size > 0)
         cdll_free(p->list, destroy_list_node_s);
@@ -117,13 +107,7 @@ int LIBEXPORT cstring_list_size(const cstring_list_t *l)
 {
     cstring_list_s *p = (cstring_list_s *)l;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(l, CSTRINGLIST) == false)
-        return -1;
+    __clib_function_init__(true, l, CSTRINGLIST, -1);
 
     return p->size;
 }
@@ -133,10 +117,7 @@ int LIBEXPORT cstring_list_add(cstring_list_t *l, cstring_t *s)
     cstring_list_s *p = (cstring_list_s *)l;
     struct cstring_list_node_s *n = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     if ((validate_object(l, CSTRINGLIST) == false) ||
         (validate_object(s, CSTRING) == false))
@@ -161,13 +142,7 @@ cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
     cstring_list_s *p = (cstring_list_s *)l;
     struct cstring_list_node_s *n = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(l, CSTRINGLIST) == false)
-        return NULL;
+    __clib_function_init__(true, l, CSTRINGLIST, NULL);
 
     if (index >= (unsigned int)cstring_list_size(p))
         return NULL;
@@ -188,14 +163,7 @@ cstring_t LIBEXPORT *cstring_list_map(const cstring_list_t *l,
     cstring_list_s *p = (cstring_list_s *)l;
     struct cstring_list_node_s *n = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(l, CSTRINGLIST) == false)
-        return NULL;
-
+    __clib_function_init__(true, l, CSTRINGLIST, NULL);
     n = cdll_map(p->list, foo, data);
 
     if (NULL == n)

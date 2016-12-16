@@ -141,11 +141,7 @@ int LIBEXPORT ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state)
     char *timer_name = NULL;
     struct ctimer_internal_data_s *tid;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
+    __clib_function_init__(false, NULL, -1, -1);
     tid = arg.sival_ptr;
     timer_name = tid->name;
 
@@ -177,16 +173,8 @@ ctimer_t LIBEXPORT *ctimer_get_timer(const ctimer_t *timers_list,
     struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
     struct ctimer_s *t = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object_with_offset(tlist, CTIMER,
-                                    CTIMER_OBJECT_OFFSET) == false)
-    {
-        return NULL;
-    }
+    __clib_function_init_ex__(true, timers_list, CTIMER, CTIMER_OBJECT_OFFSET,
+                              NULL);
 
     if (timer_name == NULL) {
         cset_errno(CL_NULL_ARG);
@@ -234,15 +222,7 @@ int LIBEXPORT ctimer_update_interval(ctimer_t *timer, unsigned int interval)
 {
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (NULL == timer) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
+    __clib_function_init_ex__(true, timer, CTIMER, CTIMER_OBJECT_OFFSET, -1);
 
     /* Disables timer */
     ctimer_disarm(t);
@@ -329,14 +309,7 @@ int LIBEXPORT ctimer_unload_info(ctimer_info_t *timer_info)
 {
     ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(timer_info, CTIMER_INFO) == false)
-        return -1;
-
+    __clib_function_init__(true, timer_info, CTIMER_INFO, -1);
     destroy_timer_info(tinfo);
 
     return 0;
@@ -346,15 +319,7 @@ ctimer_info_t LIBEXPORT *ctimer_load_info(const ctimer_t *timer)
 {
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (NULL == timer) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
+    __clib_function_init_ex__(true, timer, CTIMER, CTIMER_OBJECT_OFFSET, NULL);
 
     return get_timer_info(t);
 }
@@ -365,10 +330,7 @@ ctimer_info_t LIBEXPORT *ctimer_load_info_within_timer(ctimer_arg_t arg)
     char *timer_name;
     struct ctimer_internal_data_s *tid;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     /* Extracts timer identifications */
     tid = arg.sival_ptr;
@@ -401,13 +363,7 @@ void LIBEXPORT *ctimer_get_info_data(const ctimer_info_t *timer_info,
 {
     ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(timer_info, CTIMER_INFO) == false)
-        return NULL;
+    __clib_function_init__(true, timer_info, CTIMER_INFO, NULL);
 
     if (info >= TIMER_MAX_INFO) {
         cset_errno(CL_UNSUPPORTED_TYPE);
@@ -494,17 +450,8 @@ int LIBEXPORT ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
     struct ctimer_s **tlist = timers_list;
     struct ctimer_s *t;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if ((*tlist != NULL) &&
-        (validate_object_with_offset(*tlist, CTIMER,
-                                     CTIMER_OBJECT_OFFSET) == false))
-    {
-        return -1;
-    }
+    __clib_function_init_ex__(true, timers_list, CTIMER, CTIMER_OBJECT_OFFSET,
+                              -1);
 
     if ((NULL == timer_name) || (NULL == timer_function)) {
         cset_errno(CL_NULL_ARG);
@@ -616,16 +563,8 @@ int LIBEXPORT ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
     struct ctimer_s *t;
     int ret = 0;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(tlist, CTIMER,
-                                    CTIMER_OBJECT_OFFSET) == false)
-    {
-        return -1;
-    }
+    __clib_function_init_ex__(true, timers_list, CTIMER, CTIMER_OBJECT_OFFSET,
+                              -1);
 
     if (NULL == timer_name) {
         cset_errno(CL_NULL_ARG);
@@ -696,16 +635,8 @@ int LIBEXPORT ctimer_install(ctimer_t *timers_list)
     struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
     struct ctimer_s *t = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(tlist, CTIMER,
-                                    CTIMER_OBJECT_OFFSET) == false)
-    {
-        return -1;
-    }
+    __clib_function_init_ex__(true, timers_list, CTIMER, CTIMER_OBJECT_OFFSET,
+                              -1);
 
     t = cdll_map(tlist, install_timer, tlist);
 
@@ -728,15 +659,8 @@ int LIBEXPORT ctimer_uninstall(ctimer_t *timers_list)
 {
     struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (NULL == tlist) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
+    __clib_function_init_ex__(true, timers_list, CTIMER, CTIMER_OBJECT_OFFSET,
+                              -1);
 
     cdll_free(tlist, __unregister_timer);
 
@@ -750,16 +674,7 @@ int LIBEXPORT ctimer_disarm(ctimer_t *timer)
 {
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(timer, CTIMER,
-                                    CTIMER_OBJECT_OFFSET) == false)
-    {
-        return -1;
-    }
+    __clib_function_init_ex__(true, timer, CTIMER, CTIMER_OBJECT_OFFSET, -1);
 
     /*
      * Saves the current time to put the timer in execution again in the
@@ -786,16 +701,7 @@ int LIBEXPORT ctimer_arm(ctimer_t *timer)
     time_t sec = 0;
     long nsec = 0;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object_with_offset(timer, CTIMER,
-                                    CTIMER_OBJECT_OFFSET) == false)
-    {
-        return -1;
-    }
+    __clib_function_init_ex__(true, timer, CTIMER, CTIMER_OBJECT_OFFSET, -1);
 
     if (t->imode == TIMER_IMODE_DEFAULT)
         adjust_timer_start_time(timer);

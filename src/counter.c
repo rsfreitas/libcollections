@@ -134,11 +134,7 @@ static counter_s *new_counter_s(enum counter_precision precision,
 {
     counter_s *c = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
+    __clib_function_init__(false, NULL, -1, NULL);
     c = calloc(1, sizeof(counter_s));
 
     if (NULL == c) {
@@ -167,14 +163,7 @@ counter_t LIBEXPORT *counter_ref(counter_t *c)
 {
     counter_s *p = (counter_s *)c;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(c, COUNTER) == false)
-        return NULL;
-
+    __clib_function_init__(true, c, COUNTER, NULL);
     ref_inc(&p->ref);
 
     return c;
@@ -184,14 +173,7 @@ int LIBEXPORT counter_unref(counter_t *c)
 {
     counter_s *p = (counter_s *)c;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
-
+    __clib_function_init__(true, c, COUNTER, -1);
     ref_dec(&p->ref);
 
     return 0;
@@ -213,14 +195,7 @@ static int __counter_increase(counter_t *c, long long gap)
     counter_s *p;
     long long v, max;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
-
+    __clib_function_init__(true, c, COUNTER, -1);
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
     v = COBJECT_AS_LLONG(p->cnt) + gap;
@@ -255,11 +230,7 @@ static int __counter_decrease(counter_t *c, long long gap)
     counter_s *p;
     long long v, min;
 
-    cerrno_clear();
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
-
+    __clib_function_init__(true, c, COUNTER, -1);
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
     v = COBJECT_AS_LLONG(p->cnt) - gap;
@@ -293,14 +264,7 @@ int LIBEXPORT counter_reset(counter_t *c)
 {
     counter_s *p;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
-
+    __clib_function_init__(true, c, COUNTER, -1);
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
@@ -316,13 +280,7 @@ long long LIBEXPORT counter_get(counter_t *c)
 {
     counter_s *p = (counter_s *)c;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
+    __clib_function_init__(true, c, COUNTER, -1);
 
     return COBJECT_AS_LLONG(p->cnt);
 }
@@ -331,14 +289,7 @@ int LIBEXPORT counter_set_min(counter_t *c, long long min)
 {
     counter_s *p;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
-
+    __clib_function_init__(true, c, COUNTER, -1);
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
@@ -357,14 +308,7 @@ int LIBEXPORT counter_set_max(counter_t *c, long long max)
 {
     counter_s *p;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
-
+    __clib_function_init__(true, c, COUNTER, -1);
     p = counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
@@ -381,13 +325,7 @@ int LIBEXPORT counter_set_max(counter_t *c, long long max)
 
 int LIBEXPORT counter_set_range(counter_t *c, long long min, long long max)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
+    __clib_function_init__(true, c, COUNTER, -1);
 
     counter_set_min(c, min);
     counter_set_max(c, max);
@@ -400,14 +338,7 @@ bool LIBEXPORT counter_lt(const counter_t *c, long long value)
     counter_s *p = (counter_s *)c;
     long long v;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
-
-    if (validate_object(c, COUNTER) == false)
-        return false;
-
+    __clib_function_init__(true, c, COUNTER, false);
     v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
@@ -425,14 +356,7 @@ bool LIBEXPORT counter_le(const counter_t *c, long long value)
     counter_s *p = (counter_s *)c;
     long long v;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
-
-    if (validate_object(c, COUNTER) == false)
-        return false;
-
+    __clib_function_init__(true, c, COUNTER, false);
     v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
@@ -450,14 +374,7 @@ bool LIBEXPORT counter_gt(const counter_t *c, long long value)
     counter_s *p = (counter_s *)c;
     long long v;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
-
-    if (validate_object(c, COUNTER) == false)
-        return false;
-
+    __clib_function_init__(true, c, COUNTER, false);
     v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
@@ -475,14 +392,7 @@ bool LIBEXPORT counter_ge(const counter_t *c, long long value)
     counter_s *p = (counter_s *)c;
     long long v;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
-
-    if (validate_object(c, COUNTER) == false)
-        return false;
-
+    __clib_function_init__(true, c, COUNTER, false);
     v = COBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
@@ -499,13 +409,7 @@ bool LIBEXPORT counter_eq(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
-
-    if (validate_object(c, COUNTER) == false)
-        return false;
+    __clib_function_init__(true, c, COUNTER, false);
 
     if (COBJECT_AS_LLONG(p->cnt) == value)
         return true;
@@ -517,13 +421,7 @@ bool LIBEXPORT counter_ne(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return false;
-
-    if (validate_object(c, COUNTER) == false)
-        return false;
+    __clib_function_init__(true, c, COUNTER, false);
 
     if (COBJECT_AS_LLONG(p->cnt) != value)
         return true;
@@ -547,13 +445,7 @@ long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
     counter_s *p;
     long long v = -1;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
+    __clib_function_init__(true, c, COUNTER, -1);
 
     if (is_between_limits(new_value, (counter_s *)c) == false) {
         cset_errno(CL_INVALID_VALUE);
@@ -576,13 +468,7 @@ int LIBEXPORT counter_set(counter_t *c, long long new_value)
 {
     counter_s *p;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(c, COUNTER) == false)
-        return -1;
+    __clib_function_init__(true, c, COUNTER, -1);
 
     if (is_between_limits(new_value, (counter_s *)c) == false) {
         cset_errno(CL_INVALID_VALUE);

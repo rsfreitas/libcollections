@@ -33,11 +33,7 @@ unsigned int LIBEXPORT cseed(void)
     FILE *f;
     char tmp[64] = {0}, *p;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return 0;
-
+    __clib_function_init__(false, NULL, -1, 0);
     f = popen("cat /proc/sys/kernel/random/uuid | cut -d '-' -f 2", "r");
 
     if (NULL == f) {
@@ -60,10 +56,7 @@ unsigned int LIBEXPORT crand(unsigned int random_max)
 {
     unsigned int num_bins, num_rand, bin_size, defect, x;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
+    __clib_function_init__(false, NULL, -1, -1);
 
     num_bins = (unsigned int)random_max + 1;
     num_rand = (unsigned int)RAND_MAX + 1;

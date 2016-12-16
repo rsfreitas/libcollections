@@ -162,9 +162,6 @@ void cset_errno(enum cerror_code error_code)
  */
 enum cerror_code LIBEXPORT cget_last_error(void)
 {
-    if (library_initialized() == false)
-        return -1;
-
     return __cerrno;
 }
 
@@ -173,9 +170,6 @@ enum cerror_code LIBEXPORT cget_last_error(void)
  */
 const char LIBEXPORT *cstrerror(enum cerror_code error_code)
 {
-    if (library_initialized() == false)
-        return NULL;
-
     if (error_code >= CL_MAX_ERROR_CODE)
         return __cunknown_error;
 

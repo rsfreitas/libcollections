@@ -16,7 +16,7 @@ LIBS = -ldl -lpython2.7 -lm
 
 CFLAGS = -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall \
 	 -Wstrict-prototypes -fPIC -DLIBCOLLECTIONS_COMPILE -DLINUX \
-	 -D_GNU_SOURCE -DLIB_PYTHON $(INCLUDEDIR)
+	 -D_GNU_SOURCE $(INCLUDEDIR)
 
 PLUGIN_PATH = ./plugin
 PYTHON_PATH = ./python

@@ -27,7 +27,7 @@
 #include <jni.h>
 
 #include "collections.h"
-#include "../java/jni_cplugin.h"
+#include "jni_cplugin.h"
 
 /*
  * Here we convert the internal CpluginType field to an enum cl_type.

@@ -41,6 +41,16 @@
 # include <stdbool.h>
 #endif
 
+#ifndef _ASM_X86_TYPES_H
+# include <asm/types.h>
+#endif
+
+#define cl_fourcc(a, b, c, d)           \
+    (((__u32)(a) << 0) |                \
+     ((__u32)(b) << 8) |                \
+     ((__u32)(c) << 16) |               \
+     ((__u32)(d) << 24))
+
 #define CL_PP_RSEQ_N()                  \
     63,62,61,60,                        \
     59,58,57,56,55,54,53,52,51,50,      \
@@ -64,13 +74,6 @@
 
 #define CL_PP_NARG(...)                  \
      CL_PP_NARG_(__VA_ARGS__, CL_PP_RSEQ_N())
-
-/** param flags */
-enum cl_param_flags {
-    CL_PRIVATE = (1 << 0),
-    CL_READABLE = (1 << 1),
-    CL_WRITABLE = (1 << 2)
-};
 
 /** types */
 enum cl_type {
@@ -110,6 +113,38 @@ enum cl_type {
 #define COBJECT_CSTRING      "z"
 #define COBJECT_STRING       "s"
 #define COBJECT_POINTER      "P"
+
+enum cl_object {
+    CSTRING,
+    CSTRINGLIST,
+    CFG_FILE,
+    CFG_SECTION,
+    CFG_KEY,
+    CJSON,
+    CDATETIME,
+    CTIMEOUT,
+    CTHREAD,
+    CTIMER,
+    CTIMER_INFO,
+    CTIMER_ARG,     /* This is not our type, so we can't validate it */
+    CHAT,
+    CLIST,
+    CEVENT,
+    COBJECT,
+    CSPEC,
+    COUNTER,
+    CPLUGIN,
+    CPLUGIN_ARG,
+    CPLUGIN_INFO,
+    CLOG,
+    CIMAGE,
+    CLIST_NODE,
+    CSTACK,
+    CSTACK_NODE,
+    CQUEUE,
+    CQUEUE_NODE,
+    CARRAY
+};
 
 /** error type */
 typedef int                 cerrno;
@@ -164,9 +199,20 @@ typedef void                cplugin_info_t;
 /** log type */
 typedef void                clog_t;
 
-/* glist type */
+/** list type */
 typedef void                clist_t;
 typedef void                clist_node_t;
+
+/** image type */
+typedef void                cimage_t;
+
+/** stack type */
+typedef void                cstack_t;
+typedef void                cstack_node_t;
+
+/** queue type */
+typedef void                cqueue_t;
+typedef void                cqueue_node_t;
 
 #endif
 

@@ -604,10 +604,7 @@ chat_t LIBEXPORT *chat_create(enum chat_driver cd, enum chat_mode mode,
     struct chat_driver_info_s *cdi;
     struct chat_ipc_methods_s *cim;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
     if (validate_chat_driver(cd) == false) {
         cset_errno(CL_UNSUPPORTED_TYPE);
@@ -671,14 +668,7 @@ int LIBEXPORT chat_set_info(chat_t *chat, ...)
     chat_s *c = (chat_s *)chat;
     va_list ap;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(chat, CHAT) == false)
-        return -1;
-
+    __clib_function_init__(true, chat, CHAT, -1);
     va_start(ap, NULL);
 
     /* Call function to set up some socket details */
@@ -694,13 +684,7 @@ int LIBEXPORT chat_client_start(chat_t *chat)
 {
     chat_s *c = (chat_s *)chat;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(chat, CHAT) == false)
-        return -1;
+    __clib_function_init__(true, chat, CHAT, -1);
 
     /* Call function to establish connection */
     if (chat_ipc_connect(c) < 0)
@@ -719,13 +703,7 @@ chat_t LIBEXPORT *chat_server_start(chat_t *chat, unsigned int accept_timeout)
     chat_s *client_c = NULL;
     ipc_data_t *d = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(chat, CHAT) == false)
-        return NULL;
+    __clib_function_init__(true, chat, CHAT, NULL);
 
     /* Call function to wait connections */
     d = chat_ipc_accept(c, accept_timeout);
@@ -761,13 +739,7 @@ int LIBEXPORT chat_send(chat_t *chat, void *data, unsigned int data_size)
     struct chat_data_s *cd = NULL;
     int ret = 0;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(chat, CHAT) == false)
-        return -1;
+    __clib_function_init__(true, chat, CHAT, -1);
 
     /* Prepare data to be sent */
     cd = chat_drv_prepare_to_send(c, data, data_size);
@@ -795,13 +767,7 @@ void LIBEXPORT *chat_recv(chat_t *chat, unsigned int recv_timeout,
     struct chat_data_s *cd = NULL;
     void *data = NULL;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(chat, CHAT) == false)
-        return NULL;
+    __clib_function_init__(true, chat, CHAT, NULL);
 
     /* Call receive function */
     cd = chat_ipc_recv(c, recv_timeout);
@@ -822,13 +788,7 @@ end_block:
 
 int LIBEXPORT chat_stop(chat_t *chat)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(chat, CHAT) == false)
-        return -1;
+    __clib_function_init__(true, chat, CHAT, -1);
 
     /* Call IPC stop function */
     if (chat_ipc_stop(chat) < 0)
@@ -843,14 +803,7 @@ int LIBEXPORT chat_stop(chat_t *chat)
 
 int LIBEXPORT chat_fd(chat_t *chat)
 {
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(chat, CHAT) == false)
-        return -1;
-
+    __clib_function_init__(true, chat, CHAT, -1);
     chat_ref(chat);
 
     return chat_ipc_fd(chat);
@@ -860,14 +813,7 @@ chat_t LIBEXPORT *chat_ref(chat_t *chat)
 {
     chat_s *c = (chat_s *)chat;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return NULL;
-
-    if (validate_object(chat, CHAT) == false)
-        return NULL;
-
+    __clib_function_init__(true, chat, CHAT, NULL);
     ref_inc(&c->ref);
 
     return chat;
@@ -877,14 +823,7 @@ int LIBEXPORT chat_unref(chat_t *chat)
 {
     chat_s *c = (chat_s *)chat;
 
-    cerrno_clear();
-
-    if (library_initialized() == false)
-        return -1;
-
-    if (validate_object(chat, CHAT) == false)
-        return -1;
-
+    __clib_function_init__(true, chat, CHAT, -1);
     ref_dec(&c->ref);
 
     return 0;
