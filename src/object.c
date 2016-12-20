@@ -672,7 +672,7 @@ cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
     else if (cstring_is_float_number(ref) == true)
         o = cobject_create(CL_FLOAT, cstring_to_int(ref));
     else
-        o = cobject_create(CL_STRING, ref);
+        o = cobject_create(CL_STRING, cstring_valueof(ref));
 
     cstring_unref(ref);
 
