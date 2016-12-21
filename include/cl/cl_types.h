@@ -114,38 +114,6 @@ enum cl_type {
 #define COBJECT_STRING       "s"
 #define COBJECT_POINTER      "P"
 
-enum cl_object {
-    CSTRING,
-    CSTRINGLIST,
-    CFG_FILE,
-    CFG_SECTION,
-    CFG_KEY,
-    CJSON,
-    CDATETIME,
-    CTIMEOUT,
-    CTHREAD,
-    CTIMER,
-    CTIMER_INFO,
-    CTIMER_ARG,     /* This is not our type, so we can't validate it */
-    CHAT,
-    CLIST,
-    CEVENT,
-    COBJECT,
-    CSPEC,
-    COUNTER,
-    CPLUGIN,
-    CPLUGIN_ARG,
-    CPLUGIN_INFO,
-    CLOG,
-    CIMAGE,
-    CLIST_NODE,
-    CSTACK,
-    CSTACK_NODE,
-    CQUEUE,
-    CQUEUE_NODE,
-    CARRAY
-};
-
 /** error type */
 typedef int                 cerrno;
 

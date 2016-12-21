@@ -37,7 +37,7 @@
  * @name cprcs_daemon_start
  * @brief Makes the actual process run in daemon mode (background).
  */
-void cprcs_deamon_start(void);
+void cprcs_daemon_start(void);
 
 /**
  * @name csystem

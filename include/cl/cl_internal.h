@@ -176,5 +176,68 @@ bool dl_is_plugin_enabled(enum cplugin_type type);
 bool library_initialized(void);
 magic_t *library_get_cookie(void);
 
+/* glist.c */
+void *cglist_node_ref(void *node, enum cl_object object);
+int cglist_node_unref(void *node, enum cl_object object);
+void *cglist_node_content(const void *node, enum cl_object object);
+void *cglist_ref(void *list, enum cl_object object);
+int cglist_unref(void *list, enum cl_object object);
+void *cglist_create(enum cl_object object, void (*free_data)(void *),
+                    int (*compare_to)(void *, void *),
+                    int (*filter)(void *, void *),
+                    int (*equals)(void *, void *));
+
+int cglist_destroy(void *list, enum cl_object object);
+int cglist_size(const void *list, enum cl_object object);
+int cglist_push(void *list, enum cl_object object, const void *node_content,
+                unsigned int size, enum cl_object node_object);
+
+void *cglist_pop(void *list, enum cl_object object);
+void *cglist_shift(void *list, enum cl_object object);
+int cglist_unshift(void *list, enum cl_object object, const void *node_content,
+                   unsigned int size, enum cl_object node_object);
+
+void *cglist_map(const void *list, enum cl_object object,
+                 int (*foo)(void *, void *), void *data);
+
+void *cglist_map_indexed(const void *list, enum cl_object object,
+                         int (*foo)(unsigned int, void *, void *),
+                         void *data);
+
+void *cglist_map_reverse(const void *list, enum cl_object object,
+                         int (*foo)(void *, void *), void *data);
+
+void *cglist_map_reverse_indexed(const void *list, enum cl_object object,
+                                 int (*foo)(unsigned int, void *, void *),
+                                 void *data);
+
+void *cglist_at(const void *list, enum cl_object object, unsigned int index);
+int cglist_delete(void *list, enum cl_object object, void *data);
+int cglist_delete_indexed(void *list, enum cl_object object, unsigned int index);
+void *cglist_move(void *list, enum cl_object object);
+void *cglist_filter(void *list, enum cl_object object, void *data);
+int cglist_sort(void *list, enum cl_object object);
+int cglist_indexof(const void *list, enum cl_object object, void *content,
+                   unsigned int size, enum cl_object node_object);
+
+int cglist_last_indexof(const void *list, enum cl_object object, void *content,
+                        unsigned int size, enum cl_object node_object);
+
+bool cglist_contains(const void *list, enum cl_object object, void *content,
+                     unsigned int size, enum cl_object node_object);
+
+void *cglist_peek(const void *list, enum cl_object object,
+                  enum cl_object node_object);
+
+bool cglist_is_empty(const void *list, enum cl_object object);
+int cglist_set_compare_to(const void *list, enum cl_object object,
+                          int (*compare_to)(void *, void *));
+
+int cglist_set_filter(const void *list, enum cl_object object,
+                      int (*filter)(void *, void *));
+
+int cglist_set_equals(const void *list, enum cl_object object,
+                      int (*equals)(void *, void *));
+
 #endif
 

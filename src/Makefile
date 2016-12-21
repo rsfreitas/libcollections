@@ -124,14 +124,17 @@ OBJS =	\
 	init.o		\
 	io.o		\
 	json.o		\
+	list.o		\
 	log.o		\
 	mem.o		\
 	object.o	\
 	plugin.o	\
 	process.o	\
+	queue.o		\
 	random.o	\
 	ref.o		\
 	specs.o		\
+	stack.o		\
 	string.o	\
 	stringlist.o	\
 	thread.o	\

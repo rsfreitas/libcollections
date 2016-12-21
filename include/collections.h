@@ -46,7 +46,6 @@ extern "C" {
 #include <cl/cl_error.h>
 #include <cl/cl_event.h>
 #include <cl/cl_file.h>
-#include <cl/cl_glist.h>
 
 #ifdef IMAGEAPI
 # include <cl/cl_image.h>

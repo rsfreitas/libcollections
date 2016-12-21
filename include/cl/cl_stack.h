@@ -45,8 +45,7 @@
  *
  * @return On success returns the content of the node or NULL otherwise.
  */
-#define cstack_node_content(node)   \
-    cglist_node_content((cstack_node_t *)node, CSTACK_NODE)
+void *cstack_node_content(cstack_node_t *node);
 
 /**
  * @name cstack_node_ref
@@ -57,8 +56,7 @@
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-#define cstack_node_ref(node)       \
-    (cstack_node_t *)cglist_node_ref((cstack_node_t *)node, CSTACK_NODE)
+cstack_node_t *cstack_node_ref(cstack_node_t *node);
 
 /**
  * @name cstack_node_unref
@@ -71,8 +69,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_node_unref(node)     \
-    cglist_node_unref((cstack_node_t *)node, CSTACK_NODE)
+int cstack_node_unref(cstack_node_t *node);
 
 /**
  * @name cstack_ref
@@ -83,8 +80,7 @@
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-#define cstack_ref(stack)           \
-    (cstack_t *)cglist_ref((cstack_t *)stack, CSTACK)
+cstack_t *cstack_ref(cstack_t *stack);
 
 /**
  * @name cstack_unref
@@ -97,8 +93,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_unref(stack)         \
-    cglist_unref((cstack_t *)stack, CSTACK)
+int cstack_unref(cstack_t *stack);
 
 /**
  * @name cstack_create
@@ -134,8 +129,10 @@
  *
  * @return On success a void object will be returned or NULL otherwise.
  */
-#define cstack_create(free_data, compare_to, filter, equals)    \
-    (cstack_t *)cglist_create(CSTACK, free_data, compare_to, filter, equals)
+cstack_t *cstack_create(void (*free_data)(void *),
+                        int (*compare_to)(cstack_node_t *, cstack_node_t *),
+                        int (*filter)(cstack_node_t *, void *),
+                        int (*equals)(cstack_node_t *, cstack_node_t *));
 
 /**
  * @name cstack_destroy
@@ -148,8 +145,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_destroy(stack)       \
-    cstack_unref(stack)
+int cstack_destroy(cstack_t *stack);
 
 /**
  * @name cstack_size
@@ -159,8 +155,7 @@
  *
  * @return On success returns the size of the stack or -1 otherwise.
  */
-#define cstack_size(stack)          \
-    cglist_size((cstack_t *)stack, CSTACK)
+int cstack_size(const cstack_t *stack);
 
 /**
  * @name cstack_push
@@ -172,8 +167,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_push(stack, node_content, size)                      \
-    cglist_push((cstack_t *)stack, CSTACK, node_content, size, CSTACK_NODE)
+int cstack_push(cstack_t *stack, const void *node_content, unsigned int size);
 
 /**
  * @name cstack_pop
@@ -184,8 +178,7 @@
  * @return On success returns the pop'ed node, and the user is responsible
  *         for releasing it, or NULL otherwise.
  */
-#define cstack_pop(stack)           \
-    (cstack_node_t *)cglist_shift((cstack_t *)stack, CSTACK)
+cstack_node_t *cstack_pop(cstack_t *stack);
 
 /**
  * @name cstack_map
@@ -200,11 +193,10 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element, and if it is stack of cobject_t objects returns a new
- *         reference to it. If not returns NULL.
+ *         element. If not returns NULL.
  */
-#define cstack_map(stack, foo, data)                            \
-    cglist_map((cstack_t *)stack, CSTACK, foo, data)
+cstack_node_t *cstack_map(const cstack_t *stack,
+                          int (*foo)(cstack_node_t *, void *), void *data);
 
 /**
  * @name cstack_map_indexed
@@ -219,11 +211,12 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element, and if it is stack of cobject_t objects returns a new
- *         reference to it. If not returns NULL.
+ *         element. If not returns NULL.
  */
-#define cstack_map_indexed(stack, foo, data)                    \
-    cglist_map_indexed((cstack_t *)stack, CSTACK, foo, data)
+cstack_node_t *cstack_map_indexed(const cstack_t *stack,
+                                  int (*foo)(unsigned int, cstack_node_t *,
+                                             void *),
+                                  void *data);
 
 /**
  * @name cstack_map_reverse
@@ -238,11 +231,11 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element, and if it is stack of cobject_t objects returns a new
- *         reference to it. If not returns NULL.
+ *         element. If not returns NULL.
  */
-#define cstack_map_reverse(stack, foo, data)                    \
-    cglist_map_reverse((cstack_t *)stack, CSTACK, foo, data)
+cstack_node_t *cstack_map_reverse(const cstack_t *stack,
+                                  int (*foo)(cstack_node_t *, void *),
+                                  void *data);
 
 /**
  * @name cstack_map_reverse_indexed
@@ -257,11 +250,12 @@
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element, and if it is stack of cobject_t objects returns a new
- *         reference to it. If not returns NULL.
+ *         element. If not returns NULL.
  */
-#define cstack_map_reverse_indexed(stack, foo, data)            \
-    cglist_map_reverse_indexed((cstack_t *)stack, CSTACK, foo, data)
+cstack_node_t *cstack_map_reverse_indexed(const cstack_t *stack,
+                                          int (*foo)(unsigned int,
+                                                     cstack_node_t *, void *),
+                                          void *data);
 
 /**
  * @name cstack_at
@@ -270,15 +264,13 @@
  * @param [in] stack: The stack object.
  * @param [in] index: The node index inside the stack.
  *
- * @return On success returns the node element, and if it is a stack of cobject_t
- *         objects returns a new reference to it, or NULL otherwise.
+ * @return On success returns the node element or NULL otherwise.
  */
-#define cstack_at(stack, index)     \
-    cglist_at((cstack_t *)stack, CSTACK, index)
+cstack_node_t *cstack_at(const cstack_t *stack, unsigned int index);
 
 /**
  * @name cstack_delete
- * @brief Deletes elements from a lista according a specific filter function.
+ * @brief Deletes elements from a stacka according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
  * from the stack and released from memory. This function uses the \a filter
@@ -289,8 +281,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_delete(stack, data)  \
-    cglist_delete((cstack_t *)stack, CSTACK, data)
+int cstack_delete(cstack_t *stack, void *data);
 
 /**
  * @name cstack_delete_indexed
@@ -301,8 +292,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_delete_indexed(stack, index)                     \
-    cglist_delete_indexed((cstack_t *)stack, CSTACK, index)
+int cstack_delete_indexed(cstack_t *stack, unsigned int index);
 
 /**
  * @name cstack_move
@@ -312,8 +302,7 @@
  *
  * @return Returns the new stack.
  */
-#define cstack_move(stack)          \
-    cglist_move((cstack_t *)stack, CSTACK)
+cstack_t *cstack_move(cstack_t *stack);
 
 /**
  * @name cstack_filter
@@ -329,8 +318,7 @@
  * @return Returns a stack containing all extracted elements from the original
  *         stack.
  */
-#define cstack_filter(stack, data)  \
-    cglist_filter((cstack_t *)stack, CSTACK, data)
+cstack_t *cstack_filter(cstack_t *stack, void *data);
 
 /**
  * @name cstack_sort
@@ -343,8 +331,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-#define cstack_sort(stack)          \
-    cglist_sort((cstack_t *)stack, CSTACK)
+int cstack_sort(cstack_t *stack);
 
 /**
  * @name cstack_indexof
@@ -358,8 +345,8 @@
  *
  * @return Returns the element index or -1 if it is not found.
  */
-#define cstack_indexof(stack, element, size)                    \
-    cglist_indexof((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE)
+int cstack_indexof(const cstack_t *stack, void *element,
+                   unsigned int size);
 
 /**
  * @name cstack_last_indexof
@@ -373,8 +360,8 @@
  *
  * @return Returns the element index or -1 if it is not found.
  */
-#define cstack_last_indexof(stack, element, size)                   \
-    cglist_last_indexof((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE)
+int cstack_last_indexof(const cstack_t *stack, void *element,
+                        unsigned int size);
 
 /**
  * @name cstack_contains
@@ -388,8 +375,8 @@
  *
  * @return Returns true if the element is found or false otherwise.
  */
-#define cstack_contains(stack, element, size)                       \
-    cglist_contains((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE)
+bool cstack_contains(const cstack_t *stack, void *element,
+                     unsigned int size);
 
 /**
  * @name cstack_peek
@@ -399,8 +386,7 @@
  *
  * @return Returns NULL if the stack is empty or the head of it.
  */
-#define cstack_peek(stack)          \
-    (cstack_node_t *)cglist_peek((cstack_t *)stack, CSTACK, CSTACK_NODE)
+cstack_node_t *cstack_peek(const cstack_t *stack);
 
 /**
  * @name cstack_is_empty
@@ -408,10 +394,45 @@
  *
  * @param [in] stack: The stack object.
  *
- * @return Returns true if the list is empty or false otherwise.
+ * @return Returns true if the stack is empty or false otherwise.
  */
-#define cstack_is_empty(stack)      \
-    cglist_is_empty((cstack_t *)stack, CSTACK)
+bool cstack_is_empty(const cstack_t *stack);
+
+/**
+ * @name cstack_set_compare_to
+ * @brief Updates the internal object compare function.
+ *
+ * @param [in] stack: The stack object.
+ * @param [in] compare_to: The compare function pointer.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cstack_set_compare_to(const cstack_t *stack,
+                          int (*compare_to)(cstack_node_t *, cstack_node_t *));
+
+/**
+ * @name cstack_set_filter
+ * @brief Updates the internal filter function.
+ *
+ * @param [in] stack: The stack object.
+ * @param [in] filter: The filter function pointer.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cstack_set_filter(const cstack_t *stack,
+                      int (*filter)(cstack_node_t *, void *));
+
+/**
+ * @name cstack_set_equals
+ * @brief Updates the internal equals function.
+ *
+ * @param [in] stack: The stack object.
+ * @param [in] equals: The equals function pointer.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cstack_set_equals(const cstack_t *stack,
+                      int (*equals)(cstack_node_t *, cstack_node_t *));
 
 #endif
 
