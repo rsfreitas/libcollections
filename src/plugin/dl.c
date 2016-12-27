@@ -71,7 +71,7 @@ static struct dl_plugin_driver __dl_driver[] = {
 #ifdef PLUGIN_PYTHON
     {
         .type               = CPLUGIN_PYTHON,
-        .enabled            = false,
+        .enabled            = true,
         .library_init       = py_library_init,
         .library_uninit     = py_library_uninit,
         .load_info          = py_load_info,

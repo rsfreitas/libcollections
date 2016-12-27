@@ -135,7 +135,9 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
         case CL_POINTER:
             p = va_arg(ap, void *);
             psize = va_arg(ap, int);
-            return_value->value = cobject_create(CL_POINTER, true, p, psize,
+
+            /* Don't duplicate our pointer value inside the function */
+            return_value->value = cobject_create(CL_POINTER, false, p, psize,
                                                  NULL);
 
             break;

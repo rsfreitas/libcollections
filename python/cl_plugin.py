@@ -161,9 +161,20 @@ class CpluginFunctionReturnValue(object):
 
 
     def set_return_value(self, type_of_return, value):
+        """
+        Sets the return value from a plugin function, so the caller may get it.
+        If we're returning an object (such a instance from a python class) we
+        send it as itsef otherwise it goas as a string.
+        """
+        if type_of_return in (CpluginValue.POINTER.value, \
+                CpluginValue.CSTRING.value):
+            return_value = value
+        else:
+            return_value = str(value)
+
         return _cplugin.set_return_value(self.caller_id, self.cplugin_t,
                                          self.function_name, type_of_return,
-                                         str(value))
+                                         return_value)
 
 
 
