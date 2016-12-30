@@ -462,6 +462,7 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     cplugin_info_t *info = NULL;
     void *handle = NULL;
     struct dl_plugin_driver *pdriver = NULL;
+    int error;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -525,11 +526,16 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     return cpl;
 
 error_block:
+    /* Save previous error code, so we can correctly return it */
+    error = cget_last_error();
+
     if (handle != NULL)
         dl_close(pdriver, handle);
 
     if (flist != NULL)
         destroy_cplugin_function_s_list(flist);
+
+    cset_errno(error);
 
     return NULL;
 }

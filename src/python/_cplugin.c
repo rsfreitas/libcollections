@@ -97,6 +97,12 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
              * XXX: Is this the right way?
              */
             v = COBJECT_AS_POINTER(cplv);
+
+            /*
+             * We increase the reference count of this pointer as this may be a
+             * python object and we want to live.
+             */
+            Py_INCREF(v);
             break;
 
         /* XXX: We still can't receive arguments of this type. */
