@@ -29,10 +29,12 @@ Libcollections python extension to be used inside python plugins.
 """
 
 import sys
-import _cplugin
+import json
 
 from enum import Enum
 from abc import ABCMeta, abstractmethod
+
+import _cplugin
 
 CpluginFunctionName = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
@@ -178,7 +180,7 @@ class CpluginFunctionReturnValue(object):
 
 
 
-class CpluginFunctionArgs(object):
+class CpluginFunctionArguments(object):
     """
         This class is used to extract arguments received by functions called
         from a plugin manager.
@@ -199,6 +201,63 @@ class CpluginFunctionArgs(object):
 
     def arg_count(self):
         return _cplugin.arg_count(self.args)
+
+
+
+class CpluginAPI(object):
+    """
+    A class to easy the creation of an API from within a plugin.
+    """
+    def __init__(self):
+        self._functions = list()
+
+
+    def add_function(self, name, return_type):
+        """
+        Adds a function inside the API with a name and a return type.
+
+        :param name: The function name.
+        :param return_type: The type of the function returned value.
+        """
+        self._functions.append({
+            'name': name,
+            'return_type': return_type
+        })
+
+
+    def add_argument(self, function_name, arg_name, arg_type):
+        """
+        Adds an argument to a function inside the API. This argument must have
+        a name and a type.
+
+        Raises an Exception if the function does not exist inside the API.
+
+        :param function_name: The function name which will have a new argument.
+        :param arg_name: The argument name.
+        :param arg_type: The argument type.
+        """
+        foo = next(
+            (item for item in self._functions if item['name'] == function_name),
+            None
+        )
+
+        if foo is None:
+            raise Exception("Function '%s' not created yet" % function_name)
+
+        if not foo.has_key('arguments'):
+            foo['arguments'] = list()
+
+        foo['arguments'].append({
+            'name': arg_name,
+            'type': arg_type
+        })
+
+
+    def export(self):
+        """
+        Exports the API to the libcollection's api format.
+        """
+        return json.dumps({'API': self._functions})
 
 
 
