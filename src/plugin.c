@@ -87,6 +87,10 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
         return -1;
     }
 
+    /* Don't create anything since we returning void from a function. */
+    if (type == CL_VOID)
+        return 0;
+
     foo = cdll_map(pl->functions, search_cplugin_function_s,
                    (char *)function_name);
 

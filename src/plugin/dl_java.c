@@ -377,3 +377,18 @@ int jni_plugin_shutdown(void *data, void *handle, cplugin_info_t *info)
     return 0;
 }
 
+bool jni_plugin_test(const cstring_t *mime)
+{
+    cstring_t *p = NULL;
+    bool ret = false;
+
+    p = cstring_create("application/x-java-applet");
+
+    if (cstring_cmp(mime, p) == 0)
+        ret = true;
+
+    cstring_unref(p);
+
+    return ret;
+}
+

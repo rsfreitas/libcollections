@@ -62,6 +62,7 @@ struct cplugin_function_s;
 struct dl_plugin_driver {
     enum cplugin_type   type;
     bool                enabled;
+    bool                (*plugin_test)(const cstring_t *);
     void                *(*library_init)(void);
     void                (*library_uninit)(void *);
     cplugin_info_t      *(*load_info)(void *, void *);

@@ -43,6 +43,7 @@ void py_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
 
 int py_plugin_startup(void *data, void *handle, cplugin_info_t *info);
 int py_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
+bool py_plugin_test(const cstring_t *mime);
 
 #endif
 
