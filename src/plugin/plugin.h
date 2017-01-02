@@ -69,6 +69,10 @@ struct dl_plugin_driver {
                                           struct cplugin_function_s *,
                                           void *);
 
+    void                (*unload_functions)(void *,
+                                            struct cplugin_function_s *,
+                                            void *);
+
     void                *(*open)(void *, const char *);
     int                 (*close)(void *, void *);
     void                (*call)(void *, struct cplugin_function_s *,
@@ -158,6 +162,7 @@ int dl_close(struct dl_plugin_driver *drv, void *handle);
 int dl_load_functions(struct dl_plugin_driver *drv,
                       struct cplugin_function_s *flist, void *handle);
 
+void dl_unload_functions(cplugin_s *cpl);
 cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle);
 void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
              uint32_t caller_id);

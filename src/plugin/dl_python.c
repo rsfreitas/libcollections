@@ -79,6 +79,15 @@ static int py_load_function(void *a, void *b)
     return -1;
 }
 
+static int py_unload_function(void *a, void *b __attribute__((unused)))
+{
+    struct cplugin_function_s *foo = (struct cplugin_function_s *)a;
+
+    Py_DECREF(foo->symbol);
+
+    return 0;
+}
+
 /*
  *
  * Plugin Driver API
@@ -95,7 +104,8 @@ void *py_library_init(void)
 
 void py_library_uninit(void *data __attribute__((unused)))
 {
-    Py_Finalize();
+    /* FIXME: Still don't know why we need to leave this comment out. */
+//    Py_Finalize();
 }
 
 /*
@@ -169,6 +179,12 @@ int py_load_functions(void *data __attribute__((unused)),
     return 0;
 }
 
+void py_unload_functions(void *data __attribute__((unused)),
+    struct cplugin_function_s *flist, void *handle __attribute__((unused)))
+{
+    cdll_map(flist, py_unload_function, NULL);
+}
+
 void *py_open(void *data __attribute__((unused)), const char *pathname)
 {
     PyObject *handle = NULL, *pname = NULL, *module = NULL;
@@ -192,7 +208,6 @@ void *py_open(void *data __attribute__((unused)), const char *pathname)
     }
 
     module = PyImport_Import(pname);
-    PyErr_Print();
 
     if (NULL == module) {
         cset_errno(CL_PY_IMPORT_FAILED);
@@ -225,6 +240,9 @@ void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
     uint32_t caller_id, cplugin_t *cpl)
 {
     PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL;
+    PyGILState_STATE gstate;
+
+    gstate = PyGILState_Ensure();
 
     /*
      * Encapsulates 'cplugin_t' and 'foo->args' so we can pass them as a
@@ -251,6 +269,9 @@ void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
     }
 
     PyObject_CallObject(foo->symbol, pvalue);
+    Py_DECREF(pvalue);
+
+    PyGILState_Release(gstate);
 }
 
 int py_plugin_startup(void *data __attribute__((unused)), void *handle,
@@ -274,6 +295,8 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
 
         if (pret != NULL)
            ret = (int)PyInt_AsLong(pret);
+
+        Py_DECREF(pvalue);
     }
 
     return ret;
@@ -296,6 +319,7 @@ int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
     if (PyCallable_Check(foo)) {
         pvalue = Py_BuildValue("()");
         PyObject_CallObject(foo, pvalue);
+        Py_DECREF(pvalue);
     }
 
     release_custom_plugin_info(plinfo);

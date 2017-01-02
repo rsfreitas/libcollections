@@ -44,6 +44,7 @@ static struct cl_data __cl_data = {
 
 static void __uninit(const struct ref_s *ref __attribute__((unused)))
 {
+    dl_library_uninit();
     magic_close(__cl_data.cookie);
     cexit();
 }

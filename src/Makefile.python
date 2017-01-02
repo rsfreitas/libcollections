@@ -3,6 +3,13 @@
 
 CC = gcc
 
+GCCVERSION = 4
+GCCVERSION_TEST := $(shell expr `gcc -dumpversion | cut -f1 -d.` \> 4)
+
+ifeq ($(GCCVERSION_TEST), 1)
+    GCCVERSION = 5
+endif
+
 TARGET_DIR = ../bin
 TARGET= $(TARGET_DIR)/_cplugin.so
 DEST_DIR = /usr/lib/python2.7
@@ -17,6 +24,10 @@ LIBS = -ldl -lpython2.7 -lm
 CFLAGS = -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall \
 	 -Wstrict-prototypes -fPIC -DLIBCOLLECTIONS_COMPILE -DLINUX \
 	 -D_GNU_SOURCE $(INCLUDEDIR)
+
+ifeq ($(GCCVERSION), 5)
+    CFLAGS += -fgnu89-inline
+endif
 
 PLUGIN_PATH = ./plugin
 PYTHON_PATH = ./python

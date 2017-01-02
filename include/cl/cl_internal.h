@@ -170,6 +170,7 @@ char *file_extension(const char *pathname);
 
 /* plugin.c */
 void dl_library_init(void);
+void dl_library_uninit(void);
 bool dl_is_plugin_enabled(enum cplugin_type type);
 
 /* init.c */

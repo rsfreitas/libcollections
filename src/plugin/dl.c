@@ -59,6 +59,7 @@ static struct dl_plugin_driver __dl_driver[] = {
         .library_uninit     = c_library_uninit,
         .load_info          = c_load_info,
         .load_functions     = c_load_functions,
+        .unload_functions   = NULL,
         .open               = c_open,
         .close              = c_close,
         .call               = c_call,
@@ -76,6 +77,7 @@ static struct dl_plugin_driver __dl_driver[] = {
         .library_uninit     = py_library_uninit,
         .load_info          = py_load_info,
         .load_functions     = py_load_functions,
+        .unload_functions   = py_unload_functions,
         .open               = py_open,
         .close              = py_close,
         .call               = py_call,
@@ -97,6 +99,7 @@ static struct dl_plugin_driver __dl_driver[] = {
         .library_uninit     = jni_library_uninit,
         .load_info          = jni_load_info,
         .load_functions     = jni_load_functions,
+        .unload_functions   = NULL,
         .open               = jni_open,
         .close              = jni_close,
         .call               = jni_call,
@@ -173,7 +176,7 @@ void dl_library_init(void)
         ref_inc(&__dl.ref);
 }
 
-static void dl_library_uninit(void)
+void dl_library_uninit(void)
 {
     ref_dec(&__dl.ref);
 }
@@ -288,7 +291,6 @@ int dl_close(struct dl_plugin_driver *drv, void *handle)
         goto end_block;
 
     ret = (drv->close)(drv->data, handle);
-    dl_library_uninit();
 
 end_block:
     if (ret != 0)
@@ -315,6 +317,16 @@ end_block:
         cset_errno(CL_OBJECT_NOT_FOUND);
 
     return ret;
+}
+
+void dl_unload_functions(cplugin_s *cpl)
+{
+    struct dl_plugin_driver *drv = NULL;
+
+    drv = cpl->dl;
+
+    if (drv->unload_functions != NULL)
+        (drv->unload_functions)(drv->data, cpl->functions, cpl->handle);
 }
 
 /*
@@ -390,4 +402,5 @@ void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
     drv = cpl->dl;
     (drv->call)(drv->data, foo, caller_id, cpl);
 }
+
 

@@ -546,6 +546,8 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
         return -1;
     }
 
+    dl_unload_functions(cpl);
+
     if (pl->handle != NULL)
         dl_close(pl->dl, pl->handle);
 

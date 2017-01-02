@@ -36,6 +36,9 @@ void *py_library_init(void);
 void py_library_uninit(void *data);
 cplugin_info_t *py_load_info(void *data, void *ptr);
 int py_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
+void py_unload_functions(void *data, struct cplugin_function_s *flist,
+                         void *handle);
+
 void *py_open(void *data, const char *pathname);
 int py_close(void *data, void *ptr);
 void py_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
