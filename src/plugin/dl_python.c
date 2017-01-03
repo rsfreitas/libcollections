@@ -104,8 +104,7 @@ void *py_library_init(void)
 
 void py_library_uninit(void *data __attribute__((unused)))
 {
-    /* FIXME: Still don't know why we need to leave this comment out. */
-//    Py_Finalize();
+    Py_Finalize();
 }
 
 /*
@@ -159,6 +158,7 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
             return NULL;
 
         pyinfo[i].data = PyString_AS_STRING(result);
+        Py_DECREF(result);
     }
 
     info = info_create_from_data(pyinfo[0].data, pyinfo[1].data, pyinfo[2].data,
@@ -166,6 +166,8 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 
     if (info != NULL)
         set_custom_plugin_info(info, pyinfo[5].data, pyinfo[6].data);
+
+    Py_DECREF(instance);
 
     return info;
 }
@@ -239,7 +241,7 @@ int py_close(void *data __attribute__((unused)), void *ptr)
 void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
     uint32_t caller_id, cplugin_t *cpl)
 {
-    PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL;
+    PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL, *pret;
     PyGILState_STATE gstate;
 
     gstate = PyGILState_Ensure();
@@ -268,7 +270,8 @@ void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
                                    capsule_of_args);
     }
 
-    PyObject_CallObject(foo->symbol, pvalue);
+    pret = PyObject_CallObject(foo->symbol, pvalue);
+    Py_DECREF(pret);
     Py_DECREF(pvalue);
 
     PyGILState_Release(gstate);
@@ -296,6 +299,7 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
         if (pret != NULL)
            ret = (int)PyInt_AsLong(pret);
 
+        Py_DECREF(pret);
         Py_DECREF(pvalue);
     }
 
@@ -305,7 +309,7 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
 int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
     cplugin_info_t *info)
 {
-    PyObject *dict, *foo, *pvalue;
+    PyObject *dict, *foo, *pvalue, *pret;
     struct py_info *plinfo = NULL;
 
     plinfo = (struct py_info *)info_get_custom_data(info);
@@ -318,7 +322,8 @@ int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
 
     if (PyCallable_Check(foo)) {
         pvalue = Py_BuildValue("()");
-        PyObject_CallObject(foo, pvalue);
+        pret = PyObject_CallObject(foo, pvalue);
+        Py_DECREF(pret);
         Py_DECREF(pvalue);
     }
 
