@@ -176,6 +176,7 @@ bool dl_is_plugin_enabled(enum cplugin_type type);
 /* init.c */
 bool library_initialized(void);
 magic_t *library_get_cookie(void);
+struct random_data *library_random_data(void);
 
 /* glist.c */
 void *cglist_node_ref(void *node, enum cl_object object);
@@ -239,6 +240,9 @@ int cglist_set_filter(const void *list, enum cl_object object,
 
 int cglist_set_equals(const void *list, enum cl_object object,
                       int (*equals)(void *, void *));
+
+/* random.c */
+unsigned int cl_cseed(void);
 
 #endif
 

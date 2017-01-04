@@ -92,6 +92,12 @@
     cplugin_argument(args, arg_name)
 
 /*
+ * Macro to release an argument loaded inside a plugin function.
+ */
+#define CPLUGIN_RELEASE_ARGUMENT(argument)      \
+    cobject_unref(argument)
+
+/*
  * Macro to access the argument @args from an exported function and
  * remove the GCC warning.
  */

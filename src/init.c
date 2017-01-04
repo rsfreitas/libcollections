@@ -32,9 +32,11 @@
 #include "collections.h"
 
 struct cl_data {
-    magic_t         cookie;
-    bool            initialized;
-    struct ref_s    ref;
+    magic_t             cookie;
+    bool                initialized;
+    struct ref_s        ref;
+    struct random_data  rd_data;
+    char                state[128];
 };
 
 static struct cl_data __cl_data = {
@@ -54,7 +56,8 @@ void LIBEXPORT collections_init(void)
 
     if (ref_bool_compare(&__cl_data.ref, old, new) == true) {
         /* Initialize libc random numbers seed */
-        srandom(time(NULL) + cseed());
+        initstate_r(time(NULL) + cl_cseed(), __cl_data.state,
+                    sizeof(__cl_data.state), &__cl_data.rd_data);
 
         /* Initialize libmagic environment */
         __cl_data.cookie = magic_open(MAGIC_MIME_TYPE);
@@ -99,5 +102,10 @@ bool library_initialized(void)
 magic_t *library_get_cookie(void)
 {
     return &__cl_data.cookie;
+}
+
+struct random_data *library_random_data(void)
+{
+    return &__cl_data.rd_data;
 }
 

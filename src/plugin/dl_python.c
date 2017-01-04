@@ -332,3 +332,29 @@ int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
     return 0;
 }
 
+bool py_plugin_test(const cstring_t *mime)
+{
+    const char *recognized_mime[] = {
+        "text/x-python",
+        "text/plain",
+        "application/octet-stream"
+    };
+    int i = 0, t;
+    cstring_t *p;
+
+    t = sizeof(recognized_mime) / sizeof(recognized_mime[0]);
+
+    for (i = 0; i < t; i++) {
+        p = cstring_create("%s", recognized_mime[i]);
+
+        if (cstring_cmp(mime, p) == 0) {
+            cstring_unref(p);
+            return true;
+        }
+
+        cstring_unref(p);
+    }
+
+    return false;
+}
+

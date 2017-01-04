@@ -97,6 +97,12 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
              * XXX: Is this the right way?
              */
             v = COBJECT_AS_POINTER(cplv);
+
+            /*
+             * We increase the reference count of this pointer as this may be a
+             * python object and we want to live longer.
+             */
+            Py_INCREF(v);
             break;
 
         /* XXX: We still can't receive arguments of this type. */
@@ -107,6 +113,7 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
         case CL_STRING:
             s = COBJECT_AS_STRING(cplv);
             v = Py_BuildValue("s", s);
+            free(s);
             break;
 
         case CL_BOOLEAN:
@@ -269,6 +276,10 @@ static PyObject *set_return_value(PyObject *self, PyObject *args)
                                                     value));
 }
 
+/*static PyObject *release_argument(PyObject *self, PyObject *args)
+{
+}*/
+
 static char module_docstring[] =
     "Extension used for internal manipulation of python plugin data "
     "through libcollections library.";
@@ -277,6 +288,7 @@ static PyMethodDef module_methods[] = {
     { "argument",           argument,           METH_VARARGS, ""   },
     { "arg_count",          arg_count,          METH_VARARGS, ""   },
     { "set_return_value",   set_return_value,   METH_VARARGS, ""   },
+//    { "release_argument",   release_argument,   METH_VARARGS, ""   },
     { NULL,                 NULL,               0,            NULL }
 };
 

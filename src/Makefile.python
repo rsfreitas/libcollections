@@ -19,7 +19,7 @@ INCLUDEDIR += -I../../libcollections/include
 INCLUDEDIR += -I/usr/include/python2.7
 
 LIBDIR = -L/usr/local/lib
-LIBS = -ldl -lpython2.7 -lm
+LIBS = -ldl -lpython2.7 -lm -lmagic
 
 CFLAGS = -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall \
 	 -Wstrict-prototypes -fPIC -DLIBCOLLECTIONS_COMPILE -DLINUX \

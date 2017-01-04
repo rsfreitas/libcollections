@@ -217,3 +217,18 @@ int c_plugin_shutdown(void *data __attribute__((unused)),
     return 0;
 }
 
+bool c_plugin_test(const cstring_t *mime)
+{
+    cstring_t *p = NULL;
+    bool ret = false;
+
+    p = cstring_create("application/x-sharedlib");
+
+    if (cstring_cmp(mime, p) == 0)
+        ret = true;
+
+    cstring_unref(p);
+
+    return ret;
+}
+

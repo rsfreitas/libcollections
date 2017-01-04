@@ -202,6 +202,8 @@ int main(int argc, char **argv)
     char *filename = NULL;
     cplugin_t *cpl;
     bool info = false;
+    cobject_t *ret;
+    int i;
 
     do {
         option = getopt(argc, argv, opt);
@@ -247,9 +249,9 @@ int main(int argc, char **argv)
     show_plugin_info(cpl);
 
     /* XXX: call test functions */
-    call_functions(cpl);
+//    call_functions(cpl);
 
-    cplugin_call(cpl, "foo_args",
+/*    cplugin_call(cpl, "foo_args",
                  "arg1", 20,
                  "arg2", 21,
                  "arg3", 22,
@@ -264,9 +266,26 @@ int main(int argc, char **argv)
                  "arg12", 123456LL,
                  "arg13", true,
                  "arg14", "Sample text",
-                 NULL);
+                 NULL);*/
 
-    printf("Last call error: %s\n", cstrerror(cget_last_error()));
+/*    ret = cplugin_call(cpl, "foo_class", "data", "Ola, sou uma classe", NULL);
+    printf("Type of return: %d\n", cobject_type(ret));
+    ret = cplugin_call(cpl, "foo_pointer", "data", COBJECT_AS_POINTER(ret), NULL);
+    printf("Second return: %d\n", COBJECT_AS_INT(ret));
+    printf("Last call error: %s\n", cstrerror(cget_last_error()));*/
+
+    void *p;
+    for (i = 0; i < 20; i++) {
+        ret = cplugin_call(cpl, "tx_connect", "info",
+                           "{\"recv_timeout\": 10, \"connect_attempts\": 2}",
+                           "job", "{\"nome\": \"job\"}", NULL);
+        p = COBJECT_AS_POINTER(ret);
+        cobject_unref(ret);
+        ret = cplugin_call(cpl, "tx_send", "data", p, NULL);
+        cobject_unref(ret);
+        cplugin_call(cpl, "tx_finish", "data", p, NULL);
+    }
+
     cplugin_unload(cpl);
 
     if (filename != NULL)

@@ -3498,7 +3498,7 @@
 {
    <suppression_243>
    Memcheck:Leak
-   match-leak-kinds: indirect
+#   match-leak-kinds: indirect
    fun:malloc
    obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
    obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
@@ -3511,7 +3511,7 @@
 {
    <suppression_244>
    Memcheck:Leak
-   match-leak-kinds: definite
+#   match-leak-kinds: definite
    fun:calloc
    obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
    fun:magic_load
@@ -3523,7 +3523,7 @@
 {
    <suppression_245>
    Memcheck:Leak
-   match-leak-kinds: definite
+#   match-leak-kinds: definite
    fun:calloc
    obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0
    obj:/usr/lib/i386-linux-gnu/libmagic.so.1.0.0

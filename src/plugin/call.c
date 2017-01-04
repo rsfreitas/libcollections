@@ -65,6 +65,9 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
         if (NULL == arg)
             return -1;
 
+        if (arg->value != NULL)
+            cobject_unref(arg->value);
+
         switch (arg->type) {
             case CL_CHAR:
                 arg->value = cobject_create(CL_CHAR, (char)va_arg(ap, int),

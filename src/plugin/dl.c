@@ -55,6 +55,7 @@ static struct dl_plugin_driver __dl_driver[] = {
     {
         .type               = CPLUGIN_C,
         .enabled            = true,
+        .plugin_test        = c_plugin_test,
         .library_init       = c_library_init,
         .library_uninit     = c_library_uninit,
         .load_info          = c_load_info,
@@ -73,6 +74,7 @@ static struct dl_plugin_driver __dl_driver[] = {
     {
         .type               = CPLUGIN_PYTHON,
         .enabled            = true,
+        .plugin_test        = py_plugin_test,
         .library_init       = py_library_init,
         .library_uninit     = py_library_uninit,
         .load_info          = py_load_info,
@@ -95,6 +97,7 @@ static struct dl_plugin_driver __dl_driver[] = {
     {
         .type               = CPLUGIN_JAVA,
         .enabled            = false,
+        .plugin_test        = jni_plugin_test,
         .library_init       = jni_library_init,
         .library_uninit     = jni_library_uninit,
         .load_info          = jni_load_info,
@@ -199,46 +202,13 @@ static cstring_t *get_file_info(const char *filename)
 static enum cplugin_type parse_plugin_type(cstring_t *s)
 {
     enum cplugin_type t = CPLUGIN_UNKNOWN;
-    cstring_t *p = NULL;
+    unsigned int i;
 
-    /* C/C++ */
-    p = cstring_create("application/x-sharedlib");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_C;
-        goto ok;
-    }
-
-    /* Python */
-    cstring_clear(p);
-    cstring_cat(p, "text/x-python");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_PYTHON;
-        goto ok;
-    }
-
-    /* Python again (since the mime type is wrong in some systems) */
-    cstring_clear(p);
-    cstring_cat(p, "text/plain");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_PYTHON;
-        goto ok;
-    }
-
-    /* Java */
-    cstring_clear(p);
-    cstring_cat(p, "application/x-java-applet");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_JAVA;
-        goto ok;
-    }
-
-ok:
-    if (p != NULL)
-        cstring_unref(p);
+    for (i = 1; i < NDRIVERS; i++)
+        if (__dl_driver[i].plugin_test(s) == true) {
+            t = __dl_driver[i].type;
+            break;
+        }
 
     return t;
 }
@@ -254,7 +224,6 @@ struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
         return NULL;
 
     /* DEBUG */
-    printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(info));
     type = parse_plugin_type(info);
     cstring_unref(info);
 
