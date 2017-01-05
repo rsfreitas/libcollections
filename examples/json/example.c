@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init();
+    collections_init(NULL);
     j = cjson_read_file(filename);
 
     if (NULL == j) {

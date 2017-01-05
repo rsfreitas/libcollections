@@ -52,6 +52,7 @@ extern "C" {
 #endif
 
 #include <cl/cl_init.h>
+#include <cl/cl_intl.h>
 #include <cl/cl_io.h>
 #include <cl/cl_json.h>
 #include <cl/cl_list.h>

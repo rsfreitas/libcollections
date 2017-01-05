@@ -165,7 +165,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init();
+    collections_init(NULL);
 
     /* loads configuration file */
     cfg = cfg_load(filename);
@@ -184,6 +184,17 @@ int main(int argc, char **argv)
 
     wnd = get_number_of_windows(section);
     show_windows_config(cfg, wnd);
+
+    {
+        cfg_key_t *k;
+        cobject_t *v;
+        char *p;
+
+        k = cfg_get_key(cfg, "window_3", "teste");
+        v = cfg_key_value(k);
+        p = COBJECT_AS_STRING(v);
+        printf("%s: '%s'\n", __FUNCTION__, p);
+    }
 
 end_block:
     cfg_unload(cfg);

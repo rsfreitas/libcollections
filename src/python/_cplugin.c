@@ -296,7 +296,7 @@ PyMODINIT_FUNC init_cplugin(void)
 {
     PyObject *m;
 
-    collections_init();
+    collections_init(NULL);
     m = Py_InitModule3("_cplugin", module_methods, module_docstring);
 
     if (NULL == m)

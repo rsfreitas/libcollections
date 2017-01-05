@@ -40,6 +40,8 @@ static void help(void)
     fprintf(stdout, "  -h\t\t\tShow this help screen.\n");
     fprintf(stdout, "  -f [file name]\tIndicate the plugin to load.\n");
     fprintf(stdout, "  -I\t\t\tOnly shows the plugin informations.\n");
+    fprintf(stdout, "  -r [num. of runs]\tTell how many times the plugin "
+                    "functions will run.\n");
 
     fprintf(stdout, "\n");
 }
@@ -197,13 +199,13 @@ static void call_functions(cplugin_t *cpl)
 
 int main(int argc, char **argv)
 {
-    const char *opt = "f:hI";
+    const char *opt = "f:hIr:";
     int option;
     char *filename = NULL;
     cplugin_t *cpl;
     bool info = false;
     cobject_t *ret;
-    int i;
+    int i, run = 1;
 
     do {
         option = getopt(argc, argv, opt);
@@ -221,6 +223,10 @@ int main(int argc, char **argv)
                 info = true;
                 break;
 
+            case 'r':
+                run = atoi(optarg);
+                break;
+
             case '?':
                 return -1;
         }
@@ -231,7 +237,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init();
+    collections_init(NULL);
 
     if (info == true) {
         load_and_show_plugin_info(filename);
@@ -249,41 +255,36 @@ int main(int argc, char **argv)
     show_plugin_info(cpl);
 
     /* XXX: call test functions */
-//    call_functions(cpl);
+    for (i = 0; i < run; i++) {
+        call_functions(cpl);
 
-/*    cplugin_call(cpl, "foo_args",
-                 "arg1", 20,
-                 "arg2", 21,
-                 "arg3", 22,
-                 "arg4", 23,
-                 "arg5", 'a',
-                 "arg6", 231,
-                 "arg7", 3.1415f,
-                 "arg8", 2.27,
-                 "arg9", 123,
-                 "arg10", 1234,
-                 "arg11", 12345LL,
-                 "arg12", 123456LL,
-                 "arg13", true,
-                 "arg14", "Sample text",
-                 NULL);*/
+        cplugin_call(cpl, "foo_args",
+                     "arg1", 20,
+                     "arg2", 21,
+                     "arg3", 22,
+                     "arg4", 23,
+                     "arg5", 'a',
+                     "arg6", 231,
+                     "arg7", 3.1415f,
+                     "arg8", 2.27,
+                     "arg9", 123,
+                     "arg10", 1234,
+                     "arg11", 12345LL,
+                     "arg12", 123456LL,
+                     "arg13", true,
+                     "arg14", "Sample text",
+                     NULL);
 
-/*    ret = cplugin_call(cpl, "foo_class", "data", "Ola, sou uma classe", NULL);
-    printf("Type of return: %d\n", cobject_type(ret));
-    ret = cplugin_call(cpl, "foo_pointer", "data", COBJECT_AS_POINTER(ret), NULL);
-    printf("Second return: %d\n", COBJECT_AS_INT(ret));
-    printf("Last call error: %s\n", cstrerror(cget_last_error()));*/
+        ret = cplugin_call(cpl, "foo_class", "data", "Ola, sou uma classe",
+                           NULL);
 
-    void *p;
-    for (i = 0; i < 20; i++) {
-        ret = cplugin_call(cpl, "tx_connect", "info",
-                           "{\"recv_timeout\": 10, \"connect_attempts\": 2}",
-                           "job", "{\"nome\": \"job\"}", NULL);
-        p = COBJECT_AS_POINTER(ret);
+        printf("Type of return: %d\n", cobject_type(ret));
         cobject_unref(ret);
-        ret = cplugin_call(cpl, "tx_send", "data", p, NULL);
+        ret = cplugin_call(cpl, "foo_pointer", "data", COBJECT_AS_POINTER(ret),
+                           NULL);
+
+        printf("Second return: %d\n", COBJECT_AS_INT(ret));
         cobject_unref(ret);
-        cplugin_call(cpl, "tx_finish", "data", p, NULL);
     }
 
     cplugin_unload(cpl);

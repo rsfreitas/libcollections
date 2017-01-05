@@ -3,7 +3,7 @@
  * Description:
  *
  * Author: Rodrigo Freitas
- * Created at: Wed Sep  7 10:13:24 2016
+ * Created at: Wed Jan  4 11:33:46 2017
  * Project: libcollections
  *
  * Copyright (C) 2015 Rodrigo Freitas
@@ -24,38 +24,36 @@
  * USA
  */
 
-#ifndef _COLLECTIONS_CL_INIT_H
-#define _COLLECTIONS_CL_INIT_H     1
+#ifndef _COLLECTIONS_CL_INTL_H
+#define _COLLECTIONS_CL_INTL_H     1
 
 #ifndef LIBCOLLECTIONS_COMPILE
 # ifndef _COLLECTIONS_H
-#  error "Never use <cl_init.h> directly; include <collections.h> instead."
+#  error "Never use <cl_intl.h> directly; include <collections.h> instead."
 # endif
 #endif
 
 /**
- * @name collections_init
- * @brief The function to initialize all library internals.
+ * @name tr
+ * @brief Macro to shorten the gettext term inside a source file.
  *
- * This function must be the first library function called inside a code.
- * Otherwise all other functions won't work.
+ * This macro should be used in strings that will be translated to other
+ * languages.
  *
- * \a arg may be a file name pointing to a file with JSON configuration supported
- * by the library or a JSON string with the configuration. If it is NULL, some
- * default values will be used.
- *
- * @param [in] arg: The library configuration or a file name with the
- *                  configuration.
- *
- * @return On success returns 0 or -1 otherwise.
+ * @param [in] string: The string.
  */
-int collections_init(const char *arg);
+#define tr(string)                  gettext(string)
 
 /**
- * @name collections_uninit
- * @brief The function to end all library internals.
+ * @name tr_noop
+ * @brief Macro to be used in special cases of translatable strings.
+ *
+ * For more details consult:
+ * https://www.gnu.org/software/gettext/manual/html_node/Special-cases.html
+ *
+ * @param [in] string: The string.
  */
-void collections_uninit(void);
+#define tr_noop(string)             string
 
 #endif
 

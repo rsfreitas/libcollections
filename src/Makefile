@@ -122,6 +122,7 @@ OBJS =	\
 	file.o		\
 	glist.o		\
 	init.o		\
+	intl.o		\
 	io.o		\
 	json.o		\
 	list.o		\

@@ -244,5 +244,8 @@ int cglist_set_equals(const void *list, enum cl_object object,
 /* random.c */
 unsigned int cl_cseed(void);
 
+/* intl.c */
+int intl_start(const char *package, const char *locale_dir);
+
 #endif
 
