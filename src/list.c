@@ -95,31 +95,34 @@ int LIBEXPORT clist_unshift(clist_t *list, const void *node_content,
 clist_node_t LIBEXPORT *clist_map(const clist_t *list,
     int (*foo)(clist_node_t *, void *), void *data)
 {
-    return (clist_node_t *)cglist_map((clist_t *)list, CLIST, foo, data);
+    return (clist_node_t *)cglist_map((clist_t *)list, CLIST, CLIST_NODE, foo,
+                                      data);
 }
 
 clist_node_t LIBEXPORT *clist_map_indexed(const clist_t *list,
     int (*foo)(unsigned int, clist_node_t *, void *), void *data)
 {
-    return (clist_node_t *)cglist_map_indexed((clist_t *)list, CLIST, foo, data);
+    return (clist_node_t *)cglist_map_indexed((clist_t *)list, CLIST,
+                                              CLIST_NODE, foo, data);
 }
 
 clist_node_t LIBEXPORT *clist_map_reverse(const clist_t *list,
     int (*foo)(clist_node_t *, void *), void *data)
 {
-    return (clist_node_t *)cglist_map_reverse((clist_t *)list, CLIST, foo, data);
+    return (clist_node_t *)cglist_map_reverse((clist_t *)list, CLIST,
+                                              CLIST_NODE, foo, data);
 }
 
 clist_node_t LIBEXPORT *clist_map_reverse_indexed(const clist_t *list,
     int (*foo)(unsigned int, clist_node_t *, void *), void *data)
 {
     return (clist_node_t *)cglist_map_reverse_indexed((clist_t *)list, CLIST,
-                                                      foo, data);
+                                                      CLIST_NODE, foo, data);
 }
 
 clist_node_t LIBEXPORT *clist_at(const clist_t *list, unsigned int index)
 {
-    return (clist_node_t *)cglist_at((clist_t *)list, CLIST, index);
+    return (clist_node_t *)cglist_at((clist_t *)list, CLIST, CLIST_NODE, index);
 }
 
 int LIBEXPORT clist_delete(clist_t *list, void *data)

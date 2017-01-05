@@ -85,33 +85,35 @@ cstack_node_t LIBEXPORT *cstack_pop(cstack_t *stack)
 cstack_node_t LIBEXPORT *cstack_map(const cstack_t *stack,
     int (*foo)(cstack_node_t *, void *), void *data)
 {
-    return (cstack_node_t *)cglist_map((cstack_t *)stack, CSTACK, foo, data);
+    return (cstack_node_t *)cglist_map((cstack_t *)stack, CSTACK, CSTACK_NODE,
+                                       foo, data);
 }
 
 cstack_node_t LIBEXPORT *cstack_map_indexed(const cstack_t *stack,
     int (*foo)(unsigned int, cstack_node_t *, void *), void *data)
 {
-    return (cstack_node_t *)cglist_map_indexed((cstack_t *)stack, CSTACK, foo,
-                                               data);
+    return (cstack_node_t *)cglist_map_indexed((cstack_t *)stack, CSTACK,
+                                               CSTACK_NODE, foo, data);
 }
 
 cstack_node_t LIBEXPORT *cstack_map_reverse(const cstack_t *stack,
     int (*foo)(cstack_node_t *, void *), void *data)
 {
-    return (cstack_node_t *)cglist_map_reverse((cstack_t *)stack, CSTACK, foo,
-                                               data);
+    return (cstack_node_t *)cglist_map_reverse((cstack_t *)stack, CSTACK,
+                                               CSTACK_NODE, foo, data);
 }
 
 cstack_node_t LIBEXPORT *cstack_map_reverse_indexed(const cstack_t *stack,
     int (*foo)(unsigned int, cstack_node_t *, void *), void *data)
 {
     return (cstack_node_t *)cglist_map_reverse_indexed((cstack_t *)stack, CSTACK,
-                                                      foo, data);
+                                                       CSTACK_NODE, foo, data);
 }
 
 cstack_node_t LIBEXPORT *cstack_at(const cstack_t *stack, unsigned int index)
 {
-    return (cstack_node_t *)cglist_at((cstack_t *)stack, CSTACK, index);
+    return (cstack_node_t *)cglist_at((cstack_t *)stack, CSTACK, CSTACK_NODE,
+                                      index);
 }
 
 int LIBEXPORT cstack_delete(cstack_t *stack, void *data)
@@ -155,7 +157,8 @@ int LIBEXPORT cstack_last_indexof(const cstack_t *stack, void *element,
 bool LIBEXPORT cstack_contains(const cstack_t *stack, void *element,
     unsigned int size)
 {
-    return cglist_contains((cstack_t *)stack, CSTACK, element, size, CSTACK_NODE);
+    return cglist_contains((cstack_t *)stack, CSTACK, element, size,
+                           CSTACK_NODE);
 }
 
 cstack_node_t LIBEXPORT *cstack_peek(const cstack_t *stack)

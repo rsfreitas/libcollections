@@ -188,12 +188,14 @@ cstack_node_t *cstack_pop(cstack_t *stack);
  * \a data. Its prototype must be something of this type:
  * int foo(cstack_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] stack: The stack object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cstack_node_t *cstack_map(const cstack_t *stack,
                           int (*foo)(cstack_node_t *, void *), void *data);
@@ -206,12 +208,14 @@ cstack_node_t *cstack_map(const cstack_t *stack,
  * stack, a node from the stack and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, cstack_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] stack: The stack object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cstack_node_t *cstack_map_indexed(const cstack_t *stack,
                                   int (*foo)(unsigned int, cstack_node_t *,
@@ -226,12 +230,14 @@ cstack_node_t *cstack_map_indexed(const cstack_t *stack,
  * \a data. Its prototype must be something of this type:
  * int foo(cstack_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] stack: The stack object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cstack_node_t *cstack_map_reverse(const cstack_t *stack,
                                   int (*foo)(cstack_node_t *, void *),
@@ -245,12 +251,14 @@ cstack_node_t *cstack_map_reverse(const cstack_t *stack,
  * stack, a node from the stack and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, cstack_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] stack: The stack object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         element. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cstack_node_t *cstack_map_reverse_indexed(const cstack_t *stack,
                                           int (*foo)(unsigned int,
@@ -261,10 +269,12 @@ cstack_node_t *cstack_map_reverse_indexed(const cstack_t *stack,
  * @name cstack_at
  * @brief Gets a pointer to a specific node inside a stack.
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] stack: The stack object.
  * @param [in] index: The node index inside the stack.
  *
- * @return On success returns the node element or NULL otherwise.
+ * @return On success returns a reference to the node or NULL otherwise.
  */
 cstack_node_t *cstack_at(const cstack_t *stack, unsigned int index);
 
@@ -382,9 +392,12 @@ bool cstack_contains(const cstack_t *stack, void *element,
  * @name cstack_peek
  * @brief Retrieves, but does not remove, the head of the stack.
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] stack: The stack object.
  *
- * @return Returns NULL if the stack is empty or the head of it.
+ * @return Returns NULL if the stack is empty or a new reference to the head
+ *         of it.
  */
 cstack_node_t *cstack_peek(const cstack_t *stack);
 

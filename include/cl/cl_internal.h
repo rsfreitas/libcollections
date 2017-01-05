@@ -200,20 +200,26 @@ int cglist_unshift(void *list, enum cl_object object, const void *node_content,
                    unsigned int size, enum cl_object node_object);
 
 void *cglist_map(const void *list, enum cl_object object,
-                 int (*foo)(void *, void *), void *data);
+                 enum cl_object node_object, int (*foo)(void *, void *),
+                 void *data);
 
 void *cglist_map_indexed(const void *list, enum cl_object object,
+                         enum cl_object node_object,
                          int (*foo)(unsigned int, void *, void *),
                          void *data);
 
 void *cglist_map_reverse(const void *list, enum cl_object object,
+                         enum cl_object node_object,
                          int (*foo)(void *, void *), void *data);
 
 void *cglist_map_reverse_indexed(const void *list, enum cl_object object,
+                                 enum cl_object node_object,
                                  int (*foo)(unsigned int, void *, void *),
                                  void *data);
 
-void *cglist_at(const void *list, enum cl_object object, unsigned int index);
+void *cglist_at(const void *list, enum cl_object object,
+                enum cl_object node_object, unsigned int index);
+
 int cglist_delete(void *list, enum cl_object object, void *data);
 int cglist_delete_indexed(void *list, enum cl_object object, unsigned int index);
 void *cglist_move(void *list, enum cl_object object);

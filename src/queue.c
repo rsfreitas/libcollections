@@ -85,33 +85,35 @@ int LIBEXPORT cqueue_enqueue(cqueue_t *queue, const void *node_content,
 cqueue_node_t LIBEXPORT *cqueue_map(const cqueue_t *queue,
     int (*foo)(cqueue_node_t *, void *), void *data)
 {
-    return (cqueue_node_t *)cglist_map((cqueue_t *)queue, CQUEUE, foo, data);
+    return (cqueue_node_t *)cglist_map((cqueue_t *)queue, CQUEUE, CQUEUE_NODE,
+                                       foo, data);
 }
 
 cqueue_node_t LIBEXPORT *cqueue_map_indexed(const cqueue_t *queue,
     int (*foo)(unsigned int, cqueue_node_t *, void *), void *data)
 {
-    return (cqueue_node_t *)cglist_map_indexed((cqueue_t *)queue, CQUEUE, foo,
-                                               data);
+    return (cqueue_node_t *)cglist_map_indexed((cqueue_t *)queue, CQUEUE,
+                                               CQUEUE_NODE, foo, data);
 }
 
 cqueue_node_t LIBEXPORT *cqueue_map_reverse(const cqueue_t *queue,
     int (*foo)(cqueue_node_t *, void *), void *data)
 {
-    return (cqueue_node_t *)cglist_map_reverse((cqueue_t *)queue, CQUEUE, foo,
-                                               data);
+    return (cqueue_node_t *)cglist_map_reverse((cqueue_t *)queue, CQUEUE,
+                                               CQUEUE_NODE, foo, data);
 }
 
 cqueue_node_t LIBEXPORT *cqueue_map_reverse_indexed(const cqueue_t *queue,
     int (*foo)(unsigned int, cqueue_node_t *, void *), void *data)
 {
     return (cqueue_node_t *)cglist_map_reverse_indexed((cqueue_t *)queue, CQUEUE,
-                                                      foo, data);
+                                                       CQUEUE_NODE, foo, data);
 }
 
 cqueue_node_t LIBEXPORT *cqueue_at(const cqueue_t *queue, unsigned int index)
 {
-    return (cqueue_node_t *)cglist_at((cqueue_t *)queue, CQUEUE, index);
+    return (cqueue_node_t *)cglist_at((cqueue_t *)queue, CQUEUE, CQUEUE_NODE,
+                                      index);
 }
 
 int LIBEXPORT cqueue_delete(cqueue_t *queue, void *data)

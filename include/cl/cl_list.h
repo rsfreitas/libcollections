@@ -212,12 +212,14 @@ int clist_unshift(clist_t *list, const void *node_content,
  * \a data. Its prototype must be something of this type:
  * int foo(clist_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] list: The list object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 clist_node_t *clist_map(const clist_t *list,
                         int (*foo)(clist_node_t *, void *), void *data);
@@ -230,12 +232,14 @@ clist_node_t *clist_map(const clist_t *list,
  * list, a node from the list and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, clist_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] list: The list object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 clist_node_t *clist_map_indexed(const clist_t *list,
                                 int (*foo)(unsigned int, clist_node_t *, void *),
@@ -249,12 +253,14 @@ clist_node_t *clist_map_indexed(const clist_t *list,
  * \a data. Its prototype must be something of this type:
  * int foo(clist_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] list: The list object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 clist_node_t *clist_map_reverse(const clist_t *list,
                                 int (*foo)(clist_node_t *, void *), void *data);
@@ -267,12 +273,14 @@ clist_node_t *clist_map_reverse(const clist_t *list,
  * list, a node from the list and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, clist_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] list: The list object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 clist_node_t *clist_map_reverse_indexed(const clist_t *list,
                                         int (*foo)(unsigned int, clist_node_t *,
@@ -283,11 +291,12 @@ clist_node_t *clist_map_reverse_indexed(const clist_t *list,
  * @name clist_at
  * @brief Gets a pointer to a specific node inside a list.
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] list: The list object.
  * @param [in] index: The node index inside the list.
  *
- * @return On success returns the node content, and if it is a list of cobject_t
- *         objects returns a new reference to it, or NULL otherwise.
+ * @return On success returns a reference to the node or NULL otherwise.
  */
 clist_node_t *clist_at(const clist_t *list, unsigned int index);
 
@@ -405,11 +414,13 @@ bool clist_contains(const clist_t *list, void *element,
  * @name clist_peek
  * @brief Retrieves, but does not remove, the head of the list.
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] list: The list object.
  *
- * @return Returns the head of the list on success or NULL otherwise. The head
- *         will be a node from the list, so the user will have to use the
- *         function to get the content of it.
+ * @return Returns a reference to the head of the list on success or NULL
+ *         otherwise. The head will be a node from the list, so the user will
+ *         have to use the function to get the content of it.
  */
 clist_node_t *clist_peek(const clist_t *list);
 

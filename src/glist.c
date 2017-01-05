@@ -416,7 +416,7 @@ int cglist_unshift(void *list, enum cl_object object,
 }
 
 void *cglist_map(const void *list, enum cl_object object,
-    int (*foo)(void *, void *), void *data)
+    enum cl_object node_object, int (*foo)(void *, void *), void *data)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
@@ -433,11 +433,12 @@ void *cglist_map(const void *list, enum cl_object object,
     if (NULL == node)
         return NULL;
 
-    return node;
+    return cglist_node_ref(node, node_object);
 }
 
 void *cglist_map_indexed(const void *list, enum cl_object object,
-    int (*foo)(unsigned int, void *, void *), void *data)
+    enum cl_object node_object, int (*foo)(unsigned int, void *, void *),
+    void *data)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
@@ -454,11 +455,11 @@ void *cglist_map_indexed(const void *list, enum cl_object object,
     if (NULL == node)
         return NULL;
 
-    return node;
+    return cglist_node_ref(node, node_object);
 }
 
 void *cglist_map_reverse(const void *list, enum cl_object object,
-    int (*foo)(void *, void *), void *data)
+    enum cl_object node_object, int (*foo)(void *, void *), void *data)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
@@ -475,12 +476,12 @@ void *cglist_map_reverse(const void *list, enum cl_object object,
     if (NULL == node)
         return NULL;
 
-    return node;
+    return cglist_node_ref(node, node_object);
 }
 
 void *cglist_map_reverse_indexed(const void *list,
-    enum cl_object object, int (*foo)(unsigned int, void *, void *),
-    void *data)
+    enum cl_object object, enum cl_object node_object,
+    int (*foo)(unsigned int, void *, void *), void *data)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
@@ -497,11 +498,11 @@ void *cglist_map_reverse_indexed(const void *list,
     if (NULL == node)
         return NULL;
 
-    return node;
+    return cglist_node_ref(node, node_object);
 }
 
 void *cglist_at(const void *list, enum cl_object object,
-    unsigned int index)
+    enum cl_object node_object, unsigned int index)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
@@ -512,7 +513,7 @@ void *cglist_at(const void *list, enum cl_object object,
     if (NULL == node)
         return NULL;
 
-    return node;
+    return cglist_node_ref(node, node_object);
 }
 
 /* TODO: Maybe return the number of deleted elements */

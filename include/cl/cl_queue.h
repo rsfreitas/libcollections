@@ -189,12 +189,16 @@ int cqueue_enqueue(cqueue_t *queue, const void *node_content,
  * \a data. Its prototype must be something of this type:
  * int foo(cqueue_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
  * @return If \a foo returns a non-zero returns a pointer to the current node
  *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cqueue_node_t *cqueue_map(const cqueue_t *queue,
                           int (*foo)(cqueue_node_t *, void *), void *data);
@@ -207,12 +211,14 @@ cqueue_node_t *cqueue_map(const cqueue_t *queue,
  * queue, a node from the queue and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cqueue_node_t *cqueue_map_indexed(const cqueue_t *queue,
                                   int (*foo)(unsigned int, cqueue_node_t *,
@@ -227,12 +233,14 @@ cqueue_node_t *cqueue_map_indexed(const cqueue_t *queue,
  * \a data. Its prototype must be something of this type:
  * int foo(cqueue_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cqueue_node_t *cqueue_map_reverse(const cqueue_t *queue,
                                   int (*foo)(cqueue_node_t *, void *),
@@ -246,12 +254,14 @@ cqueue_node_t *cqueue_map_reverse(const cqueue_t *queue,
  * queue, a node from the queue and some custom \a data. Its prototype must be
  * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] queue: The queue object.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
+ * @return If \a foo returns a non-zero returns a new reference to the current
+ *         node. If not returns NULL.
  */
 cqueue_node_t *cqueue_map_reverse_indexed(const cqueue_t *queue,
                                           int (*foo)(unsigned int,
@@ -262,10 +272,13 @@ cqueue_node_t *cqueue_map_reverse_indexed(const cqueue_t *queue,
  * @name cqueue_at
  * @brief Gets a pointer to a specific node inside a queue.
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] queue: The queue object.
  * @param [in] index: The node index inside the queue.
  *
- * @return On success returns the node content or NULL otherwise.
+ *
+ * @return On success returns a reference to the node or NULL otherwise.
  */
 cqueue_node_t *cqueue_at(const cqueue_t *queue, unsigned int index);
 
@@ -383,9 +396,12 @@ bool cqueue_contains(const cqueue_t *queue, void *element,
  * @name cqueue_front
  * @brief Retrieves, but does not remove, the head of the queue.
  *
+ * On a successful call the node reference must be 'unreferenced'.
+ *
  * @param [in] queue: The queue object.
  *
- * @return Returns NULL if the queue is empty or the head of it.
+ * @return Returns NULL if the queue is empty or a new reference to the head
+ *         of it.
  */
 cqueue_node_t *cqueue_front(const cqueue_t *queue);
 
