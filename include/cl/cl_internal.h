@@ -177,6 +177,7 @@ bool dl_is_plugin_enabled(enum cplugin_type type);
 bool library_initialized(void);
 magic_t *library_get_cookie(void);
 struct random_data *library_random_data(void);
+cjson_t *library_configuration(void);
 
 /* glist.c */
 void *cglist_node_ref(void *node, enum cl_object object);

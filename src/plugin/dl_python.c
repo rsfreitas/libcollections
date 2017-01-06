@@ -94,10 +94,40 @@ static int py_unload_function(void *a, void *b __attribute__((unused)))
  *
  */
 
+static void add_preconfigured_paths(void)
+{
+    cjson_t *paths = NULL, *root;
+    int i, t;
+    char *tmp;
+    cstring_t *s;
+
+    root = library_configuration();
+
+    if (NULL == root)
+        return;
+
+    paths = cjson_get_object_item(root, "plugin_path");
+
+    if (NULL == paths)
+        return;
+
+    t = cjson_get_array_size(paths);
+    PyRun_SimpleString("import sys");
+
+    for (i = 0; i < t; i++) {
+        p = cjson_get_array_item(paths, i);
+        s = cjson_get_object_value(p);
+        asprintf(tmp, "sys.path.append(%s)", cstring_valueof(s));
+        PyRun_SimpleString(tmp);
+        free(tmp);
+    }
+}
+
 void *py_library_init(void)
 {
     setenv("PYTHONPATH", "/usr/local/lib", 1);
     Py_Initialize();
+    add_preconfigured_paths();
 
     return NULL;
 }

@@ -241,3 +241,8 @@ const char *library_locale_dir(void)
     return __cl_data.locale_dir;
 }
 
+cjson_t *library_configuration(void)
+{
+    return __cl_data.cfg;
+}
+
