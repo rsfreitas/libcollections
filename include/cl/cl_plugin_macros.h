@@ -43,7 +43,7 @@
 # define CPLUGIN_EXTERN_C()
 #endif
 
-#define OBJEXPORT               __attribute__((visibility("default")))
+#define CPLUGIN_FNEXPORT        __attribute__((visibility("default")))
 
 /*
  * Macros to be used with libcollections while manipulating plugins.
@@ -54,8 +54,9 @@
 
 /* Macro to identify an exported plugin function */
 #define CPLUGIN_OBJECT_EXPORT(foo)              \
-    CPLUGIN_EXTERN_C() void OBJEXPORT foo(uint32_t caller_id, cplugin_t *cpl, \
-                                          cplugin_arg_t *args)
+    CPLUGIN_EXTERN_C() void CPLUGIN_FNEXPORT foo(uint32_t caller_id, \
+                                                 cplugin_t *cpl, \
+                                                 cplugin_arg_t *args)
 
 /*
  * Macro to set the return value from an exported plugin function. To be used
@@ -75,7 +76,7 @@
  * it.
  */
 #define CPLUGIN_SET_PLUGIN_ENTRY_NAME(name)                \
-    CPLUGIN_EXTERN_C() struct cplugin_entry_s OBJEXPORT *cplugin_set_plugin_entry_name(void)\
+    CPLUGIN_EXTERN_C() struct cplugin_entry_s CPLUGIN_FNEXPORT *cplugin_set_plugin_entry_name(void)\
     {\
         return &name##_plugin_entry;\
     }\
@@ -114,6 +115,14 @@
 #define cplugin_call(cpl, function_name, arg...)   \
     cplugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
                     cpl, function_name, ## arg)
+
+/**
+ * Macros to mandatory plugin functions. A plugin must have one of these.
+ */
+
+/* Plugin name */
+#define CPLUGIN_NAME()  \
+    CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *cplugin_name(void)
 
 #endif
 

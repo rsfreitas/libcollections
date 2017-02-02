@@ -32,15 +32,15 @@
 #include "plugin.h"
 
 /* Structure to save custom plugin informations. */
-struct c_info {
+struct elf_info {
     int     (*startup)(void);
     void    (*shutdown)(void);
 };
 
 /* Exported functions prototype */
-typedef void (*c_exported_function)(uint32_t, cplugin_t *, cplugin_arg_t *);
-typedef int (*c_startup_function)(void);
-typedef void (*c_shutdown_function)(void);
+typedef void (*elf_exported_function)(uint32_t, cplugin_t *, cplugin_arg_t *);
+typedef int (*elf_startup_function)(void);
+typedef void (*elf_shutdown_function)(void);
 
 /* Function name to get the internal plugin information */
 #define CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL    "cplugin_set_plugin_entry_name"
@@ -48,9 +48,9 @@ typedef void (*c_shutdown_function)(void);
 static void set_custom_plugin_info(cplugin_info_t *info,
     struct cplugin_entry_s *entry)
 {
-    struct c_info *p = NULL;
+    struct elf_info *p = NULL;
 
-    p = calloc(1, sizeof(struct c_info));
+    p = calloc(1, sizeof(struct elf_info));
 
     if (NULL == p)
         return;
@@ -61,7 +61,7 @@ static void set_custom_plugin_info(cplugin_info_t *info,
     info_set_custom_data(info, p);
 }
 
-static void release_custom_plugin_info(struct c_info *info)
+static void release_custom_plugin_info(struct elf_info *info)
 {
     if (NULL == info)
         return;
@@ -90,7 +90,7 @@ static struct cplugin_entry_s *call_entry_symbol(void *handle)
 /*
  * Points to the real plugin function, inside it.
  */
-static int c_load_function(void *a, void *b)
+static int elf_load_function(void *a, void *b)
 {
     struct cplugin_function_s *foo = (struct cplugin_function_s *)a;
     void *handle = b;
@@ -110,18 +110,18 @@ static int c_load_function(void *a, void *b)
  *
  */
 
-void *c_library_init(void)
+void *elf_library_init(void)
 {
     /* noop */
     return NULL;
 }
 
-void c_library_uninit(void *data __attribute__((unused)))
+void elf_library_uninit(void *data __attribute__((unused)))
 {
     /* noop */
 }
 
-cplugin_info_t *c_load_info(void *data __attribute__((unused)), void *handle)
+cplugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
 {
     struct cplugin_entry_s *entry;
     cplugin_info_t *info = NULL;
@@ -139,16 +139,16 @@ cplugin_info_t *c_load_info(void *data __attribute__((unused)), void *handle)
     return info;
 }
 
-int c_load_functions(void *data __attribute__((unused)),
+int elf_load_functions(void *data __attribute__((unused)),
      struct cplugin_function_s *flist, void *handle)
 {
-    if (cdll_map(flist, c_load_function, handle) != NULL)
+    if (cdll_map(flist, elf_load_function, handle) != NULL)
         return -1;
 
     return 0;
 }
 
-void *c_open(void *data __attribute__((unused)), const char *pathname)
+void *elf_open(void *data __attribute__((unused)), const char *pathname)
 {
 #ifdef DEBUG_LIBCOLLECTIONS
     void *p;
@@ -164,15 +164,15 @@ void *c_open(void *data __attribute__((unused)), const char *pathname)
 #endif
 }
 
-int c_close(void *data __attribute__((unused)), void *handle)
+int elf_close(void *data __attribute__((unused)), void *handle)
 {
     return dlclose(handle);
 }
 
-void c_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
+void elf_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
     uint32_t caller_id, cplugin_t *cpl)
 {
-    c_exported_function f;
+    elf_exported_function f;
 
     if (NULL == foo->symbol)
         /* do nothing */
@@ -182,13 +182,13 @@ void c_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
     f(caller_id, cpl, foo->args);
 }
 
-int c_plugin_startup(void *data __attribute__((unused)),
+int elf_plugin_startup(void *data __attribute__((unused)),
     void *handle __attribute__((unused)), cplugin_info_t *info)
 {
-    c_startup_function f;
-    struct c_info *plinfo = NULL;
+    elf_startup_function f;
+    struct elf_info *plinfo = NULL;
 
-    plinfo = (struct c_info *)info_get_custom_data(info);
+    plinfo = (struct elf_info *)info_get_custom_data(info);
 
     if (NULL == plinfo)
         return -1;
@@ -198,13 +198,13 @@ int c_plugin_startup(void *data __attribute__((unused)),
     return f();
 }
 
-int c_plugin_shutdown(void *data __attribute__((unused)),
+int elf_plugin_shutdown(void *data __attribute__((unused)),
     void *handle __attribute__((unused)), cplugin_info_t *info)
 {
-    c_shutdown_function f;
-    struct c_info *plinfo = NULL;
+    elf_shutdown_function f;
+    struct elf_info *plinfo = NULL;
 
-    plinfo = (struct c_info *)info_get_custom_data(info);
+    plinfo = (struct elf_info *)info_get_custom_data(info);
 
     if (NULL == plinfo)
         return -1;
@@ -217,7 +217,7 @@ int c_plugin_shutdown(void *data __attribute__((unused)),
     return 0;
 }
 
-bool c_plugin_test(const cstring_t *mime)
+bool elf_plugin_test(const cstring_t *mime)
 {
     cstring_t *p = NULL;
     bool ret = false;

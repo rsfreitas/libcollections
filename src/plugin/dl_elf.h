@@ -24,27 +24,27 @@
  * USA
  */
 
-#ifndef _COLLECTIONS_DL_C_H
-#define _COLLECTIONS_DL_C_H     1
+#ifndef _COLLECTIONS_DL_ELF_H
+#define _COLLECTIONS_DL_ELF_H     1
 
 #ifndef LIBCOLLECTIONS_COMPILE
 # ifndef _COLLECTIONS_H
-#  error "Never use <dl_c.h> directly; include <collections.h> instead."
+#  error "Never use <dl_elf.h> directly; include <collections.h> instead."
 # endif
 #endif
 
-void *c_library_init(void);
-void c_library_uninit(void *data);
-cplugin_info_t *c_load_info(void *data, void *handle);
-int c_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
-void *c_open(void *data, const char *pathname);
-int c_close(void *data, void *handle);
-void c_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
-            cplugin_t *cpl);
+void *elf_library_init(void);
+void elf_library_uninit(void *data);
+cplugin_info_t *elf_load_info(void *data, void *handle);
+int elf_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
+void *elf_open(void *data, const char *pathname);
+int elf_close(void *data, void *handle);
+void elf_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
+              cplugin_t *cpl);
 
-int c_plugin_startup(void *data, void *handle, cplugin_info_t *info);
-int c_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
-bool c_plugin_test(const cstring_t *mime);
+int elf_plugin_startup(void *data, void *handle, cplugin_info_t *info);
+int elf_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
+bool elf_plugin_test(const cstring_t *mime);
 
 #endif
 

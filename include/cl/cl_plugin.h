@@ -35,7 +35,7 @@
 /** Plugin supported languages */
 enum cplugin_type {
     CPLUGIN_UNKNOWN = (1 << 0),
-    CPLUGIN_C       = (1 << 1),         /* C or C++ */
+    CPLUGIN_ELF     = (1 << 1),         /* C, C++, Go and Rust */
     CPLUGIN_PYTHON  = (1 << 2),         /* Python */
     CPLUGIN_JAVA    = (1 << 3)
 };

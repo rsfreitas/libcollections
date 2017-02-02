@@ -33,7 +33,7 @@
 #include "plugin.h"
 
 /* supported languages */
-#include "dl_c.h"
+#include "dl_elf.h"
 #include "dl_python.h"
 #include "dl_java.h"
 
@@ -51,21 +51,21 @@ static struct dl_plugin_driver __dl_driver[] = {
         .enabled            = false,
     },
 
-#ifdef PLUGIN_C
+#ifdef PLUGIN_ELF
     {
-        .type               = CPLUGIN_C,
+        .type               = CPLUGIN_ELF,
         .enabled            = true,
-        .plugin_test        = c_plugin_test,
-        .library_init       = c_library_init,
-        .library_uninit     = c_library_uninit,
-        .load_info          = c_load_info,
-        .load_functions     = c_load_functions,
+        .plugin_test        = elf_plugin_test,
+        .library_init       = elf_library_init,
+        .library_uninit     = elf_library_uninit,
+        .load_info          = elf_load_info,
+        .load_functions     = elf_load_functions,
         .unload_functions   = NULL,
-        .open               = c_open,
-        .close              = c_close,
-        .call               = c_call,
-        .plugin_startup     = c_plugin_startup,
-        .plugin_shutdown    = c_plugin_shutdown,
+        .open               = elf_open,
+        .close              = elf_close,
+        .call               = elf_call,
+        .plugin_startup     = elf_plugin_startup,
+        .plugin_shutdown    = elf_plugin_shutdown,
         .data               = NULL,
     },
 #endif
