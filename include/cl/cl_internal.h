@@ -33,13 +33,20 @@
 
 #include <stddef.h>
 
-#ifndef LIBEXPORT
-# ifdef LINUX
-#  define LIBEXPORT                     __attribute__((visibility("default")))
-# else
-#  define LIBEXPORT
-# endif
-#endif
+/*
+ * An internal representation of a public function. It does not affect the code
+ * or the function visibility. Its objective is only to let clear what is and
+ * what is not been exported from library by looking at the code.
+ *
+ * Every exported function must have this at the beginning of its declaration.
+ * Example:
+ *
+ * __PUB_API__ const char *function(int arg)
+ * {
+ *      // Body
+ * }
+ */
+#define __PUB_API__
 
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - offsetof(type, member)))

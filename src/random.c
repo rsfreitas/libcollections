@@ -47,7 +47,7 @@ unsigned int cl_cseed(void)
     return strtol(tmp, NULL, 16);
 }
 
-unsigned int LIBEXPORT cseed(void)
+__PUB_API__ unsigned int cseed(void)
 {
     unsigned int x = 0;
 
@@ -62,7 +62,7 @@ unsigned int LIBEXPORT cseed(void)
     return x;
 }
 
-unsigned int LIBEXPORT crand(unsigned int random_max)
+__PUB_API__ unsigned int crand(unsigned int random_max)
 {
     unsigned int num_bins, num_rand, bin_size, defect, x;
 

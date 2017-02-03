@@ -69,7 +69,7 @@ static void destroy_list_node_s(void *ptr)
     free(l);
 }
 
-cstring_list_t LIBEXPORT *cstring_list_create(void)
+__PUB_API__ cstring_list_t *cstring_list_create(void)
 {
     cstring_list_s *l = NULL;
 
@@ -89,7 +89,7 @@ cstring_list_t LIBEXPORT *cstring_list_create(void)
     return l;
 }
 
-int LIBEXPORT cstring_list_destroy(cstring_list_t *l)
+__PUB_API__ int cstring_list_destroy(cstring_list_t *l)
 {
     cstring_list_s *p = (cstring_list_s *)l;
 
@@ -103,7 +103,7 @@ int LIBEXPORT cstring_list_destroy(cstring_list_t *l)
     return 0;
 }
 
-int LIBEXPORT cstring_list_size(const cstring_list_t *l)
+__PUB_API__ int cstring_list_size(const cstring_list_t *l)
 {
     cstring_list_s *p = (cstring_list_s *)l;
 
@@ -112,7 +112,7 @@ int LIBEXPORT cstring_list_size(const cstring_list_t *l)
     return p->size;
 }
 
-int LIBEXPORT cstring_list_add(cstring_list_t *l, cstring_t *s)
+__PUB_API__ int cstring_list_add(cstring_list_t *l, cstring_t *s)
 {
     cstring_list_s *p = (cstring_list_s *)l;
     struct cstring_list_node_s *n = NULL;
@@ -136,7 +136,7 @@ int LIBEXPORT cstring_list_add(cstring_list_t *l, cstring_t *s)
     return 0;
 }
 
-cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
+__PUB_API__ cstring_t *cstring_list_get(const cstring_list_t *l,
     unsigned int index)
 {
     cstring_list_s *p = (cstring_list_s *)l;
@@ -157,7 +157,7 @@ cstring_t LIBEXPORT *cstring_list_get(const cstring_list_t *l,
     return cstring_ref(n->s);
 }
 
-cstring_t LIBEXPORT *cstring_list_map(const cstring_list_t *l,
+__PUB_API__ cstring_t *cstring_list_map(const cstring_list_t *l,
     int (*foo)(void *, void *), void *data)
 {
     cstring_list_s *p = (cstring_list_s *)l;

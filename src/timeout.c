@@ -76,7 +76,7 @@ static void destroy_ctimeout_s(ctimeout_s *t)
     free(t);
 }
 
-ctimeout_t LIBEXPORT *ctimeout_create(unsigned int interval,
+__PUB_API__ ctimeout_t *ctimeout_create(unsigned int interval,
    enum ctimeout precision)
 {
     ctimeout_s *t;
@@ -90,7 +90,7 @@ ctimeout_t LIBEXPORT *ctimeout_create(unsigned int interval,
     return t;
 }
 
-int LIBEXPORT ctimeout_destroy(ctimeout_t *t)
+__PUB_API__ int ctimeout_destroy(ctimeout_t *t)
 {
     ctimeout_s *ct = (ctimeout_s *)t;
 
@@ -100,7 +100,7 @@ int LIBEXPORT ctimeout_destroy(ctimeout_t *t)
     return 0;
 }
 
-int LIBEXPORT ctimeout_reset(ctimeout_t *t, unsigned int interval,
+__PUB_API__ int ctimeout_reset(ctimeout_t *t, unsigned int interval,
     enum ctimeout precision)
 {
     ctimeout_s *ct = (ctimeout_s *)t;
@@ -121,7 +121,7 @@ int LIBEXPORT ctimeout_reset(ctimeout_t *t, unsigned int interval,
     return 0;
 }
 
-bool LIBEXPORT ctimeout_expired(const ctimeout_t *t)
+__PUB_API__ bool ctimeout_expired(const ctimeout_t *t)
 {
     ctimeout_s *ct = (ctimeout_s *)t;
     struct timeval tv;

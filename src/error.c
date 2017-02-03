@@ -105,7 +105,7 @@ static void cerrno_init(void)
  *
  * @return Returns a pointer to the global error variable.
  */
-cerrno LIBEXPORT *cerrno_storage(void)
+__PUB_API__ cerrno *cerrno_storage(void)
 {
     cerrno *error = NULL;
 
@@ -132,7 +132,7 @@ cerrno LIBEXPORT *cerrno_storage(void)
  * This function must be called at the end of main function if the user wants no
  * memory leak errors reported by the valgrind tool.
  */
-void LIBEXPORT cexit(void)
+__PUB_API__ void cexit(void)
 {
     if (library_initialized() == false)
         return;
@@ -160,7 +160,7 @@ void cset_errno(enum cerror_code error_code)
 /*
  * Gets the last error code internally occurred.
  */
-enum cerror_code LIBEXPORT cget_last_error(void)
+__PUB_API__ enum cerror_code cget_last_error(void)
 {
     return __cerrno;
 }
@@ -168,7 +168,7 @@ enum cerror_code LIBEXPORT cget_last_error(void)
 /*
  * Converts a numeric error code in a text message.
  */
-const char LIBEXPORT *cstrerror(enum cerror_code error_code)
+__PUB_API__ const char *cstrerror(enum cerror_code error_code)
 {
     if (error_code >= CL_MAX_ERROR_CODE)
         return __cunknown_error;

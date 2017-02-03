@@ -64,7 +64,7 @@ static void close_all_opened_files(void)
         close(fd);
 }
 
-void LIBEXPORT cprcs_daemon_start(void)
+__PUB_API__ void cprcs_daemon_start(void)
 {
     __clib_function_init_ex2__(false, NULL, -1);
 
@@ -121,7 +121,7 @@ static char **cvt_cmd(const char *cmd)
     return app_argv;
 }
 
-int LIBEXPORT csystem(bool close_parent_files, const char *fmt, ...)
+__PUB_API__ int csystem(bool close_parent_files, const char *fmt, ...)
 {
     pid_t p;
     int child_status, i;
@@ -160,7 +160,7 @@ int LIBEXPORT csystem(bool close_parent_files, const char *fmt, ...)
     return 0;
 }
 
-void LIBEXPORT cmsleep(long mseconds)
+__PUB_API__ void cmsleep(long mseconds)
 {
     struct timespec tv;
 
@@ -172,7 +172,7 @@ void LIBEXPORT cmsleep(long mseconds)
     nanosleep(&tv,&tv);
 }
 
-int LIBEXPORT ctrap(int signum, void (*f)(int))
+__PUB_API__ int ctrap(int signum, void (*f)(int))
 {
     struct sigaction s;
 
@@ -296,7 +296,7 @@ static char *instance_name(pid_t pid)
     return cmd;
 }
 
-bool LIBEXPORT cinstance_active(const char *name)
+__PUB_API__ bool cinstance_active(const char *name)
 {
     pid_t pid;
     char *we = NULL;
@@ -325,7 +325,7 @@ bool LIBEXPORT cinstance_active(const char *name)
     return b;
 }
 
-int LIBEXPORT cset_instance_as_active(void)
+__PUB_API__ int cset_instance_as_active(void)
 {
     __clib_function_init__(false, NULL, -1, -1);
 

@@ -78,7 +78,7 @@ static bool validate_thread_state(enum cthread_state state)
     return true;
 }
 
-void LIBEXPORT *cthread_get_user_data(cthread_t *arg)
+__PUB_API__ void *cthread_get_user_data(cthread_t *arg)
 {
     cthread_s *td;
 
@@ -88,7 +88,7 @@ void LIBEXPORT *cthread_get_user_data(cthread_t *arg)
     return td->user_data;
 }
 
-int LIBEXPORT cthread_set_state(cthread_t *t, enum cthread_state state)
+__PUB_API__ int cthread_set_state(cthread_t *t, enum cthread_state state)
 {
     cthread_s *td = (cthread_s *)t;
 
@@ -104,7 +104,7 @@ int LIBEXPORT cthread_set_state(cthread_t *t, enum cthread_state state)
     return 0;
 }
 
-int LIBEXPORT cthread_wait_startup(const cthread_t *t)
+__PUB_API__ int cthread_wait_startup(const cthread_t *t)
 {
     cthread_s *td = (cthread_s *)t;
 
@@ -119,7 +119,7 @@ int LIBEXPORT cthread_wait_startup(const cthread_t *t)
     return 0;
 }
 
-int LIBEXPORT cthread_destroy(cthread_t *t)
+__PUB_API__ int cthread_destroy(cthread_t *t)
 {
     cthread_s *td = (cthread_s *)t;
 
@@ -133,7 +133,7 @@ int LIBEXPORT cthread_destroy(cthread_t *t)
     return 0;
 }
 
-cthread_t LIBEXPORT *cthread_create(enum cthread_type type,
+__PUB_API__ cthread_t *cthread_create(enum cthread_type type,
     void *(*start_routine)(cthread_t *), void *user_data)
 {
     cthread_s *td = NULL;

@@ -159,7 +159,7 @@ static counter_s *new_counter_s(enum counter_precision precision,
     return c;
 }
 
-counter_t LIBEXPORT *counter_ref(counter_t *c)
+__PUB_API__ counter_t *counter_ref(counter_t *c)
 {
     counter_s *p = (counter_s *)c;
 
@@ -169,7 +169,7 @@ counter_t LIBEXPORT *counter_ref(counter_t *c)
     return c;
 }
 
-int LIBEXPORT counter_unref(counter_t *c)
+__PUB_API__ int counter_unref(counter_t *c)
 {
     counter_s *p = (counter_s *)c;
 
@@ -179,13 +179,13 @@ int LIBEXPORT counter_unref(counter_t *c)
     return 0;
 }
 
-counter_t LIBEXPORT *counter_create(enum counter_precision precision,
+__PUB_API__ counter_t *counter_create(enum counter_precision precision,
     long long min, long long max, long long start_value, bool circular)
 {
     return new_counter_s(precision, min, max, start_value, circular);
 }
 
-int LIBEXPORT counter_destroy(counter_t *c)
+__PUB_API__ int counter_destroy(counter_t *c)
 {
     return counter_unref(c);
 }
@@ -215,12 +215,12 @@ static int __counter_increase(counter_t *c, long long gap)
     return 0;
 }
 
-int LIBEXPORT counter_increase(counter_t *c)
+__PUB_API__ int counter_increase(counter_t *c)
 {
     return __counter_increase(c, 1);
 }
 
-int LIBEXPORT counter_increase_by(counter_t *c, long long gap)
+__PUB_API__ int counter_increase_by(counter_t *c, long long gap)
 {
     return __counter_increase(c, gap);
 }
@@ -250,17 +250,17 @@ static int __counter_decrease(counter_t *c, long long gap)
     return 0;
 }
 
-int LIBEXPORT counter_decrease(counter_t *c)
+__PUB_API__ int counter_decrease(counter_t *c)
 {
     return __counter_decrease(c, 1);
 }
 
-int LIBEXPORT counter_decrease_by(counter_t *c, long long gap)
+__PUB_API__ int counter_decrease_by(counter_t *c, long long gap)
 {
     return __counter_decrease(c, gap);
 }
 
-int LIBEXPORT counter_reset(counter_t *c)
+__PUB_API__ int counter_reset(counter_t *c)
 {
     counter_s *p;
 
@@ -276,7 +276,7 @@ int LIBEXPORT counter_reset(counter_t *c)
     return 0;
 }
 
-long long LIBEXPORT counter_get(counter_t *c)
+__PUB_API__ long long counter_get(counter_t *c)
 {
     counter_s *p = (counter_s *)c;
 
@@ -285,7 +285,7 @@ long long LIBEXPORT counter_get(counter_t *c)
     return COBJECT_AS_LLONG(p->cnt);
 }
 
-int LIBEXPORT counter_set_min(counter_t *c, long long min)
+__PUB_API__ int counter_set_min(counter_t *c, long long min)
 {
     counter_s *p;
 
@@ -304,7 +304,7 @@ int LIBEXPORT counter_set_min(counter_t *c, long long min)
     return 0;
 }
 
-int LIBEXPORT counter_set_max(counter_t *c, long long max)
+__PUB_API__ int counter_set_max(counter_t *c, long long max)
 {
     counter_s *p;
 
@@ -323,7 +323,7 @@ int LIBEXPORT counter_set_max(counter_t *c, long long max)
     return 0;
 }
 
-int LIBEXPORT counter_set_range(counter_t *c, long long min, long long max)
+__PUB_API__ int counter_set_range(counter_t *c, long long min, long long max)
 {
     __clib_function_init__(true, c, COUNTER, -1);
 
@@ -333,7 +333,7 @@ int LIBEXPORT counter_set_range(counter_t *c, long long min, long long max)
     return 0;
 }
 
-bool LIBEXPORT counter_lt(const counter_t *c, long long value)
+__PUB_API__ bool counter_lt(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
     long long v;
@@ -351,7 +351,7 @@ bool LIBEXPORT counter_lt(const counter_t *c, long long value)
     return false;
 }
 
-bool LIBEXPORT counter_le(const counter_t *c, long long value)
+__PUB_API__ bool counter_le(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
     long long v;
@@ -369,7 +369,7 @@ bool LIBEXPORT counter_le(const counter_t *c, long long value)
     return false;
 }
 
-bool LIBEXPORT counter_gt(const counter_t *c, long long value)
+__PUB_API__ bool counter_gt(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
     long long v;
@@ -387,7 +387,7 @@ bool LIBEXPORT counter_gt(const counter_t *c, long long value)
     return false;
 }
 
-bool LIBEXPORT counter_ge(const counter_t *c, long long value)
+__PUB_API__ bool counter_ge(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
     long long v;
@@ -405,7 +405,7 @@ bool LIBEXPORT counter_ge(const counter_t *c, long long value)
     return false;
 }
 
-bool LIBEXPORT counter_eq(const counter_t *c, long long value)
+__PUB_API__ bool counter_eq(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
 
@@ -417,7 +417,7 @@ bool LIBEXPORT counter_eq(const counter_t *c, long long value)
     return false;
 }
 
-bool LIBEXPORT counter_ne(const counter_t *c, long long value)
+__PUB_API__ bool counter_ne(const counter_t *c, long long value)
 {
     counter_s *p = (counter_s *)c;
 
@@ -440,7 +440,7 @@ static bool is_between_limits(long long value, const counter_s *c)
     return false;
 }
 
-long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
+__PUB_API__ long long counter_get_and_set(counter_t *c, long long new_value)
 {
     counter_s *p;
     long long v = -1;
@@ -464,7 +464,7 @@ long long LIBEXPORT counter_get_and_set(counter_t *c, long long new_value)
     return v;
 }
 
-int LIBEXPORT counter_set(counter_t *c, long long new_value)
+__PUB_API__ int counter_set(counter_t *c, long long new_value)
 {
     counter_s *p;
 

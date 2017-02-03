@@ -32,7 +32,7 @@
 /*
  * Duplicates a specific buffer.
  */
-void LIBEXPORT *cmemdup(const void *src, unsigned int len)
+__PUB_API__ void *cmemdup(const void *src, unsigned int len)
 {
     void *p;
 

@@ -135,7 +135,7 @@ static int set_state(struct ctimer_s *timer, enum ctimer_state state)
     return 0;
 }
 
-int LIBEXPORT ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state)
+__PUB_API__ int ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state)
 {
     struct ctimer_s *t = NULL, *tlist = NULL;
     char *timer_name = NULL;
@@ -167,7 +167,7 @@ int LIBEXPORT ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state)
     return set_state(t, state);
 }
 
-ctimer_t LIBEXPORT *ctimer_get_timer(const ctimer_t *timers_list,
+__PUB_API__ ctimer_t *ctimer_get_timer(const ctimer_t *timers_list,
     const char *timer_name)
 {
     struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
@@ -218,7 +218,7 @@ static const char *translate_imode(enum ctimer_interval_mode imode)
     return "unknown";
 }
 
-int LIBEXPORT ctimer_update_interval(ctimer_t *timer, unsigned int interval)
+__PUB_API__ int ctimer_update_interval(ctimer_t *timer, unsigned int interval)
 {
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
@@ -305,7 +305,7 @@ static ctimer_info_s *get_timer_info(struct ctimer_s *timer)
     return inode;
 }
 
-int LIBEXPORT ctimer_unload_info(ctimer_info_t *timer_info)
+__PUB_API__ int ctimer_unload_info(ctimer_info_t *timer_info)
 {
     ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
 
@@ -315,7 +315,7 @@ int LIBEXPORT ctimer_unload_info(ctimer_info_t *timer_info)
     return 0;
 }
 
-ctimer_info_t LIBEXPORT *ctimer_load_info(const ctimer_t *timer)
+__PUB_API__ ctimer_info_t *ctimer_load_info(const ctimer_t *timer)
 {
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
@@ -324,7 +324,7 @@ ctimer_info_t LIBEXPORT *ctimer_load_info(const ctimer_t *timer)
     return get_timer_info(t);
 }
 
-ctimer_info_t LIBEXPORT *ctimer_load_info_within_timer(ctimer_arg_t arg)
+__PUB_API__ ctimer_info_t *ctimer_load_info_within_timer(ctimer_arg_t arg)
 {
     struct ctimer_s *t = NULL, *tlist;
     char *timer_name;
@@ -358,7 +358,7 @@ ctimer_info_t LIBEXPORT *ctimer_load_info_within_timer(ctimer_arg_t arg)
     return get_timer_info(t);
 }
 
-void LIBEXPORT *ctimer_get_info_data(const ctimer_info_t *timer_info,
+__PUB_API__ void *ctimer_get_info_data(const ctimer_info_t *timer_info,
     enum ctimer_info_field info)
 {
     ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
@@ -442,7 +442,7 @@ static void set_timer_info(struct ctimer_s *timer, unsigned int exec_interval,
     set_state(timer, TIMER_ST_REGISTERED);
 }
 
-int LIBEXPORT ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
+__PUB_API__ int ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
     enum ctimer_interval_mode imode, unsigned int finish_timeout,
     const char *timer_name, void (*timer_function)(ctimer_arg_t), void *arg,
     int (*init_function)(void *), int (*uninit_function)(void *))
@@ -557,7 +557,7 @@ static int unregister_timer(void *a)
     return 0;
 }
 
-int LIBEXPORT ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
+__PUB_API__ int ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
 {
     struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
     struct ctimer_s *t;
@@ -630,7 +630,7 @@ static int install_timer(void *a, void *b __attribute__((unused)))
     return 0;
 }
 
-int LIBEXPORT ctimer_install(ctimer_t *timers_list)
+__PUB_API__ int ctimer_install(ctimer_t *timers_list)
 {
     struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
     struct ctimer_s *t = NULL;
@@ -655,7 +655,7 @@ static void __unregister_timer(void *a)
     unregister_timer(a);
 }
 
-int LIBEXPORT ctimer_uninstall(ctimer_t *timers_list)
+__PUB_API__ int ctimer_uninstall(ctimer_t *timers_list)
 {
     struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
 
@@ -670,7 +670,7 @@ int LIBEXPORT ctimer_uninstall(ctimer_t *timers_list)
     return 0;
 }
 
-int LIBEXPORT ctimer_disarm(ctimer_t *timer)
+__PUB_API__ int ctimer_disarm(ctimer_t *timer)
 {
     struct ctimer_s *t = (struct ctimer_s *)timer;
 
@@ -694,7 +694,7 @@ int LIBEXPORT ctimer_disarm(ctimer_t *timer)
     return 0;
 }
 
-int LIBEXPORT ctimer_arm(ctimer_t *timer)
+__PUB_API__ int ctimer_arm(ctimer_t *timer)
 {
     struct ctimer_s *t = (struct ctimer_s *)timer;
     struct timespec ts;

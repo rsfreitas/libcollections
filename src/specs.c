@@ -75,7 +75,7 @@ static void destroy_spec_s(cspec_s *spec)
     free(spec);
 }
 
-cspec_t LIBEXPORT *cspec_create(enum cl_spec_attrib properties,
+__PUB_API__ cspec_t *cspec_create(enum cl_spec_attrib properties,
     cobject_t *min, cobject_t *max, unsigned int max_length)
 {
     __clib_function_init__(false, NULL, -1, NULL);
@@ -89,7 +89,7 @@ cspec_t LIBEXPORT *cspec_create(enum cl_spec_attrib properties,
     return new_spec_s(properties, min, max, max_length);
 }
 
-int LIBEXPORT cspec_destroy(cspec_t *spec)
+__PUB_API__ int cspec_destroy(cspec_t *spec)
 {
     __clib_function_init__(true, spec, CSPEC, -1);
     destroy_spec_s(spec);
@@ -1140,7 +1140,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
     return ret;
 }
 
-bool LIBEXPORT cspec_validate(const cspec_t *spec, cobject_t *value,
+__PUB_API__ bool cspec_validate(const cspec_t *spec, cobject_t *value,
     bool set_value, enum cl_spec_validation_fmt validation, va_list ap)
 {
     cobject_t *ref;
@@ -1174,7 +1174,7 @@ bool LIBEXPORT cspec_validate(const cspec_t *spec, cobject_t *value,
     return ret;
 }
 
-int LIBEXPORT cspec_set_min(cspec_t *spec, cobject_t *min)
+__PUB_API__ int cspec_set_min(cspec_t *spec, cobject_t *min)
 {
     cspec_s *s = (cspec_s *)spec;
 
@@ -1192,7 +1192,7 @@ int LIBEXPORT cspec_set_min(cspec_t *spec, cobject_t *min)
     return 0;
 }
 
-int LIBEXPORT cspec_set_max(cspec_t *spec, cobject_t *max)
+__PUB_API__ int cspec_set_max(cspec_t *spec, cobject_t *max)
 {
     cspec_s *s = (cspec_s *)spec;
 
@@ -1210,7 +1210,7 @@ int LIBEXPORT cspec_set_max(cspec_t *spec, cobject_t *max)
     return 0;
 }
 
-int LIBEXPORT cspec_set_max_length(cspec_t *spec, unsigned int max_length)
+__PUB_API__ int cspec_set_max_length(cspec_t *spec, unsigned int max_length)
 {
     cspec_s *s = (cspec_s *)spec;
 
@@ -1220,7 +1220,7 @@ int LIBEXPORT cspec_set_max_length(cspec_t *spec, unsigned int max_length)
     return 0;
 }
 
-int LIBEXPORT cspec_set_accessibility(cspec_t *spec, enum cl_spec_attrib attrib)
+__PUB_API__ int cspec_set_accessibility(cspec_t *spec, enum cl_spec_attrib attrib)
 {
     cspec_s *s = (cspec_s *)spec;
 

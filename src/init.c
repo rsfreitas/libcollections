@@ -183,7 +183,7 @@ static int __init(const char *arg)
     return 0;
 }
 
-int LIBEXPORT collections_init(const char *arg)
+__PUB_API__ int collections_init(const char *arg)
 {
     int old = 0, new = 1, ret = 0;
 
@@ -195,7 +195,7 @@ int LIBEXPORT collections_init(const char *arg)
     return ret;
 }
 
-void LIBEXPORT collections_uninit(void)
+__PUB_API__ void collections_uninit(void)
 {
     ref_dec(&__cl_data.ref);
 }

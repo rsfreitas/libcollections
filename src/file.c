@@ -31,7 +31,7 @@
 
 #include "collections.h"
 
-unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
+__PUB_API__ unsigned char *cfload(const char *filename, unsigned int *bsize)
 {
     FILE *f;
     struct stat info;
@@ -67,7 +67,7 @@ unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
     return b;
 }
 
-int LIBEXPORT cfunload(unsigned char *buffer)
+__PUB_API__ int cfunload(unsigned char *buffer)
 {
     __clib_function_init__(false, NULL, -1, -1);
 
@@ -82,7 +82,7 @@ int LIBEXPORT cfunload(unsigned char *buffer)
     return 0;
 }
 
-int LIBEXPORT cfsave(const char *filename, const unsigned char *buffer,
+__PUB_API__ int cfsave(const char *filename, const unsigned char *buffer,
     unsigned int bsize)
 {
     FILE *f;
@@ -107,7 +107,7 @@ int LIBEXPORT cfsave(const char *filename, const unsigned char *buffer,
     return 0;
 }
 
-char LIBEXPORT *cfreadline(FILE *infile)
+__PUB_API__ char *cfreadline(FILE *infile)
 {
     char *line = NULL;
     size_t size = 0;

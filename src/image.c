@@ -1206,7 +1206,7 @@ static unsigned char *convert_image_formats(cimage_s *image,
  *
  */
 
-cimage_t LIBEXPORT *cimage_ref(cimage_t *image)
+__PUB_API__ cimage_t *cimage_ref(cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1216,7 +1216,7 @@ cimage_t LIBEXPORT *cimage_ref(cimage_t *image)
     return image;
 }
 
-int LIBEXPORT cimage_unref(cimage_t *image)
+__PUB_API__ int cimage_unref(cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1226,12 +1226,12 @@ int LIBEXPORT cimage_unref(cimage_t *image)
     return 0;
 }
 
-int LIBEXPORT cimage_destroy(cimage_t *image)
+__PUB_API__ int cimage_destroy(cimage_t *image)
 {
     return cimage_unref(image);
 }
 
-cimage_t LIBEXPORT *cimage_create(void)
+__PUB_API__ cimage_t *cimage_create(void)
 {
     cimage_s *i = NULL;
 
@@ -1244,7 +1244,7 @@ cimage_t LIBEXPORT *cimage_create(void)
     return i;
 }
 
-int LIBEXPORT cimage_fill(cimage_t *image, const unsigned char *buffer,
+__PUB_API__ int cimage_fill(cimage_t *image, const unsigned char *buffer,
     unsigned int bsize, enum cimage_format format, unsigned int width,
     unsigned int height)
 {
@@ -1260,7 +1260,7 @@ int LIBEXPORT cimage_fill(cimage_t *image, const unsigned char *buffer,
     return fill_buffer_to_cimage(i, buffer, bsize, format, width, height);
 }
 
-cimage_t LIBEXPORT *cimage_load(const unsigned char *buffer, unsigned int bsize,
+__PUB_API__ cimage_t *cimage_load(const unsigned char *buffer, unsigned int bsize,
     enum cimage_format format, unsigned int width, unsigned int height)
 {
     cimage_s *i = NULL;
@@ -1287,7 +1287,7 @@ cimage_t LIBEXPORT *cimage_load(const unsigned char *buffer, unsigned int bsize,
     return i;
 }
 
-cimage_t LIBEXPORT *cimage_load_from_file(const char *filename)
+__PUB_API__ cimage_t *cimage_load_from_file(const char *filename)
 {
     cimage_s *i = NULL;
     enum cimage_type type;
@@ -1353,7 +1353,7 @@ error_block:
     return NULL;
 }
 
-int LIBEXPORT cimage_save(const cimage_t *image, unsigned char **buffer,
+__PUB_API__ int cimage_save(const cimage_t *image, unsigned char **buffer,
     unsigned int *bsize)
 {
     cimage_s *i = (cimage_s *)image;
@@ -1371,7 +1371,7 @@ int LIBEXPORT cimage_save(const cimage_t *image, unsigned char **buffer,
     return 0;
 }
 
-int LIBEXPORT cimage_save_to_file(const cimage_t *image, const char *filename,
+__PUB_API__ int cimage_save_to_file(const cimage_t *image, const char *filename,
     enum cimage_type file_type)
 {
     char *disc_filename = NULL;
@@ -1412,14 +1412,14 @@ int LIBEXPORT cimage_save_to_file(const cimage_t *image, const char *filename,
     return 0;
 }
 
-cimage_t LIBEXPORT *cimage_dup(const cimage_t *image)
+__PUB_API__ cimage_t *cimage_dup(const cimage_t *image)
 {
     __clib_function_init__(true, image, CIMAGE, NULL);
 
     return duplicate_image((cimage_s *)image);
 }
 
-cimage_t LIBEXPORT *cimage_resize(const cimage_t *image, unsigned int width,
+__PUB_API__ cimage_t *cimage_resize(const cimage_t *image, unsigned int width,
     unsigned int height)
 {
     cimage_s *i = (cimage_s *)image, *p = NULL;
@@ -1456,7 +1456,7 @@ void cimage_interpolation(void)
     /* TODO */
 }
 
-cimage_t LIBEXPORT *cimage_extract(const cimage_t *image, unsigned int x,
+__PUB_API__ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
     unsigned int y, unsigned int w, unsigned int h)
 {
     cimage_s *i = (cimage_s *)image, *p;
@@ -1493,7 +1493,7 @@ void cimage_cat(void)
     /* TODO */
 }
 
-unsigned char LIBEXPORT *cimage_raw_export(const cimage_t *image,
+__PUB_API__ unsigned char *cimage_raw_export(const cimage_t *image,
     enum cimage_type type, enum cimage_format format, unsigned int *bsize,
     unsigned int *width, unsigned int *height)
 {
@@ -1518,7 +1518,7 @@ unsigned char LIBEXPORT *cimage_raw_export(const cimage_t *image,
 /*
  * FIXME: Is this a copy from the cimage_fill function?
  */
-int LIBEXPORT cimage_raw_import(cimage_t *image, const unsigned char *buffer,
+__PUB_API__ int cimage_raw_import(cimage_t *image, const unsigned char *buffer,
     unsigned int bsize, enum cimage_format format, unsigned int width,
     unsigned int height)
 {
@@ -1534,7 +1534,7 @@ int LIBEXPORT cimage_raw_import(cimage_t *image, const unsigned char *buffer,
     return fill_buffer_to_cimage(i, buffer, bsize, format, width, height);
 }
 
-IplImage LIBEXPORT *cimage_cv_export(const cimage_t *image)
+__PUB_API__ IplImage *cimage_cv_export(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1552,7 +1552,7 @@ IplImage LIBEXPORT *cimage_cv_export(const cimage_t *image)
     return i->image;
 }
 
-int LIBEXPORT cimage_cv_import(cimage_t *image, IplImage *cv_image)
+__PUB_API__ int cimage_cv_import(cimage_t *image, IplImage *cv_image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1575,7 +1575,7 @@ int LIBEXPORT cimage_cv_import(cimage_t *image, IplImage *cv_image)
  *
  */
 
-int LIBEXPORT cimage_size(const cimage_t *image)
+__PUB_API__ int cimage_size(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1589,7 +1589,7 @@ int LIBEXPORT cimage_size(const cimage_t *image)
     return i->image->imageSize;
 }
 
-int LIBEXPORT cimage_width(const cimage_t *image)
+__PUB_API__ int cimage_width(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1603,7 +1603,7 @@ int LIBEXPORT cimage_width(const cimage_t *image)
     return i->image->width;
 }
 
-int LIBEXPORT cimage_height(const cimage_t *image)
+__PUB_API__ int cimage_height(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1617,7 +1617,7 @@ int LIBEXPORT cimage_height(const cimage_t *image)
     return i->image->height;
 }
 
-enum cimage_type LIBEXPORT cimage_type(const cimage_t *image)
+__PUB_API__ enum cimage_type cimage_type(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -1631,7 +1631,7 @@ enum cimage_type LIBEXPORT cimage_type(const cimage_t *image)
     return i->type;
 }
 
-enum cimage_format LIBEXPORT cimage_format(const cimage_t *image)
+__PUB_API__ enum cimage_format cimage_format(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 

@@ -26,32 +26,32 @@
 
 #include "collections.h"
 
-void LIBEXPORT *cqueue_node_content(cqueue_node_t *node)
+__PUB_API__ void *cqueue_node_content(cqueue_node_t *node)
 {
     return cglist_node_content(node, CQUEUE_NODE);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_node_ref(cqueue_node_t *node)
+__PUB_API__ cqueue_node_t *cqueue_node_ref(cqueue_node_t *node)
 {
     return (cqueue_node_t *)cglist_node_ref(node, CQUEUE_NODE);
 }
 
-int LIBEXPORT cqueue_node_unref(cqueue_node_t *node)
+__PUB_API__ int cqueue_node_unref(cqueue_node_t *node)
 {
     return cglist_node_unref(node, CQUEUE_NODE);
 }
 
-cqueue_t LIBEXPORT *cqueue_ref(cqueue_t *queue)
+__PUB_API__ cqueue_t *cqueue_ref(cqueue_t *queue)
 {
     return (cqueue_t *)cglist_ref((cqueue_t *)queue, CQUEUE);
 }
 
-int LIBEXPORT cqueue_unref(cqueue_t *queue)
+__PUB_API__ int cqueue_unref(cqueue_t *queue)
 {
     return cglist_unref((cqueue_t *)queue, CQUEUE);
 }
 
-cqueue_t LIBEXPORT *cqueue_create(void (*free_data)(void *),
+__PUB_API__ cqueue_t *cqueue_create(void (*free_data)(void *),
     int (*compare_to)(cqueue_node_t *, cqueue_node_t *),
     int (*filter)(cqueue_node_t *, void *),
     int (*equals)(cqueue_node_t *, cqueue_node_t *))
@@ -60,129 +60,129 @@ cqueue_t LIBEXPORT *cqueue_create(void (*free_data)(void *),
                                     equals);
 }
 
-int LIBEXPORT cqueue_destroy(cqueue_t *queue)
+__PUB_API__ int cqueue_destroy(cqueue_t *queue)
 {
     return cglist_destroy((cqueue_t *)queue, CQUEUE);
 }
 
-int LIBEXPORT cqueue_size(const cqueue_t *queue)
+__PUB_API__ int cqueue_size(const cqueue_t *queue)
 {
     return cglist_size((cqueue_t *)queue, CQUEUE);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_dequeue(cqueue_t *queue)
+__PUB_API__ cqueue_node_t *cqueue_dequeue(cqueue_t *queue)
 {
     return (clist_node_t *)cglist_pop((cqueue_t *)queue, CQUEUE);
 }
 
-int LIBEXPORT cqueue_enqueue(cqueue_t *queue, const void *node_content,
+__PUB_API__ int cqueue_enqueue(cqueue_t *queue, const void *node_content,
     unsigned int size)
 {
     return cglist_unshift((cqueue_t *)queue, CQUEUE, node_content, size,
                           CQUEUE_NODE);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_map(const cqueue_t *queue,
+__PUB_API__ cqueue_node_t *cqueue_map(const cqueue_t *queue,
     int (*foo)(cqueue_node_t *, void *), void *data)
 {
     return (cqueue_node_t *)cglist_map((cqueue_t *)queue, CQUEUE, CQUEUE_NODE,
                                        foo, data);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_map_indexed(const cqueue_t *queue,
+__PUB_API__ cqueue_node_t *cqueue_map_indexed(const cqueue_t *queue,
     int (*foo)(unsigned int, cqueue_node_t *, void *), void *data)
 {
     return (cqueue_node_t *)cglist_map_indexed((cqueue_t *)queue, CQUEUE,
                                                CQUEUE_NODE, foo, data);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_map_reverse(const cqueue_t *queue,
+__PUB_API__ cqueue_node_t *cqueue_map_reverse(const cqueue_t *queue,
     int (*foo)(cqueue_node_t *, void *), void *data)
 {
     return (cqueue_node_t *)cglist_map_reverse((cqueue_t *)queue, CQUEUE,
                                                CQUEUE_NODE, foo, data);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_map_reverse_indexed(const cqueue_t *queue,
+__PUB_API__ cqueue_node_t *cqueue_map_reverse_indexed(const cqueue_t *queue,
     int (*foo)(unsigned int, cqueue_node_t *, void *), void *data)
 {
     return (cqueue_node_t *)cglist_map_reverse_indexed((cqueue_t *)queue, CQUEUE,
                                                        CQUEUE_NODE, foo, data);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_at(const cqueue_t *queue, unsigned int index)
+__PUB_API__ cqueue_node_t *cqueue_at(const cqueue_t *queue, unsigned int index)
 {
     return (cqueue_node_t *)cglist_at((cqueue_t *)queue, CQUEUE, CQUEUE_NODE,
                                       index);
 }
 
-int LIBEXPORT cqueue_delete(cqueue_t *queue, void *data)
+__PUB_API__ int cqueue_delete(cqueue_t *queue, void *data)
 {
     return cglist_delete((cqueue_t *)queue, CQUEUE, data);
 }
 
-int LIBEXPORT cqueue_delete_indexed(cqueue_t *queue, unsigned int index)
+__PUB_API__ int cqueue_delete_indexed(cqueue_t *queue, unsigned int index)
 {
     return cglist_delete_indexed((cqueue_t *)queue, CQUEUE, index);
 }
 
-cqueue_t LIBEXPORT *cqueue_move(cqueue_t *queue)
+__PUB_API__ cqueue_t *cqueue_move(cqueue_t *queue)
 {
     return (cqueue_t *)cglist_move((cqueue_t *)queue, CQUEUE);
 }
 
-cqueue_t LIBEXPORT *cqueue_filter(cqueue_t *queue, void *data)
+__PUB_API__ cqueue_t *cqueue_filter(cqueue_t *queue, void *data)
 {
     return (cqueue_t *)cglist_filter((cqueue_t *)queue, CQUEUE, data);
 }
 
-int LIBEXPORT cqueue_sort(cqueue_t *queue)
+__PUB_API__ int cqueue_sort(cqueue_t *queue)
 {
     return cglist_sort((cqueue_t *)queue, CQUEUE);
 }
 
-int LIBEXPORT cqueue_indexof(const cqueue_t *queue, void *element,
+__PUB_API__ int cqueue_indexof(const cqueue_t *queue, void *element,
     unsigned int size)
 {
     return cglist_indexof((cqueue_t *)queue, CQUEUE, element, size, CQUEUE_NODE);
 }
 
-int LIBEXPORT cqueue_last_indexof(const cqueue_t *queue, void *element,
+__PUB_API__ int cqueue_last_indexof(const cqueue_t *queue, void *element,
     unsigned int size)
 {
     return cglist_last_indexof((cqueue_t *)queue, CQUEUE, element, size,
                                CQUEUE_NODE);
 }
 
-bool LIBEXPORT cqueue_contains(const cqueue_t *queue, void *element,
+__PUB_API__ bool cqueue_contains(const cqueue_t *queue, void *element,
     unsigned int size)
 {
     return cglist_contains((cqueue_t *)queue, CQUEUE, element, size, CQUEUE_NODE);
 }
 
-cqueue_node_t LIBEXPORT *cqueue_front(const cqueue_t *queue)
+__PUB_API__ cqueue_node_t *cqueue_front(const cqueue_t *queue)
 {
     return (cqueue_node_t *)cglist_peek((cqueue_t *)queue, CQUEUE, CQUEUE_NODE);
 }
 
-bool LIBEXPORT cqueue_is_empty(const cqueue_t *queue)
+__PUB_API__ bool cqueue_is_empty(const cqueue_t *queue)
 {
     return cglist_is_empty((cqueue_t *)queue, CQUEUE);
 }
 
-int LIBEXPORT cqueue_set_compare_to(const cqueue_t *queue,
+__PUB_API__ int cqueue_set_compare_to(const cqueue_t *queue,
     int (*compare_to)(cqueue_node_t *, cqueue_node_t *))
 {
     return cglist_set_compare_to((cqueue_t *)queue, CQUEUE, compare_to);
 }
 
-int LIBEXPORT cqueue_set_filter(const cqueue_t *queue,
+__PUB_API__ int cqueue_set_filter(const cqueue_t *queue,
     int (*filter)(cqueue_node_t *, void *))
 {
     return cglist_set_filter((cqueue_t *)queue, CQUEUE, filter);
 }
 
-int LIBEXPORT cqueue_set_equals(const cqueue_t *queue,
+__PUB_API__ int cqueue_set_equals(const cqueue_t *queue,
     int (*equals)(cqueue_node_t *, cqueue_node_t *))
 {
     return cglist_set_equals((cqueue_t *)queue, CQUEUE, equals);

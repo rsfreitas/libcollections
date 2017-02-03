@@ -566,7 +566,7 @@ static const char *parse(cjson_s *n, const char *s)
     return NULL;
 }
 
-cjson_t LIBEXPORT *cjson_parse(const cstring_t *string)
+__PUB_API__ cjson_t *cjson_parse(const cstring_t *string)
 {
     cjson_s *c = NULL;
 
@@ -591,7 +591,7 @@ cjson_t LIBEXPORT *cjson_parse(const cstring_t *string)
     return c;
 }
 
-cjson_t LIBEXPORT *cjson_read_file(const char *filename)
+__PUB_API__ cjson_t *cjson_read_file(const char *filename)
 {
     unsigned char *b;
     unsigned int bsize;
@@ -618,7 +618,7 @@ cjson_t LIBEXPORT *cjson_read_file(const char *filename)
     return j;
 }
 
-int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
+__PUB_API__ int cjson_write_file(const cjson_t *j, const char *filename)
 {
     cstring_t *s;
     int ret;
@@ -643,7 +643,7 @@ int LIBEXPORT cjson_write_file(const cjson_t *j, const char *filename)
     return ret;
 }
 
-void LIBEXPORT cjson_delete(cjson_t *j)
+__PUB_API__ void cjson_delete(cjson_t *j)
 {
     cjson_s *c = (cjson_s *)j;
 
@@ -657,7 +657,7 @@ void LIBEXPORT cjson_delete(cjson_t *j)
     free(c);
 }
 
-int LIBEXPORT cjson_get_array_size(const cjson_t *array)
+__PUB_API__ int cjson_get_array_size(const cjson_t *array)
 {
     cjson_s *p = (cjson_s *)array;
 
@@ -669,7 +669,7 @@ int LIBEXPORT cjson_get_array_size(const cjson_t *array)
     return cdll_size(p->child);
 }
 
-cjson_t LIBEXPORT *cjson_get_array_item(const cjson_t *array, unsigned int item)
+__PUB_API__ cjson_t *cjson_get_array_item(const cjson_t *array, unsigned int item)
 {
     cjson_s *p = (cjson_s *)array, *n;
     int size;
@@ -696,7 +696,7 @@ static int find_object(void *a, void *b)
     return 0;
 }
 
-cjson_t LIBEXPORT *cjson_get_object_item(const cjson_t *json, const char *name)
+__PUB_API__ cjson_t *cjson_get_object_item(const cjson_t *json, const char *name)
 {
     cjson_s *p = NULL, *root = (cjson_s *)json;
 
@@ -712,7 +712,7 @@ cjson_t LIBEXPORT *cjson_get_object_item(const cjson_t *json, const char *name)
     return p;
 }
 
-cstring_t LIBEXPORT *cjson_get_object_name(const cjson_t *o)
+__PUB_API__ cstring_t *cjson_get_object_name(const cjson_t *o)
 {
     cjson_s *p = (cjson_s *)o;
 
@@ -721,7 +721,7 @@ cstring_t LIBEXPORT *cjson_get_object_name(const cjson_t *o)
     return p->name;
 }
 
-cstring_t LIBEXPORT *cjson_get_object_value(const cjson_t *o)
+__PUB_API__ cstring_t *cjson_get_object_value(const cjson_t *o)
 {
     cjson_s *p = (cjson_s *)o;
 
@@ -730,7 +730,7 @@ cstring_t LIBEXPORT *cjson_get_object_value(const cjson_t *o)
     return p->value;
 }
 
-enum cjson_type LIBEXPORT cjson_get_object_type(const cjson_t *o)
+__PUB_API__ enum cjson_type cjson_get_object_type(const cjson_t *o)
 {
     cjson_s *p = (cjson_s *)o;
 
@@ -756,7 +756,7 @@ static int __cjson_dup(void *a, void *b)
     return 0;
 }
 
-cjson_t LIBEXPORT *cjson_dup(const cjson_t *root)
+__PUB_API__ cjson_t *cjson_dup(const cjson_t *root)
 {
     cjson_s *r = (cjson_s *)root;
     cjson_s *l = NULL;
@@ -770,7 +770,7 @@ cjson_t LIBEXPORT *cjson_dup(const cjson_t *root)
     return l;
 }
 
-cjson_t LIBEXPORT *cjson_create_array(void)
+__PUB_API__ cjson_t *cjson_create_array(void)
 {
     cjson_s *p = NULL;
 
@@ -785,7 +785,7 @@ cjson_t LIBEXPORT *cjson_create_array(void)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_object(void)
+__PUB_API__ cjson_t *cjson_create_object(void)
 {
     cjson_s *p = NULL;
 
@@ -800,7 +800,7 @@ cjson_t LIBEXPORT *cjson_create_object(void)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_null(void)
+__PUB_API__ cjson_t *cjson_create_null(void)
 {
     cjson_s *p = NULL;
 
@@ -815,7 +815,7 @@ cjson_t LIBEXPORT *cjson_create_null(void)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_false(void)
+__PUB_API__ cjson_t *cjson_create_false(void)
 {
     cjson_s *p = NULL;
 
@@ -830,7 +830,7 @@ cjson_t LIBEXPORT *cjson_create_false(void)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_true(void)
+__PUB_API__ cjson_t *cjson_create_true(void)
 {
     cjson_s *p = NULL;
 
@@ -845,7 +845,7 @@ cjson_t LIBEXPORT *cjson_create_true(void)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_number(int n)
+__PUB_API__ cjson_t *cjson_create_number(int n)
 {
     cjson_s *p = NULL;
     cstring_t *s = NULL;
@@ -863,7 +863,7 @@ cjson_t LIBEXPORT *cjson_create_number(int n)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_number_float(float n)
+__PUB_API__ cjson_t *cjson_create_number_float(float n)
 {
     cjson_s *p = NULL;
     cstring_t *s = NULL;
@@ -881,7 +881,7 @@ cjson_t LIBEXPORT *cjson_create_number_float(float n)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_string(const char *string)
+__PUB_API__ cjson_t *cjson_create_string(const char *string)
 {
     cjson_s *p = NULL;
     cstring_t *s = NULL;
@@ -899,7 +899,7 @@ cjson_t LIBEXPORT *cjson_create_string(const char *string)
     return p;
 }
 
-cjson_t LIBEXPORT *cjson_create_int_array(const int *values, int size)
+__PUB_API__ cjson_t *cjson_create_int_array(const int *values, int size)
 {
     int i;
     cjson_s *a = NULL, *n;
@@ -922,7 +922,7 @@ cjson_t LIBEXPORT *cjson_create_int_array(const int *values, int size)
     return a;
 }
 
-cjson_t LIBEXPORT *cjson_create_float_array(const float *values, int size)
+__PUB_API__ cjson_t *cjson_create_float_array(const float *values, int size)
 {
     int i;
     cjson_s *a = NULL, *n;
@@ -945,7 +945,7 @@ cjson_t LIBEXPORT *cjson_create_float_array(const float *values, int size)
     return a;
 }
 
-cjson_t LIBEXPORT *cjson_create_string_array(const cstring_list_t *values)
+__PUB_API__ cjson_t *cjson_create_string_array(const cstring_list_t *values)
 {
     int i, size;
     cjson_s *a = NULL, *n;
@@ -970,7 +970,7 @@ cjson_t LIBEXPORT *cjson_create_string_array(const cstring_list_t *values)
     return a;
 }
 
-int LIBEXPORT cjson_add_item_to_array(cjson_t *array, const cjson_t *item)
+__PUB_API__ int cjson_add_item_to_array(cjson_t *array, const cjson_t *item)
 {
     cjson_s *a = (cjson_s *)array;
     cjson_s *n = (cjson_s *)item;
@@ -988,7 +988,7 @@ int LIBEXPORT cjson_add_item_to_array(cjson_t *array, const cjson_t *item)
     return 0;
 }
 
-int LIBEXPORT cjson_add_item_to_object(cjson_t *root, const char *name,
+__PUB_API__ int cjson_add_item_to_object(cjson_t *root, const char *name,
     cjson_t *item)
 {
     cjson_s *r = (cjson_s *)root;
@@ -1029,7 +1029,7 @@ static cjson_t *create_reference(cjson_s *item)
     return ref;
 }
 
-int LIBEXPORT cjson_add_item_reference_to_array(cjson_t *array, cjson_t *item)
+__PUB_API__ int cjson_add_item_reference_to_array(cjson_t *array, cjson_t *item)
 {
     __clib_function_init__(false, NULL, -1, -1);
 
@@ -1042,7 +1042,7 @@ int LIBEXPORT cjson_add_item_reference_to_array(cjson_t *array, cjson_t *item)
     return cjson_add_item_to_array(array, create_reference(item));
 }
 
-int LIBEXPORT cjson_add_item_reference_to_object(cjson_t *root, const char *name,
+__PUB_API__ int cjson_add_item_reference_to_object(cjson_t *root, const char *name,
     cjson_t *item)
 {
     __clib_function_init__(false, NULL, -1, -1);
@@ -1061,7 +1061,7 @@ int LIBEXPORT cjson_add_item_reference_to_object(cjson_t *root, const char *name
     return cjson_add_item_to_object(root, name, create_reference(item));
 }
 
-int LIBEXPORT cjson_delete_item_from_array(cjson_t *array, unsigned int index)
+__PUB_API__ int cjson_delete_item_from_array(cjson_t *array, unsigned int index)
 {
     cjson_s *p, *root = (cjson_s *)array;
     int size;
@@ -1082,7 +1082,7 @@ int LIBEXPORT cjson_delete_item_from_array(cjson_t *array, unsigned int index)
     return 0;
 }
 
-int LIBEXPORT cjson_delete_item_from_object(cjson_t *json, const char *name)
+__PUB_API__ int cjson_delete_item_from_object(cjson_t *json, const char *name)
 {
     cjson_s *p = NULL, *root = (cjson_s *)json;
 
@@ -1103,7 +1103,7 @@ int LIBEXPORT cjson_delete_item_from_object(cjson_t *json, const char *name)
     return 0;
 }
 
-int LIBEXPORT cjson_replace_item_in_array(cjson_t *array, unsigned int index,
+__PUB_API__ int cjson_replace_item_in_array(cjson_t *array, unsigned int index,
     cjson_t *new_item)
 {
     cjson_s *a = (cjson_s *)array;
@@ -1140,7 +1140,7 @@ int LIBEXPORT cjson_replace_item_in_array(cjson_t *array, unsigned int index,
     return 0;
 }
 
-int LIBEXPORT cjson_replace_item_in_object(cjson_t *root, const char *name,
+__PUB_API__ int cjson_replace_item_in_object(cjson_t *root, const char *name,
     cjson_t *new_item)
 {
     cstring_t *tmp = NULL;
@@ -1477,7 +1477,7 @@ static char *print_value(cjson_s *j, int depth, bool fmt)
     return p;
 }
 
-cstring_t LIBEXPORT *cjson_to_cstring(const cjson_t *j, bool friendly_output)
+__PUB_API__ cstring_t *cjson_to_cstring(const cjson_t *j, bool friendly_output)
 {
     char *p = NULL;
     cstring_t *out;

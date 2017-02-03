@@ -37,7 +37,7 @@ struct cdll_node {
 /*
  * Pushes a new node onto the list.
  */
-void LIBEXPORT *cdll_push(void *root, void *node)
+__PUB_API__ void *cdll_push(void *root, void *node)
 {
     struct cdll_node *l = root, *p = node;
 
@@ -60,7 +60,7 @@ void LIBEXPORT *cdll_push(void *root, void *node)
 /*
  * Pop a node from a list.
  */
-void LIBEXPORT *cdll_pop(void *root)
+__PUB_API__ void *cdll_pop(void *root)
 {
     struct cdll_node **pp = root;
     struct cdll_node *p = *pp;
@@ -84,7 +84,7 @@ void LIBEXPORT *cdll_pop(void *root)
 /*
  * Shifts a node onto the far end of a list.
  */
-void LIBEXPORT *cdll_unshift(void *root, void *node)
+__PUB_API__ void *cdll_unshift(void *root, void *node)
 {
     struct cdll_node *l = root;
     struct cdll_node *p = node;
@@ -115,7 +115,7 @@ void LIBEXPORT *cdll_unshift(void *root, void *node)
 /*
  * Shifts a node from the far end of a list.
  */
-void LIBEXPORT *cdll_shift(void *root)
+__PUB_API__ void *cdll_shift(void *root)
 {
     struct cdll_node **pp = root;
     struct cdll_node *p = *pp;
@@ -145,7 +145,7 @@ void LIBEXPORT *cdll_shift(void *root)
 /*
  * Returns the number of nodes of a list.
  */
-int LIBEXPORT cdll_size(void *root)
+__PUB_API__ int cdll_size(void *root)
 {
     struct cdll_node *p = root;
     int c = 1;
@@ -164,7 +164,7 @@ int LIBEXPORT cdll_size(void *root)
 /*
  * Maps a function to every node on a list.
  */
-void LIBEXPORT *cdll_map(void *root, int (*foo)(void *, void *), void *data)
+__PUB_API__ void *cdll_map(void *root, int (*foo)(void *, void *), void *data)
 {
     struct cdll_node *p = NULL;
 
@@ -180,7 +180,7 @@ void LIBEXPORT *cdll_map(void *root, int (*foo)(void *, void *), void *data)
 /*
  * Maps a function to every node on a list.
  */
-void LIBEXPORT *cdll_map_indexed(void *root,
+__PUB_API__ void *cdll_map_indexed(void *root,
     int (*foo)(unsigned int, void *, void *), void *data)
 {
     struct cdll_node *p = NULL;
@@ -198,7 +198,7 @@ void LIBEXPORT *cdll_map_indexed(void *root,
 /*
  * Maps a function to every node on a list from the end to the top.
  */
-void LIBEXPORT *cdll_map_reverse(void *root, int (*foo)(void *, void *),
+__PUB_API__ void *cdll_map_reverse(void *root, int (*foo)(void *, void *),
     void *data)
 {
     struct cdll_node *l = root, *p = NULL;
@@ -219,7 +219,7 @@ void LIBEXPORT *cdll_map_reverse(void *root, int (*foo)(void *, void *),
 /*
  * Maps a function to every node on a list from the end to the top.
  */
-void LIBEXPORT *cdll_map_indexed_reverse(void *root,
+__PUB_API__ void *cdll_map_indexed_reverse(void *root,
     int (*foo)(unsigned int, void *, void *), void *data)
 {
     struct cdll_node *l = root, *p = NULL;
@@ -241,7 +241,7 @@ void LIBEXPORT *cdll_map_indexed_reverse(void *root,
 /*
  * Frees a list of nodes.
  */
-void LIBEXPORT cdll_free(void *root, void (*foo)(void *))
+__PUB_API__ void cdll_free(void *root, void (*foo)(void *))
 {
     struct cdll_node *p;
 
@@ -257,7 +257,7 @@ void LIBEXPORT cdll_free(void *root, void (*foo)(void *))
 /*
  * Gets a pointer to a specific node inside a list.
  */
-void LIBEXPORT *cdll_at(void *root, unsigned int index)
+__PUB_API__ void *cdll_at(void *root, unsigned int index)
 {
     struct cdll_node *p;
     unsigned int i;
@@ -274,7 +274,7 @@ void LIBEXPORT *cdll_at(void *root, unsigned int index)
 /*
  * Moves all elements from a list to another
  */
-void LIBEXPORT *cdll_move(void *root)
+__PUB_API__ void *cdll_move(void *root)
 {
     struct cdll_node *n = NULL, *p;
 
@@ -289,7 +289,7 @@ void LIBEXPORT *cdll_move(void *root)
 /*
  * Extracts elements from a list according a specific filter.
  */
-void LIBEXPORT *cdll_filter(void *root, int (*foo)(void *, void *), void *data)
+__PUB_API__ void *cdll_filter(void *root, int (*foo)(void *, void *), void *data)
 {
     struct cdll_node **pp = root;
     struct cdll_node *p = *pp;
@@ -320,7 +320,7 @@ void LIBEXPORT *cdll_filter(void *root, int (*foo)(void *, void *), void *data)
 /*
  * Deletes elements from a list according a specific filter function.
  */
-void LIBEXPORT *cdll_delete(void *root, int (*filter)(void *, void *),
+__PUB_API__ void *cdll_delete(void *root, int (*filter)(void *, void *),
     void *data, void (*foo)(void *))
 {
     struct cdll_node *p = NULL;
@@ -339,7 +339,7 @@ void LIBEXPORT *cdll_delete(void *root, int (*filter)(void *, void *),
 /*
  * Delete an element from a list at a specific position.
  */
-void LIBEXPORT *cdll_delete_indexed(void *root, unsigned int index,
+__PUB_API__ void *cdll_delete_indexed(void *root, unsigned int index,
     void (*foo)(void *))
 {
     struct cdll_node **pp = root;
@@ -448,7 +448,7 @@ static void *cdll_merge(void *p1, void *p2, int (*cmp)(void *, void*))
 /*
  * Sort all elements from a list using mergesort algorithm.
  */
-void LIBEXPORT *cdll_mergesort(void *root, int (*cmp)(void *, void *))
+__PUB_API__ void *cdll_mergesort(void *root, int (*cmp)(void *, void *))
 {
     struct cdll_node *p = root;
 
@@ -463,7 +463,7 @@ void LIBEXPORT *cdll_mergesort(void *root, int (*cmp)(void *, void *))
     return root;
 }
 
-bool LIBEXPORT cdll_contains(void *root, void *p,
+__PUB_API__ bool cdll_contains(void *root, void *p,
     int (*foo)(void *, void *))
 {
     struct cdll_node *q = NULL;
@@ -477,7 +477,7 @@ bool LIBEXPORT cdll_contains(void *root, void *p,
     return true;
 }
 
-int LIBEXPORT cdll_indexof(void *root, void *n, int (*foo)(void *, void *))
+__PUB_API__ int cdll_indexof(void *root, void *n, int (*foo)(void *, void *))
 {
     struct cdll_node *p = NULL;
     int i;
@@ -491,7 +491,7 @@ int LIBEXPORT cdll_indexof(void *root, void *n, int (*foo)(void *, void *))
     return -1;
 }
 
-int LIBEXPORT cdll_last_indexof(void *root, void *n,
+__PUB_API__ int cdll_last_indexof(void *root, void *n,
     int (*foo)(void *, void *))
 {
     struct cdll_node *l = root, *p = NULL;
@@ -512,7 +512,7 @@ int LIBEXPORT cdll_last_indexof(void *root, void *n,
     return -1;
 }
 
-void LIBEXPORT *cdll_peek(void *root)
+__PUB_API__ void *cdll_peek(void *root)
 {
     __clib_function_init__(false, NULL, -1, NULL);
 
