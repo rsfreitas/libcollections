@@ -96,7 +96,7 @@ static int py_unload_function(void *a, void *b __attribute__((unused)))
 
 static void add_preconfigured_paths(void)
 {
-    cjson_t *paths = NULL, *root;
+    cjson_t *paths = NULL, *root, *p;
     int i, t;
     char *tmp;
     cstring_t *s;
@@ -117,7 +117,7 @@ static void add_preconfigured_paths(void)
     for (i = 0; i < t; i++) {
         p = cjson_get_array_item(paths, i);
         s = cjson_get_object_value(p);
-        asprintf(tmp, "sys.path.append(%s)", cstring_valueof(s));
+        asprintf(&tmp, "sys.path.append(%s)", cstring_valueof(s));
         PyRun_SimpleString(tmp);
         free(tmp);
     }
@@ -177,7 +177,7 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
     t = sizeof(pyinfo) / sizeof(pyinfo[0]);
 
     for (i = 0; i < t; i++) {
-        result = PyObject_CallMethod(instance, pyinfo[i].fname, NULL);
+        result = PyObject_CallMethod(instance, pyinfo[i].name, NULL);
 
         if (NULL == result)
             return NULL;
