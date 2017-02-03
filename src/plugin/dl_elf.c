@@ -41,12 +41,17 @@ struct elf_info {
 typedef void (*elf_exported_function)(uint32_t, cplugin_t *, cplugin_arg_t *);
 typedef int (*elf_startup_function)(void);
 typedef void (*elf_shutdown_function)(void);
+typedef const char *(*elf_plugin_info)(void);
 
 /* Function name to get the internal plugin information */
 #define CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL    "cplugin_set_plugin_entry_name"
 
-static void set_custom_plugin_info(cplugin_info_t *info,
-    struct cplugin_entry_s *entry)
+/*
+ * Sets the startup and shutdown function pointers to the real functions
+ * inside the plugin ELF. If they're not found, they become NULL and we
+ * ignore them later.
+ */
+static void set_custom_plugin_info(cplugin_info_t *info, void *handle)
 {
     struct elf_info *p = NULL;
 
@@ -55,8 +60,17 @@ static void set_custom_plugin_info(cplugin_info_t *info,
     if (NULL == p)
         return;
 
-    p->startup = entry->startup;
-    p->shutdown = entry->shutdown;
+    dlerror();
+    p->startup = dlsym(handle, "plugin_init");
+
+    if (dlerror() != NULL)
+        p->startup = NULL;
+
+    dlerror();
+    p->shutdown = dlsym(handle, "plugin_uninit");
+
+    if (dlerror() != NULL)
+        p->shutdown = NULL;
 
     info_set_custom_data(info, p);
 }
@@ -67,24 +81,6 @@ static void release_custom_plugin_info(struct elf_info *info)
         return;
 
     free(info);
-}
-
-static struct cplugin_entry_s *call_entry_symbol(void *handle)
-{
-    struct cplugin_entry_s *(*pl_foo)(void), *entry = NULL;
-    char *error = NULL;
-
-    pl_foo = dlsym(handle, CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL);
-
-    if ((error = dlerror()) != NULL)
-        return NULL;
-
-    entry = (pl_foo)();
-
-    if (NULL == entry)
-        return NULL;
-
-    return entry;
 }
 
 /*
@@ -123,18 +119,38 @@ void elf_library_uninit(void *data __attribute__((unused)))
 
 cplugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
 {
-    struct cplugin_entry_s *entry;
+    elf_plugin_info foo;
     cplugin_info_t *info = NULL;
+    int i, t;
+    struct plugin_internal_function functions[] = {
+        { "plugin_name",        NULL },
+        { "plugin_version",     NULL },
+        { "plugin_author",      NULL },
+        { "plugin_description", NULL },
+        { "plugin_api",         NULL }
+    };
 
-    entry = call_entry_symbol(handle);
+    t = sizeof(functions) / sizeof(functions[0]);
 
-    if (NULL == entry)
-        return NULL;
+    for (i = 0; i < t; i++) {
+        dlerror();
+        foo = dlsym(handle, functions[i].name);
 
-    info = info_create_from_entry(entry);
+        if (dlerror() != NULL)
+            /* TODO: Set error code */
+            return NULL;
+
+        functions[i].return_value = (char *)foo();
+    }
+
+    info = info_create_from_data(functions[0].return_value,
+                                 functions[1].return_value,
+                                 functions[2].return_value,
+                                 functions[3].return_value,
+                                 functions[4].return_value);
 
     if (info != NULL)
-        set_custom_plugin_info(info, entry);
+        set_custom_plugin_info(info, handle);
 
     return info;
 }
@@ -193,9 +209,13 @@ int elf_plugin_startup(void *data __attribute__((unused)),
     if (NULL == plinfo)
         return -1;
 
-    f = plinfo->startup;
+    if (plinfo->startup != NULL) {
+        f = plinfo->startup;
+        return f();
+    }
 
-    return f();
+    /* No startup function, ignores and continue execution. */
+    return 0;
 }
 
 int elf_plugin_shutdown(void *data __attribute__((unused)),
@@ -210,8 +230,11 @@ int elf_plugin_shutdown(void *data __attribute__((unused)),
         return -1;
 
     /* call the plugin shutdown function */
-    f = plinfo->shutdown;
-    f();
+    if (plinfo->shutdown != NULL) {
+        f = plinfo->shutdown;
+        f();
+    }
+
     release_custom_plugin_info(plinfo);
 
     return 0;

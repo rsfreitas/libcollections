@@ -142,16 +142,11 @@ void py_library_uninit(void *data __attribute__((unused)))
  */
 cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 {
-    struct py_pl_info {
-        char *fname;
-        char *data;
-    };
-
     PyObject *dict = (PyObject *)ptr;
     PyObject *class = NULL, *instance = NULL, *result = NULL;
     unsigned int i = 0, t = 0;
     cplugin_info_t *info = NULL;
-    struct py_pl_info pyinfo[] = {
+    struct plugin_internal_function pyinfo[] = {
         /*
          * These names are based upon the method names from the CpluginEntryAPI
          * class, inside the cplugin.py file.
@@ -187,15 +182,19 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
         if (NULL == result)
             return NULL;
 
-        pyinfo[i].data = PyString_AS_STRING(result);
+        pyinfo[i].return_value = PyString_AS_STRING(result);
         Py_DECREF(result);
     }
 
-    info = info_create_from_data(pyinfo[0].data, pyinfo[1].data, pyinfo[2].data,
-                                 pyinfo[3].data, pyinfo[4].data);
+    info = info_create_from_data(pyinfo[0].return_value,
+                                 pyinfo[1].return_value,
+                                 pyinfo[2].return_value,
+                                 pyinfo[3].return_value,
+                                 pyinfo[4].return_value);
 
     if (info != NULL)
-        set_custom_plugin_info(info, pyinfo[5].data, pyinfo[6].data);
+        set_custom_plugin_info(info, pyinfo[5].return_value,
+                               pyinfo[6].return_value);
 
     Py_DECREF(instance);
 

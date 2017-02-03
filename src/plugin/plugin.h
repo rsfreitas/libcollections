@@ -133,6 +133,15 @@ cl_struct_declare(cplugin_s, cplugin_members);
 
 #define cplugin_s           cl_struct(cplugin_s)
 
+/*
+ * A structure to hold every mandatory function that a plugin must have.
+ * That way we can call them and store their results.
+ */
+struct plugin_internal_function {
+    char    *name;
+    char    *return_value;
+};
+
 /* api_parser.c */
 cjson_t *api_load(const char *api_data);
 void api_unload(cjson_t *api);
