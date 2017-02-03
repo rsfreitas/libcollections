@@ -31,8 +31,6 @@
 
 #include "collections.h"
 
-#define INITIAL_BUFFER_SIZE         120
-
 unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
 {
     FILE *f;
@@ -109,58 +107,26 @@ int LIBEXPORT cfsave(const char *filename, const unsigned char *buffer,
     return 0;
 }
 
-static void *getblock(size_t n_bytes)
-{
-    void *result;
-
-    result = malloc(n_bytes);
-
-    if (!result)
-        return NULL;
-
-    return result;
-}
-
-static void freeblock(void *ptr)
-{
-    free(ptr);
-}
-
 char LIBEXPORT *cfreadline(FILE *infile)
 {
-    char *line, *nline;
-    int n = 0, ch, size = INITIAL_BUFFER_SIZE;
+    char *line = NULL;
+    size_t size = 0;
+    int bytes_read = 0;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if (NULL == infile)
-        return NULL;
-
-    line = getblock(size + 1);
-
-    while (((ch = getc(infile)) != '\n') && (ch != EOF)) {
-        if (n == size) {
-            size *= 2;
-            nline = (char *)getblock(size + 1);
-            strncpy(nline, line, n);
-            freeblock(line);
-            line = nline;
-        }
-
-        line[n++] = ch;
-    }
-
-    /* EOF */
-    if ((n == 0) && (ch == EOF)) {
-        freeblock(line);
+    if (NULL == infile) {
+        cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    line[n] = '\0';
-    nline = (char *)getblock(n + 1);
-    strcpy(nline, line);
-    freeblock(line);
+    bytes_read = getline(&line, &size, infile);
 
-    return nline;
+    if (bytes_read < 0)
+        return NULL;
+    else if (bytes_read > 0)
+        line[bytes_read - 1] = '\0';
+
+    return line;
 }
 

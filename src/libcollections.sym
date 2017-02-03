@@ -157,12 +157,15 @@ LIBCOLLECTIONS_0.1 {
         cjson_replace_item_in_array;
         cjson_replace_item_in_object;
         cjson_to_cstring;
+        cl_type_to_cstring;
         cmemdup;
         collections_version;
         cprcs_daemon_start;
         csystem;
         cmsleep;
         ctrap;
+        cinstance_active;
+        cset_instance_as_active;
         cseed;
         crand;
         cspec_create;

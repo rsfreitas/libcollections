@@ -137,7 +137,6 @@ cplugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
         foo = dlsym(handle, functions[i].name);
 
         if (dlerror() != NULL)
-            /* TODO: Set error code */
             return NULL;
 
         functions[i].return_value = (char *)foo();

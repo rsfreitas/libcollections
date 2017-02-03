@@ -33,6 +33,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "collections.h"
 
@@ -186,6 +187,149 @@ int LIBEXPORT ctrap(int signum, void (*f)(int))
     s.sa_handler = f;
 
     if (sigaction(signum, &s, NULL) != 0)
+        return -1;
+
+    return 0;
+}
+
+/*
+ * Gets the user-specific non-essential runtime directory.
+ */
+static char *get_xdg_dir(void)
+{
+    char *path = NULL, *env;
+
+    env = getenv("XDG_RUNTIME_DIR");
+
+    if (NULL == env)
+        asprintf(&path, "/run/user/%d", getuid());
+    else
+        path = strdup(env);
+
+    return path;
+}
+
+/*
+ * Writes a file into a user directory with the current application as its name
+ * and the PID as its content.
+ */
+static int write_instance_file(void)
+{
+    char *path, *pathname;
+    FILE *f;
+
+    path = get_xdg_dir();
+
+    if (NULL == path)
+        return -1;
+
+    asprintf(&pathname, "%s/%s.pid", path, library_package_name());
+    free(path);
+    f = fopen(pathname, "w+");
+    free(pathname);
+
+    if (NULL == f)
+        return -1;
+
+    fprintf(f, "%d", getpid());
+    fclose(f);
+
+    return 0;
+}
+
+/*
+ * Reads a PID from an application instance file.
+ */
+static pid_t read_instance_file(const char *name)
+{
+    char *path, *pathname;
+    FILE *f;
+    pid_t pid;
+
+    path = get_xdg_dir();
+
+    if (NULL == path)
+        return 0;
+
+    asprintf(&pathname, "%s/%s.pid", path, name);
+    free(path);
+    f = fopen(pathname, "r");
+    free(pathname);
+
+    if (NULL == f)
+        return 0;
+
+    fscanf(f, "%d", &pid);
+    fclose(f);
+
+    return pid;
+}
+
+static char *instance_name(pid_t pid)
+{
+    char *tmp = NULL, *cmd = NULL;;
+    FILE *f;
+    size_t size = 0;
+    int offset = 0;
+
+    asprintf(&tmp, "/proc/%d/cmdline", pid);
+    f = fopen(tmp, "r");
+    free(tmp);
+
+    if (NULL == f)
+        return NULL;
+
+    if (getdelim(&tmp, &size, 0, f) == -1) {
+        fclose(f);
+        return NULL;
+    }
+
+    fclose(f);
+    cmd = tmp;
+
+    while (!(isalpha(*cmd)))
+        offset++, cmd++;
+
+    cmd = strdup(tmp + offset);
+    free(tmp);
+
+    return cmd;
+}
+
+bool LIBEXPORT cinstance_active(const char *name)
+{
+    pid_t pid;
+    char *we = NULL;
+    bool b;
+
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if (NULL == name)
+        name = library_package_name();
+
+    pid = read_instance_file(name);
+
+    /* Instance file not found */
+    if (pid == 0)
+        return false;
+
+    /* Are we really who we think we are? */
+    we = instance_name(pid);
+
+    if (NULL == we)
+        return false;
+
+    b = (strcmp(name, we) == 0) ? true : false;
+    free(we);
+
+    return b;
+}
+
+int LIBEXPORT cset_instance_as_active(void)
+{
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if (write_instance_file() < 0)
         return -1;
 
     return 0;

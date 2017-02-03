@@ -146,6 +146,8 @@ cplugin_info_t *jni_load_info(void *data, void *handle)
     constructor = (*j->env)->GetMethodID(j->env, cls, "<init>", "()V");
     obj = (*j->env)->NewObject(j->env, cls, constructor);
 
+    /* TODO: validate if we can cantinue... */
+
     /* call CpluginEntryAPI methods */
     for (i = 0; i < t; i++) {
         m = (*j->env)->GetMethodID(j->env, cls, emethods[i].name,
