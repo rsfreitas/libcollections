@@ -38,15 +38,15 @@
 #define cstring_members                 \
     cl_struct_member(uint32_t, size)    \
     cl_struct_member(char *, str)       \
-    cl_struct_member(struct ref_s, ref)
+    cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(cstring_s, cstring_members);
 
 #define cstring_s           cl_struct(cstring_s)
 
-static void destroy_string(const struct ref_s *ref)
+static void destroy_string(const struct cref_s *ref)
 {
-    cstring_s *string = container_of(ref, cstring_s, ref);
+    cstring_s *string = cl_container_of(ref, cstring_s, ref);
 
     if (NULL == string)
         return;
@@ -83,7 +83,7 @@ __PUB_API__ cstring_t *cstring_ref(cstring_t *string)
     cstring_s *p = (cstring_s *)string;
 
     __clib_function_init__(true, string, CSTRING, NULL);
-    ref_inc(&p->ref);
+    cref_inc(&p->ref);
 
     return string;
 }
@@ -93,7 +93,7 @@ __PUB_API__ int cstring_unref(cstring_t *string)
     cstring_s *p = (cstring_s *)string;
 
     __clib_function_init__(true, string, CSTRING, -1);
-    ref_dec(&p->ref);
+    cref_dec(&p->ref);
 
     return 0;
 }

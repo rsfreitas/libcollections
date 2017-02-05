@@ -53,6 +53,7 @@ OBJS = 		\
 	error.o			\
 	file.o			\
 	init.o			\
+	intl.o			\
 	json.o			\
 	mem.o			\
 	object.o		\

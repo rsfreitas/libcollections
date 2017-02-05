@@ -389,6 +389,9 @@ LIBCOLLECTIONS_0.1 {
         cqueue_set_compare_to;
         cqueue_set_filter;
         cqueue_set_equals;
+        cref_inc;
+        cref_dec;
+        cref_bool_compare;
     local:
         *;
 };

@@ -36,7 +36,7 @@ struct gnode_s {
     struct cobject_hdr  hdr;
     void                *content;
     unsigned int        content_size;
-    struct ref_s        ref;
+    struct cref_s       ref;
 
     /*
      * We save the pointer to the node free function here so we don't need
@@ -51,7 +51,7 @@ struct gnode_s {
 #define clist_members                                                       \
     cl_struct_member(struct gnode_s *, list)                                \
     cl_struct_member(unsigned int, size)                                    \
-    cl_struct_member(struct ref_s, ref)                                     \
+    cl_struct_member(struct cref_s, ref)                                    \
     cl_struct_member(void, (*free_data)(void *))                            \
     cl_struct_member(int, (*compare_to)(void *, void *))                    \
     cl_struct_member(int, (*filter)(void *, void *))                        \
@@ -170,9 +170,9 @@ static void destroy_node(struct gnode_s *node, bool free_content)
  * The function to release a node called when a reference count from them drops
  * to 0.
  */
-static void __destroy_node(const struct ref_s *ref)
+static void __destroy_node(const struct cref_s *ref)
 {
-    struct gnode_s *node = container_of(ref, struct gnode_s, ref);
+    struct gnode_s *node = cl_container_of(ref, struct gnode_s, ref);
 
     destroy_node(node, true);
 }
@@ -207,9 +207,9 @@ static struct gnode_s *new_node(const void *content, unsigned int content_size,
  * Destroy a glist_s from memory. Releasing all internal nodes and its
  * respectives content.
  */
-static void destroy_list(const struct ref_s *ref)
+static void destroy_list(const struct cref_s *ref)
 {
-    glist_s *list = container_of(ref, glist_s, ref);
+    glist_s *list = cl_container_of(ref, glist_s, ref);
     enum cl_object node_object = CLIST_NODE;
     struct gnode_s *p = NULL;
 
@@ -257,7 +257,7 @@ void *cglist_node_ref(void *node, enum cl_object object)
     struct gnode_s *n = (struct gnode_s *)node;
 
     __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
-    ref_inc(&n->ref);
+    cref_inc(&n->ref);
 
     return node;
 }
@@ -267,7 +267,7 @@ int cglist_node_unref(void *node, enum cl_object object)
     struct gnode_s *n = (struct gnode_s *)node;
 
     __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, -1);
-    ref_dec(&n->ref);
+    cref_dec(&n->ref);
 
     return 0;
 }
@@ -277,7 +277,7 @@ void *cglist_ref(void *list, enum cl_object object)
     glist_s *l = (glist_s *)list;
 
     __clib_function_init__(true, list, object, NULL);
-    ref_inc(&l->ref);
+    cref_inc(&l->ref);
 
     return list;
 }
@@ -287,7 +287,7 @@ int cglist_unref(void *list, enum cl_object object)
     glist_s *l = (glist_s *)list;
 
     __clib_function_init__(true, list, object, -1);
-    ref_dec(&l->ref);
+    cref_dec(&l->ref);
 
     return 0;
 }

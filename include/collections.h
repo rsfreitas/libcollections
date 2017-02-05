@@ -64,6 +64,7 @@ extern "C" {
 #include <cl/cl_plugin.h>
 #include <cl/cl_process.h>
 #include <cl/cl_random.h>
+#include <cl/cl_ref.h>
 #include <cl/cl_specs.h>
 #include <cl/cl_stack.h>
 #include <cl/cl_string.h>

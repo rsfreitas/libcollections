@@ -61,7 +61,7 @@ struct raw_header {
     cl_struct_member(unsigned char *, raw_original_ptr)     \
     cl_struct_member(enum cimage_format, format)            \
     cl_struct_member(enum cimage_type, type)                \
-    cl_struct_member(struct ref_s, ref)
+    cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(cimage_s, cimage_members);
 
@@ -197,9 +197,9 @@ static int raw_save(const cimage_s *image, const char *filename)
 /*
  * Destroy a cimage_t object.
  */
-static void destroy_cimage(const struct ref_s *ref)
+static void destroy_cimage(const struct cref_s *ref)
 {
-    cimage_s *image = container_of(ref, cimage_s, ref);
+    cimage_s *image = cl_container_of(ref, cimage_s, ref);
 
     if (NULL == image)
         return;
@@ -1211,7 +1211,7 @@ __PUB_API__ cimage_t *cimage_ref(cimage_t *image)
     cimage_s *i = (cimage_s *)image;
 
     __clib_function_init__(true, image, CIMAGE, NULL);
-    ref_inc(&i->ref);
+    cref_inc(&i->ref);
 
     return image;
 }
@@ -1221,7 +1221,7 @@ __PUB_API__ int cimage_unref(cimage_t *image)
     cimage_s *i = (cimage_s *)image;
 
     __clib_function_init__(true, image, CIMAGE, -1);
-    ref_dec(&i->ref);
+    cref_dec(&i->ref);
 
     return 0;
 }

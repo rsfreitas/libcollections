@@ -53,7 +53,7 @@ struct last_msg {
     cl_struct_member(char, separator)                   \
     cl_struct_member(struct last_msg, lmsg)             \
     cl_struct_member(pthread_mutex_t, lock)             \
-    cl_struct_member(struct ref_s, ref)
+    cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(clog_s, clog_members);
 
@@ -171,9 +171,9 @@ static void save_written_message(clog_s *log, const char *msg)
  * Releases a 'clog_s' from memory. Function to be called when its
  * reference count drops to 0.
  */
-static void __destroy_clog_s(const struct ref_s *ref)
+static void __destroy_clog_s(const struct cref_s *ref)
 {
-    clog_s *l = container_of(ref, clog_s, ref);
+    clog_s *l = cl_container_of(ref, clog_s, ref);
 
     if (NULL == l)
         return;
@@ -437,7 +437,7 @@ __PUB_API__ clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
     return log;
 
 error_block:
-    ref_dec(&log->ref);
+    cref_dec(&log->ref);
     return NULL;
 }
 
@@ -455,7 +455,7 @@ __PUB_API__ int clog_close(clog_t *log)
     clog_s *l = (clog_s *)log;
 
     __clib_function_init__(true, log, CLOG, -1);
-    ref_dec(&l->ref);
+    cref_dec(&l->ref);
 
     return 0;
 }

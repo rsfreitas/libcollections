@@ -26,7 +26,7 @@
 
 #include "collections.h"
 
-inline void ref_inc(const struct ref_s *ref)
+__PUB_API__ inline void cref_inc(const struct cref_s *ref)
 {
     if (NULL == ref)
         return;
@@ -34,13 +34,14 @@ inline void ref_inc(const struct ref_s *ref)
     __sync_add_and_fetch((int *)&ref->count, 1);
 }
 
-inline void ref_dec(const struct ref_s *ref)
+__PUB_API__ inline void cref_dec(const struct cref_s *ref)
 {
     if (__sync_sub_and_fetch((int *)&ref->count, 1) == 0)
         (ref->free)(ref);
 }
 
-inline bool ref_bool_compare(const struct ref_s *ref, int old, int new)
+__PUB_API__ inline bool cref_bool_compare(const struct cref_s *ref, int old,
+    int new)
 {
     return __sync_bool_compare_and_swap((int *)&ref->count, old, new);
 }

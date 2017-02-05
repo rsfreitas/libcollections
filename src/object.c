@@ -53,7 +53,7 @@
     cl_struct_member(cstring_t *, s)                    \
     cl_struct_member(bool, b)                           \
     cl_struct_member(void *, p)                         \
-    cl_struct_member(struct ref_s, ref)                 \
+    cl_struct_member(struct cref_s, ref)                \
     cl_struct_member(bool, (*equals)(cobject_t *))      \
     cl_struct_member(int, (*compare_to)(cobject_t *))
 
@@ -97,9 +97,9 @@ static void free_object_data(cobject_s *o)
         free(o->p);
 }
 
-static void destroy_cobject_s(const struct ref_s *ref)
+static void destroy_cobject_s(const struct cref_s *ref)
 {
-    cobject_s *o = container_of(ref, cobject_s, ref);
+    cobject_s *o = cl_container_of(ref, cobject_s, ref);
 
     if (NULL == o)
         return;
@@ -684,7 +684,7 @@ __PUB_API__ cobject_t *cobject_ref(cobject_t *object)
     cobject_s *v = (cobject_s *)object;
 
     __clib_function_init__(true, object, COBJECT, NULL);
-    ref_inc(&v->ref);
+    cref_inc(&v->ref);
 
     return object;
 }
@@ -694,7 +694,7 @@ __PUB_API__ int cobject_unref(cobject_t *object)
     cobject_s *v = (cobject_s *)object;
 
     __clib_function_init__(true, object, COBJECT, -1);
-    ref_dec(&v->ref);
+    cref_dec(&v->ref);
 
     return 0;
 }

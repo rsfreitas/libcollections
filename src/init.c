@@ -40,7 +40,7 @@
 struct cl_data {
     magic_t             cookie;
     bool                initialized;
-    struct ref_s        ref;
+    struct cref_s       ref;
     struct random_data  rd_data;
     char                state[128];
     cjson_t             *cfg;
@@ -140,7 +140,7 @@ static void load_arg(const char *arg)
     __cl_data.initialized = false;
 }
 
-static void __uninit(const struct ref_s *ref __attribute__((unused)))
+static void __uninit(const struct cref_s *ref __attribute__((unused)))
 {
     if (__cl_data.package != NULL)
         free(__cl_data.package);
@@ -187,17 +187,17 @@ __PUB_API__ int collections_init(const char *arg)
 {
     int old = 0, new = 1, ret = 0;
 
-    if (ref_bool_compare(&__cl_data.ref, old, new) == true)
+    if (cref_bool_compare(&__cl_data.ref, old, new) == true)
         ret = __init(arg);
     else
-        ref_inc(&__cl_data.ref);
+        cref_inc(&__cl_data.ref);
 
     return ret;
 }
 
 __PUB_API__ void collections_uninit(void)
 {
-    ref_dec(&__cl_data.ref);
+    cref_dec(&__cl_data.ref);
 }
 
 /*

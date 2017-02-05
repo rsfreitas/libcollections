@@ -48,9 +48,6 @@
  */
 #define __PUB_API__
 
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
-
 /* _cplugin.c */
 /* Keys to access PyObject encapsulated info */
 #define PYARGS                          "pyargs"
@@ -141,16 +138,6 @@
 /* error.c */
 void cerrno_clear(void);
 void cset_errno(enum cerror_code error_code);
-
-/* ref.c */
-struct ref_s {
-    void    (*free)(const struct ref_s *);
-    int     count;
-};
-
-inline void ref_inc(const struct ref_s *ref);
-inline void ref_dec(const struct ref_s *ref);
-inline bool ref_bool_compare(const struct ref_s *ref, int old, int new);
 
 /* value.c */
 bool validate_cl_type(enum cl_type type);

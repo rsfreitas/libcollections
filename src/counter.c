@@ -40,7 +40,7 @@
     cl_struct_member(cobject_t *, max)                  \
     cl_struct_member(long long, start_value)            \
     cl_struct_member(pthread_mutex_t, lock)             \
-    cl_struct_member(struct ref_s, ref)
+    cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(counter_s, counter_members);
 
@@ -109,9 +109,9 @@ static void adjust_counter_limits(counter_s *c, long long min,
     }
 }
 
-static void destroy_counter_s(const struct ref_s *ref)
+static void destroy_counter_s(const struct cref_s *ref)
 {
-    counter_s *c = container_of(ref, counter_s, ref);
+    counter_s *c = cl_container_of(ref, counter_s, ref);
 
     if (NULL == c)
         return;
@@ -164,7 +164,7 @@ __PUB_API__ counter_t *counter_ref(counter_t *c)
     counter_s *p = (counter_s *)c;
 
     __clib_function_init__(true, c, COUNTER, NULL);
-    ref_inc(&p->ref);
+    cref_inc(&p->ref);
 
     return c;
 }
@@ -174,7 +174,7 @@ __PUB_API__ int counter_unref(counter_t *c)
     counter_s *p = (counter_s *)c;
 
     __clib_function_init__(true, c, COUNTER, -1);
-    ref_dec(&p->ref);
+    cref_dec(&p->ref);
 
     return 0;
 }

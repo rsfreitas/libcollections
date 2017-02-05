@@ -535,9 +535,9 @@ static void destroy_chat_s(chat_s *c)
     free(c);
 }
 
-static void __destroy_chat_s(const struct ref_s *ref)
+static void __destroy_chat_s(const struct cref_s *ref)
 {
-    chat_s *c = container_of(ref, chat_s, ref);
+    chat_s *c = cl_container_of(ref, chat_s, ref);
 
     if (NULL == c)
         return;
@@ -814,7 +814,7 @@ __PUB_API__ chat_t *chat_ref(chat_t *chat)
     chat_s *c = (chat_s *)chat;
 
     __clib_function_init__(true, chat, CHAT, NULL);
-    ref_inc(&c->ref);
+    cref_inc(&c->ref);
 
     return chat;
 }
@@ -824,7 +824,7 @@ __PUB_API__ int chat_unref(chat_t *chat)
     chat_s *c = (chat_s *)chat;
 
     __clib_function_init__(true, chat, CHAT, -1);
-    ref_dec(&c->ref);
+    cref_dec(&c->ref);
 
     return 0;
 }

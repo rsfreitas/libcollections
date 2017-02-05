@@ -38,7 +38,7 @@
 #include "dl_java.h"
 
 struct dl_plugin {
-    struct ref_s    ref;
+    struct cref_s    ref;
 };
 
 static struct dl_plugin __dl = {
@@ -153,7 +153,7 @@ static struct dl_plugin_driver *get_plugin_driver(enum cplugin_type type)
     return NULL;
 }
 
-static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
+static void __dl_library_uninit(const struct cref_s *ref __attribute__((unused)))
 {
     int i = 0;
 
@@ -168,7 +168,7 @@ void dl_library_init(void)
     int old = 0, new = 1;
     unsigned int i = 0;
 
-    if (ref_bool_compare(&__dl.ref, old, new) == true) {
+    if (cref_bool_compare(&__dl.ref, old, new) == true) {
         __dl.ref.free = __dl_library_uninit;
 
         /* call all drivers init function */
@@ -176,12 +176,12 @@ void dl_library_init(void)
             if (__dl_driver[i].enabled == true)
                 __dl_driver[i].data = (__dl_driver[i].library_init)();
     } else
-        ref_inc(&__dl.ref);
+        cref_inc(&__dl.ref);
 }
 
 void dl_library_uninit(void)
 {
-    ref_dec(&__dl.ref);
+    cref_dec(&__dl.ref);
 }
 
 static cstring_t *get_file_info(const char *filename)
@@ -371,5 +371,4 @@ void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
     drv = cpl->dl;
     (drv->call)(drv->data, foo, caller_id, cpl);
 }
-
 
