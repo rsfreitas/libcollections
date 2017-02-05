@@ -31,8 +31,6 @@
 # include <magic.h>
 #endif
 
-#include <stddef.h>
-
 /*
  * An internal representation of a public function. It does not affect the code
  * or the function visibility. Its objective is only to let clear what is and

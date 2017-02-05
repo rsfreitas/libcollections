@@ -33,6 +33,8 @@
 # endif
 #endif
 
+#include <stddef.h>
+
 /** A macro to get the address of a structure through its member. */
 #define cl_container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - offsetof(type, member)))
