@@ -87,6 +87,7 @@ enum cerror_code {
     CL_PY_GET_DICT_FAILED,
     CL_CVT_DATA_FAILED,
     CL_LIB_WAS_NOT_STARTED,
+    CL_MKDIR_FAILED,
 
     CL_MAX_ERROR_CODE
 };
