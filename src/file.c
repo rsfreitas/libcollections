@@ -130,3 +130,22 @@ __PUB_API__ char *cfreadline(FILE *infile)
     return line;
 }
 
+__PUB_API__ char *cfile_mime_type(const char *pathname)
+{
+    magic_t *cookie = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (NULL == pathname) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    cookie = library_get_cookie();
+
+    if (NULL == cookie)
+        return NULL;
+
+    return strdup(magic_file(*cookie, pathname));
+}
+

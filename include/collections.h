@@ -30,7 +30,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          1
-# define BUILD                  12
+# define BUILD                  13
 #endif
 
 #ifdef __cplusplus
@@ -42,6 +42,7 @@ extern "C" {
 #include <cl/cl_chat.h>
 #include <cl/cl_counter.h>
 #include <cl/cl_datetime.h>
+#include <cl/cl_dir.h>
 #include <cl/cl_dll.h>
 #include <cl/cl_error.h>
 #include <cl/cl_event.h>

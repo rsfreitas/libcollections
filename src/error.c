@@ -83,7 +83,8 @@ static const char *__cdescriptions[] = {
     "Failed to load python plugin",
     "Failed to get python object dictionary",
     "Data convertion failed",
-    "The library was not initialized"
+    "The library was not initialized",
+    "Failed creating directory"
 };
 
 static const char *__cunknown_error = "Unknown error";

@@ -121,6 +121,7 @@ LIBCOLLECTIONS_0.1 {
         cfunload;
         cfsave;
         cfreadline;
+        cfile_mime_type;
         cstdin_getline;
         cstdin_select;
         cgetkey;
@@ -394,6 +395,7 @@ LIBCOLLECTIONS_0.1 {
         cref_inc;
         cref_dec;
         cref_bool_compare;
+        cmkdir;
     local:
         *;
 };

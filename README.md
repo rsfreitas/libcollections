@@ -28,3 +28,8 @@ LGPLv2
 * OpenCv 2 (libtiff, libjpeg, libpng)
 * libswscale
 
+## Important
+
+* If one is using a gcc 5 compiler, the linked target must use the option
+**-fgnu89-inline**.
+
