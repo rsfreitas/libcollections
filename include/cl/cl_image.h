@@ -371,5 +371,15 @@ enum cimage_type cimage_type(const cimage_t *image);
  */
 enum cimage_format cimage_format(const cimage_t *image);
 
+/**
+ * @name cimage_channels
+ * @brief Gets the number of channels of the image.
+ *
+ * @param [in] image: The cimage_t object.
+ *
+ * @return On success returns the number of channels or -1 otherwise.
+ */
+int cimage_channels(const cimage_t *image);
+
 #endif
 

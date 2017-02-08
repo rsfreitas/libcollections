@@ -182,5 +182,8 @@ typedef void                cstack_node_t;
 typedef void                cqueue_t;
 typedef void                cqueue_node_t;
 
+/** image text */
+typedef void                cimage_caption_t;
+
 #endif
 

@@ -26,6 +26,7 @@ LGPLv2
 * libmagic
 * Java 1.6 JDK
 * OpenCv 2 (libtiff, libjpeg, libpng)
+* libfreetype
 * libswscale
 
 ## Important

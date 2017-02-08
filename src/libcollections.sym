@@ -336,6 +336,7 @@ LIBCOLLECTIONS_0.1 {
         cimage_height;
         cimage_type;
         cimage_format;
+        cimage_channels;
         cstack_node_content;
         cstack_node_ref;
         cstack_node_unref;
@@ -396,6 +397,13 @@ LIBCOLLECTIONS_0.1 {
         cref_dec;
         cref_bool_compare;
         cmkdir;
+        caption_ref;
+        caption_unref;
+        caption_configure;
+        caption_destroy;
+        cimage_add_caption_vf;
+        cimage_add_caption_f;
+        cimage_add_caption;
     local:
         *;
 };

@@ -148,6 +148,6 @@ char *file_extension(const char *pathname)
     if (NULL == ext)
         return NULL;
 
-    return strdup(ext);
+    return strdup(ext + 1);
 }
 

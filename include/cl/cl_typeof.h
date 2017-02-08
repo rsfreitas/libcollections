@@ -61,7 +61,8 @@ enum cl_object {
     CSTACK,
     CSTACK_NODE,
     CQUEUE,
-    CQUEUE_NODE
+    CQUEUE_NODE,
+    CIMAGE_CAPTION
 };
 
 struct cobject_hdr {

@@ -236,6 +236,8 @@ static cimage_s *new_cimage(void)
     i->ref.free = destroy_cimage;
     i->ref.count = 1;
 
+    set_typeof(CIMAGE, i);
+
     return i;
 }
 
@@ -337,7 +339,7 @@ static enum cimage_type mime_to_type(const char *mime)
 {
     enum cimage_type type = CIMAGE_RAW;
 
-    if (strcmp(mime, "image/jpg") == 0)
+    if ((strcmp(mime, "image/jpg") == 0) || (strcmp(mime, "image/jpeg") == 0))
         type = CIMAGE_JPG;
     else if (strcmp(mime, "image/x-ms-bmp") == 0)
         type = CIMAGE_BMP;
@@ -1006,32 +1008,32 @@ static unsigned char *convert_raw_formats(cimage_s *image,
     return buffer;
 }
 
-static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
+static unsigned char *raw_to_jpg(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *raw_to_bmp(cimage_s *image, unsigned int *bsize)
+static unsigned char *raw_to_bmp(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *raw_to_png(cimage_s *image, unsigned int *bsize)
+static unsigned char *raw_to_png(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *raw_to_jpg2k(cimage_s *image, unsigned int *bsize)
+static unsigned char *raw_to_jpg2k(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *raw_to_tiff(cimage_s *image, unsigned int *bsize)
+static unsigned char *raw_to_tiff(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *raw_to_ppm(cimage_s *image, unsigned int *bsize)
+static unsigned char *raw_to_ppm(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
@@ -1097,32 +1099,32 @@ static unsigned char *cv_cvt_image_type(cimage_s *image,
     return b;
 }
 
-static unsigned char *jpg_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *jpg_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *bmp_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *bmp_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *png_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *png_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *jpg2k_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *jpg2k_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *tiff_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *tiff_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
 
-static unsigned char *ppm_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *ppm_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
     return NULL;
 }
@@ -1198,6 +1200,47 @@ static unsigned char *convert_image_formats(cimage_s *image,
     }
 
     return buffer;
+}
+
+void draw_onto_the_image(cimage_t *image, unsigned int x, unsigned int y,
+    unsigned char *buffer, int bwidth, unsigned int max_width,
+    unsigned int max_height, CvScalar color)
+{
+    cimage_s *img = (cimage_s *)image;
+    unsigned char *ptr;
+    unsigned int fp, ip, cp;
+    int channels, ptr_width, k;
+    unsigned int i, j;
+
+    if (max_width > (img->image->width - x))
+        max_width = img->image->width - x;
+
+    if (max_height > (img->image->height - y))
+        max_height = img->image->height - y;
+
+    channels = get_channels_by_format(img->format);
+    ptr = (unsigned char *)(img->image->imageData + y * img->image->widthStep +
+                            x * channels);
+
+    ptr_width = img->image->widthStep - (max_width * channels);
+
+    for (i = 0; i < max_height; i++) {
+        for (j = 0; j < max_width; j++) {
+            for (k = 0; k < channels; k++) {
+                fp = (unsigned char)*buffer;
+                cp = (unsigned char)*ptr;
+                ip = (unsigned char)color.val[k];
+
+                *ptr = (fp * cp + (255 - fp) * ip) / 255.0f;
+                ptr++;
+            }
+
+            buffer++;
+        }
+
+        ptr += ptr_width;
+        buffer += bwidth;
+    }
 }
 
 /*
@@ -1643,5 +1686,19 @@ __PUB_API__ enum cimage_format cimage_format(const cimage_t *image)
     }
 
     return i->format;
+}
+
+__PUB_API__ int cimage_channels(const cimage_t *image)
+{
+    cimage_s *i = (cimage_s *)image;
+
+    __clib_function_init__(true, image, CIMAGE, -1);
+
+    if (NULL == i->image) {
+        cset_errno(CL_NULL_DATA);
+        return -1;
+    }
+
+    return get_channels_by_format(i->format);
 }
 

@@ -143,7 +143,9 @@ __PUB_API__ void cexit(void)
         return;
     }
 
+#ifndef IMAGEAPI
     pthread_exit(NULL);
+#endif
 }
 
 #define __cerrno      (*cerrno_storage())

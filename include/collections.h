@@ -50,6 +50,7 @@ extern "C" {
 
 #ifdef IMAGEAPI
 # include <cl/cl_image.h>
+# include <cl/cl_caption.h>
 #endif
 
 #include <cl/cl_init.h>

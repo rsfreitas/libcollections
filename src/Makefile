@@ -42,12 +42,15 @@ JNI_PATH = ./plugin/java
 
 ifeq ($(IMAGEAPI), 1)
     ifeq ($(ARCH), i386)
-        OPENCV_LIBS = /usr/lib/libopencv_highgui.a
+        OPENCV_LIBS = /usr/lib/libopencv_highgui.a -lfreetype
     else
-        OPENCV_LIBS = -lopencv_highgui
+        OPENCV_LIBS = -lopencv_core -lopencv_highgui -lopencv_imgproc -lfreetype
     endif
 
-    IMAGE_OBJ = image.o
+    INCLUDEDIR += -I/usr/include/freetype2
+    IMAGE_OBJ = 			\
+			image.o			\
+			caption.o
 endif
 
 # Is the python plugin enabled?
@@ -110,6 +113,7 @@ PLUGIN_OBJS = \
 
 SOURCES := $(wildcard *.c)
 SOURCES := $(filter-out image.c, $(SOURCES))
+SOURCES := $(filter-out caption.c, $(SOURCES))
 OBJS =	\
 		$(CHAT_OBJS)	\
 		$(PLUGIN_OBJS)	\
