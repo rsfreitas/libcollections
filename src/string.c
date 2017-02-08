@@ -540,7 +540,7 @@ __PUB_API__ cstring_t *cstring_substr(const cstring_t *string, const char *needl
         return NULL;
     }
 
-    o = cstring_create("%s", ptr);
+    o = cstring_create("%s", ptr + strlen(needle));
     cstring_unref(p);
 
     if (NULL == o)
@@ -1104,5 +1104,54 @@ __PUB_API__ int cstring_cpy(cstring_t *dest, const cstring_t *src)
     cstring_unref(p);
 
     return 0;
+}
+
+__PUB_API__ bool cstring_contains(const cstring_t *string, const char *needle)
+{
+    bool contains = false;
+    cstring_t *p, *sub = NULL;
+
+    __clib_function_init__(true, string, CSTRING, false);
+
+    if (NULL == needle)
+        return false;
+
+    p = cstring_ref((cstring_t *)string);
+    sub = cstring_substr(p, needle);
+    cstring_unref(p);
+
+    if (sub != NULL) {
+        cstring_unref(sub);
+        contains = true;
+    }
+
+    return contains;
+}
+
+__PUB_API__ int cstring_count_matches(const cstring_t *string,
+    const char *needle)
+{
+    cstring_t *sub = NULL, *haystack = cstring_ref((cstring_t *)string);;
+    unsigned int count = 0;
+
+    __clib_function_init__(true, string, CSTRING, false);
+
+    if (NULL == needle)
+        return -1;
+
+    do {
+        sub = cstring_substr(haystack, needle);
+        cstring_unref(haystack);
+
+        if (NULL == sub)
+            break;
+
+        /* Needle found */
+        count++;
+        haystack = sub;
+
+    } while (sub != NULL);
+
+    return count;
 }
 

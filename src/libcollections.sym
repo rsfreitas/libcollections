@@ -183,6 +183,8 @@ LIBCOLLECTIONS_0.1 {
         cstring_clear;
         cstring_cmp;
         cstring_cpy;
+        cstring_contains;
+        cstring_count_matches;
         cstring_create;
         cstring_create_empty;
         cstring_create_random;
