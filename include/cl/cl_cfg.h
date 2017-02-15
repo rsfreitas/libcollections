@@ -44,6 +44,14 @@
 cfg_file_t *cfg_load(const char *filename);
 
 /**
+ * @name cfg_create
+ * @brief Creates a INI structure to hold configurations.
+ *
+ * @return On success returns a cfg_file_t object or NULL otherwise.
+ */
+cfg_file_t *cfg_create(void);
+
+/**
  * @name cfg_unload
  * @brief Frees all memory previously allocated on a cfg_file_t object.
  *
@@ -169,6 +177,29 @@ cobject_t *cfg_key_value(const cfg_key_t *key);
  * @return On success returns a cstring_t containing the cfg_file_t object.
  */
 cstring_t *cfg_to_cstring(const cfg_file_t *file);
+
+/**
+ * @name cfg_get_key_names
+ * @brief Get all key names from a section.
+ *
+ * @param [in] file: The cfg_file_t object.
+ * @param [in] section: The section name.
+ *
+ * @return On success returns a cstring_list_t object with all key names or
+ *         NULL otherwise.
+ */
+cstring_list_t *cfg_get_key_names(const cfg_file_t *file, const char *section);
+
+/**
+ * @name cfg_get_key_names_from_section
+ * @brief Get all key names from a section.
+ *
+ * @param [in] section: cfg_section_t object.
+ *
+ * @return On success returns a cstring_list_t object with all key names or
+ *         NULL otherwise.
+ */
+cstring_list_t *cfg_get_key_names_from_section(const cfg_section_t *section);
 
 #endif
 

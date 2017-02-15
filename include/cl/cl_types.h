@@ -114,6 +114,10 @@ enum cl_type {
 #define COBJECT_STRING       "s"
 #define COBJECT_POINTER      "P"
 
+/** cobject sizeof */
+#define COBJECT_SIZEOF      \
+    sizeof(unsigned long long) + sizeof(unsigned long long)
+
 /** error type */
 typedef int                 cerrno;
 

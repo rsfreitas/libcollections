@@ -166,8 +166,7 @@ int clist_size(const clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_push(clist_t *list, const void *node_content,
-               unsigned int size);
+int clist_push(clist_t *list, const void *node_content, unsigned int size);
 
 /**
  * @name clist_pop
@@ -201,8 +200,7 @@ clist_node_t *clist_shift(clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_unshift(clist_t *list, const void *node_content,
-                  unsigned int size);
+int clist_unshift(clist_t *list, const void *node_content, unsigned int size);
 
 /**
  * @name clist_map
@@ -377,8 +375,7 @@ int clist_sort(clist_t *list);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int clist_indexof(const clist_t *list, void *element,
-                  unsigned int size);
+int clist_indexof(const clist_t *list, void *element, unsigned int size);
 
 /**
  * @name clist_last_indexof
@@ -392,8 +389,7 @@ int clist_indexof(const clist_t *list, void *element,
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int clist_last_indexof(const clist_t *list, void *element,
-                       unsigned int size);
+int clist_last_indexof(const clist_t *list, void *element, unsigned int size);
 
 /**
  * @name clist_contains
@@ -407,8 +403,7 @@ int clist_last_indexof(const clist_t *list, void *element,
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool clist_contains(const clist_t *list, void *element,
-                    unsigned int size);
+bool clist_contains(const clist_t *list, void *element, unsigned int size);
 
 /**
  * @name clist_peek

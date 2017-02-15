@@ -122,9 +122,12 @@ __PUB_API__ char *cfreadline(FILE *infile)
 
     bytes_read = getline(&line, &size, infile);
 
-    if (bytes_read < 0)
+    if (bytes_read < 0) {
+        if (line != NULL)
+            free(line);
+
         return NULL;
-    else if (bytes_read > 0)
+    }else if (bytes_read > 0)
         line[bytes_read - 1] = '\0';
 
     return line;
@@ -147,5 +150,25 @@ __PUB_API__ char *cfile_mime_type(const char *pathname)
         return NULL;
 
     return strdup(magic_file(*cookie, pathname));
+}
+
+__PUB_API__ char *cbuffer_mime_type(const unsigned char *buffer,
+    unsigned int size)
+{
+    magic_t *cookie = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if ((NULL == buffer) || (size == 0)) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    cookie = library_get_cookie();
+
+    if (NULL == cookie)
+        return NULL;
+
+    return strdup(magic_buffer(*cookie, buffer, size));
 }
 

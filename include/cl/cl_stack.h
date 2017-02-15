@@ -355,8 +355,7 @@ int cstack_sort(cstack_t *stack);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cstack_indexof(const cstack_t *stack, void *element,
-                   unsigned int size);
+int cstack_indexof(const cstack_t *stack, void *element, unsigned int size);
 
 /**
  * @name cstack_last_indexof
@@ -370,8 +369,7 @@ int cstack_indexof(const cstack_t *stack, void *element,
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cstack_last_indexof(const cstack_t *stack, void *element,
-                        unsigned int size);
+int cstack_last_indexof(const cstack_t *stack, void *element, unsigned int size);
 
 /**
  * @name cstack_contains
@@ -385,8 +383,7 @@ int cstack_last_indexof(const cstack_t *stack, void *element,
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool cstack_contains(const cstack_t *stack, void *element,
-                     unsigned int size);
+bool cstack_contains(const cstack_t *stack, void *element, unsigned int size);
 
 /**
  * @name cstack_peek

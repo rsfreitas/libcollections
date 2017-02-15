@@ -334,10 +334,19 @@ end_block:
 
 static cfg_file_s *__cfg_load(const char *filename)
 {
-    FILE *fp;
+    FILE *fp = NULL;
     char *line = NULL;
     cfg_file_s *file = NULL;
     struct cfg_line_s *cline = NULL, *section = NULL;
+
+    file = new_cfg_file_s(filename);
+
+    /*
+     * If filename == NULL means that we're creating a cfg_file_t to write
+     * new information.
+     */
+    if ((NULL == file) || (NULL == filename))
+        goto end_block;
 
     fp = fopen(filename, "r");
 
@@ -345,11 +354,6 @@ static cfg_file_s *__cfg_load(const char *filename)
         cset_errno(CL_FILE_OPEN_ERROR);
         return NULL;
     }
-
-    file = new_cfg_file_s(filename);
-
-    if (NULL == file)
-        goto end_block;
 
     while ((line = cfreadline(fp)) != NULL) {
         cline = cvt_line_to_cfg_line(line);
@@ -376,7 +380,12 @@ static cfg_file_s *__cfg_load(const char *filename)
     }
 
 end_block:
-    fclose(fp);
+    if (fp != NULL)
+        fclose(fp);
+
+    if (line != NULL)
+        free(line);
+
     return file;
 }
 
@@ -502,6 +511,12 @@ __PUB_API__ cfg_file_t *cfg_load(const char *filename)
     return file;
 }
 
+__PUB_API__ cfg_file_t *cfg_create(void)
+{
+    __clib_function_init__(false, NULL, -1, NULL);
+    return __cfg_load(NULL);
+}
+
 /*
  * Frees all memory previously allocated on a cfg_file_t value.
  */
@@ -573,14 +588,16 @@ __PUB_API__ int cfg_set_value(cfg_file_t *file, const char *section,
     s = cdll_map(f->section, search_section, (void *)section);
 
     if (NULL == s) {
-        s = new_cfg_line_s(cstring_create("%s", section), NULL, NULL, 0,
-                           CFG_LINE_SECTION);
+        t = cstring_create("%s", section);
+        s = new_cfg_line_s(t, NULL, NULL, 0, CFG_LINE_SECTION);
+        cstring_unref(t);
 
         if (NULL == s)
             return -1;
 
-        k = new_cfg_line_s(cstring_create("%s", key), b, NULL, 0,
-                           CFG_LINE_KEY);
+        t = cstring_create("%s", key);
+        k = new_cfg_line_s(t, b, NULL, 0, CFG_LINE_KEY);
+        cstring_unref(t);
 
         if (NULL == k) {
             destroy_cfg_line_s(s);
@@ -596,8 +613,9 @@ __PUB_API__ int cfg_set_value(cfg_file_t *file, const char *section,
     k = cdll_map(s->child, search_key, (void *)key);
 
     if (NULL == k) {
-        k = new_cfg_line_s(cstring_create("%s", key), b, NULL, 0,
-                           CFG_LINE_KEY);
+        t = cstring_create("%s", key);
+        k = new_cfg_line_s(t, b, NULL, 0, CFG_LINE_KEY);
+        cstring_unref(t);
 
         if (NULL == k)
             return -1;
@@ -731,5 +749,46 @@ __PUB_API__ cstring_t *cfg_to_cstring(const cfg_file_t *file)
     s = print_cfg(file);
 
     return s;
+}
+
+static int add_key(void *a, void *b)
+{
+    struct cfg_line_s *key = (struct cfg_line_s *)a;
+    cstring_list_t *keys = (cstring_list_t *)b;
+
+    cstring_list_add(keys, key->name);
+
+    return 0;
+}
+
+__PUB_API__ cstring_list_t *cfg_get_key_names(const cfg_file_t *file,
+    const char *section)
+{
+    struct cfg_line_s *s;
+    cstring_list_t *keys;
+
+    s = cfg_get_section(file, section);
+
+    if (NULL == s)
+        return NULL;
+
+    keys = cstring_list_create();
+    cdll_map(s->child, add_key, keys);
+
+    return keys;
+}
+
+__PUB_API__ cstring_list_t *cfg_get_key_names_from_section(const cfg_section_t *section)
+{
+    struct cfg_line_s *s = (struct cfg_line_s *)section;
+    cstring_list_t *keys;
+
+    __clib_function_init_ex__(true, section, CFG_SECTION, CFG_LINE_OFFSET,
+                              NULL);
+
+    keys = cstring_list_create();
+    cdll_map(s->child, add_key, keys);
+
+    return keys;
 }
 

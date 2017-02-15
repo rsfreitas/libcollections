@@ -1,12 +1,15 @@
 LIBCOLLECTIONS_0.1 {
     global:
+        cfg_create;
         cfg_load;
         cfg_unload;
         cfg_sync;
         cfg_set_value;
         cfg_get_section;
         cfg_get_key;
+        cfg_get_key_names;
         cfg_get_key_from_section;
+        cfg_get_key_names_from_section;
         cfg_section_name;
         cfg_key_name;
         cfg_key_value;
@@ -122,6 +125,7 @@ LIBCOLLECTIONS_0.1 {
         cfsave;
         cfreadline;
         cfile_mime_type;
+        cbuffer_mime_type;
         cstdin_getline;
         cstdin_select;
         cgetkey;

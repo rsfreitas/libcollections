@@ -178,8 +178,7 @@ cqueue_node_t *cqueue_dequeue(cqueue_t *queue);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_enqueue(cqueue_t *queue, const void *node_content,
-                   unsigned int size);
+int cqueue_enqueue(cqueue_t *queue, const void *node_content, unsigned int size);
 
 /**
  * @name cqueue_map
@@ -359,8 +358,7 @@ int cqueue_sort(cqueue_t *queue);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cqueue_indexof(const cqueue_t *queue, void *element,
-                   unsigned int size);
+int cqueue_indexof(const cqueue_t *queue, void *element, unsigned int size);
 
 /**
  * @name cqueue_last_indexof
@@ -374,8 +372,7 @@ int cqueue_indexof(const cqueue_t *queue, void *element,
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cqueue_last_indexof(const cqueue_t *queue, void *element,
-                        unsigned int size);
+int cqueue_last_indexof(const cqueue_t *queue, void *element, unsigned int size);
 
 /**
  * @name cqueue_contains
@@ -389,8 +386,7 @@ int cqueue_last_indexof(const cqueue_t *queue, void *element,
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool cqueue_contains(const cqueue_t *queue, void *element,
-                     unsigned int size);
+bool cqueue_contains(const cqueue_t *queue, void *element, unsigned int size);
 
 /**
  * @name cqueue_front

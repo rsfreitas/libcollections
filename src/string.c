@@ -170,8 +170,7 @@ __PUB_API__ cstring_t *cstring_create_random(unsigned int size)
         return NULL;
 
     for (i = 0; i < size; i++) {
-        n = (int)(26.0 * (rand() / (RAND_MAX + 1.0)));
-        n += 'a';
+        n = 'a' + crand('z' - 'a');
         cstring_cat(p, "%c", (char)n);
     }
 
