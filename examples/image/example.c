@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     const char *opt = "f:h";
     int option;
     char *filename = NULL;
-    cimage_t *image;
+    cimage_t *image, *yuyv;
     cimage_caption_t *caption;
 
     do {
@@ -76,19 +76,40 @@ int main(int argc, char **argv)
 
     collections_init(NULL);
 
-    image = cimage_load_from_file(filename);
+    unsigned char *ptr, *ptr2;
+    unsigned int size=0;
+    unsigned int w, h;
 
-    if (NULL == image) {
+    ptr = cfload(filename, &size);
+
+    yuyv = cimage_create();
+//    image = cimage_load_from_file(filename);
+
+    if (NULL == yuyv) {
         printf("%s: %d\n", __FUNCTION__, cget_last_error());
         return -1;
     }
 
-    caption = caption_configure("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
+    if (cimage_fill(yuyv, ptr, size, CIMAGE_FMT_YUYV, 640, 480) != 0) {
+        printf("%s 2: %d\n", __FUNCTION__, cget_last_error());
+        return -1;
+    }
+
+    ptr2 = cimage_raw_export(yuyv, CIMAGE_RAW, CIMAGE_FMT_RGB, &size, &w, &h);
+
+    image = cimage_create();
+    if (cimage_fill(image, ptr2, size, CIMAGE_FMT_RGB, 640, 480) != 0) {
+        printf("%s 3: %d\n", __FUNCTION__, cget_last_error());
+        return -1;
+    }
+
+    printf("%s: %d - %dx%d\n", __FUNCTION__, size, w, h);
+//    caption = caption_configure("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
 
     printf("Image type: %d\n", cimage_type(image));
 
-    cimage_add_caption(caption, image, 10, 10, CAPTION_WHITE, "teste teste teste");
-    cimage_save_to_file(image, "teste.png", CIMAGE_PNG);
+//    cimage_add_caption(caption, image, 10, 10, CAPTION_WHITE, "teste teste teste");
+    cimage_save_to_file(image, "teste.jpg", CIMAGE_JPG);
 
     caption_destroy(caption);
     cimage_destroy(image);

@@ -41,16 +41,14 @@ PLUGIN_PATH = ./plugin
 JNI_PATH = ./plugin/java
 
 ifeq ($(IMAGEAPI), 1)
-    ifeq ($(ARCH), i386)
-        OPENCV_LIBS = /usr/lib/libopencv_highgui.a -lfreetype
-    else
-        OPENCV_LIBS = -lopencv_core -lopencv_highgui -lopencv_imgproc -lfreetype
-    endif
+    OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui \
+		  -lfreetype -ljpeg -lpng -ltiff -lswscale -ljasper
 
     INCLUDEDIR += -I/usr/include/freetype2
     IMAGE_OBJ = 			\
-			image.o			\
-			caption.o
+			image.o		\
+			caption.o	\
+			raw.o
 endif
 
 # Is the python plugin enabled?
@@ -114,6 +112,7 @@ PLUGIN_OBJS = \
 SOURCES := $(wildcard *.c)
 SOURCES := $(filter-out image.c, $(SOURCES))
 SOURCES := $(filter-out caption.c, $(SOURCES))
+SOURCES := $(filter-out raw.c, $(SOURCES))
 OBJS =	\
 		$(CHAT_OBJS)	\
 		$(PLUGIN_OBJS)	\
@@ -140,7 +139,7 @@ install:
 
 install_headers:
 	$(shell [ ! -d /usr/local/include/cl ] && mkdir -p /usr/local/include/cl)
-	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
+	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h|^cl_raw.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
 	cp -f ../include/collections.h /usr/local/include
 
 dev_install: install_headers install

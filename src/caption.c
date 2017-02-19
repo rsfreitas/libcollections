@@ -26,7 +26,8 @@
 
 #include <stdarg.h>
 
-#include <freetype2/ft2build.h>
+//#include <freetype2/ft2build.h>
+#include <ft2build.h>
 #include FT_FREETYPE_H
 
 #include "collections.h"
@@ -58,7 +59,7 @@ static void estimate_font_dimensions(caption_s *caption)
                 continue;
 
             if (caption->slot->metrics.horiBearingY >
-                caption->max_horizontal_bearing_y)
+                (int)caption->max_horizontal_bearing_y)
             {
                 caption->max_horizontal_bearing_y =
                         caption->slot->metrics.horiBearingY;

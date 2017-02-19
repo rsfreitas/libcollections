@@ -300,7 +300,7 @@ clist_node_t *clist_at(const clist_t *list, unsigned int index);
 
 /**
  * @name clist_delete
- * @brief Deletes elements from a lista according a specific filter function.
+ * @brief Deletes elements from a list according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
  * from the list and released from memory. This function uses the \a filter

@@ -85,14 +85,6 @@ __PUB_API__ void cprcs_daemon_start(void)
     dup(0);
 }
 
-static char *__fixed_args[] = {
-    "/bin/sh",
-    "-c"
-};
-
-#define FIXED_ARGS              \
-    (sizeof(__fixed_args) / sizeof(__fixed_args[0]))
-
 static char **cvt_cmd(const char *cmd)
 {
     cstring_t *s = NULL, *ref;
@@ -104,23 +96,23 @@ static char **cvt_cmd(const char *cmd)
     l = cstring_split(s, " ");
     cstring_destroy(s);
     size = cstring_list_size(l);
-    app_argv = calloc(size + FIXED_ARGS + 1, sizeof(char *));
-
-    for (i = 0; i < FIXED_ARGS; i++)
-        app_argv[i] = strdup(__fixed_args[i]);
+    app_argv = calloc(size + 1, sizeof(char *));
 
     for (i = 0; i < size; i++) {
         ref = cstring_list_get(l, i);
-        app_argv[FIXED_ARGS + i] = strdup(cstring_valueof(ref));
+        app_argv[i] = strdup(cstring_valueof(ref));
         cstring_unref(ref);
     }
 
-    app_argv[size + FIXED_ARGS + 1] = NULL;
+    app_argv[size] = NULL;
     cstring_list_destroy(l);
 
     return app_argv;
 }
 
+/*
+ * TODO: Needs to handle a pipe between commands.
+ */
 __PUB_API__ int csystem(bool close_parent_files, const char *fmt, ...)
 {
     pid_t p;

@@ -109,14 +109,14 @@ int cimage_destroy(cimage_t *image);
  * @name cimage_fill
  * @brief Fills a cimage_t object with a memory image.
  *
- * This function will put a previously loaded image to a cimage_t object.
- * It will try to guess what kind of image is been pointed by \a buffer, If
- * we're passing a CIMAGE_RAW image we may use a pure RAW image, without
- * our internal header. To do this, we must correctly inform \a format, \a
- * width and \a height from the RAW image.
+ * This function will put a previously loaded image from a buffer into a
+ * cimage_t object. It will try to guess what kind of image is been pointed
+ * by \a buffer. If we're passing a CIMAGE_RAW image we may use a pure RAW
+ * image, without our internal header. To do this, we must correctly inform
+ * \a format, \a width and \a height from the RAW image.
  *
  * After doing this the \a buffer the user does not have to free it, the library
- * will do.
+ * will do so.
  *
  * @param [in,out] image: The cimage_t object.
  * @param [in] buffer: The image buffer.

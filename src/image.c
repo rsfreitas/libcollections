@@ -35,6 +35,7 @@
 
 /* To do any kind of RAW format conversion we use the libswscale */
 #include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
 
 #include "collections.h"
 
@@ -61,6 +62,7 @@ struct raw_header {
     cl_struct_member(unsigned char *, raw_original_ptr)     \
     cl_struct_member(enum cimage_format, format)            \
     cl_struct_member(enum cimage_type, type)                \
+    cl_struct_member(struct raw_header, raw_hdr)            \
     cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(cimage_s, cimage_members);
@@ -99,6 +101,19 @@ static int get_channels_by_format(enum cimage_format format)
  */
 
 #define RAW_ID              cl_fourcc('R', 'A', 'W', '1')
+
+static bool is_header_from_raw_image(const unsigned char *buffer)
+{
+    struct raw_header hdr;
+
+    memset(&hdr, 0, sizeof(struct raw_header));
+    memcpy(&hdr, buffer, sizeof(struct raw_header));
+
+    if (hdr.id == RAW_ID)
+        return true;
+
+    return false;
+}
 
 static int raw_load_from_mem(const unsigned char *buffer, cimage_s *image)
 {
@@ -286,7 +301,8 @@ static bool is_known_extension(const char *filename)
         (strcmp(ext, EXT_PNG) == 0) ||
         (strcmp(ext, EXT_JPG2K) == 0) ||
         (strcmp(ext, EXT_TIFF) == 0) ||
-        (strcmp(ext, EXT_PPM) == 0))
+        (strcmp(ext, EXT_PPM) == 0) ||
+        (strcmp(ext, EXT_RAW) == 0))
     {
         return true;
     }
@@ -424,7 +440,20 @@ static void release_old_image(cimage_s *image)
 static int fill_raw_image(cimage_s *image, const unsigned char *buffer,
     enum cimage_format format, unsigned int width, unsigned int height)
 {
-    /* TODO: Are we receiving a RAW image with header? */
+    unsigned int offset = 0;
+
+    /* Are we receiving a RAW image with header? */
+    if (is_header_from_raw_image(buffer)) {
+        offset = sizeof(struct raw_header);
+        memcpy(&image->raw_hdr, buffer, sizeof(struct raw_header));
+    } else {
+        /* Sets the RAW header informations */
+        image->raw_hdr.id = RAW_ID;
+        image->raw_hdr.width = width;
+        image->raw_hdr.height = height;
+        image->raw_hdr.format = format;
+        image->raw_hdr.size = width * height * get_channels_by_format(format);
+    }
 
     image->image = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U,
                                  get_channels_by_format(format));
@@ -432,8 +461,11 @@ static int fill_raw_image(cimage_s *image, const unsigned char *buffer,
     if (NULL == image->image)
         return -1;
 
-    /* We just point to the raw buffer of the image */
-    image->image->imageData = (char *)buffer;
+    /*
+     * We just point to the raw buffer of the image, discarding the previously
+     * saved RAW header.
+     */
+    image->image->imageData = (char *)buffer + offset;
 
     return 0;
 }
@@ -523,14 +555,13 @@ static cimage_t *duplicate_image(cimage_s *image)
  * Our "real" image format conversion routine. ;-)
  */
 static unsigned char *cvt_format(cimage_s *image, enum PixelFormat fmt_in,
-    enum PixelFormat fmt_out, unsigned int out_image_size,
-    unsigned int out_image_linesize)
+    enum PixelFormat fmt_out, unsigned int out_image_size)
 {
     struct SwsContext *ctx;
     int w, h;
     unsigned char *b = NULL;
-    int linesize[4] = { image->image->widthStep, 0, 0, 0 },
-        out_linesize[4] = { out_image_linesize, 0, 0, 0 };
+    uint8_t *data_in[4], *data_out[4];
+    int linesize[4], out_linesize[4];
 
     b = calloc(out_image_size, sizeof(unsigned char));
 
@@ -539,13 +570,19 @@ static unsigned char *cvt_format(cimage_s *image, enum PixelFormat fmt_in,
 
     w = image->image->width;
     h = image->image->height;
-    ctx = sws_getContext(w, h, fmt_in, w, h, fmt_out, 0, 0, 0, 0);
+    ctx = sws_getContext(w, h, fmt_in, w, h, fmt_out, SWS_BICUBIC, 0, 0, 0);
 
     if (NULL == ctx)
         return NULL;
 
-    sws_scale(ctx, (const uint8_t * const *)image->image->imageData, linesize,
-              0, h, (uint8_t * const *)b, out_linesize);
+    av_image_fill_linesizes(linesize, fmt_in, w);
+    av_image_fill_linesizes(out_linesize, fmt_out, w);
+    av_image_fill_pointers(data_in, fmt_in, h, (uint8_t *)image->image->imageData,
+                           linesize);
+
+    av_image_fill_pointers(data_out, fmt_out, h, b, out_linesize);
+    sws_scale(ctx, (const uint8_t * const *)data_in, linesize, 0, h,
+              data_out, out_linesize);
 
     sws_freeContext(ctx);
 
@@ -554,22 +591,16 @@ static unsigned char *cvt_format(cimage_s *image, enum PixelFormat fmt_in,
 
 static unsigned char *bgr_to_gray(cimage_s *image, unsigned int *bsize)
 {
-    unsigned int linesize;
-
-    linesize = image->image->width;
     *bsize = image->image->width * image->image->height;
 
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_GRAY8, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_GRAY8, *bsize);
 }
 
 static unsigned char *bgr_to_rgb(cimage_s *image, unsigned int *bsize)
 {
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
     *bsize = image->image->widthStep * image->image->height;
 
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_RGB24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_RGB24, *bsize);
 }
 
 static unsigned char *bgr_to_yuv422(cimage_s *image, unsigned int *bsize)
@@ -579,7 +610,7 @@ static unsigned char *bgr_to_yuv422(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * image->image->nChannels;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUV422P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUV422P, *bsize);
 }
 
 static unsigned char *bgr_to_yuv420(cimage_s *image, unsigned int *bsize)
@@ -589,7 +620,7 @@ static unsigned char *bgr_to_yuv420(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * image->image->nChannels;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUV420P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUV420P, *bsize);
 }
 
 static unsigned char *bgr_to_yuyv(cimage_s *image, unsigned int *bsize)
@@ -599,7 +630,7 @@ static unsigned char *bgr_to_yuyv(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * image->image->nChannels;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUYV422, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUYV422, *bsize);
 }
 
 static unsigned char *cvt_bgr(cimage_s *image, enum cimage_format format,
@@ -637,22 +668,16 @@ static unsigned char *cvt_bgr(cimage_s *image, enum cimage_format format,
 
 static unsigned char *rgb_to_gray(cimage_s *image, unsigned int *bsize)
 {
-    unsigned int linesize;
-
-    linesize = image->image->width;
     *bsize = image->image->width * image->image->height;
 
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_GRAY8, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_GRAY8, *bsize);
 }
 
 static unsigned char *rgb_to_bgr(cimage_s *image, unsigned int *bsize)
 {
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
     *bsize = image->image->widthStep * image->image->height;
 
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_BGR24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_BGR24, *bsize);
 }
 
 static unsigned char *rgb_to_yuv422(cimage_s *image, unsigned int *bsize)
@@ -662,7 +687,7 @@ static unsigned char *rgb_to_yuv422(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * image->image->nChannels;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUV422P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUV422P, *bsize);
 }
 
 static unsigned char *rgb_to_yuv420(cimage_s *image, unsigned int *bsize)
@@ -672,7 +697,7 @@ static unsigned char *rgb_to_yuv420(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * image->image->nChannels;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUV420P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUV420P, *bsize);
 }
 
 static unsigned char *rgb_to_yuyv(cimage_s *image, unsigned int *bsize)
@@ -682,7 +707,7 @@ static unsigned char *rgb_to_yuyv(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * image->image->nChannels;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUYV422, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUYV422, *bsize);
 }
 
 static unsigned char *cvt_rgb(cimage_s *image, enum cimage_format format,
@@ -720,12 +745,9 @@ static unsigned char *cvt_rgb(cimage_s *image, enum cimage_format format,
 
 static unsigned char *yuv422_to_gray(cimage_s *image, unsigned int *bsize)
 {
-    unsigned int linesize;
-
-    linesize = image->image->width;
     *bsize = image->image->width * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_GRAY8, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_GRAY8, *bsize);
 }
 
 static unsigned char *yuv422_to_bgr(cimage_s *image, unsigned int *bsize)
@@ -735,7 +757,7 @@ static unsigned char *yuv422_to_bgr(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * 3;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_BGR24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_BGR24, *bsize);
 }
 
 static unsigned char *yuv422_to_rgb(cimage_s *image, unsigned int *bsize)
@@ -745,7 +767,7 @@ static unsigned char *yuv422_to_rgb(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * 3;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_RGB24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_RGB24, *bsize);
 }
 
 static unsigned char *yuv422_to_yuv420(cimage_s *image, unsigned int *bsize)
@@ -755,7 +777,7 @@ static unsigned char *yuv422_to_yuv420(cimage_s *image, unsigned int *bsize)
     linesize = image->image->widthStep;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_YUV420P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_YUV420P, *bsize);
 }
 
 static unsigned char *yuv422_to_yuyv(cimage_s *image, unsigned int *bsize)
@@ -765,7 +787,7 @@ static unsigned char *yuv422_to_yuyv(cimage_s *image, unsigned int *bsize)
     linesize = image->image->widthStep;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_YUYV422, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_YUYV422, *bsize);
 }
 
 static unsigned char *cvt_yuv422(cimage_s *image, enum cimage_format format,
@@ -803,12 +825,9 @@ static unsigned char *cvt_yuv422(cimage_s *image, enum cimage_format format,
 
 static unsigned char *yuv420_to_gray(cimage_s *image, unsigned int *bsize)
 {
-    unsigned int linesize;
-
-    linesize = image->image->width;
     *bsize = image->image->width * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_GRAY8, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_GRAY8, *bsize);
 }
 
 static unsigned char *yuv420_to_bgr(cimage_s *image, unsigned int *bsize)
@@ -818,7 +837,7 @@ static unsigned char *yuv420_to_bgr(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * 3;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_BGR24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_BGR24, *bsize);
 }
 
 static unsigned char *yuv420_to_rgb(cimage_s *image, unsigned int *bsize)
@@ -828,7 +847,7 @@ static unsigned char *yuv420_to_rgb(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * 3;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_RGB24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_RGB24, *bsize);
 }
 
 static unsigned char *yuv420_to_yuv422(cimage_s *image, unsigned int *bsize)
@@ -838,7 +857,7 @@ static unsigned char *yuv420_to_yuv422(cimage_s *image, unsigned int *bsize)
     linesize = image->image->widthStep;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_YUV422P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_YUV422P, *bsize);
 }
 
 static unsigned char *yuv420_to_yuyv(cimage_s *image, unsigned int *bsize)
@@ -848,7 +867,7 @@ static unsigned char *yuv420_to_yuyv(cimage_s *image, unsigned int *bsize)
     linesize = image->image->widthStep;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_YUYV422, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_YUYV422, *bsize);
 }
 
 static unsigned char *cvt_yuv420(cimage_s *image, enum cimage_format format,
@@ -886,12 +905,9 @@ static unsigned char *cvt_yuv420(cimage_s *image, enum cimage_format format,
 
 static unsigned char *yuyv_to_gray(cimage_s *image, unsigned int *bsize)
 {
-    unsigned int linesize;
-
-    linesize = image->image->width;
     *bsize = image->image->width * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_GRAY8, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_GRAY8, *bsize);
 }
 
 static unsigned char *yuyv_to_bgr(cimage_s *image, unsigned int *bsize)
@@ -901,7 +917,7 @@ static unsigned char *yuyv_to_bgr(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * 3;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_BGR24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_BGR24, *bsize);
 }
 
 static unsigned char *yuyv_to_rgb(cimage_s *image, unsigned int *bsize)
@@ -911,7 +927,7 @@ static unsigned char *yuyv_to_rgb(cimage_s *image, unsigned int *bsize)
     linesize = image->image->width * 3;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_RGB24, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_RGB24, *bsize);
 }
 
 static unsigned char *yuyv_to_yuv422(cimage_s *image, unsigned int *bsize)
@@ -921,7 +937,7 @@ static unsigned char *yuyv_to_yuv422(cimage_s *image, unsigned int *bsize)
     linesize = image->image->widthStep;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_YUV422P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_YUV422P, *bsize);
 }
 
 static unsigned char *yuyv_to_yuv420(cimage_s *image, unsigned int *bsize)
@@ -931,7 +947,7 @@ static unsigned char *yuyv_to_yuv420(cimage_s *image, unsigned int *bsize)
     linesize = image->image->widthStep;
     *bsize = linesize * image->image->height;
 
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_YUV420P, *bsize, linesize);
+    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_YUV420P, *bsize);
 }
 
 static unsigned char *cvt_yuyv(cimage_s *image, enum cimage_format format,
@@ -1008,33 +1024,103 @@ static unsigned char *convert_raw_formats(cimage_s *image,
     return buffer;
 }
 
-static unsigned char *raw_to_jpg(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
+static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
 {
-    return NULL;
+    unsigned char *data = NULL, *jpg = NULL;
+    bool color, free_data = false;
+
+    /*
+     * We still don't known how to convert a YUV RAW image to JPG so we
+     * need to convert.
+     */
+    switch (image->raw_hdr.format) {
+        case CIMAGE_FMT_YUV422:
+            data = yuv422_to_rgb(image, bsize);
+            free_data = true;
+            break;
+
+        case CIMAGE_FMT_YUV420:
+            data = yuv420_to_rgb(image, bsize);
+            free_data = true;
+            break;
+
+        case CIMAGE_FMT_YUYV:
+            data = yuyv_to_rgb(image, bsize);
+            free_data = true;
+            break;
+
+        default:
+            data = (unsigned char *)image->image->imageData;
+            break;
+    }
+
+    if (image->raw_hdr.format == CIMAGE_FMT_GRAY)
+        color = false;
+    else
+        color = true;
+
+    /* directly convert to jpg */
+    jpg = RAW_to_jpg_mem(data, image->raw_hdr.width, image->raw_hdr.height,
+                         color, 75, bsize);
+
+    if (free_data)
+        free(data);
+
+    return jpg;
 }
 
 static unsigned char *raw_to_bmp(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO
+     * - convert to jpg
+     * - convert jpg to bmp
+     */
+
     return NULL;
 }
 
 static unsigned char *raw_to_png(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO
+     * - convert to jpg
+     * - convert jpg to png
+     */
+
     return NULL;
 }
 
 static unsigned char *raw_to_jpg2k(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO
+     * - convert to jpg
+     * - convert jpg to jpg2k
+     */
+
     return NULL;
 }
 
 static unsigned char *raw_to_tiff(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO
+     * - convert to jpg
+     * - convert jpg to tiff
+     */
+
     return NULL;
 }
 
 static unsigned char *raw_to_ppm(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO
+     * - convert to jpg
+     * - convert jpg to ppm
+     */
+
     return NULL;
 }
 
@@ -1099,33 +1185,74 @@ static unsigned char *cv_cvt_image_type(cimage_s *image,
     return b;
 }
 
-static unsigned char *jpg_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
+static unsigned char *jpg_to_raw(cimage_s *image, unsigned int *bsize)
 {
-    return NULL;
+    int width, height;
+    bool color;
+    unsigned char *ptr = NULL;
+
+    /* directly convert jpg to raw */
+    ptr = jpg_to_RAW_mem((const unsigned char *)image->image->imageData,
+                         image->image->imageSize, &width, &height, &color);
+
+    if (ptr != NULL)
+        *bsize = width * height * (color == true ? 3 : 1);
+
+    return ptr;
 }
 
 static unsigned char *bmp_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO:
+     * - convert to jpg
+     * - convert to raw
+     */
+
     return NULL;
 }
 
 static unsigned char *png_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO:
+     * - convert to jpg
+     * - convert to raw
+     */
+
     return NULL;
 }
 
 static unsigned char *jpg2k_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO:
+     * - convert to jpg
+     * - convert to raw
+     */
+
     return NULL;
 }
 
 static unsigned char *tiff_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO:
+     * - convert to jpg
+     * - convert to raw
+     */
+
     return NULL;
 }
 
 static unsigned char *ppm_to_raw(cimage_s *image __attribute__((unused)), unsigned int *bsize __attribute__((unused)))
 {
+    /*
+     * TODO:
+     * - convert to jpg
+     * - convert to raw
+     */
+
     return NULL;
 }
 
@@ -1166,7 +1293,8 @@ static unsigned char *convert_image_to_raw(cimage_s *image, unsigned int *bsize)
 }
 
 static unsigned char *convert_image_formats(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
+    enum cimage_type type, enum cimage_format format __attribute__((unused)),
+    unsigned int *bsize)
 {
     unsigned char *buffer = NULL;
     char *ext, *cv_ext = NULL;
@@ -1177,6 +1305,8 @@ static unsigned char *convert_image_formats(cimage_s *image,
         return (unsigned char *)image->image->imageData;
     }
 
+    /* TODO: use format as destination image format */
+
     /*
      * If we're holding a RAW image is a special case, and we need to manually
      * convert to the required format.
@@ -1185,12 +1315,13 @@ static unsigned char *convert_image_formats(cimage_s *image,
         buffer = convert_raw_image(image, type, bsize);
     } else {
         /*
-         * If the desired output is also a RAW image and we have another one
-         * we're going to need to convert it.
+         * If the desired output is a RAW image and we're holding another type
+         * we're going to need to "manually" convert it.
          */
         if (type == CIMAGE_RAW)
             buffer = convert_image_to_raw(image, bsize);
         else {
+            /* Otherwise we just use OpenCv */
             ext = cimage_type_to_extension(type);
             asprintf(&cv_ext, ".%s", ext);
             buffer = cv_cvt_image_type(image, cv_ext, bsize);
@@ -1550,7 +1681,7 @@ __PUB_API__ unsigned char *cimage_raw_export(const cimage_t *image,
 
     /* If is not a RAW image we'll need to convert between image formats */
     if (type != CIMAGE_RAW)
-        buffer = convert_image_formats(i, format, bsize);
+        buffer = convert_image_formats(i, type, format, bsize);
     else
         /* Or we'll only need to manipulate the RAW and convert the format */
         buffer = convert_raw_formats(i, format, bsize);
