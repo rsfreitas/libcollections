@@ -363,7 +363,7 @@ static int v_le(void *ptr, void *value)
     return EVENT_VAL_RETURN_ERROR;
 }
 
-cevent_t LIBEXPORT *cevent_init(enum event_execution exec, const char *name,
+__PUB_API__ cevent_t *cevent_init(enum event_execution exec, const char *name,
     void (*event)(void *), void *arg, void (*reset_conditions)(void *),
     void *reset_arg)
 {
@@ -397,7 +397,7 @@ cevent_t LIBEXPORT *cevent_init(enum event_execution exec, const char *name,
     return ev;
 }
 
-int LIBEXPORT cevent_condition_register(cevent_t *e,
+__PUB_API__ int cevent_condition_register(cevent_t *e,
     enum event_validation val, enum event_comparison_type cmp_type,
     unsigned int id, void *ptr, void *value,
     int (*custom_v_function)(void *, void *))
@@ -475,7 +475,7 @@ int LIBEXPORT cevent_condition_register(cevent_t *e,
     return 0;
 }
 
-int LIBEXPORT cevent_condition_unregister(cevent_t *e,
+__PUB_API__ int cevent_condition_unregister(cevent_t *e,
     enum event_comparison_type cmp_type, unsigned int cond_id)
 {
     cevent_s *ev = (cevent_s *)e;
@@ -509,7 +509,7 @@ int LIBEXPORT cevent_condition_unregister(cevent_t *e,
     return 0;
 }
 
-int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
+__PUB_API__ int cevent_install(cevent_t *e, bool sort_by_id)
 {
     cevent_s *ev = (cevent_s *)e;
     pthread_attr_t t_attr;
@@ -550,7 +550,7 @@ int LIBEXPORT cevent_install(cevent_t *e, bool sort_by_id)
     return 0;
 }
 
-int LIBEXPORT cevent_uninstall(cevent_t *e)
+__PUB_API__ int cevent_uninstall(cevent_t *e)
 {
     cevent_s *ev = (cevent_s *)e;
 

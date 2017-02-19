@@ -3,6 +3,13 @@
 
 CC = gcc
 
+GCCVERSION = 4
+GCCVERSION_TEST := $(shell expr `gcc -dumpversion | cut -f1 -d.` \> 4)
+
+ifeq ($(GCCVERSION_TEST), 1)
+    GCCVERSION = 5
+endif
+
 TARGET_DIR = ../bin
 TARGET= $(TARGET_DIR)/_cplugin.so
 DEST_DIR = /usr/lib/python2.7
@@ -12,11 +19,15 @@ INCLUDEDIR += -I../../libcollections/include
 INCLUDEDIR += -I/usr/include/python2.7
 
 LIBDIR = -L/usr/local/lib
-LIBS = -ldl -lpython2.7 -lm
+LIBS = -ldl -lpython2.7 -lm -lmagic
 
 CFLAGS = -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall \
 	 -Wstrict-prototypes -fPIC -DLIBCOLLECTIONS_COMPILE -DLINUX \
 	 -D_GNU_SOURCE $(INCLUDEDIR)
+
+ifeq ($(GCCVERSION), 5)
+    CFLAGS += -fgnu89-inline
+endif
 
 PLUGIN_PATH = ./plugin
 PYTHON_PATH = ./python
@@ -42,6 +53,7 @@ OBJS = 		\
 	error.o			\
 	file.o			\
 	init.o			\
+	intl.o			\
 	json.o			\
 	mem.o			\
 	object.o		\

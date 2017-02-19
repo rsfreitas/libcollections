@@ -29,7 +29,7 @@
 
 #include "collections.h"
 
-cstring_t LIBEXPORT *cbool_to_cstring(bool flag)
+__PUB_API__ cstring_t *cbool_to_cstring(bool flag)
 {
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -41,7 +41,7 @@ cstring_t LIBEXPORT *cbool_to_cstring(bool flag)
     return cstring_create("%s", (flag == true) ? "true" : "false");
 }
 
-char LIBEXPORT *cbool_to_string(bool flag)
+__PUB_API__ char *cbool_to_string(bool flag)
 {
     cstring_t *s = NULL;
     char *t = NULL;
@@ -58,7 +58,7 @@ char LIBEXPORT *cbool_to_string(bool flag)
     return t;
 }
 
-char LIBEXPORT *collections_version(void)
+__PUB_API__ char *collections_version(void)
 {
     char *s = NULL;
 
@@ -70,7 +70,7 @@ char LIBEXPORT *collections_version(void)
     return s;
 }
 
-cstring_t LIBEXPORT *cl_type_to_cstring(enum cl_type value)
+__PUB_API__ cstring_t *cl_type_to_cstring(enum cl_type value)
 {
     const char *value_desc[] = {
         "void", "char", "unsigned char", "int", "unsigned int", "short int",
@@ -148,6 +148,6 @@ char *file_extension(const char *pathname)
     if (NULL == ext)
         return NULL;
 
-    return strdup(ext);
+    return strdup(ext + 1);
 }
 

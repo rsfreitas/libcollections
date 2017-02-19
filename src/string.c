@@ -38,15 +38,15 @@
 #define cstring_members                 \
     cl_struct_member(uint32_t, size)    \
     cl_struct_member(char *, str)       \
-    cl_struct_member(struct ref_s, ref)
+    cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(cstring_s, cstring_members);
 
 #define cstring_s           cl_struct(cstring_s)
 
-static void destroy_string(const struct ref_s *ref)
+static void destroy_string(const struct cref_s *ref)
 {
-    cstring_s *string = container_of(ref, cstring_s, ref);
+    cstring_s *string = cl_container_of(ref, cstring_s, ref);
 
     if (NULL == string)
         return;
@@ -78,22 +78,22 @@ static cstring_s *new_cstring(void)
     return p;
 }
 
-cstring_t LIBEXPORT *cstring_ref(cstring_t *string)
+__PUB_API__ cstring_t *cstring_ref(cstring_t *string)
 {
     cstring_s *p = (cstring_s *)string;
 
     __clib_function_init__(true, string, CSTRING, NULL);
-    ref_inc(&p->ref);
+    cref_inc(&p->ref);
 
     return string;
 }
 
-int LIBEXPORT cstring_unref(cstring_t *string)
+__PUB_API__ int cstring_unref(cstring_t *string)
 {
     cstring_s *p = (cstring_s *)string;
 
     __clib_function_init__(true, string, CSTRING, -1);
-    ref_dec(&p->ref);
+    cref_dec(&p->ref);
 
     return 0;
 }
@@ -101,7 +101,7 @@ int LIBEXPORT cstring_unref(cstring_t *string)
 /*
  * Frees a cstring_t object from memory.
  */
-int LIBEXPORT cstring_destroy(cstring_t *string)
+__PUB_API__ int cstring_destroy(cstring_t *string)
 {
     return cstring_unref(string);
 }
@@ -109,7 +109,7 @@ int LIBEXPORT cstring_destroy(cstring_t *string)
 /*
  * Creates a new cstring_t object.
  */
-cstring_t LIBEXPORT *cstring_create(const char *fmt, ...)
+__PUB_API__ cstring_t *cstring_create(const char *fmt, ...)
 {
     cstring_s *string = NULL;
     va_list ap;
@@ -130,7 +130,7 @@ cstring_t LIBEXPORT *cstring_create(const char *fmt, ...)
     return string;
 }
 
-cstring_t LIBEXPORT *cstring_create_empty(unsigned int size)
+__PUB_API__ cstring_t *cstring_create_empty(unsigned int size)
 {
     cstring_s *string = NULL;
 
@@ -157,7 +157,7 @@ cstring_t LIBEXPORT *cstring_create_empty(unsigned int size)
 /*
  * Creates a cstring_t object containing random letters.
  */
-cstring_t LIBEXPORT *cstring_create_random(unsigned int size)
+__PUB_API__ cstring_t *cstring_create_random(unsigned int size)
 {
     cstring_s *p = NULL;
     unsigned int i;
@@ -170,8 +170,7 @@ cstring_t LIBEXPORT *cstring_create_random(unsigned int size)
         return NULL;
 
     for (i = 0; i < size; i++) {
-        n = (int)(26.0 * (rand() / (RAND_MAX + 1.0)));
-        n += 'a';
+        n = 'a' + crand('z' - 'a');
         cstring_cat(p, "%c", (char)n);
     }
 
@@ -181,7 +180,7 @@ cstring_t LIBEXPORT *cstring_create_random(unsigned int size)
 /*
  * Gets the length of a cstring_t object.
  */
-int LIBEXPORT cstring_length(const cstring_t *string)
+__PUB_API__ int cstring_length(const cstring_t *string)
 {
     cstring_s *p;
     int l = -1;
@@ -198,7 +197,7 @@ int LIBEXPORT cstring_length(const cstring_t *string)
 /*
  * Gets the value of a cstring_t object.
  */
-const char LIBEXPORT *cstring_valueof(const cstring_t *string)
+__PUB_API__ const char *cstring_valueof(const cstring_t *string)
 {
     cstring_s *p;
     char *ptr = NULL;
@@ -215,7 +214,7 @@ const char LIBEXPORT *cstring_valueof(const cstring_t *string)
 /*
  * Returns the char value at the specified index.
  */
-char LIBEXPORT cstring_at(const cstring_t *string, unsigned int index)
+__PUB_API__ char cstring_at(const cstring_t *string, unsigned int index)
 {
     cstring_s *p;
     char cnt = -1;
@@ -238,7 +237,7 @@ char LIBEXPORT cstring_at(const cstring_t *string, unsigned int index)
 /*
  * Changes the value of a specified index to a new value.
  */
-int LIBEXPORT cstring_set(cstring_t *string, char c, unsigned int index)
+__PUB_API__ int cstring_set(cstring_t *string, char c, unsigned int index)
 {
     cstring_s *p;
 
@@ -260,7 +259,7 @@ int LIBEXPORT cstring_set(cstring_t *string, char c, unsigned int index)
 /*
  * Concatenate two strings.
  */
-int LIBEXPORT cstring_cat(cstring_t *string, const char *fmt, ...)
+__PUB_API__ int cstring_cat(cstring_t *string, const char *fmt, ...)
 {
     cstring_s *p;
     va_list ap;
@@ -296,7 +295,7 @@ end_block:
 /*
  * Compare two cstring_t objects.
  */
-int LIBEXPORT cstring_cmp(const cstring_t *s1, const cstring_t *s2)
+__PUB_API__ int cstring_cmp(const cstring_t *s1, const cstring_t *s2)
 {
     cstring_s *p1, *p2;
     int ret = -1;
@@ -323,7 +322,7 @@ int LIBEXPORT cstring_cmp(const cstring_t *s1, const cstring_t *s2)
 /*
  * Compare two cstring_t objects.
  */
-int LIBEXPORT cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
+__PUB_API__ int cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
 {
     cstring_s *p1, *p2;
     int ret = -1;
@@ -347,7 +346,7 @@ int LIBEXPORT cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
     return ret;
 }
 
-cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
+__PUB_API__ cstring_t *cstring_dup(const cstring_t *string)
 {
     cstring_s *p;
     cstring_t *d = NULL;
@@ -361,7 +360,7 @@ cstring_t LIBEXPORT *cstring_dup(const cstring_t *string)
     return d;
 }
 
-int LIBEXPORT cstring_upper(cstring_t *string)
+__PUB_API__ int cstring_upper(cstring_t *string)
 {
     cstring_s *p;
     unsigned int i;
@@ -378,7 +377,7 @@ int LIBEXPORT cstring_upper(cstring_t *string)
     return 0;
 }
 
-int LIBEXPORT cstring_lower(cstring_t *string)
+__PUB_API__ int cstring_lower(cstring_t *string)
 {
     cstring_s *p;
     unsigned int i;
@@ -395,7 +394,7 @@ int LIBEXPORT cstring_lower(cstring_t *string)
     return 0;
 }
 
-int LIBEXPORT cstring_capitalize(cstring_t *string)
+__PUB_API__ int cstring_capitalize(cstring_t *string)
 {
     cstring_s *p;
 
@@ -408,7 +407,7 @@ int LIBEXPORT cstring_capitalize(cstring_t *string)
     return 0;
 }
 
-int LIBEXPORT cstring_find(const cstring_t *string, char c)
+__PUB_API__ int cstring_find(const cstring_t *string, char c)
 {
     cstring_s *p;
     int i, idx = -1 /* character not found */;
@@ -427,7 +426,7 @@ int LIBEXPORT cstring_find(const cstring_t *string, char c)
     return idx;
 }
 
-int LIBEXPORT cstring_rfind(const cstring_t *string, char c)
+__PUB_API__ int cstring_rfind(const cstring_t *string, char c)
 {
     cstring_s *p;
     int i, idx = 1 /* character not found */;
@@ -446,7 +445,7 @@ int LIBEXPORT cstring_rfind(const cstring_t *string, char c)
     return idx;
 }
 
-int LIBEXPORT cstring_cchr(const cstring_t *string, char c)
+__PUB_API__ int cstring_cchr(const cstring_t *string, char c)
 {
     cstring_s *p;
     int i, match = 0;
@@ -463,7 +462,7 @@ int LIBEXPORT cstring_cchr(const cstring_t *string, char c)
     return match;
 }
 
-int LIBEXPORT cstring_ltrim(cstring_t *string)
+__PUB_API__ int cstring_ltrim(cstring_t *string)
 {
     cstring_s *p;
     int size, i;
@@ -487,7 +486,7 @@ int LIBEXPORT cstring_ltrim(cstring_t *string)
     return 0;
 }
 
-int LIBEXPORT cstring_rtrim(cstring_t *string)
+__PUB_API__ int cstring_rtrim(cstring_t *string)
 {
     cstring_s *p;
     int size, i;
@@ -510,7 +509,7 @@ int LIBEXPORT cstring_rtrim(cstring_t *string)
     return 0;
 }
 
-int LIBEXPORT cstring_alltrim(cstring_t *string)
+__PUB_API__ int cstring_alltrim(cstring_t *string)
 {
     cstring_s *p;
 
@@ -525,7 +524,7 @@ int LIBEXPORT cstring_alltrim(cstring_t *string)
     return 0;
 }
 
-cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
+__PUB_API__ cstring_t *cstring_substr(const cstring_t *string, const char *needle)
 {
     cstring_s *p, *o;
     char *ptr = NULL;
@@ -540,7 +539,7 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
         return NULL;
     }
 
-    o = cstring_create("%s", ptr);
+    o = cstring_create("%s", ptr + strlen(needle));
     cstring_unref(p);
 
     if (NULL == o)
@@ -549,7 +548,7 @@ cstring_t LIBEXPORT *cstring_substr(const cstring_t *string, const char *needle)
     return o;
 }
 
-int LIBEXPORT cstring_rplchr(cstring_t *string, char c1, char c2)
+__PUB_API__ int cstring_rplchr(cstring_t *string, char c1, char c2)
 {
     cstring_s *p;
     int i, c = 0, index;
@@ -578,7 +577,7 @@ int LIBEXPORT cstring_rplchr(cstring_t *string, char c1, char c2)
     return 0;
 }
 
-int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old,
+__PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
     const char *new_)
 {
     cstring_s *p;
@@ -646,7 +645,7 @@ int LIBEXPORT cstring_rplsubstr(cstring_t *string, const char *old,
 /*
  * Checks if a cstring_t object has any valid data.
  */
-bool LIBEXPORT cstring_isempty(const cstring_t *string)
+__PUB_API__ bool cstring_isempty(const cstring_t *string)
 {
     cstring_s *p;
     bool b;
@@ -663,7 +662,7 @@ bool LIBEXPORT cstring_isempty(const cstring_t *string)
 /*
  * Clears the content of a cstring_t object.
  */
-int LIBEXPORT cstring_clear(cstring_t *string)
+__PUB_API__ int cstring_clear(cstring_t *string)
 {
     cstring_s *p;
 
@@ -775,7 +774,7 @@ static char *__strtok(const char *string, const char *delim, char **next_s)
 /*
  * Splits the cstring_t object around matches of the given tokens.
  */
-cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
+__PUB_API__ cstring_list_t *cstring_split(const cstring_t *string,
     const char *delim)
 {
     cstring_s *p;
@@ -822,7 +821,7 @@ cstring_list_t LIBEXPORT *cstring_split(const cstring_t *string,
     return l;
 }
 
-int LIBEXPORT cstring_to_int(const cstring_t *string)
+__PUB_API__ int cstring_to_int(const cstring_t *string)
 {
     cstring_s *p;
     char *endptr = NULL;
@@ -851,7 +850,7 @@ int LIBEXPORT cstring_to_int(const cstring_t *string)
     return v;
 }
 
-long LIBEXPORT cstring_to_long(const cstring_t *string)
+__PUB_API__ long cstring_to_long(const cstring_t *string)
 {
     cstring_s *p;
     char *endptr = NULL;
@@ -880,7 +879,7 @@ long LIBEXPORT cstring_to_long(const cstring_t *string)
     return v;
 }
 
-long long LIBEXPORT cstring_to_long_long(const cstring_t *string)
+__PUB_API__ long long cstring_to_long_long(const cstring_t *string)
 {
     cstring_s *p;
     char *endptr = NULL;
@@ -909,7 +908,7 @@ long long LIBEXPORT cstring_to_long_long(const cstring_t *string)
     return v;
 }
 
-float LIBEXPORT cstring_to_float(const cstring_t *string)
+__PUB_API__ float cstring_to_float(const cstring_t *string)
 {
     cstring_s *p;
     char *endptr = NULL;
@@ -938,7 +937,7 @@ float LIBEXPORT cstring_to_float(const cstring_t *string)
     return v;
 }
 
-double LIBEXPORT cstring_to_double(const cstring_t *string)
+__PUB_API__ double cstring_to_double(const cstring_t *string)
 {
     cstring_s *p;
     char *endptr = NULL;
@@ -967,7 +966,7 @@ double LIBEXPORT cstring_to_double(const cstring_t *string)
     return v;
 }
 
-bool LIBEXPORT cstring_is_number(const cstring_t *string)
+__PUB_API__ bool cstring_is_number(const cstring_t *string)
 {
     cstring_t *value;
     int i, l;
@@ -989,7 +988,7 @@ bool LIBEXPORT cstring_is_number(const cstring_t *string)
     return ret;
 }
 
-bool LIBEXPORT cstring_is_float_number(const cstring_t *string)
+__PUB_API__ bool cstring_is_float_number(const cstring_t *string)
 {
     cstring_t *value;
     int i, l;
@@ -1014,7 +1013,7 @@ bool LIBEXPORT cstring_is_float_number(const cstring_t *string)
     return ret;
 }
 
-bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
+__PUB_API__ bool cstring_is_alphanumeric(const cstring_t *string)
 {
     cstring_t *value;
     int i, l;
@@ -1036,7 +1035,7 @@ bool LIBEXPORT cstring_is_alphanumeric(const cstring_t *string)
     return ret;
 }
 
-int LIBEXPORT cstring_idchr(cstring_t *string, unsigned int p)
+__PUB_API__ int cstring_idchr(cstring_t *string, unsigned int p)
 {
     cstring_s *s;
     int size;
@@ -1058,7 +1057,7 @@ int LIBEXPORT cstring_idchr(cstring_t *string, unsigned int p)
     return 0;
 }
 
-int LIBEXPORT cstring_dchr(cstring_t *string, char c)
+__PUB_API__ int cstring_dchr(cstring_t *string, char c)
 {
     cstring_t *value;
     int t, p;
@@ -1082,7 +1081,7 @@ end_block:
     return 0;
 }
 
-int LIBEXPORT cstring_cpy(cstring_t *dest, const cstring_t *src)
+__PUB_API__ int cstring_cpy(cstring_t *dest, const cstring_t *src)
 {
     cstring_t *p, *q;
 
@@ -1104,5 +1103,54 @@ int LIBEXPORT cstring_cpy(cstring_t *dest, const cstring_t *src)
     cstring_unref(p);
 
     return 0;
+}
+
+__PUB_API__ bool cstring_contains(const cstring_t *string, const char *needle)
+{
+    bool contains = false;
+    cstring_t *p, *sub = NULL;
+
+    __clib_function_init__(true, string, CSTRING, false);
+
+    if (NULL == needle)
+        return false;
+
+    p = cstring_ref((cstring_t *)string);
+    sub = cstring_substr(p, needle);
+    cstring_unref(p);
+
+    if (sub != NULL) {
+        cstring_unref(sub);
+        contains = true;
+    }
+
+    return contains;
+}
+
+__PUB_API__ int cstring_count_matches(const cstring_t *string,
+    const char *needle)
+{
+    cstring_t *sub = NULL, *haystack = cstring_ref((cstring_t *)string);;
+    unsigned int count = 0;
+
+    __clib_function_init__(true, string, CSTRING, false);
+
+    if (NULL == needle)
+        return -1;
+
+    do {
+        sub = cstring_substr(haystack, needle);
+        cstring_unref(haystack);
+
+        if (NULL == sub)
+            break;
+
+        /* Needle found */
+        count++;
+        haystack = sub;
+
+    } while (sub != NULL);
+
+    return count;
 }
 

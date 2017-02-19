@@ -36,24 +36,31 @@ INCLUDEDIR = -I../include
 
 LIBDIR = -L/usr/local/lib
 
-ifeq ($(IMAGEAPI), 1)
-    ifeq ($(ARCH), i386)
-        OPENCV_LIBS = /usr/lib/libopencv_highgui.a
-    else
-        OPENCV_LIBS = -lopencv_highgui
-    endif
+CHAT_PATH = ./chat
+PLUGIN_PATH = ./plugin
+JNI_PATH = ./plugin/java
 
-    IMAGE_OBJ = image.o
+ifeq ($(IMAGEAPI), 1)
+    OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui \
+		  -lfreetype -ljpeg -lpng -ltiff -lswscale -ljasper
+
+    INCLUDEDIR += -I/usr/include/freetype2
+    IMAGE_OBJ = 			\
+			image.o		\
+			caption.o	\
+			raw.o
 endif
 
+# Is the python plugin enabled?
 ifeq ($(PYPLUGIN), 1)
     PYTHON_LIBS = -lpython2.7
     PLUGIN_PYTHON = -DPLUGIN_PYTHON
     INCLUDEDIR += -I/usr/include/python2.7
     PY_DL_OBJS =	\
-	dl_python.o
+					$(PLUGIN_PATH)/dl_python.o
 endif
 
+# Is the java plugin enabled?
 ifeq ($(JAVAPLUGIN), 1)
     JAVA_LIBS = -ljvm
     PLUGIN_JAVA = -DPLUGIN_JAVA
@@ -61,19 +68,18 @@ ifeq ($(JAVAPLUGIN), 1)
     INCLUDEDIR += -I/usr/lib/jvm/default-java/include/linux
     LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/$(ARCH)/server/
     JAVA_DL_OBJS =	\
-	dl_java.o
+					$(PLUGIN_PATH)/dl_java.o
 
-    JNI_OBJS =		\
-	jni_CpluginArguments.o	\
-	jni_CpluginObject.o	\
-	jni_CpluginType.o
+    JNI_SOURCES := $(wildcard $(JNI_PATH)/*.c)
+    JNI_OBJS = $(JNI_SOURCES:.c=.o)
 endif
 
 PLUGIN_LIBS = $(PYTHON_LIBS) $(JAVA_LIBS)
 LIBS = -lpthread -lm -lrt -ldl -lmagic $(PLUGIN_LIBS) $(OPENCV_LIBS)
 
-PLUGIN_C = -DPLUGIN_C
-PLUGINS = $(PLUGIN_C) $(PLUGIN_PYTHON) $(PLUGIN_JAVA)
+# Elf plugin is always enabled
+PLUGIN_ELF = -DPLUGIN_ELF
+PLUGINS = $(PLUGIN_ELF) $(PLUGIN_PYTHON) $(PLUGIN_JAVA)
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
 		 -D_GNU_SOURCE -DLINUX $(PLUGINS) $(INCLUDEDIR)
 
@@ -81,61 +87,37 @@ ifeq ($(GCCVERSION), 5)
     CFLAGS += -fgnu89-inline
 endif
 
-CHAT_PATH = ./chat
-PLUGIN_PATH = ./plugin
-JNI_PATH = ./plugin/java
+ifeq ($(IMAGEAPI), 1)
+    CFLAGS += -DIMAGEAPI
+endif
+
 VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)
 
-CHAT_OBJS =	\
-	chat_misc.o		\
-	drv_raw_socket.o	\
-	ipc_tcp.o		\
-	ipc_udp.o
+CHAT_SOURCES := $(wildcard $(CHAT_PATH)/*.c)
+CHAT_OBJS = $(CHAT_SOURCES:.c=.o)
 
-DL_OBJS = $(PY_DL_OBJS) $(JAVA_DL_OBJS)
+DL_OBJS = \
+		  $(PLUGIN_PATH)/dl_elf.o	\
+		  $(PY_DL_OBJS) 			\
+		  $(JAVA_DL_OBJS)
 
-PLUGIN_OBJS =	\
-	api_parser.o	\
-	call.o		\
-	dl.o		\
-	dl_c.o		\
-	info.o		\
-	pl_misc.o	\
-	rv.o		\
-	$(DL_OBJS)	\
-	$(JNI_OBJS)
+DL_SOURCES := $(wildcard $(PLUGIN_PATH)/dl_*.c)
+PLUGIN_SOURCES := $(wildcard $(PLUGIN_PATH)/*.c)
+PLUGIN_SOURCES := $(filter-out $(DL_SOURCES), $(PLUGIN_SOURCES))
+PLUGIN_OBJS = \
+			  $(PLUGIN_SOURCES:.c=.o)	\
+			  $(DL_OBJS)				\
+			  $(JNI_OBJS)
 
+SOURCES := $(wildcard *.c)
+SOURCES := $(filter-out image.c, $(SOURCES))
+SOURCES := $(filter-out caption.c, $(SOURCES))
+SOURCES := $(filter-out raw.c, $(SOURCES))
 OBJS =	\
-	$(CHAT_OBJS)	\
-	$(PLUGIN_OBJS)	\
-	cfg.o		\
-	chat.o		\
-	counter.o	\
-	datetime.o	\
-	dll.o		\
-	error.o		\
-	event.o		\
-	file.o		\
-	glist.o		\
-	init.o		\
-	io.o		\
-	json.o		\
-	log.o		\
-	mem.o		\
-	object.o	\
-	plugin.o	\
-	process.o	\
-	random.o	\
-	ref.o		\
-	specs.o		\
-	string.o	\
-	stringlist.o	\
-	thread.o	\
-	timeout.o	\
-	timer.o		\
-	typeof.o	\
-	util.o		\
-	$(IMAGE_OBJ)
+		$(CHAT_OBJS)	\
+		$(PLUGIN_OBJS)	\
+		$(IMAGE_OBJ)	\
+		$(SOURCES:.c=.o)
 
 $(TARGET): outputdir $(OBJS)
 	$(CC) -shared -Wl,-soname,$(SONAME),--version-script,$(PREFIX).sym -o $(TARGET_DEST) $(OBJS) $(LIBDIR) $(LIBS)
@@ -157,7 +139,7 @@ install:
 
 install_headers:
 	$(shell [ ! -d /usr/local/include/cl ] && mkdir -p /usr/local/include/cl)
-	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
+	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h|^cl_raw.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
 	cp -f ../include/collections.h /usr/local/include
 
 dev_install: install_headers install

@@ -47,6 +47,7 @@ cobject_t *cplugin_get_return_value(cplugin_s *cpl,
 {
     struct cplugin_function_s *foo = NULL;
     struct cplugin_fdata_s *return_value = NULL;
+    cobject_t *o = NULL;
 
     foo = cdll_map(cpl->functions, search_cplugin_function_s,
                    (char *)function_name);
@@ -56,9 +57,7 @@ cobject_t *cplugin_get_return_value(cplugin_s *cpl,
         return NULL;
     }
 
-    /*
-     * Search for a return value structure with the same @caller_id.
-     */
+    /* Search for a return value structure with the same @caller_id. */
     pthread_mutex_lock(&foo->m_return_value);
     return_value = cdll_filter(&foo->values, search_cplugin_fdata_s_by_caller_id,
                                &caller_id);
@@ -70,6 +69,11 @@ cobject_t *cplugin_get_return_value(cplugin_s *cpl,
         return NULL;
     }
 
-    return cobject_ref(return_value->value);
+    o = cobject_ref(return_value->value);
+
+    /* Since we filtered this we must manually release it */
+    destroy_cplugin_fdata_s(return_value);
+
+    return o;
 }
 

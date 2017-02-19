@@ -31,18 +31,20 @@
 # include <magic.h>
 #endif
 
-#include <stddef.h>
-
-#ifndef LIBEXPORT
-# ifdef LINUX
-#  define LIBEXPORT                     __attribute__((visibility("default")))
-# else
-#  define LIBEXPORT
-# endif
-#endif
-
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
+/*
+ * An internal representation of a public function. It does not affect the code
+ * or the function visibility. Its objective is only to let clear what is and
+ * what is not been exported from library by looking at the code.
+ *
+ * Every exported function must have this at the beginning of its declaration.
+ * Example:
+ *
+ * __PUB_API__ const char *function(int arg)
+ * {
+ *      // Body
+ * }
+ */
+#define __PUB_API__
 
 /* _cplugin.c */
 /* Keys to access PyObject encapsulated info */
@@ -135,16 +137,6 @@
 void cerrno_clear(void);
 void cset_errno(enum cerror_code error_code);
 
-/* ref.c */
-struct ref_s {
-    void    (*free)(const struct ref_s *);
-    int     count;
-};
-
-inline void ref_inc(const struct ref_s *ref);
-inline void ref_dec(const struct ref_s *ref);
-inline bool ref_bool_compare(const struct ref_s *ref, int old, int new);
-
 /* value.c */
 bool validate_cl_type(enum cl_type type);
 void cobject_set_char(cobject_t *value, char c);
@@ -170,11 +162,98 @@ char *file_extension(const char *pathname);
 
 /* plugin.c */
 void dl_library_init(void);
+void dl_library_uninit(void);
 bool dl_is_plugin_enabled(enum cplugin_type type);
 
 /* init.c */
 bool library_initialized(void);
 magic_t *library_get_cookie(void);
+struct random_data *library_random_data(void);
+cjson_t *library_configuration(void);
+const char *library_package_name(void);
+
+/* glist.c */
+void *cglist_node_ref(void *node, enum cl_object object);
+int cglist_node_unref(void *node, enum cl_object object);
+void *cglist_node_content(const void *node, enum cl_object object);
+void *cglist_ref(void *list, enum cl_object object);
+int cglist_unref(void *list, enum cl_object object);
+void *cglist_create(enum cl_object object, void (*free_data)(void *),
+                    int (*compare_to)(void *, void *),
+                    int (*filter)(void *, void *),
+                    int (*equals)(void *, void *));
+
+int cglist_destroy(void *list, enum cl_object object);
+int cglist_size(const void *list, enum cl_object object);
+int cglist_push(void *list, enum cl_object object, const void *node_content,
+                unsigned int size, enum cl_object node_object);
+
+void *cglist_pop(void *list, enum cl_object object);
+void *cglist_shift(void *list, enum cl_object object);
+int cglist_unshift(void *list, enum cl_object object, const void *node_content,
+                   unsigned int size, enum cl_object node_object);
+
+void *cglist_map(const void *list, enum cl_object object,
+                 enum cl_object node_object, int (*foo)(void *, void *),
+                 void *data);
+
+void *cglist_map_indexed(const void *list, enum cl_object object,
+                         enum cl_object node_object,
+                         int (*foo)(unsigned int, void *, void *),
+                         void *data);
+
+void *cglist_map_reverse(const void *list, enum cl_object object,
+                         enum cl_object node_object,
+                         int (*foo)(void *, void *), void *data);
+
+void *cglist_map_reverse_indexed(const void *list, enum cl_object object,
+                                 enum cl_object node_object,
+                                 int (*foo)(unsigned int, void *, void *),
+                                 void *data);
+
+void *cglist_at(const void *list, enum cl_object object,
+                enum cl_object node_object, unsigned int index);
+
+int cglist_delete(void *list, enum cl_object object, void *data);
+int cglist_delete_indexed(void *list, enum cl_object object, unsigned int index);
+void *cglist_move(void *list, enum cl_object object);
+void *cglist_filter(void *list, enum cl_object object, void *data);
+int cglist_sort(void *list, enum cl_object object);
+int cglist_indexof(const void *list, enum cl_object object, void *content,
+                   unsigned int size, enum cl_object node_object);
+
+int cglist_last_indexof(const void *list, enum cl_object object, void *content,
+                        unsigned int size, enum cl_object node_object);
+
+bool cglist_contains(const void *list, enum cl_object object, void *content,
+                     unsigned int size, enum cl_object node_object);
+
+void *cglist_peek(const void *list, enum cl_object object,
+                  enum cl_object node_object);
+
+bool cglist_is_empty(const void *list, enum cl_object object);
+int cglist_set_compare_to(const void *list, enum cl_object object,
+                          int (*compare_to)(void *, void *));
+
+int cglist_set_filter(const void *list, enum cl_object object,
+                      int (*filter)(void *, void *));
+
+int cglist_set_equals(const void *list, enum cl_object object,
+                      int (*equals)(void *, void *));
+
+/* random.c */
+unsigned int cl_cseed(void);
+
+/* intl.c */
+int intl_start(const char *package, const char *locale_dir);
+
+/* image.c */
+#ifdef IMAGEAPI
+void draw_onto_the_image(cimage_t *image, unsigned int x, unsigned int y,
+                         unsigned char *buffer, int bwidth,
+                         unsigned int max_width, unsigned int max_height,
+                         CvScalar color);
+#endif
 
 #endif
 

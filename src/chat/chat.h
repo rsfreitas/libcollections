@@ -99,7 +99,7 @@ struct chat_driver_info_s {
 };
 
 #define chat_members        \
-    cl_struct_member(struct ref_s, ref)                         \
+    cl_struct_member(struct cref_s, ref)                        \
     cl_struct_member(enum chat_mode, mode)                      \
     cl_struct_member(enum chat_driver, driver_id)               \
     cl_struct_member(struct chat_driver_info_s *, driver_info)  \

@@ -92,8 +92,20 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
             v = Py_BuildValue("K", COBJECT_AS_ULLONG(cplv));
             break;
 
-        /* XXX: We still can't receive arguments of these types. */
         case CL_POINTER:
+            /*
+             * XXX: Is this the right way?
+             */
+            v = COBJECT_AS_POINTER(cplv);
+
+            /*
+             * We increase the reference count of this pointer as this may be a
+             * python object and we want to live longer.
+             */
+            Py_INCREF(v);
+            break;
+
+        /* XXX: We still can't receive arguments of this type. */
         case CL_CSTRING:
             v = Py_BuildValue("s", "##unsupported argument type##");
             break;
@@ -101,6 +113,7 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
         case CL_STRING:
             s = COBJECT_AS_STRING(cplv);
             v = Py_BuildValue("s", s);
+            free(s);
             break;
 
         case CL_BOOLEAN:
@@ -139,10 +152,11 @@ static PyObject *arg_count(PyObject *self, PyObject *args)
 }
 
 static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
-    const char *function_name, enum cl_type type, const char *value)
+    const char *function_name, enum cl_type type, const void *value)
 {
     cstring_t *s = NULL;
     int ret = -1;
+    char *c;
 
     switch (type) {
         case CL_VOID:
@@ -150,12 +164,14 @@ static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
             break;
 
         case CL_CHAR:
+            c = (char *)value;
             return cplugin_set_return_value(cpl, function_name, caller_id,
-                                            CL_CHAR, value[0]);
+                                            CL_CHAR, c[0]);
 
         case CL_UCHAR:
+            c = (char *)value;
             return cplugin_set_return_value(cpl, function_name, caller_id,
-                                            CL_UCHAR, (unsigned char)value[0]);
+                                            CL_UCHAR, (unsigned char)c[0]);
 
         case CL_INT:
             return cplugin_set_return_value(cpl, function_name, caller_id,
@@ -202,16 +218,16 @@ static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
                                             CL_ULLONG,
                                             strtoull(value, NULL, 10));
 
-        /* unsupported */
         case CL_POINTER:
-            break;
+            return cplugin_set_return_value(cpl, function_name, caller_id,
+                                            CL_POINTER, (void *)value, 1);
 
         case CL_STRING:
             return cplugin_set_return_value(cpl, function_name, caller_id,
                                             CL_STRING, value);
 
         case CL_CSTRING:
-            s = cstring_create("%s", value);
+            s = cstring_create("%s", (char *)value);
             ret = cplugin_set_return_value(cpl, function_name, caller_id,
                                            CL_CSTRING, s);
 
@@ -232,13 +248,25 @@ static PyObject *set_return_value(PyObject *self, PyObject *args)
     PyObject *pcpl;
     cplugin_t *cpl;
     uint32_t caller_id;
-    char *function_name = NULL, *value = NULL;
+    char *function_name = NULL;
     int value_type;
+    void *value = NULL;
 
     if (!PyArg_ParseTuple(args, "iOsis", &caller_id, &pcpl, &function_name,
-                          &value_type, &value))
+                          &value_type, (char *)&value))
     {
-        return NULL;
+        /* Try to get the argument as an object. */
+        if (!PyArg_ParseTuple(args, "iOsiO", &caller_id, &pcpl, &function_name,
+                              &value_type, &value))
+        {
+            return NULL;
+        }
+
+        /*
+         * Since we just received an object as an argument, we increase its
+         * reference count, so we don't lose it.
+         */
+        Py_INCREF(value);
     }
 
     cpl = (cplugin_t *)PyCapsule_GetPointer(pcpl, PYCPLUGIN_T);
@@ -248,6 +276,10 @@ static PyObject *set_return_value(PyObject *self, PyObject *args)
                                                     value));
 }
 
+/*static PyObject *release_argument(PyObject *self, PyObject *args)
+{
+}*/
+
 static char module_docstring[] =
     "Extension used for internal manipulation of python plugin data "
     "through libcollections library.";
@@ -256,6 +288,7 @@ static PyMethodDef module_methods[] = {
     { "argument",           argument,           METH_VARARGS, ""   },
     { "arg_count",          arg_count,          METH_VARARGS, ""   },
     { "set_return_value",   set_return_value,   METH_VARARGS, ""   },
+//    { "release_argument",   release_argument,   METH_VARARGS, ""   },
     { NULL,                 NULL,               0,            NULL }
 };
 
@@ -263,7 +296,7 @@ PyMODINIT_FUNC init_cplugin(void)
 {
     PyObject *m;
 
-    collections_init();
+    collections_init(NULL);
     m = Py_InitModule3("_cplugin", module_methods, module_docstring);
 
     if (NULL == m)

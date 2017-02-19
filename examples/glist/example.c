@@ -108,7 +108,7 @@ int main(void)
     unsigned int n;
     struct node_example e = { 42, 43 };
 
-    collections_init();
+    collections_init(NULL);
     list = clist_create(destroy_node_example, compare_node_example,
                         filter_node_example, equals_node_example);
 

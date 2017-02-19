@@ -49,7 +49,7 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init();
+    collections_init(NULL);
 
     dt = cdt_mktime(2016, 3, 30, 10, 30, 40);
     s = cdt_to_cstring(dt, "%Y/%m/%d %H:%M:%S");

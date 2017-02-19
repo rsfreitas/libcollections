@@ -63,29 +63,24 @@
     ]\
 }"
 
-static int plugin_init(void)
+CPLUGIN_INIT()
 {
     printf("pass through %s\n", __FUNCTION__);
-
     return 0;
 }
 
-static void plugin_uninit(void)
+CPLUGIN_UNINIT()
 {
     printf("pass through %s\n", __FUNCTION__);
 }
 
-struct cplugin_entry_s plugin_example_plugin_entry = {
-    "cplugin",
-    "0.1",
+CPLUGIN_SET_INFO(
+    teste,
+    0.1,
     "Rodrigo Freitas",
     "C plugin example",
-    API,
-    plugin_init,
-    plugin_uninit
-};
-
-CPLUGIN_SET_PLUGIN_ENTRY_NAME(plugin_example);
+    API
+)
 
 CPLUGIN_OBJECT_EXPORT(foo_int)
 {

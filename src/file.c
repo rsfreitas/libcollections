@@ -31,9 +31,7 @@
 
 #include "collections.h"
 
-#define INITIAL_BUFFER_SIZE         120
-
-unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
+__PUB_API__ unsigned char *cfload(const char *filename, unsigned int *bsize)
 {
     FILE *f;
     struct stat info;
@@ -69,7 +67,7 @@ unsigned char LIBEXPORT *cfload(const char *filename, unsigned int *bsize)
     return b;
 }
 
-int LIBEXPORT cfunload(unsigned char *buffer)
+__PUB_API__ int cfunload(unsigned char *buffer)
 {
     __clib_function_init__(false, NULL, -1, -1);
 
@@ -84,7 +82,7 @@ int LIBEXPORT cfunload(unsigned char *buffer)
     return 0;
 }
 
-int LIBEXPORT cfsave(const char *filename, const unsigned char *buffer,
+__PUB_API__ int cfsave(const char *filename, const unsigned char *buffer,
     unsigned int bsize)
 {
     FILE *f;
@@ -109,58 +107,68 @@ int LIBEXPORT cfsave(const char *filename, const unsigned char *buffer,
     return 0;
 }
 
-static void *getblock(size_t n_bytes)
+__PUB_API__ char *cfreadline(FILE *infile)
 {
-    void *result;
-
-    result = malloc(n_bytes);
-
-    if (!result)
-        return NULL;
-
-    return result;
-}
-
-static void freeblock(void *ptr)
-{
-    free(ptr);
-}
-
-char LIBEXPORT *cfreadline(FILE *infile)
-{
-    char *line, *nline;
-    int n = 0, ch, size = INITIAL_BUFFER_SIZE;
+    char *line = NULL;
+    size_t size = 0;
+    int bytes_read = 0;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if (NULL == infile)
-        return NULL;
-
-    line = getblock(size + 1);
-
-    while (((ch = getc(infile)) != '\n') && (ch != EOF)) {
-        if (n == size) {
-            size *= 2;
-            nline = (char *)getblock(size + 1);
-            strncpy(nline, line, n);
-            freeblock(line);
-            line = nline;
-        }
-
-        line[n++] = ch;
-    }
-
-    /* EOF */
-    if ((n == 0) && (ch == EOF)) {
-        freeblock(line);
+    if (NULL == infile) {
+        cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    line[n] = '\0';
-    nline = (char *)getblock(n + 1);
-    strcpy(nline, line);
-    freeblock(line);
+    bytes_read = getline(&line, &size, infile);
 
-    return nline;
+    if (bytes_read < 0) {
+        if (line != NULL)
+            free(line);
+
+        return NULL;
+    }else if (bytes_read > 0)
+        line[bytes_read - 1] = '\0';
+
+    return line;
+}
+
+__PUB_API__ char *cfile_mime_type(const char *pathname)
+{
+    magic_t *cookie = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (NULL == pathname) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    cookie = library_get_cookie();
+
+    if (NULL == cookie)
+        return NULL;
+
+    return strdup(magic_file(*cookie, pathname));
+}
+
+__PUB_API__ char *cbuffer_mime_type(const unsigned char *buffer,
+    unsigned int size)
+{
+    magic_t *cookie = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if ((NULL == buffer) || (size == 0)) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    cookie = library_get_cookie();
+
+    if (NULL == cookie)
+        return NULL;
+
+    return strdup(magic_buffer(*cookie, buffer, size));
 }
 

@@ -146,6 +146,8 @@ cplugin_info_t *jni_load_info(void *data, void *handle)
     constructor = (*j->env)->GetMethodID(j->env, cls, "<init>", "()V");
     obj = (*j->env)->NewObject(j->env, cls, constructor);
 
+    /* TODO: validate if we can cantinue... */
+
     /* call CpluginEntryAPI methods */
     for (i = 0; i < t; i++) {
         m = (*j->env)->GetMethodID(j->env, cls, emethods[i].name,
@@ -375,5 +377,20 @@ int jni_plugin_shutdown(void *data, void *handle, cplugin_info_t *info)
     release_cutom_plugin_info(jinfo);
 
     return 0;
+}
+
+bool jni_plugin_test(const cstring_t *mime)
+{
+    cstring_t *p = NULL;
+    bool ret = false;
+
+    p = cstring_create("application/x-java-applet");
+
+    if (cstring_cmp(mime, p) == 0)
+        ret = true;
+
+    cstring_unref(p);
+
+    return ret;
 }
 

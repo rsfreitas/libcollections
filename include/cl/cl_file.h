@@ -85,5 +85,28 @@ int cfsave(const char *filename, const unsigned char *buffer, unsigned int bsize
  */
 char *cfreadline(FILE *infile);
 
+/**
+ * @name cfile_mime_type
+ * @brief Gets the mime type of a file.
+ *
+ * @param [in] pathname: The file name.
+ *
+ * @return On success returns a C string with the file mime type or NULL
+ *         otherwise.
+ */
+char *cfile_mime_type(const char *pathname);
+
+/**
+ * @name cbuffer_mime_type
+ * @brief Gets the mime type of a file from its buffer.
+ *
+ * @param [in] buffer: The file buffer.
+ * @param [in] size: The file buffer size.
+ *
+ * @return On success returns a C string with the file mime type or NULL
+ *         otherwise.
+ */
+char *cbuffer_mime_type(const unsigned char *buffer, unsigned int size);
+
 #endif
 

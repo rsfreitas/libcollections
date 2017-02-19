@@ -186,7 +186,7 @@ static void do_test_string(void)
     v = cobject_create(CL_STRING, "This is only a test", NULL);
     print_cobject_as_cvalue(v);
 
-    cobject_get(v, COBJECT_STRING, &p, NULL);
+    p = COBJECT_AS_STRING(v);
     printf("%s: '%s'\n", __FUNCTION__, p);
     free(p);
 
@@ -349,7 +349,7 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init();
+    collections_init(NULL);
 
     if (test_all || test_char)
         do_test_char();

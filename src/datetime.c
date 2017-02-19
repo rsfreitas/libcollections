@@ -141,7 +141,7 @@ static void cvt_time(cdatetime_s *dt, bool UTC)
     dt->tzone = cstring_create("%s", tm.tm_zone);
 }
 
-int LIBEXPORT cdt_destroy(cdatetime_t *dt)
+__PUB_API__ int cdt_destroy(cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -151,7 +151,7 @@ int LIBEXPORT cdt_destroy(cdatetime_t *dt)
     return 0;
 }
 
-cdatetime_t LIBEXPORT *cdt_localtime(void)
+__PUB_API__ cdatetime_t *cdt_localtime(void)
 {
     cdatetime_s *dt = NULL;
 
@@ -170,7 +170,7 @@ cdatetime_t LIBEXPORT *cdt_localtime(void)
     return dt;
 }
 
-int LIBEXPORT cdt_day(const cdatetime_t *dt)
+__PUB_API__ int cdt_day(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -179,7 +179,7 @@ int LIBEXPORT cdt_day(const cdatetime_t *dt)
     return t->day;
 }
 
-int LIBEXPORT cdt_month(const cdatetime_t *dt)
+__PUB_API__ int cdt_month(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -188,7 +188,7 @@ int LIBEXPORT cdt_month(const cdatetime_t *dt)
     return t->month;
 }
 
-int LIBEXPORT cdt_year(const cdatetime_t *dt)
+__PUB_API__ int cdt_year(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -197,7 +197,7 @@ int LIBEXPORT cdt_year(const cdatetime_t *dt)
     return t->year;
 }
 
-int LIBEXPORT cdt_hour(const cdatetime_t *dt)
+__PUB_API__ int cdt_hour(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -206,7 +206,7 @@ int LIBEXPORT cdt_hour(const cdatetime_t *dt)
     return t->hour;
 }
 
-int LIBEXPORT cdt_minute(const cdatetime_t *dt)
+__PUB_API__ int cdt_minute(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -215,7 +215,7 @@ int LIBEXPORT cdt_minute(const cdatetime_t *dt)
     return t->minute;
 }
 
-int LIBEXPORT cdt_second(const cdatetime_t *dt)
+__PUB_API__ int cdt_second(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -224,7 +224,7 @@ int LIBEXPORT cdt_second(const cdatetime_t *dt)
     return t->second;
 }
 
-bool LIBEXPORT cdt_isdst(const cdatetime_t *dt)
+__PUB_API__ bool cdt_isdst(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -233,7 +233,7 @@ bool LIBEXPORT cdt_isdst(const cdatetime_t *dt)
     return t->isdst;
 }
 
-bool LIBEXPORT cdt_leap_year(const cdatetime_t *dt)
+__PUB_API__ bool cdt_leap_year(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -242,7 +242,7 @@ bool LIBEXPORT cdt_leap_year(const cdatetime_t *dt)
     return is_leap_year(t->year);
 }
 
-enum cweekday LIBEXPORT cdt_weekday(const cdatetime_t *dt)
+__PUB_API__ enum cweekday cdt_weekday(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -251,7 +251,7 @@ enum cweekday LIBEXPORT cdt_weekday(const cdatetime_t *dt)
     return t->weekday;
 }
 
-unsigned int LIBEXPORT cdt_get_seconds(const cdatetime_t *dt)
+__PUB_API__ unsigned int cdt_get_seconds(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -260,7 +260,7 @@ unsigned int LIBEXPORT cdt_get_seconds(const cdatetime_t *dt)
     return t->tv.tv_sec;
 }
 
-unsigned long long LIBEXPORT cdt_get_mseconds(const cdatetime_t *dt)
+__PUB_API__ unsigned long long cdt_get_mseconds(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -269,7 +269,7 @@ unsigned long long LIBEXPORT cdt_get_mseconds(const cdatetime_t *dt)
     return ((unsigned long long)t->tv.tv_sec * 1000) + (t->tv.tv_usec / 1000);
 }
 
-unsigned long long LIBEXPORT cdt_get_useconds(const cdatetime_t *dt)
+__PUB_API__ unsigned long long cdt_get_useconds(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -278,7 +278,7 @@ unsigned long long LIBEXPORT cdt_get_useconds(const cdatetime_t *dt)
     return ((unsigned long long)t->tv.tv_sec * 1000000) + t->tv.tv_usec;
 }
 
-cstring_t LIBEXPORT *cdt_month_of_year(const cdatetime_t *dt, bool full)
+__PUB_API__ cstring_t *cdt_month_of_year(const cdatetime_t *dt, bool full)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
     int moy;
@@ -290,7 +290,7 @@ cstring_t LIBEXPORT *cdt_month_of_year(const cdatetime_t *dt, bool full)
                                                : __moy_abbrv[moy]);
 }
 
-cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
+__PUB_API__ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
     int dow;
@@ -333,7 +333,7 @@ cstring_t LIBEXPORT *cdt_day_of_week(const cdatetime_t *dt, bool full)
  *
  * %1 - milliseconds
  */
-cstring_t LIBEXPORT *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
+__PUB_API__ cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
     cstring_t *d = NULL;
@@ -478,7 +478,7 @@ cstring_t LIBEXPORT *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
  * All comparisons are made using seconds precision.
  */
 
-int LIBEXPORT cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2)
+__PUB_API__ int cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2)
 {
     unsigned int s1, s2;
 
@@ -501,7 +501,7 @@ int LIBEXPORT cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2)
     return 0;
 }
 
-bool LIBEXPORT cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
+__PUB_API__ bool cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
 {
     unsigned int s1, s2;
 
@@ -522,7 +522,7 @@ bool LIBEXPORT cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
     return false;
 }
 
-bool LIBEXPORT cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
+__PUB_API__ bool cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
 {
     unsigned int s1, s2;
 
@@ -543,7 +543,7 @@ bool LIBEXPORT cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
     return false;
 }
 
-bool LIBEXPORT cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
+__PUB_API__ bool cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
 {
     unsigned int s1, s2;
 
@@ -564,7 +564,7 @@ bool LIBEXPORT cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
     return false;
 }
 
-cdatetime_t LIBEXPORT *cdt_dup(const cdatetime_t *dt)
+__PUB_API__ cdatetime_t *cdt_dup(const cdatetime_t *dt)
 {
     cdatetime_s *t = NULL, *tt = (cdatetime_s *)dt;
     bool UTC = false;
@@ -587,7 +587,7 @@ cdatetime_t LIBEXPORT *cdt_dup(const cdatetime_t *dt)
     return t;
 }
 
-cdatetime_t LIBEXPORT *cdt_gmtime(void)
+__PUB_API__ cdatetime_t *cdt_gmtime(void)
 {
     cdatetime_s *dt = NULL;
 
@@ -606,7 +606,7 @@ cdatetime_t LIBEXPORT *cdt_gmtime(void)
     return dt;
 }
 
-cdatetime_t LIBEXPORT *cdt_to_localtime(const cdatetime_t *dt)
+__PUB_API__ cdatetime_t *cdt_to_localtime(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt, *ddt = NULL;
 
@@ -623,7 +623,7 @@ cdatetime_t LIBEXPORT *cdt_to_localtime(const cdatetime_t *dt)
     return ddt;
 }
 
-cdatetime_t LIBEXPORT *cdt_to_gmtime(const cdatetime_t *dt)
+__PUB_API__ cdatetime_t *cdt_to_gmtime(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt, *ddt = NULL;
 
@@ -672,7 +672,7 @@ static bool is_minute_or_second(unsigned int value)
     return true;
 }
 
-cdatetime_t LIBEXPORT *cdt_mktime(unsigned int year, unsigned int month,
+__PUB_API__ cdatetime_t *cdt_mktime(unsigned int year, unsigned int month,
     unsigned int day, unsigned int hour, unsigned int minute,
     unsigned int second)
 {
@@ -709,7 +709,7 @@ cdatetime_t LIBEXPORT *cdt_mktime(unsigned int year, unsigned int month,
     return dt;
 }
 
-cdatetime_t LIBEXPORT *cdt_mktime_from_cstring(const cstring_t *datetime)
+__PUB_API__ cdatetime_t *cdt_mktime_from_cstring(const cstring_t *datetime)
 {
     cstring_t *p, *s;
     cstring_list_t *l, *ld, *lt;
@@ -766,7 +766,7 @@ static int get_number_of_leap_years(unsigned int year1, unsigned int year2)
     return n;
 }
 
-cdatetime_t LIBEXPORT *cdt_minus_years(const cdatetime_t *dt, unsigned int years)
+__PUB_API__ cdatetime_t *cdt_minus_years(const cdatetime_t *dt, unsigned int years)
 {
     cdatetime_s *ddt = NULL;
     unsigned int n;
@@ -791,7 +791,7 @@ cdatetime_t LIBEXPORT *cdt_minus_years(const cdatetime_t *dt, unsigned int years
     return ddt;
 }
 
-cdatetime_t LIBEXPORT *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
+__PUB_API__ cdatetime_t *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
 {
     cdatetime_s *ddt = NULL;
     unsigned int n;
@@ -813,7 +813,7 @@ cdatetime_t LIBEXPORT *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
     return ddt;
 }
 
-cdatetime_t LIBEXPORT *cdt_minus_seconds(const cdatetime_t *dt,
+__PUB_API__ cdatetime_t *cdt_minus_seconds(const cdatetime_t *dt,
     unsigned int seconds)
 {
     cdatetime_s *ddt = NULL;
@@ -830,18 +830,18 @@ cdatetime_t LIBEXPORT *cdt_minus_seconds(const cdatetime_t *dt,
     return ddt;
 }
 
-cdatetime_t LIBEXPORT *cdt_minus_minutes(const cdatetime_t *dt,
+__PUB_API__ cdatetime_t *cdt_minus_minutes(const cdatetime_t *dt,
     unsigned int minutes)
 {
     return cdt_minus_seconds(dt, minutes * 60);
 }
 
-cdatetime_t LIBEXPORT *cdt_minus_hours(const cdatetime_t *dt, unsigned int hours)
+__PUB_API__ cdatetime_t *cdt_minus_hours(const cdatetime_t *dt, unsigned int hours)
 {
     return cdt_minus_seconds(dt, hours * 3600);
 }
 
-cdatetime_t LIBEXPORT *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
+__PUB_API__ cdatetime_t *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
 {
     cdatetime_s *ddt = NULL;
     unsigned int n;
@@ -863,7 +863,7 @@ cdatetime_t LIBEXPORT *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
     return ddt;
 }
 
-cdatetime_t LIBEXPORT *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
+__PUB_API__ cdatetime_t *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
 {
     cdatetime_s *ddt = NULL;
     unsigned int n;
@@ -888,7 +888,7 @@ cdatetime_t LIBEXPORT *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
     return ddt;
 }
 
-cdatetime_t LIBEXPORT *cdt_plus_seconds(const cdatetime_t *dt,
+__PUB_API__ cdatetime_t *cdt_plus_seconds(const cdatetime_t *dt,
     unsigned int seconds)
 {
     cdatetime_s *ddt = NULL;
@@ -905,18 +905,18 @@ cdatetime_t LIBEXPORT *cdt_plus_seconds(const cdatetime_t *dt,
     return ddt;
 }
 
-cdatetime_t LIBEXPORT *cdt_plus_minutes(const cdatetime_t *dt,
+__PUB_API__ cdatetime_t *cdt_plus_minutes(const cdatetime_t *dt,
     unsigned int minutes)
 {
     return cdt_plus_seconds(dt, minutes * 60);
 }
 
-cdatetime_t LIBEXPORT *cdt_plus_hours(const cdatetime_t *dt, unsigned int hours)
+__PUB_API__ cdatetime_t *cdt_plus_hours(const cdatetime_t *dt, unsigned int hours)
 {
     return cdt_plus_seconds(dt, hours * 3600);
 }
 
-enum cweekday LIBEXPORT cdt_current_weekday(void)
+__PUB_API__ enum cweekday cdt_current_weekday(void)
 {
     cdatetime_t *dt = NULL;
     enum cweekday w;
@@ -933,7 +933,7 @@ enum cweekday LIBEXPORT cdt_current_weekday(void)
     return w;
 }
 
-enum cmonth LIBEXPORT cdt_current_month(void)
+__PUB_API__ enum cmonth cdt_current_month(void)
 {
     cdatetime_t *dt = NULL;
     enum cmonth m;
@@ -950,7 +950,7 @@ enum cmonth LIBEXPORT cdt_current_month(void)
     return m;
 }
 
-bool LIBEXPORT cdt_is_local_dst(void)
+__PUB_API__ bool cdt_is_local_dst(void)
 {
     time_t t;
     struct tm tm;
@@ -965,7 +965,7 @@ bool LIBEXPORT cdt_is_local_dst(void)
     return false;
 }
 
-bool LIBEXPORT cdt_is_leap_year(void)
+__PUB_API__ bool cdt_is_leap_year(void)
 {
     time_t t;
     struct tm tm;

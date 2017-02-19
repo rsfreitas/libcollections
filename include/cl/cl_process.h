@@ -37,7 +37,7 @@
  * @name cprcs_daemon_start
  * @brief Makes the actual process run in daemon mode (background).
  */
-void cprcs_deamon_start(void);
+void cprcs_daemon_start(void);
 
 /**
  * @name csystem
@@ -75,6 +75,34 @@ void cmsleep(long mseconds);
  * @return On success returns 0 or -1 otherwise.
  */
 int ctrap(int signum, void (*f)(int));
+
+/**
+ * @name cinstance_active
+ * @brief Checks if an instance is running in the system.
+ *
+ * This function checks if an application, started by the same user with the
+ * same mechanism, is active in the system by using a PID, read from a file
+ * with its \a name. The application name is check it with with a name read
+ * from the file /proc/PID/cmdline.
+ *
+ * If \a name is NULL we check ourselves.
+ *
+ * @param [in] name: The instance name.
+ *
+ * @return In case the instance is active returns true otherwise returns false.
+ */
+bool cinstance_active(const char *name);
+
+/**
+ * @name cset_instance_as_active
+ * @brief Sets the current instance as active.
+ *
+ * Sets the current instance as active writing a file with the application name
+ * containing its PID.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cset_instance_as_active(void);
 
 #endif
 

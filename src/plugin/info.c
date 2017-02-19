@@ -38,15 +38,15 @@
     cl_struct_member(char *, description)   \
     cl_struct_member(cjson_t *, api)        \
     cl_struct_member(void *, data)          \
-    cl_struct_member(struct ref_s, ref)
+    cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(cinfo_s, cinfo_members);
 
 #define cinfo_s         cl_struct(cinfo_s)
 
-static void __destroy_info_s(const struct ref_s *ref)
+static void __destroy_info_s(const struct cref_s *ref)
 {
-    cinfo_s *info = container_of(ref, cinfo_s, ref);
+    cinfo_s *info = cl_container_of(ref, cinfo_s, ref);
 
     if (NULL == info)
         return;
@@ -95,7 +95,7 @@ cplugin_info_t *info_ref(cplugin_info_t *info)
     if (NULL == i)
         return NULL;
 
-    ref_inc(&i->ref);
+    cref_inc(&i->ref);
 
     return info;
 }
@@ -107,7 +107,7 @@ void info_unref(cplugin_info_t *info)
     if (NULL == i)
         return;
 
-    ref_dec(&i->ref);
+    cref_dec(&i->ref);
 }
 
 cplugin_info_t *info_create_from_data(const char *name,

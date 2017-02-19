@@ -490,5 +490,30 @@ int cstring_idchr(cstring_t *string, unsigned int p);
  */
 int cstring_cpy(cstring_t *dest, const cstring_t *src);
 
+/**
+ * @name cstring_contains
+ * @brief Searches for a specific substring inside a cstring_t object and
+ *        extract it.
+ *
+ * @param [in] string: The cstring_t object.
+ * @param [in] needle: The substring.
+ *
+ * @return Returns true or false if the substring was found or not inside the
+ *         original string.
+ */
+bool cstring_contains(const cstring_t *string, const char *needle);
+
+/**
+ * @name cstring_count_matches
+ * @brief Count the number of occurrences of a substring.
+ *
+ * @param [in] string: The cstring_t object.
+ * @param [in] needle: The substring.
+ *
+ * @return Returns the number of occurrences of the substring in the string
+ *         or -1 otherwise.
+ */
+int cstring_count_matches(const cstring_t *string, const char *needle);
+
 #endif
 

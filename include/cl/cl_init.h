@@ -37,10 +37,19 @@
  * @name collections_init
  * @brief The function to initialize all library internals.
  *
- * This function must be the library first function called inside a code.
- * Otherwise all other functions from it won't work.
+ * This function must be the first library function called inside a code.
+ * Otherwise all other functions won't work.
+ *
+ * \a arg may be a file name pointing to a file with JSON configuration supported
+ * by the library or a JSON string with the configuration. If it is NULL, some
+ * default values will be used.
+ *
+ * @param [in] arg: The library configuration or a file name with the
+ *                  configuration.
+ *
+ * @return On success returns 0 or -1 otherwise.
  */
-void collections_init(void);
+int collections_init(const char *arg);
 
 /**
  * @name collections_uninit

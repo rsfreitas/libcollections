@@ -53,7 +53,7 @@ struct last_msg {
     cl_struct_member(char, separator)                   \
     cl_struct_member(struct last_msg, lmsg)             \
     cl_struct_member(pthread_mutex_t, lock)             \
-    cl_struct_member(struct ref_s, ref)
+    cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(clog_s, clog_members);
 
@@ -171,9 +171,9 @@ static void save_written_message(clog_s *log, const char *msg)
  * Releases a 'clog_s' from memory. Function to be called when its
  * reference count drops to 0.
  */
-static void __destroy_clog_s(const struct ref_s *ref)
+static void __destroy_clog_s(const struct cref_s *ref)
 {
-    clog_s *l = container_of(ref, clog_s, ref);
+    clog_s *l = cl_container_of(ref, clog_s, ref);
 
     if (NULL == l)
         return;
@@ -400,7 +400,7 @@ static bool check_log_mode(clog_s *log, enum clog_mode mode)
  *
  */
 
-clog_t LIBEXPORT *clog_open_ex(const char *pathname, enum clog_mode mode,
+__PUB_API__ clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
     enum clog_level start_level, unsigned int max_repeat, char separator,
     enum clog_prefix_field prefixes)
 {
@@ -437,11 +437,11 @@ clog_t LIBEXPORT *clog_open_ex(const char *pathname, enum clog_mode mode,
     return log;
 
 error_block:
-    ref_dec(&log->ref);
+    cref_dec(&log->ref);
     return NULL;
 }
 
-clog_t LIBEXPORT *clog_open(const char *pathname, enum clog_mode mode,
+__PUB_API__ clog_t *clog_open(const char *pathname, enum clog_mode mode,
     enum clog_level start_level, unsigned int max_repeat)
 {
     /* Creates the default log format: DATE; TIME; PID; LEVEL; msg */
@@ -450,17 +450,17 @@ clog_t LIBEXPORT *clog_open(const char *pathname, enum clog_mode mode,
                         CLOG_FIELD_LEVEL);
 }
 
-int LIBEXPORT clog_close(clog_t *log)
+__PUB_API__ int clog_close(clog_t *log)
 {
     clog_s *l = (clog_s *)log;
 
     __clib_function_init__(true, log, CLOG, -1);
-    ref_dec(&l->ref);
+    cref_dec(&l->ref);
 
     return 0;
 }
 
-int LIBEXPORT clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
+__PUB_API__ int clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
     va_list args)
 {
     char *msg = NULL;
@@ -499,7 +499,7 @@ int LIBEXPORT clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
     return 0;
 }
 
-int LIBEXPORT clog_printf(clog_t *log, enum clog_level level,
+__PUB_API__ int clog_printf(clog_t *log, enum clog_level level,
     const char *fmt, ...)
 {
     va_list ap;
@@ -514,7 +514,7 @@ int LIBEXPORT clog_printf(clog_t *log, enum clog_level level,
     return ret;
 }
 
-int LIBEXPORT clog_bprint(clog_t *log, enum clog_level level, const void *data,
+__PUB_API__ int clog_bprint(clog_t *log, enum clog_level level, const void *data,
     unsigned int dsize)
 {
     __clib_function_init__(true, log, CLOG, -1);
@@ -558,7 +558,7 @@ void clog_rprint(void)
 {
 }
 
-int LIBEXPORT clog_set_log_level(clog_t *log, enum clog_level level)
+__PUB_API__ int clog_set_log_level(clog_t *log, enum clog_level level)
 {
     clog_s *l = (clog_s *)log;
 
@@ -574,7 +574,7 @@ int LIBEXPORT clog_set_log_level(clog_t *log, enum clog_level level)
     return 0;
 }
 
-int LIBEXPORT clog_set_separator(clog_t *log, char separator)
+__PUB_API__ int clog_set_separator(clog_t *log, char separator)
 {
     clog_s *l = (clog_s *)log;
 

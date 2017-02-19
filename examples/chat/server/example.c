@@ -97,7 +97,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init();
+    collections_init(NULL);
     memset(&sa_int, 0, sizeof(struct sigaction));
     sa_int.sa_handler = signal_handler;
     sigaction(SIGINT, &sa_int, NULL);

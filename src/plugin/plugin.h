@@ -62,12 +62,17 @@ struct cplugin_function_s;
 struct dl_plugin_driver {
     enum cplugin_type   type;
     bool                enabled;
+    bool                (*plugin_test)(const cstring_t *);
     void                *(*library_init)(void);
     void                (*library_uninit)(void *);
     cplugin_info_t      *(*load_info)(void *, void *);
     int                 (*load_functions)(void *,
                                           struct cplugin_function_s *,
                                           void *);
+
+    void                (*unload_functions)(void *,
+                                            struct cplugin_function_s *,
+                                            void *);
 
     void                *(*open)(void *, const char *);
     int                 (*close)(void *, void *);
@@ -128,6 +133,15 @@ cl_struct_declare(cplugin_s, cplugin_members);
 
 #define cplugin_s           cl_struct(cplugin_s)
 
+/*
+ * A structure to hold every mandatory function that a plugin must have.
+ * That way we can call them and store their results.
+ */
+struct plugin_internal_function {
+    char    *name;
+    char    *return_value;
+};
+
 /* api_parser.c */
 cjson_t *api_load(const char *api_data);
 void api_unload(cjson_t *api);
@@ -158,6 +172,7 @@ int dl_close(struct dl_plugin_driver *drv, void *handle);
 int dl_load_functions(struct dl_plugin_driver *drv,
                       struct cplugin_function_s *flist, void *handle);
 
+void dl_unload_functions(cplugin_s *cpl);
 cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle);
 void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
              uint32_t caller_id);

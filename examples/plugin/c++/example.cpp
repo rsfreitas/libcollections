@@ -66,29 +66,24 @@ using namespace std;
     ]\
 }"
 
-static int plugin_init(void)
+CPLUGIN_INIT()
 {
     cout << "Pass through " << __FUNCTION__ << endl;
-
     return 0;
 }
 
-static void plugin_uninit(void)
+CPLUGIN_UNINIT()
 {
     cout << "Pass through " << __FUNCTION__ << endl;
 }
 
-struct cplugin_entry_s plugin_example_plugin_entry = {
-    "cpp-plugin",
+CPLUGIN_SET_INFO(
+    cpp_plugin,
     "0.1",
     "Rodrigo Freitas",
     "C++ plugin example",
-    API,
-    plugin_init,
-    plugin_uninit
-};
-
-CPLUGIN_SET_PLUGIN_ENTRY_NAME(plugin_example);
+    API
+)
 
 CPLUGIN_OBJECT_EXPORT(foo_int)
 {

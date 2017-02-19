@@ -535,9 +535,9 @@ static void destroy_chat_s(chat_s *c)
     free(c);
 }
 
-static void __destroy_chat_s(const struct ref_s *ref)
+static void __destroy_chat_s(const struct cref_s *ref)
 {
-    chat_s *c = container_of(ref, chat_s, ref);
+    chat_s *c = cl_container_of(ref, chat_s, ref);
 
     if (NULL == c)
         return;
@@ -597,7 +597,7 @@ static chat_s *dup_chat_s(chat_s *c)
  *
  */
 
-chat_t LIBEXPORT *chat_create(enum chat_driver cd, enum chat_mode mode,
+__PUB_API__ chat_t *chat_create(enum chat_driver cd, enum chat_mode mode,
     bool sigpipe_block)
 {
     chat_s *c = NULL;
@@ -658,12 +658,12 @@ error_block:
     return NULL;
 }
 
-int LIBEXPORT chat_destroy(chat_t *chat)
+__PUB_API__ int chat_destroy(chat_t *chat)
 {
     return chat_unref(chat);
 }
 
-int LIBEXPORT chat_set_info(chat_t *chat, ...)
+__PUB_API__ int chat_set_info(chat_t *chat, ...)
 {
     chat_s *c = (chat_s *)chat;
     va_list ap;
@@ -680,7 +680,7 @@ int LIBEXPORT chat_set_info(chat_t *chat, ...)
     return 0;
 }
 
-int LIBEXPORT chat_client_start(chat_t *chat)
+__PUB_API__ int chat_client_start(chat_t *chat)
 {
     chat_s *c = (chat_s *)chat;
 
@@ -697,7 +697,7 @@ int LIBEXPORT chat_client_start(chat_t *chat)
     return 0;
 }
 
-chat_t LIBEXPORT *chat_server_start(chat_t *chat, unsigned int accept_timeout)
+__PUB_API__ chat_t *chat_server_start(chat_t *chat, unsigned int accept_timeout)
 {
     chat_s *c = (chat_s *)chat;
     chat_s *client_c = NULL;
@@ -733,7 +733,7 @@ error_block:
     return NULL;
 }
 
-int LIBEXPORT chat_send(chat_t *chat, void *data, unsigned int data_size)
+__PUB_API__ int chat_send(chat_t *chat, void *data, unsigned int data_size)
 {
     chat_s *c = (chat_s *)chat;
     struct chat_data_s *cd = NULL;
@@ -760,7 +760,7 @@ end_block:
     return ret;
 }
 
-void LIBEXPORT *chat_recv(chat_t *chat, unsigned int recv_timeout,
+__PUB_API__ void *chat_recv(chat_t *chat, unsigned int recv_timeout,
     unsigned int *data_size)
 {
     chat_s *c = (chat_s *)chat;
@@ -786,7 +786,7 @@ end_block:
     return data;
 }
 
-int LIBEXPORT chat_stop(chat_t *chat)
+__PUB_API__ int chat_stop(chat_t *chat)
 {
     __clib_function_init__(true, chat, CHAT, -1);
 
@@ -801,7 +801,7 @@ int LIBEXPORT chat_stop(chat_t *chat)
     return 0;
 }
 
-int LIBEXPORT chat_fd(chat_t *chat)
+__PUB_API__ int chat_fd(chat_t *chat)
 {
     __clib_function_init__(true, chat, CHAT, -1);
     chat_ref(chat);
@@ -809,22 +809,22 @@ int LIBEXPORT chat_fd(chat_t *chat)
     return chat_ipc_fd(chat);
 }
 
-chat_t LIBEXPORT *chat_ref(chat_t *chat)
+__PUB_API__ chat_t *chat_ref(chat_t *chat)
 {
     chat_s *c = (chat_s *)chat;
 
     __clib_function_init__(true, chat, CHAT, NULL);
-    ref_inc(&c->ref);
+    cref_inc(&c->ref);
 
     return chat;
 }
 
-int LIBEXPORT chat_unref(chat_t *chat)
+__PUB_API__ int chat_unref(chat_t *chat)
 {
     chat_s *c = (chat_s *)chat;
 
     __clib_function_init__(true, chat, CHAT, -1);
-    ref_dec(&c->ref);
+    cref_dec(&c->ref);
 
     return 0;
 }

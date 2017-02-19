@@ -25,6 +25,7 @@
 #
 
 import sys
+import json
 import cl_plugin as cplugin
 
 def module_init():
@@ -37,6 +38,7 @@ def module_init():
 def module_uninit():
     print cplugin.CpluginFunctionName()
     print 'Inside module uninit'
+    return 0
 
 
 
@@ -48,41 +50,51 @@ class CpluginMainEntry(cplugin.CpluginEntryAPI):
         self.description = "Python plugin example"
         self.startup = "module_init"
         self.shutdown = "module_uninit"
-        self.api = "{\
-    \"API\": [\
-        { \"name\": \"foo_int\", \"return_type\": \"int\" },\
-        { \"name\": \"foo_uint\", \"return_type\": \"uint\" },\
-        { \"name\": \"foo_char\", \"return_type\": \"char\" },\
-        { \"name\": \"foo_uchar\", \"return_type\": \"uchar\" },\
-        { \"name\": \"foo_sint\", \"return_type\": \"sint\" },\
-        { \"name\": \"foo_usint\", \"return_type\": \"usint\" },\
-        { \"name\": \"foo_float\", \"return_type\": \"float\" },\
-        { \"name\": \"foo_double\", \"return_type\": \"double\" },\
-        { \"name\": \"foo_long\", \"return_type\": \"long\" },\
-        { \"name\": \"foo_ulong\", \"return_type\": \"ulong\" },\
-        { \"name\": \"foo_llong\", \"return_type\": \"llong\" },\
-        { \"name\": \"foo_ullong\", \"return_type\": \"ullong\" },\
-        { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" },\
-        { \"name\": \"foo_string\", \"return_type\": \"string\" },\
-        { \"name\": \"foo_cstring\", \"return_type\": \"cstring\" },\
-        { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
-            { \"name\": \"arg1\", \"type\": \"int\" },\
-            { \"name\": \"arg2\", \"type\": \"uint\" },\
-            { \"name\": \"arg3\", \"type\": \"sint\" },\
-            { \"name\": \"arg4\", \"type\": \"usint\" },\
-            { \"name\": \"arg5\", \"type\": \"char\" },\
-            { \"name\": \"arg6\", \"type\": \"uchar\" },\
-            { \"name\": \"arg7\", \"type\": \"float\" },\
-            { \"name\": \"arg8\", \"type\": \"double\" },\
-            { \"name\": \"arg9\", \"type\": \"long\" },\
-            { \"name\": \"arg10\", \"type\": \"ulong\" },\
-            { \"name\": \"arg11\", \"type\": \"llong\" },\
-            { \"name\": \"arg12\", \"type\": \"ullong\" },\
-            { \"name\": \"arg13\", \"type\": \"boolean\" },\
-            { \"name\": \"arg14\", \"type\": \"string\" }\
-            ] }\
-    ]\
-}"
+        self.api = self._populate_api()
+
+
+    def _populate_api(self):
+        api = cplugin.CpluginAPI()
+
+        api.add_function('foo_int', 'int')
+        api.add_function('foo_uint', 'uint')
+        api.add_function('foo_sint', 'sint')
+        api.add_function('foo_usint', 'usint')
+        api.add_function('foo_char', 'char')
+        api.add_function('foo_uchar', 'uchar')
+        api.add_function('foo_float', 'float')
+        api.add_function('foo_double', 'double')
+        api.add_function('foo_long', 'long')
+        api.add_function('foo_ulong', 'ulong')
+        api.add_function('foo_llong', 'llong')
+        api.add_function('foo_ullong', 'ullong')
+        api.add_function('foo_boolean', 'boolean')
+        api.add_function('foo_string', 'string')
+        api.add_function('foo_cstring', 'cstring')
+
+        api.add_function('foo_class', 'pointer')
+        api.add_argument('foo_class', 'data', 'string')
+
+        api.add_function('foo_pointer', 'int')
+        api.add_argument('foo_pointer', 'data', 'pointer')
+
+        api.add_function('foo_args', 'void')
+        api.add_argument('foo_args', 'arg1', 'int')
+        api.add_argument('foo_args', 'arg2', 'uint')
+        api.add_argument('foo_args', 'arg3', 'sint')
+        api.add_argument('foo_args', 'arg4', 'usint')
+        api.add_argument('foo_args', 'arg5', 'char')
+        api.add_argument('foo_args', 'arg6', 'uchar')
+        api.add_argument('foo_args', 'arg7', 'float')
+        api.add_argument('foo_args', 'arg8', 'double')
+        api.add_argument('foo_args', 'arg9', 'long')
+        api.add_argument('foo_args', 'arg10', 'ulong')
+        api.add_argument('foo_args', 'arg11', 'llong')
+        api.add_argument('foo_args', 'arg12', 'ullong')
+        api.add_argument('foo_args', 'arg13', 'boolean')
+        api.add_argument('foo_args', 'arg14', 'string')
+
+        return api
 
 
     def get_name(self):
@@ -102,7 +114,7 @@ class CpluginMainEntry(cplugin.CpluginEntryAPI):
 
 
     def get_api(self):
-        return self.api
+        return self.api.export() #json.dumps({'API': self.populate_api()}) #self.api
 
 
     def get_startup(self):
@@ -259,7 +271,7 @@ def foo_cstring(caller_id, cplugin_t):
 
 def foo_args(args):
     print cplugin.CpluginFunctionName()
-    a = cplugin.CpluginFunctionArgs(args)
+    a = cplugin.CpluginFunctionArguments(args)
     arg1 = a.argument('arg1')
     arg2 = a.argument('arg2')
     arg3 = a.argument('arg3')
@@ -279,6 +291,54 @@ def foo_args(args):
 arg7=%f, arg8=%f, arg9=%d, arg10=%d, arg11=%d, arg12=%d, arg13=%d, arg14=%s)" % \
             (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11,\
             arg12, arg13, arg14)
+
+
+
+class Test(object):
+    def __init__(self, data):
+        self.data = data
+        self._x = 42
+        self.a = 1
+        self.b = 2
+        self.c = 3
+
+
+    def __str__(self):
+        print "#Test class:",self.data
+
+
+    def get_value(self):
+        return self._x
+
+
+def foo_class(caller_id, cplugin_t, args):
+    print '--',cplugin.CpluginFunctionName()
+    a = cplugin.CpluginFunctionArguments(args)
+    data = a.argument('data')
+    print data
+    t = Test(data)
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.POINTER.value, t)
+
+
+
+def foo_pointer(caller_id, cplugin_t, args):
+    print '--',cplugin.CpluginFunctionName()
+    a = cplugin.CpluginFunctionArguments(args)
+    data = a.argument('data')
+    print data.a,data.b,data.c
+    rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
+                                            cplugin.CpluginFunctionName())
+
+    rv.set_return_value(cplugin.CpluginValue.INT.value, data.get_value())
+
+
+
+if __name__ == '__main__':
+    c = CpluginMainEntry()
+    print c.get_api()
 
 
 

@@ -28,31 +28,41 @@
 
 #include "collections.h"
 
-unsigned int LIBEXPORT cseed(void)
+unsigned int cl_cseed(void)
 {
     FILE *f;
     char tmp[64] = {0}, *p;
 
-    __clib_function_init__(false, NULL, -1, 0);
     f = popen("cat /proc/sys/kernel/random/uuid | cut -d '-' -f 2", "r");
 
-    if (NULL == f) {
-        cset_errno(CL_NULL_DATA);
+    if (NULL == f)
         return 0;
-    }
 
     p = fgets(tmp, sizeof(tmp) - 1, f);
     pclose(f);
 
-    if (NULL == p) {
-        cset_errno(CL_NULL_DATA);
+    if (NULL == p)
         return 0;
-    }
 
     return strtol(tmp, NULL, 16);
 }
 
-unsigned int LIBEXPORT crand(unsigned int random_max)
+__PUB_API__ unsigned int cseed(void)
+{
+    unsigned int x = 0;
+
+    __clib_function_init__(false, NULL, -1, 0);
+    x = cl_cseed();
+
+    if (x == 0) {
+        cset_errno(CL_NULL_DATA);
+        return 0;
+    }
+
+    return x;
+}
+
+__PUB_API__ unsigned int crand(unsigned int random_max)
 {
     unsigned int num_bins, num_rand, bin_size, defect, x;
 
@@ -64,7 +74,7 @@ unsigned int LIBEXPORT crand(unsigned int random_max)
     defect = num_rand % num_bins;
 
     do {
-        x = random();
+        random_r(library_random_data(), (int32_t *)&x);
     } while (num_rand - defect <= x);
 
     return x / bin_size;

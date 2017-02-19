@@ -53,7 +53,7 @@
     cl_struct_member(cstring_t *, s)                    \
     cl_struct_member(bool, b)                           \
     cl_struct_member(void *, p)                         \
-    cl_struct_member(struct ref_s, ref)                 \
+    cl_struct_member(struct cref_s, ref)                \
     cl_struct_member(bool, (*equals)(cobject_t *))      \
     cl_struct_member(int, (*compare_to)(cobject_t *))
 
@@ -97,9 +97,9 @@ static void free_object_data(cobject_s *o)
         free(o->p);
 }
 
-static void destroy_cobject_s(const struct ref_s *ref)
+static void destroy_cobject_s(const struct cref_s *ref)
 {
-    cobject_s *o = container_of(ref, cobject_s, ref);
+    cobject_s *o = cl_container_of(ref, cobject_s, ref);
 
     if (NULL == o)
         return;
@@ -388,7 +388,7 @@ static void set_cobject_object(cobject_s *o, va_list ap)
     }
 }
 
-int LIBEXPORT cobject_set(cobject_t *object, ...)
+__PUB_API__ int cobject_set(cobject_t *object, ...)
 {
     cobject_s *o;
     va_list ap;
@@ -408,7 +408,7 @@ int LIBEXPORT cobject_set(cobject_t *object, ...)
     return 0;
 }
 
-cobject_t LIBEXPORT *cobject_create(enum cl_type type, ...)
+__PUB_API__ cobject_t *cobject_create(enum cl_type type, ...)
 {
     cobject_s *o = NULL;
     va_list ap;
@@ -430,7 +430,7 @@ cobject_t LIBEXPORT *cobject_create(enum cl_type type, ...)
     return o;
 }
 
-cobject_t LIBEXPORT *cobject_create_with_spec(enum cl_type type, cspec_t *spec)
+__PUB_API__ cobject_t *cobject_create_with_spec(enum cl_type type, cspec_t *spec)
 {
     cobject_s *o = NULL;
 
@@ -452,7 +452,7 @@ cobject_t LIBEXPORT *cobject_create_with_spec(enum cl_type type, cspec_t *spec)
     return o;
 }
 
-int LIBEXPORT cobject_destroy(cobject_t *object)
+__PUB_API__ int cobject_destroy(cobject_t *object)
 {
     return cobject_unref(object);
 }
@@ -502,7 +502,7 @@ static int get_cobject_sizeof(cobject_s *o)
     return -1;
 }
 
-int LIBEXPORT cobject_sizeof(const cobject_t *object)
+__PUB_API__ int cobject_sizeof(const cobject_t *object)
 {
     cobject_s *o;
     int s;
@@ -516,7 +516,7 @@ int LIBEXPORT cobject_sizeof(const cobject_t *object)
     return s;
 }
 
-enum cl_type LIBEXPORT cobject_type(const cobject_t *object)
+__PUB_API__ enum cl_type cobject_type(const cobject_t *object)
 {
     cobject_s *o;
     enum cl_type type;
@@ -551,7 +551,7 @@ static int get_object_check(const cobject_t *object, enum cl_type type)
     return 0;
 }
 
-bool LIBEXPORT cobject_is_of_type(const cobject_t *object, unsigned int type)
+__PUB_API__ bool cobject_is_of_type(const cobject_t *object, unsigned int type)
 {
     cobject_s *o;
     bool b;
@@ -645,7 +645,7 @@ static cstring_t *print_object(const cobject_s *o)
     return s;
 }
 
-cstring_t LIBEXPORT *cobject_to_cstring(const cobject_t *object)
+__PUB_API__ cstring_t *cobject_to_cstring(const cobject_t *object)
 {
     cobject_t *ref;
     cstring_t *s = NULL;
@@ -659,7 +659,7 @@ cstring_t LIBEXPORT *cobject_to_cstring(const cobject_t *object)
     return s;
 }
 
-cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
+__PUB_API__ cobject_t *cobject_from_cstring(const cstring_t *object)
 {
     cobject_t *o = NULL;
     cstring_t *ref = NULL;
@@ -672,34 +672,34 @@ cobject_t LIBEXPORT *cobject_from_cstring(const cstring_t *object)
     else if (cstring_is_float_number(ref) == true)
         o = cobject_create(CL_FLOAT, cstring_to_int(ref));
     else
-        o = cobject_create(CL_STRING, ref);
+        o = cobject_create(CL_STRING, cstring_valueof(ref));
 
     cstring_unref(ref);
 
     return o;
 }
 
-cobject_t LIBEXPORT *cobject_ref(cobject_t *object)
+__PUB_API__ cobject_t *cobject_ref(cobject_t *object)
 {
     cobject_s *v = (cobject_s *)object;
 
     __clib_function_init__(true, object, COBJECT, NULL);
-    ref_inc(&v->ref);
+    cref_inc(&v->ref);
 
     return object;
 }
 
-int LIBEXPORT cobject_unref(cobject_t *object)
+__PUB_API__ int cobject_unref(cobject_t *object)
 {
     cobject_s *v = (cobject_s *)object;
 
     __clib_function_init__(true, object, COBJECT, -1);
-    ref_dec(&v->ref);
+    cref_dec(&v->ref);
 
     return 0;
 }
 
-int LIBEXPORT cobject_get(const cobject_t *object, const char *fmt, ...)
+__PUB_API__ int cobject_get(const cobject_t *object, const char *fmt, ...)
 {
     cobject_s *o;
     va_list ap;
@@ -873,7 +873,7 @@ end_block:
     return ret;
 }
 
-int LIBEXPORT cobject_set_equals(cobject_t *object,
+__PUB_API__ int cobject_set_equals(cobject_t *object,
     bool (*equals)(cobject_t *))
 {
     cobject_s *v = (cobject_s *)object;
@@ -890,7 +890,7 @@ int LIBEXPORT cobject_set_equals(cobject_t *object,
     return 0;
 }
 
-bool LIBEXPORT cobject_equals(const cobject_t *ob1, const cobject_t *ob2)
+__PUB_API__ bool cobject_equals(const cobject_t *ob1, const cobject_t *ob2)
 {
     cobject_s *v = (cobject_s *)ob1;
 
@@ -910,7 +910,7 @@ bool LIBEXPORT cobject_equals(const cobject_t *ob1, const cobject_t *ob2)
     return (v->equals)((cobject_t *)ob2);
 }
 
-int LIBEXPORT cobject_set_compare_to(cobject_t *object,
+__PUB_API__ int cobject_set_compare_to(cobject_t *object,
     int (*compare_to)(cobject_t *))
 {
     cobject_s *v = (cobject_s *)object;
@@ -927,7 +927,7 @@ int LIBEXPORT cobject_set_compare_to(cobject_t *object,
     return 0;
 }
 
-int LIBEXPORT cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2)
+__PUB_API__ int cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2)
 {
     cobject_s *v = (cobject_s *)ob1;
 

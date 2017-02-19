@@ -35,7 +35,7 @@
  * -- ARGUMENTS
  */
 
-cobject_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
+__PUB_API__ cobject_t *cplugin_argument(const cplugin_arg_t *args,
     const char *arg_name)
 {
     struct cplugin_fdata_s *p = NULL;
@@ -58,7 +58,7 @@ cobject_t LIBEXPORT *cplugin_argument(const cplugin_arg_t *args,
     return cobject_ref(p->value);
 }
 
-int LIBEXPORT cplugin_arg_count(const cplugin_arg_t *args)
+__PUB_API__ int cplugin_arg_count(const cplugin_arg_t *args)
 {
     __clib_function_init_ex__(true, args, CPLUGIN_ARG,
                               CPLUGIN_ARG_OBJECT_OFFSET, -1);
@@ -70,7 +70,7 @@ int LIBEXPORT cplugin_arg_count(const cplugin_arg_t *args)
  * -- RETURN VALUE
  */
 
-int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
+__PUB_API__ int cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
     unsigned int caller_id, enum cl_type type, ...)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
@@ -86,6 +86,10 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
         cset_errno(CL_NULL_ARG);
         return -1;
     }
+
+    /* Don't create anything since we returning void from a function. */
+    if (type == CL_VOID)
+        return 0;
 
     foo = cdll_map(pl->functions, search_cplugin_function_s,
                    (char *)function_name);
@@ -135,7 +139,9 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
         case CL_POINTER:
             p = va_arg(ap, void *);
             psize = va_arg(ap, int);
-            return_value->value = cobject_create(CL_POINTER, true, p, psize,
+
+            /* Don't duplicate our pointer value inside the function */
+            return_value->value = cobject_create(CL_POINTER, false, p, psize,
                                                  NULL);
 
             break;
@@ -226,7 +232,7 @@ int LIBEXPORT cplugin_set_return_value(cplugin_t *cpl, const char *function_name
  * -- PLUGIN INFORMATION API
  */
 
-cplugin_info_t LIBEXPORT *cplugin_info(const cplugin_t *cpl)
+__PUB_API__ cplugin_info_t *cplugin_info(const cplugin_t *cpl)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
 
@@ -235,7 +241,7 @@ cplugin_info_t LIBEXPORT *cplugin_info(const cplugin_t *cpl)
     return info_ref(pl->info);
 }
 
-cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
+__PUB_API__ cplugin_info_t *cplugin_info_from_file(const char *pathname)
 {
     void *handle = NULL;
     cplugin_info_t *info = NULL;
@@ -269,7 +275,7 @@ cplugin_info_t LIBEXPORT *cplugin_info_from_file(const char *pathname)
     return info;
 }
 
-int LIBEXPORT cplugin_info_unref(cplugin_info_t *info)
+__PUB_API__ int cplugin_info_unref(cplugin_info_t *info)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, -1);
     info_unref(info);
@@ -277,35 +283,35 @@ int LIBEXPORT cplugin_info_unref(cplugin_info_t *info)
     return 0;
 }
 
-const char LIBEXPORT *cplugin_name(const cplugin_info_t *info)
+__PUB_API__ const char *cplugin_name(const cplugin_info_t *info)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, NULL);
 
     return info_get_name(info);
 }
 
-const char LIBEXPORT *cplugin_version(const cplugin_info_t *info)
+__PUB_API__ const char *cplugin_version(const cplugin_info_t *info)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, NULL);
 
     return info_get_version(info);
 }
 
-const char LIBEXPORT *cplugin_author(const cplugin_info_t *info)
+__PUB_API__ const char *cplugin_author(const cplugin_info_t *info)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, NULL);
 
     return info_get_author(info);
 }
 
-const char LIBEXPORT *cplugin_description(const cplugin_info_t *info)
+__PUB_API__ const char *cplugin_description(const cplugin_info_t *info)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, NULL);
 
     return info_get_description(info);
 }
 
-cstring_t LIBEXPORT *cplugin_API(const cplugin_info_t *info)
+__PUB_API__ cstring_t *cplugin_API(const cplugin_info_t *info)
 {
     cjson_t *api;
 
@@ -318,14 +324,14 @@ cstring_t LIBEXPORT *cplugin_API(const cplugin_info_t *info)
     return api_to_cstring(api);
 }
 
-cstring_list_t LIBEXPORT *cplugin_functions(const cplugin_info_t *info)
+__PUB_API__ cstring_list_t *cplugin_functions(const cplugin_info_t *info)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, NULL);
 
     return api_functions(info);
 }
 
-enum cl_type LIBEXPORT cplugin_function_return_type(const cplugin_info_t *info,
+__PUB_API__ enum cl_type cplugin_function_return_type(const cplugin_info_t *info,
     const char *function_name)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, -1);
@@ -338,7 +344,7 @@ enum cl_type LIBEXPORT cplugin_function_return_type(const cplugin_info_t *info,
     return api_function_return_type(info, function_name);
 }
 
-cstring_list_t LIBEXPORT *cplugin_function_arguments(const cplugin_info_t *info,
+__PUB_API__ cstring_list_t *cplugin_function_arguments(const cplugin_info_t *info,
     const char *function_name)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, NULL);
@@ -351,7 +357,7 @@ cstring_list_t LIBEXPORT *cplugin_function_arguments(const cplugin_info_t *info,
     return api_function_arguments(info, function_name);
 }
 
-enum cplugin_arg LIBEXPORT cplugin_function_arg_mode(const cplugin_info_t *info,
+__PUB_API__ enum cplugin_arg cplugin_function_arg_mode(const cplugin_info_t *info,
     const char *function_name)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, -1);
@@ -364,7 +370,7 @@ enum cplugin_arg LIBEXPORT cplugin_function_arg_mode(const cplugin_info_t *info,
     return api_function_arg_mode(info, function_name);
 }
 
-enum cl_type LIBEXPORT cplugin_function_arg_type(const cplugin_info_t *info,
+__PUB_API__ enum cl_type cplugin_function_arg_type(const cplugin_info_t *info,
     const char *function_name, const char *argument_name)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, -1);
@@ -381,7 +387,7 @@ enum cl_type LIBEXPORT cplugin_function_arg_type(const cplugin_info_t *info,
  * -- PLUGIN MANIPULATION
  */
 
-cobject_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
+__PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
     const char *function_name, ...)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
@@ -453,13 +459,14 @@ cobject_t LIBEXPORT *cplugin_call_ex(int argc, cplugin_t *cpl,
     return cplv;
 }
 
-cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
+__PUB_API__ cplugin_t *cplugin_load(const char *pathname)
 {
     struct cplugin_function_s *flist = NULL;
     cplugin_s *cpl = NULL;
     cplugin_info_t *info = NULL;
     void *handle = NULL;
     struct dl_plugin_driver *pdriver = NULL;
+    int error;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -523,16 +530,21 @@ cplugin_t LIBEXPORT *cplugin_load(const char *pathname)
     return cpl;
 
 error_block:
+    /* Save previous error code, so we can correctly return it */
+    error = cget_last_error();
+
     if (handle != NULL)
         dl_close(pdriver, handle);
 
     if (flist != NULL)
         destroy_cplugin_function_s_list(flist);
 
+    cset_errno(error);
+
     return NULL;
 }
 
-int LIBEXPORT cplugin_unload(cplugin_t *cpl)
+__PUB_API__ int cplugin_unload(cplugin_t *cpl)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
 
@@ -544,6 +556,8 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
         return -1;
     }
 
+    dl_unload_functions(cpl);
+
     if (pl->handle != NULL)
         dl_close(pl->dl, pl->handle);
 
@@ -553,7 +567,7 @@ int LIBEXPORT cplugin_unload(cplugin_t *cpl)
     return 0;
 }
 
-void LIBEXPORT cplugin_set_supported_types(enum cplugin_type types)
+__PUB_API__ void cplugin_set_supported_types(enum cplugin_type types)
 {
     __clib_function_init_ex2__(false, NULL, -1);
     dl_enable_plugin_types(types);

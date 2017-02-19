@@ -97,7 +97,7 @@ int main(void)
     struct node_example e = { 7 };
 
     size = (sizeof(numbers) / sizeof(numbers[0]));
-    collections_init();
+    collections_init(NULL);
 
     /* Test 1 */
     queue = cqueue_create(destroy_node_example, compare_node_example,

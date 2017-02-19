@@ -33,6 +33,38 @@
 # endif
 #endif
 
+enum cl_object {
+    CSTRING,
+    CSTRINGLIST,
+    CFG_FILE,
+    CFG_SECTION,
+    CFG_KEY,
+    CJSON,
+    CDATETIME,
+    CTIMEOUT,
+    CTHREAD,
+    CTIMER,
+    CTIMER_INFO,
+    CTIMER_ARG,     /* This is not our type, so we can't validate it */
+    CHAT,
+    CLIST,
+    CEVENT,
+    COBJECT,
+    CSPEC,
+    COUNTER,
+    CPLUGIN,
+    CPLUGIN_ARG,
+    CPLUGIN_INFO,
+    CLOG,
+    CIMAGE,
+    CLIST_NODE,
+    CSTACK,
+    CSTACK_NODE,
+    CQUEUE,
+    CQUEUE_NODE,
+    CIMAGE_CAPTION
+};
+
 struct cobject_hdr {
     unsigned long long  lib_id;
     enum cl_object      object;

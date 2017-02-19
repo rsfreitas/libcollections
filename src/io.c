@@ -78,7 +78,7 @@ static char *extended_keys_xterm[] = {
     NULL
 };
 
-cstring_t LIBEXPORT *cstdin_getline(void)
+__PUB_API__ cstring_t *cstdin_getline(void)
 {
     char *p;
     cstring_t *s;
@@ -121,7 +121,7 @@ static int __stdin_timeout(void)
     return n;
 }
 
-bool LIBEXPORT cstdin_select(void)
+__PUB_API__ bool cstdin_select(void)
 {
     return (__stdin_timeout() <= 0 ? false : true);
 }
@@ -145,7 +145,7 @@ static int __search_ext_key(char *k)
     return p;
 }
 
-int LIBEXPORT cgetkey(bool block)
+__PUB_API__ int cgetkey(bool block)
 {
     unsigned char ch;
     char keys[32];
@@ -223,7 +223,7 @@ end_block:
     return retval;
 }
 
-int LIBEXPORT cdisable_echo(void)
+__PUB_API__ int cdisable_echo(void)
 {
     struct termios attr;
 
@@ -249,7 +249,7 @@ int LIBEXPORT cdisable_echo(void)
     return 0;
 }
 
-int LIBEXPORT cenable_echo(void)
+__PUB_API__ int cenable_echo(void)
 {
     struct termios attr;
 

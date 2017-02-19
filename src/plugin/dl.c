@@ -33,12 +33,12 @@
 #include "plugin.h"
 
 /* supported languages */
-#include "dl_c.h"
+#include "dl_elf.h"
 #include "dl_python.h"
 #include "dl_java.h"
 
 struct dl_plugin {
-    struct ref_s    ref;
+    struct cref_s    ref;
 };
 
 static struct dl_plugin __dl = {
@@ -51,19 +51,21 @@ static struct dl_plugin_driver __dl_driver[] = {
         .enabled            = false,
     },
 
-#ifdef PLUGIN_C
+#ifdef PLUGIN_ELF
     {
-        .type               = CPLUGIN_C,
+        .type               = CPLUGIN_ELF,
         .enabled            = true,
-        .library_init       = c_library_init,
-        .library_uninit     = c_library_uninit,
-        .load_info          = c_load_info,
-        .load_functions     = c_load_functions,
-        .open               = c_open,
-        .close              = c_close,
-        .call               = c_call,
-        .plugin_startup     = c_plugin_startup,
-        .plugin_shutdown    = c_plugin_shutdown,
+        .plugin_test        = elf_plugin_test,
+        .library_init       = elf_library_init,
+        .library_uninit     = elf_library_uninit,
+        .load_info          = elf_load_info,
+        .load_functions     = elf_load_functions,
+        .unload_functions   = NULL,
+        .open               = elf_open,
+        .close              = elf_close,
+        .call               = elf_call,
+        .plugin_startup     = elf_plugin_startup,
+        .plugin_shutdown    = elf_plugin_shutdown,
         .data               = NULL,
     },
 #endif
@@ -71,11 +73,13 @@ static struct dl_plugin_driver __dl_driver[] = {
 #ifdef PLUGIN_PYTHON
     {
         .type               = CPLUGIN_PYTHON,
-        .enabled            = false,
+        .enabled            = true,
+        .plugin_test        = py_plugin_test,
         .library_init       = py_library_init,
         .library_uninit     = py_library_uninit,
         .load_info          = py_load_info,
         .load_functions     = py_load_functions,
+        .unload_functions   = py_unload_functions,
         .open               = py_open,
         .close              = py_close,
         .call               = py_call,
@@ -93,10 +97,12 @@ static struct dl_plugin_driver __dl_driver[] = {
     {
         .type               = CPLUGIN_JAVA,
         .enabled            = false,
+        .plugin_test        = jni_plugin_test,
         .library_init       = jni_library_init,
         .library_uninit     = jni_library_uninit,
         .load_info          = jni_load_info,
         .load_functions     = jni_load_functions,
+        .unload_functions   = NULL,
         .open               = jni_open,
         .close              = jni_close,
         .call               = jni_call,
@@ -147,7 +153,7 @@ static struct dl_plugin_driver *get_plugin_driver(enum cplugin_type type)
     return NULL;
 }
 
-static void __dl_library_uninit(const struct ref_s *ref __attribute__((unused)))
+static void __dl_library_uninit(const struct cref_s *ref __attribute__((unused)))
 {
     int i = 0;
 
@@ -162,7 +168,7 @@ void dl_library_init(void)
     int old = 0, new = 1;
     unsigned int i = 0;
 
-    if (ref_bool_compare(&__dl.ref, old, new) == true) {
+    if (cref_bool_compare(&__dl.ref, old, new) == true) {
         __dl.ref.free = __dl_library_uninit;
 
         /* call all drivers init function */
@@ -170,12 +176,12 @@ void dl_library_init(void)
             if (__dl_driver[i].enabled == true)
                 __dl_driver[i].data = (__dl_driver[i].library_init)();
     } else
-        ref_inc(&__dl.ref);
+        cref_inc(&__dl.ref);
 }
 
-static void dl_library_uninit(void)
+void dl_library_uninit(void)
 {
-    ref_dec(&__dl.ref);
+    cref_dec(&__dl.ref);
 }
 
 static cstring_t *get_file_info(const char *filename)
@@ -196,46 +202,13 @@ static cstring_t *get_file_info(const char *filename)
 static enum cplugin_type parse_plugin_type(cstring_t *s)
 {
     enum cplugin_type t = CPLUGIN_UNKNOWN;
-    cstring_t *p = NULL;
+    unsigned int i;
 
-    /* C/C++ */
-    p = cstring_create("application/x-sharedlib");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_C;
-        goto ok;
-    }
-
-    /* Python */
-    cstring_clear(p);
-    cstring_cat(p, "text/x-python");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_PYTHON;
-        goto ok;
-    }
-
-    /* Python again (since the mime type is wrong in some systems) */
-    cstring_clear(p);
-    cstring_cat(p, "text/plain");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_PYTHON;
-        goto ok;
-    }
-
-    /* Java */
-    cstring_clear(p);
-    cstring_cat(p, "application/x-java-applet");
-
-    if (cstring_cmp(s, p) == 0) {
-        t = CPLUGIN_JAVA;
-        goto ok;
-    }
-
-ok:
-    if (p != NULL)
-        cstring_unref(p);
+    for (i = 1; i < NDRIVERS; i++)
+        if (__dl_driver[i].plugin_test(s) == true) {
+            t = __dl_driver[i].type;
+            break;
+        }
 
     return t;
 }
@@ -251,7 +224,6 @@ struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
         return NULL;
 
     /* DEBUG */
-    printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(info));
     type = parse_plugin_type(info);
     cstring_unref(info);
 
@@ -288,7 +260,6 @@ int dl_close(struct dl_plugin_driver *drv, void *handle)
         goto end_block;
 
     ret = (drv->close)(drv->data, handle);
-    dl_library_uninit();
 
 end_block:
     if (ret != 0)
@@ -315,6 +286,16 @@ end_block:
         cset_errno(CL_OBJECT_NOT_FOUND);
 
     return ret;
+}
+
+void dl_unload_functions(cplugin_s *cpl)
+{
+    struct dl_plugin_driver *drv = NULL;
+
+    drv = cpl->dl;
+
+    if (drv->unload_functions != NULL)
+        (drv->unload_functions)(drv->data, cpl->functions, cpl->handle);
 }
 
 /*

@@ -226,7 +226,10 @@ int cobject_set_compare_to(cobject_t *object, int (*compare_to)(cobject_t *));
  */
 int cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2);
 
-/** Macros to get the cobject_t item object */
+/**
+ * Macros to get the cobject_t item object. The STRING and CSTRING objects must
+ * be released by the user, using 'free' or 'cstring_unref' calls.
+ */
 #define COBJECT_AS_INT(v)       \
     ({ int __x; cobject_get(v, COBJECT_INT, &__x, NULL); __x; })
 

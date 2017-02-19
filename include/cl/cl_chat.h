@@ -146,6 +146,8 @@ void *chat_recv(chat_t *chat, unsigned int recv_timeout, unsigned int *data_size
  * @name chat_fd
  * @brief Gets the IPC file descriptor.
  *
+ * Creates a new reference for \a chat, so one must unref after using it.
+ *
  * @param [in] chat: The chat_t object.
  *
  * @return On success returns the IPC file descriptor or NULL otherwise.

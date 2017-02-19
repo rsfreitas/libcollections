@@ -334,10 +334,19 @@ end_block:
 
 static cfg_file_s *__cfg_load(const char *filename)
 {
-    FILE *fp;
+    FILE *fp = NULL;
     char *line = NULL;
     cfg_file_s *file = NULL;
     struct cfg_line_s *cline = NULL, *section = NULL;
+
+    file = new_cfg_file_s(filename);
+
+    /*
+     * If filename == NULL means that we're creating a cfg_file_t to write
+     * new information.
+     */
+    if ((NULL == file) || (NULL == filename))
+        goto end_block;
 
     fp = fopen(filename, "r");
 
@@ -345,11 +354,6 @@ static cfg_file_s *__cfg_load(const char *filename)
         cset_errno(CL_FILE_OPEN_ERROR);
         return NULL;
     }
-
-    file = new_cfg_file_s(filename);
-
-    if (NULL == file)
-        goto end_block;
 
     while ((line = cfreadline(fp)) != NULL) {
         cline = cvt_line_to_cfg_line(line);
@@ -376,7 +380,12 @@ static cfg_file_s *__cfg_load(const char *filename)
     }
 
 end_block:
-    fclose(fp);
+    if (fp != NULL)
+        fclose(fp);
+
+    if (line != NULL)
+        free(line);
+
     return file;
 }
 
@@ -486,7 +495,7 @@ static cstring_t *print_cfg(const cfg_file_s *file)
 /*
  * Loads a INI configuration file to a cfg_file_t value.
  */
-cfg_file_t LIBEXPORT *cfg_load(const char *filename)
+__PUB_API__ cfg_file_t *cfg_load(const char *filename)
 {
     cfg_file_s *file = NULL;
 
@@ -502,10 +511,16 @@ cfg_file_t LIBEXPORT *cfg_load(const char *filename)
     return file;
 }
 
+__PUB_API__ cfg_file_t *cfg_create(void)
+{
+    __clib_function_init__(false, NULL, -1, NULL);
+    return __cfg_load(NULL);
+}
+
 /*
  * Frees all memory previously allocated on a cfg_file_t value.
  */
-int LIBEXPORT cfg_unload(cfg_file_t *file)
+__PUB_API__ int cfg_unload(cfg_file_t *file)
 {
     __clib_function_init__(true, file, CFG_FILE, -1);
     destroy_cfg_file_s(file);
@@ -517,7 +532,7 @@ int LIBEXPORT cfg_unload(cfg_file_t *file)
  * Write the contents of a cfg_file_t value to a file. All file content will
  * be overwritten.
  */
-int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
+__PUB_API__ int cfg_sync(const cfg_file_t *file, const char *filename)
 {
     cfg_file_s *f = (cfg_file_s *)file;
     FILE *fp;
@@ -550,7 +565,7 @@ int LIBEXPORT cfg_sync(const cfg_file_t *file, const char *filename)
 /*
  * Sets a value to a specific key - section.
  */
-int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
+__PUB_API__ int cfg_set_value(cfg_file_t *file, const char *section,
     const char *key, const char *fmt, ...)
 {
     cfg_file_s *f = (cfg_file_s *)file;
@@ -573,14 +588,16 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     s = cdll_map(f->section, search_section, (void *)section);
 
     if (NULL == s) {
-        s = new_cfg_line_s(cstring_create("%s", section), NULL, NULL, 0,
-                           CFG_LINE_SECTION);
+        t = cstring_create("%s", section);
+        s = new_cfg_line_s(t, NULL, NULL, 0, CFG_LINE_SECTION);
+        cstring_unref(t);
 
         if (NULL == s)
             return -1;
 
-        k = new_cfg_line_s(cstring_create("%s", key), b, NULL, 0,
-                           CFG_LINE_KEY);
+        t = cstring_create("%s", key);
+        k = new_cfg_line_s(t, b, NULL, 0, CFG_LINE_KEY);
+        cstring_unref(t);
 
         if (NULL == k) {
             destroy_cfg_line_s(s);
@@ -596,8 +613,9 @@ int LIBEXPORT cfg_set_value(cfg_file_t *file, const char *section,
     k = cdll_map(s->child, search_key, (void *)key);
 
     if (NULL == k) {
-        k = new_cfg_line_s(cstring_create("%s", key), b, NULL, 0,
-                           CFG_LINE_KEY);
+        t = cstring_create("%s", key);
+        k = new_cfg_line_s(t, b, NULL, 0, CFG_LINE_KEY);
+        cstring_unref(t);
 
         if (NULL == k)
             return -1;
@@ -623,7 +641,7 @@ end_block:
 /*
  * Search and get a pointer to a specific section from a cfg_file_t object.
  */
-cfg_section_t LIBEXPORT *cfg_get_section(const cfg_file_t *file,
+__PUB_API__ cfg_section_t *cfg_get_section(const cfg_file_t *file,
     const char *section)
 {
     cfg_file_s *f = (cfg_file_s *)file;
@@ -646,7 +664,7 @@ cfg_section_t LIBEXPORT *cfg_get_section(const cfg_file_t *file,
     return l;
 }
 
-cfg_key_t LIBEXPORT *cfg_get_key(const cfg_file_t *file, const char *section,
+__PUB_API__ cfg_key_t *cfg_get_key(const cfg_file_t *file, const char *section,
     const char *key)
 {
     cfg_section_t *s = NULL;
@@ -662,7 +680,7 @@ cfg_key_t LIBEXPORT *cfg_get_key(const cfg_file_t *file, const char *section,
 /*
  * Search and get a pointer to a specific key from a cfg_section_t object.
  */
-cfg_key_t LIBEXPORT *cfg_get_key_from_section(const cfg_section_t *section,
+__PUB_API__ cfg_key_t *cfg_get_key_from_section(const cfg_section_t *section,
     const char *key)
 {
     struct cfg_line_s *s = (struct cfg_line_s *)section;
@@ -689,7 +707,7 @@ cfg_key_t LIBEXPORT *cfg_get_key_from_section(const cfg_section_t *section,
 /*
  * Gets the section name from a cfg_section_t object.
  */
-cstring_t LIBEXPORT *cfg_section_name(const cfg_section_t *section)
+__PUB_API__ cstring_t *cfg_section_name(const cfg_section_t *section)
 {
     struct cfg_line_s *s = (struct cfg_line_s *)section;
 
@@ -702,7 +720,7 @@ cstring_t LIBEXPORT *cfg_section_name(const cfg_section_t *section)
 /*
  * Gets the key name from a cfg_key_t object.
  */
-cstring_t LIBEXPORT *cfg_key_name(const cfg_key_t *key)
+__PUB_API__ cstring_t *cfg_key_name(const cfg_key_t *key)
 {
     struct cfg_line_s *k = (struct cfg_line_s *)key;
 
@@ -714,7 +732,7 @@ cstring_t LIBEXPORT *cfg_key_name(const cfg_key_t *key)
 /*
  * Gets the actual value from a cfg_key_t object.
  */
-cobject_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
+__PUB_API__ cobject_t *cfg_key_value(const cfg_key_t *key)
 {
     struct cfg_line_s *k = (struct cfg_line_s *)key;
 
@@ -723,7 +741,7 @@ cobject_t LIBEXPORT *cfg_key_value(const cfg_key_t *key)
     return cobject_ref(k->value);
 }
 
-cstring_t LIBEXPORT *cfg_to_cstring(const cfg_file_t *file)
+__PUB_API__ cstring_t *cfg_to_cstring(const cfg_file_t *file)
 {
     cstring_t *s = NULL;
 
@@ -731,5 +749,46 @@ cstring_t LIBEXPORT *cfg_to_cstring(const cfg_file_t *file)
     s = print_cfg(file);
 
     return s;
+}
+
+static int add_key(void *a, void *b)
+{
+    struct cfg_line_s *key = (struct cfg_line_s *)a;
+    cstring_list_t *keys = (cstring_list_t *)b;
+
+    cstring_list_add(keys, key->name);
+
+    return 0;
+}
+
+__PUB_API__ cstring_list_t *cfg_get_key_names(const cfg_file_t *file,
+    const char *section)
+{
+    struct cfg_line_s *s;
+    cstring_list_t *keys;
+
+    s = cfg_get_section(file, section);
+
+    if (NULL == s)
+        return NULL;
+
+    keys = cstring_list_create();
+    cdll_map(s->child, add_key, keys);
+
+    return keys;
+}
+
+__PUB_API__ cstring_list_t *cfg_get_key_names_from_section(const cfg_section_t *section)
+{
+    struct cfg_line_s *s = (struct cfg_line_s *)section;
+    cstring_list_t *keys;
+
+    __clib_function_init_ex__(true, section, CFG_SECTION, CFG_LINE_OFFSET,
+                              NULL);
+
+    keys = cstring_list_create();
+    cdll_map(s->child, add_key, keys);
+
+    return keys;
 }
 

@@ -79,16 +79,55 @@ static int py_load_function(void *a, void *b)
     return -1;
 }
 
+static int py_unload_function(void *a, void *b __attribute__((unused)))
+{
+    struct cplugin_function_s *foo = (struct cplugin_function_s *)a;
+
+    Py_DECREF(foo->symbol);
+
+    return 0;
+}
+
 /*
  *
  * Plugin Driver API
  *
  */
 
+static void add_preconfigured_paths(void)
+{
+    cjson_t *paths = NULL, *root, *p;
+    int i, t;
+    char *tmp;
+    cstring_t *s;
+
+    root = library_configuration();
+
+    if (NULL == root)
+        return;
+
+    paths = cjson_get_object_item(root, "plugin_path");
+
+    if (NULL == paths)
+        return;
+
+    t = cjson_get_array_size(paths);
+    PyRun_SimpleString("import sys");
+
+    for (i = 0; i < t; i++) {
+        p = cjson_get_array_item(paths, i);
+        s = cjson_get_object_value(p);
+        asprintf(&tmp, "sys.path.append(%s)", cstring_valueof(s));
+        PyRun_SimpleString(tmp);
+        free(tmp);
+    }
+}
+
 void *py_library_init(void)
 {
     setenv("PYTHONPATH", "/usr/local/lib", 1);
     Py_Initialize();
+    add_preconfigured_paths();
 
     return NULL;
 }
@@ -103,16 +142,11 @@ void py_library_uninit(void *data __attribute__((unused)))
  */
 cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 {
-    struct py_pl_info {
-        char *fname;
-        char *data;
-    };
-
     PyObject *dict = (PyObject *)ptr;
     PyObject *class = NULL, *instance = NULL, *result = NULL;
     unsigned int i = 0, t = 0;
     cplugin_info_t *info = NULL;
-    struct py_pl_info pyinfo[] = {
+    struct plugin_internal_function pyinfo[] = {
         /*
          * These names are based upon the method names from the CpluginEntryAPI
          * class, inside the cplugin.py file.
@@ -143,19 +177,26 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
     t = sizeof(pyinfo) / sizeof(pyinfo[0]);
 
     for (i = 0; i < t; i++) {
-        result = PyObject_CallMethod(instance, pyinfo[i].fname, NULL);
+        result = PyObject_CallMethod(instance, pyinfo[i].name, NULL);
 
         if (NULL == result)
             return NULL;
 
-        pyinfo[i].data = PyString_AS_STRING(result);
+        pyinfo[i].return_value = PyString_AS_STRING(result);
+        Py_DECREF(result);
     }
 
-    info = info_create_from_data(pyinfo[0].data, pyinfo[1].data, pyinfo[2].data,
-                                 pyinfo[3].data, pyinfo[4].data);
+    info = info_create_from_data(pyinfo[0].return_value,
+                                 pyinfo[1].return_value,
+                                 pyinfo[2].return_value,
+                                 pyinfo[3].return_value,
+                                 pyinfo[4].return_value);
 
     if (info != NULL)
-        set_custom_plugin_info(info, pyinfo[5].data, pyinfo[6].data);
+        set_custom_plugin_info(info, pyinfo[5].return_value,
+                               pyinfo[6].return_value);
+
+    Py_DECREF(instance);
 
     return info;
 }
@@ -167,6 +208,12 @@ int py_load_functions(void *data __attribute__((unused)),
         return -1;
 
     return 0;
+}
+
+void py_unload_functions(void *data __attribute__((unused)),
+    struct cplugin_function_s *flist, void *handle __attribute__((unused)))
+{
+    cdll_map(flist, py_unload_function, NULL);
 }
 
 void *py_open(void *data __attribute__((unused)), const char *pathname)
@@ -192,7 +239,6 @@ void *py_open(void *data __attribute__((unused)), const char *pathname)
     }
 
     module = PyImport_Import(pname);
-    PyErr_Print();
 
     if (NULL == module) {
         cset_errno(CL_PY_IMPORT_FAILED);
@@ -224,7 +270,10 @@ int py_close(void *data __attribute__((unused)), void *ptr)
 void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
     uint32_t caller_id, cplugin_t *cpl)
 {
-    PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL;
+    PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL, *pret;
+    PyGILState_STATE gstate;
+
+    gstate = PyGILState_Ensure();
 
     /*
      * Encapsulates 'cplugin_t' and 'foo->args' so we can pass them as a
@@ -250,7 +299,11 @@ void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
                                    capsule_of_args);
     }
 
-    PyObject_CallObject(foo->symbol, pvalue);
+    pret = PyObject_CallObject(foo->symbol, pvalue);
+    Py_DECREF(pret);
+    Py_DECREF(pvalue);
+
+    PyGILState_Release(gstate);
 }
 
 int py_plugin_startup(void *data __attribute__((unused)), void *handle,
@@ -274,6 +327,9 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
 
         if (pret != NULL)
            ret = (int)PyInt_AsLong(pret);
+
+        Py_DECREF(pret);
+        Py_DECREF(pvalue);
     }
 
     return ret;
@@ -282,7 +338,7 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
 int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
     cplugin_info_t *info)
 {
-    PyObject *dict, *foo, *pvalue;
+    PyObject *dict, *foo, *pvalue, *pret;
     struct py_info *plinfo = NULL;
 
     plinfo = (struct py_info *)info_get_custom_data(info);
@@ -295,11 +351,39 @@ int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
 
     if (PyCallable_Check(foo)) {
         pvalue = Py_BuildValue("()");
-        PyObject_CallObject(foo, pvalue);
+        pret = PyObject_CallObject(foo, pvalue);
+        Py_DECREF(pret);
+        Py_DECREF(pvalue);
     }
 
     release_custom_plugin_info(plinfo);
 
     return 0;
+}
+
+bool py_plugin_test(const cstring_t *mime)
+{
+    const char *recognized_mime[] = {
+        "text/x-python",
+        "text/plain",
+        "application/octet-stream"
+    };
+    int i = 0, t;
+    cstring_t *p;
+
+    t = sizeof(recognized_mime) / sizeof(recognized_mime[0]);
+
+    for (i = 0; i < t; i++) {
+        p = cstring_create("%s", recognized_mime[i]);
+
+        if (cstring_cmp(mime, p) == 0) {
+            cstring_unref(p);
+            return true;
+        }
+
+        cstring_unref(p);
+    }
+
+    return false;
 }
 

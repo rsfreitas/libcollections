@@ -3,7 +3,7 @@
  * Description:
  *
  * Author: Rodrigo Freitas
- * Created at: Tue Apr 12 15:14:33 2016
+ * Created at: Wed Jan  4 11:33:46 2017
  * Project: libcollections
  *
  * Copyright (C) 2015 Rodrigo Freitas
@@ -24,26 +24,36 @@
  * USA
  */
 
-#ifndef _COLLECTIONS_DL_C_H
-#define _COLLECTIONS_DL_C_H     1
+#ifndef _COLLECTIONS_CL_INTL_H
+#define _COLLECTIONS_CL_INTL_H     1
 
 #ifndef LIBCOLLECTIONS_COMPILE
 # ifndef _COLLECTIONS_H
-#  error "Never use <dl_c.h> directly; include <collections.h> instead."
+#  error "Never use <cl_intl.h> directly; include <collections.h> instead."
 # endif
 #endif
 
-void *c_library_init(void);
-void c_library_uninit(void *data);
-cplugin_info_t *c_load_info(void *data, void *handle);
-int c_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
-void *c_open(void *data, const char *pathname);
-int c_close(void *data, void *handle);
-void c_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
-            cplugin_t *cpl);
+/**
+ * @name tr
+ * @brief Macro to shorten the gettext term inside a source file.
+ *
+ * This macro should be used in strings that will be translated to other
+ * languages.
+ *
+ * @param [in] string: The string.
+ */
+#define tr(string)                  gettext(string)
 
-int c_plugin_startup(void *data, void *handle, cplugin_info_t *info);
-int c_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
+/**
+ * @name tr_noop
+ * @brief Macro to be used in special cases of translatable strings.
+ *
+ * For more details consult:
+ * https://www.gnu.org/software/gettext/manual/html_node/Special-cases.html
+ *
+ * @param [in] string: The string.
+ */
+#define tr_noop(string)             string
 
 #endif
 

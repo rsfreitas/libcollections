@@ -114,37 +114,9 @@ enum cl_type {
 #define COBJECT_STRING       "s"
 #define COBJECT_POINTER      "P"
 
-enum cl_object {
-    CSTRING,
-    CSTRINGLIST,
-    CFG_FILE,
-    CFG_SECTION,
-    CFG_KEY,
-    CJSON,
-    CDATETIME,
-    CTIMEOUT,
-    CTHREAD,
-    CTIMER,
-    CTIMER_INFO,
-    CTIMER_ARG,     /* This is not our type, so we can't validate it */
-    CHAT,
-    CLIST,
-    CEVENT,
-    COBJECT,
-    CSPEC,
-    COUNTER,
-    CPLUGIN,
-    CPLUGIN_ARG,
-    CPLUGIN_INFO,
-    CLOG,
-    CIMAGE,
-    CLIST_NODE,
-    CSTACK,
-    CSTACK_NODE,
-    CQUEUE,
-    CQUEUE_NODE,
-    CARRAY
-};
+/** cobject sizeof */
+#define COBJECT_SIZEOF      \
+    sizeof(unsigned long long) + sizeof(unsigned long long)
 
 /** error type */
 typedef int                 cerrno;
@@ -213,6 +185,9 @@ typedef void                cstack_node_t;
 /** queue type */
 typedef void                cqueue_t;
 typedef void                cqueue_node_t;
+
+/** image text */
+typedef void                cimage_caption_t;
 
 #endif
 

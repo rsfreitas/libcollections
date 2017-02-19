@@ -43,7 +43,7 @@
 # define CPLUGIN_EXTERN_C()
 #endif
 
-#define OBJEXPORT               __attribute__((visibility("default")))
+#define CPLUGIN_FNEXPORT        __attribute__((visibility("default")))
 
 /*
  * Macros to be used with libcollections while manipulating plugins.
@@ -54,8 +54,9 @@
 
 /* Macro to identify an exported plugin function */
 #define CPLUGIN_OBJECT_EXPORT(foo)              \
-    CPLUGIN_EXTERN_C() void OBJEXPORT foo(uint32_t caller_id, cplugin_t *cpl, \
-                                          cplugin_arg_t *args)
+    CPLUGIN_EXTERN_C() void CPLUGIN_FNEXPORT foo(uint32_t caller_id, \
+                                                 cplugin_t *cpl, \
+                                                 cplugin_arg_t *args)
 
 /*
  * Macro to set the return value from an exported plugin function. To be used
@@ -70,16 +71,6 @@
         CPLUGIN_SET_RETURN_VALUE(CL_VOID, 0);\
     }\
 
-/*
- * Macro to set the plugin name internally, so a plugin manager may known
- * it.
- */
-#define CPLUGIN_SET_PLUGIN_ENTRY_NAME(name)                \
-    CPLUGIN_EXTERN_C() struct cplugin_entry_s OBJEXPORT *cplugin_set_plugin_entry_name(void)\
-    {\
-        return &name##_plugin_entry;\
-    }\
-
 /* Macro to get the number of arguments from an exported plugin function */
 #define CPLUGIN_ARG_COUNT()                     \
     cplugin_arg_count(args)
@@ -90,6 +81,12 @@
  */
 #define CPLUGIN_ARGUMENT(arg_name)              \
     cplugin_argument(args, arg_name)
+
+/*
+ * Macro to release an argument loaded inside a plugin function.
+ */
+#define CPLUGIN_RELEASE_ARGUMENT(argument)      \
+    cobject_unref(argument)
 
 /*
  * Macro to access the argument @args from an exported function and
@@ -108,6 +105,67 @@
 #define cplugin_call(cpl, function_name, arg...)   \
     cplugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
                     cpl, function_name, ## arg)
+
+/**
+ * Macros to mandatory plugin functions.
+ *
+ * An Elf plugin must have a few functions so we may be able to call them
+ * from here. These functions are the way that a plugin manager will find
+ * its information. They all must return a constant string, and their
+ * prototypes are:
+ *
+ * - plugin_name
+ *
+ * Prototype: const char *plugin_name(void);
+ *
+ * - plugin_version
+ *
+ * Prototype: const char *plugin_version(void);
+ *
+ * - plugin_author
+ *
+ * Prototype: const char *plugin_author(void);
+ *
+ * - plugin_api
+ *
+ * Prototype: const char *plugin_api(void);
+ *
+ * - plugin_description
+ *
+ * Prototype: const char *plugin_description(void);
+ */
+
+/*
+ * Plugin mandatory informations.
+ */
+#define CPLUGIN_SET_INFO(plugin_name, version, author, description, api) \
+    CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *plugin_name(void) {\
+        return #plugin_name;\
+    }\
+\
+    CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *plugin_version(void) {\
+        return version;\
+    }\
+\
+    CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *plugin_author(void) {\
+        return author;\
+    }\
+\
+    CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *plugin_api(void) {\
+        return api;\
+    }\
+\
+    CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *plugin_description(void) {\
+        return description;\
+    }\
+
+/* Plugin init function */
+#define CPLUGIN_INIT()  \
+    CPLUGIN_EXTERN_C() int CPLUGIN_FNEXPORT plugin_init(void)
+
+/* Plugin uninit function */
+#define CPLUGIN_UNINIT()    \
+    CPLUGIN_EXTERN_C() void CPLUGIN_FNEXPORT plugin_uninit(void)
 
 #endif
 
