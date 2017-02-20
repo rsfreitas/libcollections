@@ -408,6 +408,18 @@ LIBCOLLECTIONS_0.1 {
         cimage_add_caption_vf;
         cimage_add_caption_f;
         cimage_add_caption;
+        chashtable_ref;
+        chashtable_unref;
+        chashtable_init;
+        chashtable_uninit;
+        chashtable_put;
+        chashtable_get;
+        chashtable_delete;
+        chashtable_contains_key;
+        chashtable_clear;
+        chashtable_size;
+        chashtable_contains_value;
+        chashtable_keys;
     local:
         *;
 };

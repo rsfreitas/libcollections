@@ -189,5 +189,8 @@ typedef void                cqueue_node_t;
 /** image text */
 typedef void                cimage_caption_t;
 
+/** hashtable type */
+typedef void                chashtable_t;
+
 #endif
 
