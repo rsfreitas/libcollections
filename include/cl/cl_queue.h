@@ -49,7 +49,7 @@ void *cqueue_node_content(cqueue_node_t *node);
 
 /**
  * @name cqueue_node_ref
- * @brief Increases the reference count for a void item.
+ * @brief Increases the reference count for a cqueue_node_t item.
  *
  * @param [in,out] node: The node item.
  *
@@ -60,7 +60,7 @@ cqueue_node_t *cqueue_node_ref(cqueue_node_t *node);
 
 /**
  * @name cqueue_node_unref
- * @brief Decreases the reference count for a void item.
+ * @brief Decreases the reference count for a cqueue_node_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -73,7 +73,7 @@ int cqueue_node_unref(cqueue_node_t *node);
 
 /**
  * @name cqueue_ref
- * @brief Increases the reference count for a void item.
+ * @brief Increases the reference count for a cqueue_t item.
  *
  * @param [in,out] queue: The queue item.
  *
@@ -84,7 +84,7 @@ cqueue_t *cqueue_ref(cqueue_t *queue);
 
 /**
  * @name cqueue_unref
- * @brief Decreases the reference count for a void item.
+ * @brief Decreases the reference count for a cqueue_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -99,8 +99,7 @@ int cqueue_unref(cqueue_t *queue);
  * @name cqueue_create
  * @brief Creates a new queue object.
  *
- * This function creates a new queue object to manipulate all kind of data. It is
- * not recommended manipulate primitive types.
+ * This function creates a new queue object to manipulate all kind of data.
  *
  * The function receives a few function pointers to be used by its API,
  * \a free_data is a function used to release the content of a queue node,
@@ -194,8 +193,6 @@ int cqueue_enqueue(cqueue_t *queue, const void *node_content, unsigned int size)
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
  *
- * @return If \a foo returns a non-zero returns a pointer to the current node
- *         content. If not returns NULL.
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
@@ -276,14 +273,13 @@ cqueue_node_t *cqueue_map_reverse_indexed(const cqueue_t *queue,
  * @param [in] queue: The queue object.
  * @param [in] index: The node index inside the queue.
  *
- *
  * @return On success returns a reference to the node or NULL otherwise.
  */
 cqueue_node_t *cqueue_at(const cqueue_t *queue, unsigned int index);
 
 /**
  * @name cqueue_delete
- * @brief Deletes elements from a queuea according a specific filter function.
+ * @brief Deletes elements from a queue according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
  * from the queue and released from memory. This function uses the \a filter

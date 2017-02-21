@@ -49,7 +49,7 @@ void *cstack_node_content(cstack_node_t *node);
 
 /**
  * @name cstack_node_ref
- * @brief Increases the reference count for a void item.
+ * @brief Increases the reference count for a cstack_node_t item.
  *
  * @param [in,out] node: The node item.
  *
@@ -60,7 +60,7 @@ cstack_node_t *cstack_node_ref(cstack_node_t *node);
 
 /**
  * @name cstack_node_unref
- * @brief Decreases the reference count for a void item.
+ * @brief Decreases the reference count for a cstack_node_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -73,7 +73,7 @@ int cstack_node_unref(cstack_node_t *node);
 
 /**
  * @name cstack_ref
- * @brief Increases the reference count for a void item.
+ * @brief Increases the reference count for a cstack_t item.
  *
  * @param [in,out] stack: The stack item.
  *
@@ -84,7 +84,7 @@ cstack_t *cstack_ref(cstack_t *stack);
 
 /**
  * @name cstack_unref
- * @brief Decreases the reference count for a void item.
+ * @brief Decreases the reference count for a cstack_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -99,8 +99,7 @@ int cstack_unref(cstack_t *stack);
  * @name cstack_create
  * @brief Creates a new stack object.
  *
- * This function creates a new stack object to manipulate all kind of data. It is
- * not recommended manipulate primitive types.
+ * This function creates a new stack object to manipulate all kind of data.
  *
  * The function receives a few function pointers to be used by its API,
  * \a free_data is a function used to release the content of a stack node,
