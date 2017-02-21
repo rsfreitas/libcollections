@@ -112,15 +112,25 @@ static char *get_program_name(void)
 
 static void load_default_values(void)
 {
-    __cl_data.package =
-        (NULL == __cl_data.cfg)
-            ? get_program_name()
-            : strdup(get_configuration("package"));
+    char *tmp;
 
-    __cl_data.locale_dir =
-        strdup((NULL == __cl_data.cfg)
-            ? ""
-            : get_configuration("locale_dir"));
+    /* Package name */
+    if (__cl_data.cfg != NULL)
+        tmp = (char *)get_configuration("package");
+
+    if (NULL == tmp)
+        __cl_data.package = get_program_name();
+    else
+        __cl_data.package = strdup(tmp);
+
+    /* Locale dir */
+    if (__cl_data.cfg != NULL)
+        tmp = (char *)get_configuration("locale_dir");
+
+    if (NULL == tmp)
+        __cl_data.locale_dir = strdup("");
+    else
+        __cl_data.locale_dir = strdup(tmp);
 }
 
 static void load_arg(const char *arg)
@@ -147,6 +157,9 @@ static void __uninit(const struct cref_s *ref __attribute__((unused)))
 
     if (__cl_data.locale_dir != NULL)
         free(__cl_data.locale_dir);
+
+    if (__cl_data.cfg != NULL)
+        cjson_delete(__cl_data.cfg);
 
     dl_library_uninit();
     magic_close(__cl_data.cookie);
