@@ -112,7 +112,7 @@ static char *get_program_name(void)
 
 static void load_default_values(void)
 {
-    char *tmp;
+    char *tmp = NULL;
 
     /* Package name */
     if (__cl_data.cfg != NULL)
@@ -126,6 +126,8 @@ static void load_default_values(void)
     /* Locale dir */
     if (__cl_data.cfg != NULL)
         tmp = (char *)get_configuration("locale_dir");
+    else
+        tmp = NULL;
 
     if (NULL == tmp)
         __cl_data.locale_dir = strdup("");

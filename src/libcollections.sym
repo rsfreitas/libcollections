@@ -445,6 +445,7 @@ LIBCOLLECTIONS_0.1 {
         circular_queue_set_compare_to;
         circular_queue_set_filter;
         circular_queue_set_equals;
+        craw_cvt_format;
     local:
         *;
 };

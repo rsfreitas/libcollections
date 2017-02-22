@@ -551,37 +551,101 @@ static cimage_t *duplicate_image(cimage_s *image)
  *
  */
 
+static enum PixelFormat cimage_format_to_PixelFormat(enum cimage_format fmt)
+{
+    enum PixelFormat px_fmt = PIX_FMT_GRAY8;
+
+    switch (fmt) {
+        case CIMAGE_FMT_BGR:
+            px_fmt = PIX_FMT_BGR24;
+            break;
+
+        case CIMAGE_FMT_RGB:
+            px_fmt = PIX_FMT_RGB24;
+            break;
+
+        case CIMAGE_FMT_YUV422:
+            px_fmt = PIX_FMT_YUV422P;
+            break;
+
+        case CIMAGE_FMT_YUV420:
+            px_fmt = PIX_FMT_YUV420P;
+            break;
+
+        case CIMAGE_FMT_YUYV:
+            px_fmt = PIX_FMT_YUYV422;
+            break;
+
+        case CIMAGE_FMT_GRAY:
+        default:
+            break;
+    }
+
+    return px_fmt;
+}
+
+static int get_raw_size(enum cimage_format format, unsigned int width,
+    unsigned int height)
+{
+    int size = -1;
+
+    switch (format) {
+        case CIMAGE_FMT_BGR:
+        case CIMAGE_FMT_RGB:
+            size = width * height * 3;
+            break;
+
+        case CIMAGE_FMT_YUV422:
+        case CIMAGE_FMT_YUV420:
+        case CIMAGE_FMT_YUYV:
+            size = width * height * 2;
+            break;
+
+        case CIMAGE_FMT_GRAY:
+            size = width * height;
+            break;
+
+        default:
+            break;
+    }
+
+    return size;
+}
+
 /*
  * Our "real" image format conversion routine. ;-)
  */
-static unsigned char *cvt_format(cimage_s *image, enum PixelFormat fmt_in,
-    enum PixelFormat fmt_out, unsigned int out_image_size)
+__PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
+    enum cimage_format fmt_in, unsigned int width, unsigned int height,
+    enum cimage_format fmt_out, unsigned int *bsize)
 {
+    enum PixelFormat sws_fmt_in, sws_fmt_out;
     struct SwsContext *ctx;
-    int w, h;
     unsigned char *b = NULL;
     uint8_t *data_in[4], *data_out[4];
     int linesize[4], out_linesize[4];
 
-    b = calloc(out_image_size, sizeof(unsigned char));
+    sws_fmt_in = cimage_format_to_PixelFormat(fmt_in);
+    sws_fmt_out = cimage_format_to_PixelFormat(fmt_out);
+    *bsize = get_raw_size(fmt_out, width, height);
+    b = calloc(*bsize, sizeof(unsigned char));
 
     if (NULL == b)
         return NULL;
 
-    w = image->image->width;
-    h = image->image->height;
-    ctx = sws_getContext(w, h, fmt_in, w, h, fmt_out, SWS_BICUBIC, 0, 0, 0);
+    ctx = sws_getContext(width, height, sws_fmt_in, width, height, sws_fmt_out,
+                         SWS_BICUBIC, 0, 0, 0);
 
     if (NULL == ctx)
         return NULL;
 
-    av_image_fill_linesizes(linesize, fmt_in, w);
-    av_image_fill_linesizes(out_linesize, fmt_out, w);
-    av_image_fill_pointers(data_in, fmt_in, h, (uint8_t *)image->image->imageData,
+    av_image_fill_linesizes(linesize, sws_fmt_in, width);
+    av_image_fill_linesizes(out_linesize, sws_fmt_out, width);
+    av_image_fill_pointers(data_in, sws_fmt_in, height, (uint8_t *)buffer,
                            linesize);
 
-    av_image_fill_pointers(data_out, fmt_out, h, b, out_linesize);
-    sws_scale(ctx, (const uint8_t * const *)data_in, linesize, 0, h,
+    av_image_fill_pointers(data_out, sws_fmt_out, height, b, out_linesize);
+    sws_scale(ctx, (const uint8_t * const *)data_in, linesize, 0, height,
               data_out, out_linesize);
 
     sws_freeContext(ctx);
@@ -589,405 +653,9 @@ static unsigned char *cvt_format(cimage_s *image, enum PixelFormat fmt_in,
     return b;
 }
 
-static unsigned char *bgr_to_gray(cimage_s *image, unsigned int *bsize)
-{
-    *bsize = image->image->width * image->image->height;
-
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_GRAY8, *bsize);
-}
-
-static unsigned char *bgr_to_rgb(cimage_s *image, unsigned int *bsize)
-{
-    *bsize = image->image->widthStep * image->image->height;
-
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_RGB24, *bsize);
-}
-
-static unsigned char *bgr_to_yuv422(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * image->image->nChannels;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUV422P, *bsize);
-}
-
-static unsigned char *bgr_to_yuv420(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * image->image->nChannels;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUV420P, *bsize);
-}
-
-static unsigned char *bgr_to_yuyv(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * image->image->nChannels;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_BGR24, PIX_FMT_YUYV422, *bsize);
-}
-
-static unsigned char *cvt_bgr(cimage_s *image, enum cimage_format format,
-    unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (format) {
-        case CIMAGE_FMT_GRAY:
-            b = bgr_to_gray(image, bsize);
-            break;
-
-        case CIMAGE_FMT_RGB:
-            b = bgr_to_rgb(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV422:
-            b = bgr_to_yuv422(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV420:
-            b = bgr_to_yuv420(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUYV:
-            b = bgr_to_yuyv(image, bsize);
-            break;
-
-        default:
-            return NULL;
-    }
-
-    return b;
-}
-
-static unsigned char *rgb_to_gray(cimage_s *image, unsigned int *bsize)
-{
-    *bsize = image->image->width * image->image->height;
-
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_GRAY8, *bsize);
-}
-
-static unsigned char *rgb_to_bgr(cimage_s *image, unsigned int *bsize)
-{
-    *bsize = image->image->widthStep * image->image->height;
-
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_BGR24, *bsize);
-}
-
-static unsigned char *rgb_to_yuv422(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * image->image->nChannels;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUV422P, *bsize);
-}
-
-static unsigned char *rgb_to_yuv420(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * image->image->nChannels;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUV420P, *bsize);
-}
-
-static unsigned char *rgb_to_yuyv(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * image->image->nChannels;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_RGB24, PIX_FMT_YUYV422, *bsize);
-}
-
-static unsigned char *cvt_rgb(cimage_s *image, enum cimage_format format,
-    unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (format) {
-        case CIMAGE_FMT_GRAY:
-            b = rgb_to_gray(image, bsize);
-            break;
-
-        case CIMAGE_FMT_BGR:
-            b = rgb_to_bgr(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV422:
-            b = rgb_to_yuv422(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV420:
-            b = rgb_to_yuv420(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUYV:
-            b = rgb_to_yuyv(image, bsize);
-            break;
-
-        default:
-            return NULL;
-    }
-
-    return b;
-}
-
-static unsigned char *yuv422_to_gray(cimage_s *image, unsigned int *bsize)
-{
-    *bsize = image->image->width * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_GRAY8, *bsize);
-}
-
-static unsigned char *yuv422_to_bgr(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * 3;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_BGR24, *bsize);
-}
-
-static unsigned char *yuv422_to_rgb(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * 3;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_RGB24, *bsize);
-}
-
-static unsigned char *yuv422_to_yuv420(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_YUV420P, *bsize);
-}
-
-static unsigned char *yuv422_to_yuyv(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV422P, PIX_FMT_YUYV422, *bsize);
-}
-
-static unsigned char *cvt_yuv422(cimage_s *image, enum cimage_format format,
-    unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (format) {
-        case CIMAGE_FMT_GRAY:
-            b = yuv422_to_gray(image, bsize);
-            break;
-
-        case CIMAGE_FMT_BGR:
-            b = yuv422_to_bgr(image, bsize);
-            break;
-
-        case CIMAGE_FMT_RGB:
-            b = yuv422_to_rgb(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV420:
-            b = yuv422_to_yuv420(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUYV:
-            b = yuv422_to_yuyv(image, bsize);
-            break;
-
-        default:
-            return NULL;
-    }
-
-    return b;
-}
-
-static unsigned char *yuv420_to_gray(cimage_s *image, unsigned int *bsize)
-{
-    *bsize = image->image->width * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_GRAY8, *bsize);
-}
-
-static unsigned char *yuv420_to_bgr(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * 3;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_BGR24, *bsize);
-}
-
-static unsigned char *yuv420_to_rgb(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * 3;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_RGB24, *bsize);
-}
-
-static unsigned char *yuv420_to_yuv422(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_YUV422P, *bsize);
-}
-
-static unsigned char *yuv420_to_yuyv(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUV420P, PIX_FMT_YUYV422, *bsize);
-}
-
-static unsigned char *cvt_yuv420(cimage_s *image, enum cimage_format format,
-    unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (format) {
-        case CIMAGE_FMT_GRAY:
-            b = yuv420_to_gray(image, bsize);
-            break;
-
-        case CIMAGE_FMT_BGR:
-            b = yuv420_to_bgr(image, bsize);
-            break;
-
-        case CIMAGE_FMT_RGB:
-            b = yuv420_to_rgb(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV422:
-            b = yuv420_to_yuv422(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUYV:
-            b = yuv420_to_yuyv(image, bsize);
-            break;
-
-        default:
-            return NULL;
-    }
-
-    return b;
-}
-
-static unsigned char *yuyv_to_gray(cimage_s *image, unsigned int *bsize)
-{
-    *bsize = image->image->width * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_GRAY8, *bsize);
-}
-
-static unsigned char *yuyv_to_bgr(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * 3;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_BGR24, *bsize);
-}
-
-static unsigned char *yuyv_to_rgb(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->width * 3;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_RGB24, *bsize);
-}
-
-static unsigned char *yuyv_to_yuv422(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_YUV422P, *bsize);
-}
-
-static unsigned char *yuyv_to_yuv420(cimage_s *image, unsigned int *bsize)
-{
-    unsigned int linesize;
-
-    linesize = image->image->widthStep;
-    *bsize = linesize * image->image->height;
-
-    return cvt_format(image, PIX_FMT_YUYV422, PIX_FMT_YUV420P, *bsize);
-}
-
-static unsigned char *cvt_yuyv(cimage_s *image, enum cimage_format format,
-    unsigned int *bsize)
-{
-    unsigned char *b;
-
-    switch (format) {
-        case CIMAGE_FMT_GRAY:
-            b = yuyv_to_gray(image, bsize);
-            break;
-
-        case CIMAGE_FMT_BGR:
-            b = yuyv_to_bgr(image, bsize);
-            break;
-
-        case CIMAGE_FMT_RGB:
-            b = yuyv_to_rgb(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV422:
-            b = yuyv_to_yuv422(image, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV420:
-            b = yuyv_to_yuv420(image, bsize);
-            break;
-
-        default:
-            return NULL;
-    }
-
-    return b;
-}
-
 static unsigned char *convert_raw_formats(cimage_s *image,
     enum cimage_format format, unsigned int *bsize)
 {
-    unsigned char *buffer = NULL;
-
     /* With these choices we don't need to convert the image */
     if ((format == image->format) ||
         image->format == CIMAGE_FMT_GRAY)
@@ -996,32 +664,9 @@ static unsigned char *convert_raw_formats(cimage_s *image,
         return (unsigned char *)image->image->imageData;
     }
 
-    switch (image->format) {
-        case CIMAGE_FMT_BGR:
-            buffer = cvt_bgr(image, format, bsize);
-            break;
-
-        case CIMAGE_FMT_RGB:
-            buffer = cvt_rgb(image, format, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV422:
-            buffer = cvt_yuv422(image, format, bsize);
-            break;
-
-        case CIMAGE_FMT_YUV420:
-            buffer = cvt_yuv420(image, format, bsize);
-            break;
-
-        case CIMAGE_FMT_YUYV:
-            buffer = cvt_yuyv(image, format, bsize);
-            break;
-
-        default:
-            break;
-    }
-
-    return buffer;
+    return craw_cvt_format((const unsigned char *)image->image->imageData,
+                           image->format, image->image->width,
+                           image->image->height, format, bsize);
 }
 
 static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
@@ -1035,18 +680,13 @@ static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
      */
     switch (image->raw_hdr.format) {
         case CIMAGE_FMT_YUV422:
-            data = yuv422_to_rgb(image, bsize);
-            free_data = true;
-            break;
-
         case CIMAGE_FMT_YUV420:
-            data = yuv420_to_rgb(image, bsize);
-            free_data = true;
-            break;
-
         case CIMAGE_FMT_YUYV:
-            data = yuyv_to_rgb(image, bsize);
             free_data = true;
+            data = craw_cvt_format((const unsigned char *)image->image->imageData,
+                                   image->raw_hdr.format, image->image->width,
+                                   image->image->height, CIMAGE_FMT_RGB, bsize);
+
             break;
 
         default:
@@ -1434,8 +1074,9 @@ __PUB_API__ int cimage_fill(cimage_t *image, const unsigned char *buffer,
     return fill_buffer_to_cimage(i, buffer, bsize, format, width, height);
 }
 
-__PUB_API__ cimage_t *cimage_load(const unsigned char *buffer, unsigned int bsize,
-    enum cimage_format format, unsigned int width, unsigned int height)
+__PUB_API__ cimage_t *cimage_load(const unsigned char *buffer,
+    unsigned int bsize, enum cimage_format format, unsigned int width,
+    unsigned int height)
 {
     cimage_s *i = NULL;
 

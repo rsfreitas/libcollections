@@ -381,5 +381,23 @@ enum cimage_format cimage_format(const cimage_t *image);
  */
 int cimage_channels(const cimage_t *image);
 
+/**
+ * @name craw_cvt_format
+ * @brief Converts between RAW image formats.
+ *
+ * @param [in] buffer: The input RAW image.
+ * @param [in] fmt_in: The input RAW image format.
+ * @param [in] width: The image width.
+ * @param [in] height: The image height.
+ * @param [in] fmt_out: The output RAW image format.
+ * @param [out]  bsize: The output RAW image size.
+ *
+ * @return On success returns a converted RAW image buffer or NULL otherwise.
+ */
+unsigned char *craw_cvt_format(const unsigned char *buffer,
+                               enum cimage_format fmt_in, unsigned int width,
+                               unsigned int height, enum cimage_format fmt_out,
+                               unsigned int *bsize);
+
 #endif
 
