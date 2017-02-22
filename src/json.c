@@ -566,13 +566,13 @@ static const char *parse(cjson_s *n, const char *s)
     return NULL;
 }
 
-__PUB_API__ cjson_t *cjson_parse(const cstring_t *string)
+__PUB_API__ cjson_t *cjson_parse_string(const char *string)
 {
     cjson_s *c = NULL;
 
-    __clib_function_init__(true, string, CSTRING, NULL);
+    __clib_function_init__(false, NULL, -1, NULL);
 
-    if (cstring_length(string) == 0) {
+    if (strlen(string) == 0) {
         cset_errno(CL_INVALID_VALUE);
         return NULL;
     }
@@ -583,12 +583,19 @@ __PUB_API__ cjson_t *cjson_parse(const cstring_t *string)
         return NULL;
 
     /* parse */
-    if (parse(c, skip_chars(cstring_valueof(string))) == NULL) {
+    if (parse(c, skip_chars(string)) == NULL) {
         cjson_delete(c);
         return NULL;
     }
 
     return c;
+}
+
+__PUB_API__ cjson_t *cjson_parse(const cstring_t *string)
+{
+    __clib_function_init__(true, string, CSTRING, NULL);
+
+    return cjson_parse_string(cstring_valueof(string));
 }
 
 __PUB_API__ cjson_t *cjson_read_file(const char *filename)

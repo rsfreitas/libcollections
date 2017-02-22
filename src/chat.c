@@ -36,7 +36,6 @@
 
 /*
  * TODO: Save client info on the server side.
- *       Validate object in every exported function.
  */
 
 /* IPCs methods */

@@ -49,6 +49,17 @@ enum cjson_type {
 };
 
 /**
+ * @name cjson_parse_string
+ * @brief Parse a C string containing a JSON data.
+ *
+ * @param [in] string: The C string containing a JSON data.
+ *
+ * @return On success returns a cjson_t object containing the JSON data or
+ *         NULL otherwise.
+ */
+cjson_t *cjson_parse_string(const char *string);
+
+/**
  * @name cjson_parse
  * @brief Parse a string containing a JSON data.
  *

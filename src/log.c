@@ -314,6 +314,9 @@ static cstring_t *message_prefix(clog_s *log, enum clog_level level)
  */
 static bool has_last_message_to_write(clog_s *log)
 {
+    if (log->max_repeat == 0)
+        return false;
+
     if (log->lmsg.count > 1)
         return true;
 
@@ -325,6 +328,9 @@ static bool has_last_message_to_write(clog_s *log)
  */
 static bool needs_to_write_last_message(clog_s *log)
 {
+    if (log->max_repeat == 0)
+        return false;
+
     if ((log->lmsg.count % log->max_repeat) == 0)
         return true;
 
@@ -348,8 +354,22 @@ static void write_message(clog_s *log, enum clog_level level,
     const char *msg)
 {
     cstring_t *p = message_prefix(log, level);
+    bool write = false;
 
-    if (compare_message(cstring_valueof(log->lmsg.msg), msg) == false) {
+    if (log->max_repeat == 0)
+        write = true;
+    else {
+        if (compare_message(cstring_valueof(log->lmsg.msg), msg) == true) {
+            if (needs_to_write_last_message(log)) {
+                write_last_message_counter(log, level);
+                return;
+            } else
+                write = true;
+        } else
+            write = true;
+    }
+
+    if (write) {
         if (has_last_message_to_write(log))
             write_last_message_counter(log, level);
 
@@ -359,9 +379,7 @@ static void write_message(clog_s *log, enum clog_level level,
             cstring_destroy(p);
         } else
             fprintf(log->f, "%s\n", msg);
-    } else
-        if (needs_to_write_last_message(log))
-            write_last_message_counter(log, level);
+    }
 }
 
 static void write_hex_message(clog_s *log, enum clog_level level,

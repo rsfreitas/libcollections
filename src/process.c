@@ -259,7 +259,7 @@ static pid_t read_instance_file(const char *name)
 
 static char *instance_name(pid_t pid)
 {
-    char *tmp = NULL, *cmd = NULL;;
+    char *tmp = NULL, *cmd = NULL, *bname = NULL, *app_name = NULL;
     FILE *f;
     size_t size = 0;
     int offset = 0;
@@ -283,9 +283,12 @@ static char *instance_name(pid_t pid)
         offset++, cmd++;
 
     cmd = strdup(tmp + offset);
+    bname = basename(cmd);
     free(tmp);
+    app_name = strdup(bname);
+    free(cmd);
 
-    return cmd;
+    return app_name;
 }
 
 __PUB_API__ bool cinstance_active(const char *name)

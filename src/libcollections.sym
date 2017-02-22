@@ -132,6 +132,7 @@ LIBCOLLECTIONS_0.1 {
         cdisable_echo;
         cenable_echo;
         cjson_parse;
+        cjson_parse_string;
         cjson_read_file;
         cjson_write_file;
         cjson_delete;
