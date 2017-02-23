@@ -67,11 +67,14 @@ int chashtable_unref(chashtable_t *hashtable);
  * @param [in] compare: A function to compare the item stored inside the hash
  *                      table. It must return true if the two arguments are
  *                      equals or false otherwise.
+ * @param [in] release: An optional function to be called over every valid table
+ *                      index when releasing it.
  *
  * @return On success returns a chashtable_t object or NULL otherwise.
  */
 chashtable_t *chashtable_init(unsigned int size, bool replace_data,
-                              bool (*compare)(void *, void *));
+                              bool (*compare)(void *, void *),
+                              void (*release)(void *));
 
 /**
  * @name chashtable_uninit
@@ -168,11 +171,13 @@ bool chashtable_contains_value(chashtable_t *hashtable, void *data);
  * @brief Gets the keys in this hash table.
  *
  * @param [in] hashtable: The chashtable_t object.
+ * @param [in] dup: A boolean flag to duplicate every key name inside the
+ *                  returned list or just a reference to the original one.
  *
  * @return On success returns a clist_t object with all keys from this hash
  *         table or NULL otherwise.
  */
-clist_t *chashtable_keys(chashtable_t *hashtable);
+clist_t *chashtable_keys(chashtable_t *hashtable, bool dup);
 
 #endif
 

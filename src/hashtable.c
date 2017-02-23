@@ -53,6 +53,7 @@
     cl_struct_member(char **, keys)                     \
     cl_struct_member(void **, table)                    \
     cl_struct_member(bool, (*compare)(void *, void *))  \
+    cl_struct_member(void, (*release)(void *))          \
     cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(hashtable_s, chashtable_members);
@@ -104,13 +105,15 @@ static clist_t *create_list_of_keys(void)
 /*
  * Copies all stored keys to a list of keys.
  */
-static void add_keys_to_list_of_keys(clist_t *keys, hashtable_s *hashtable)
+static void add_keys_to_list_of_keys(clist_t *keys, hashtable_s *hashtable,
+    bool dup)
 {
     unsigned int i;
 
     for (i = 0; i < hashtable->size; i++)
         if (hashtable->keys[i] != NULL)
-            clist_push(keys, strdup(hashtable->keys[i]), -1);
+            clist_push(keys, (dup == true) ? strdup(hashtable->keys[i])
+                                           : hashtable->keys[i], -1);
 }
 
 /*
@@ -201,8 +204,12 @@ static void destroy_hashtable_s(const struct cref_s *ref)
 
     if (h->keys != NULL) {
         for (i = 0; i < h->size; i++)
-            if (h->keys[i] != NULL)
+            if (h->keys[i] != NULL) {
+                if (h->release != NULL)
+                    (h->release)(h->keys[i]);
+
                 free(h->keys[i]);
+            }
 
         free(h->keys);
     }
@@ -214,7 +221,7 @@ static void destroy_hashtable_s(const struct cref_s *ref)
 }
 
 static hashtable_s *new_hashtable_s(unsigned int size, bool replace_data,
-    bool (*compare)(void *, void *))
+    bool (*compare)(void *, void *), void (*release)(void *))
 {
     hashtable_s *h = NULL;
 
@@ -236,6 +243,7 @@ static hashtable_s *new_hashtable_s(unsigned int size, bool replace_data,
     h->size = size;
     h->replace_data = replace_data;
     h->compare = compare;
+    h->release = release;
     create_keys_storage(h, size);
 
     /* Reference count */
@@ -343,7 +351,7 @@ __PUB_API__ int chashtable_unref(chashtable_t *hashtable)
 }
 
 __PUB_API__ chashtable_t *chashtable_init(unsigned int size, bool replace_data,
-    bool (*compare)(void *, void *))
+    bool (*compare)(void *, void *), void (*release)(void *))
 {
     hashtable_s *h = NULL;
 
@@ -354,7 +362,7 @@ __PUB_API__ chashtable_t *chashtable_init(unsigned int size, bool replace_data,
         return NULL;
     }
 
-    h = new_hashtable_s(size, replace_data, compare);
+    h = new_hashtable_s(size, replace_data, compare, release);
 
     if (NULL == h)
         return NULL;
@@ -527,7 +535,7 @@ __PUB_API__ bool chashtable_contains_value(chashtable_t *hashtable, void *data)
     return ret;
 }
 
-__PUB_API__ clist_t *chashtable_keys(chashtable_t *hashtable)
+__PUB_API__ clist_t *chashtable_keys(chashtable_t *hashtable, bool dup)
 {
     hashtable_s *h;
     clist_t *keys = NULL;
@@ -539,7 +547,7 @@ __PUB_API__ clist_t *chashtable_keys(chashtable_t *hashtable)
         return NULL;
 
     h = chashtable_ref(hashtable);
-    add_keys_to_list_of_keys(keys, h);
+    add_keys_to_list_of_keys(keys, h, dup);
     chashtable_unref(h);
 
     return keys;
