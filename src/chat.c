@@ -802,10 +802,15 @@ __PUB_API__ int chat_stop(chat_t *chat)
 
 __PUB_API__ int chat_fd(chat_t *chat)
 {
+    int fd;
+
     __clib_function_init__(true, chat, CHAT, -1);
     chat_ref(chat);
 
-    return chat_ipc_fd(chat);
+    fd = chat_ipc_fd(chat);
+    chat_unref(chat);
+
+    return fd;
 }
 
 __PUB_API__ chat_t *chat_ref(chat_t *chat)
