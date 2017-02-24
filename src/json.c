@@ -1501,3 +1501,16 @@ __PUB_API__ cstring_t *cjson_to_cstring(const cjson_t *j, bool friendly_output)
     return out;
 }
 
+__PUB_API__ char *cjson_to_string(const cjson_t *j, bool friendly_output)
+{
+    char *p = NULL;
+
+    __clib_function_init_ex__(true, j, CJSON, CJSON_OBJECT_OFFSET, NULL);
+    p = print_value((cjson_s *)j, 0, friendly_output);
+
+    if (NULL == p)
+        return NULL;
+
+    return p;
+}
+

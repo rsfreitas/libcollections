@@ -383,5 +383,18 @@ int cjson_replace_item_in_object(cjson_t *root, const char *name,
  */
 cstring_t *cjson_to_cstring(const cjson_t *j, bool friendly_output);
 
+/**
+ * @name cjson_to_string
+ * @brief Converts a cjson_t object into a human readable C string.
+ *
+ * @param [in] j: The cjson_t object.
+ * @param [in] friendly_output: Boolean flag to format or not the output string
+ *                              in a user friendly format.
+ *
+ * @return On success returns a C string containing the cjson_t object or NULL
+ *         otherwise.
+ */
+char *cjson_to_string(const cjson_t *j, bool friendly_output);
+
 #endif
 
