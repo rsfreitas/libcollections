@@ -450,8 +450,8 @@ __PUB_API__ int ctimer_register(ctimer_t *timers_list, unsigned int exec_interva
     struct ctimer_s **tlist = timers_list;
     struct ctimer_s *t;
 
-    __clib_function_init_ex__(true, timers_list, CTIMER, CTIMER_OBJECT_OFFSET,
-                              -1);
+//    __clib_function_init_ex__(true, timers_list, CTIMER,
+//                              CTIMER_OBJECT_OFFSET, -1);
 
     if ((NULL == timer_name) || (NULL == timer_function)) {
         cset_errno(CL_NULL_ARG);

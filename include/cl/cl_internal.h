@@ -27,10 +27,6 @@
 #ifndef _COLLECTIONS_INTERNAL_H
 #define _COLLECTIONS_INTERNAL_H         1
 
-#ifndef _MAGIC
-# include <magic.h>
-#endif
-
 /*
  * An internal representation of a public function. It does not affect the code
  * or the function visibility. Its objective is only to let clear what is and
@@ -167,10 +163,11 @@ bool dl_is_plugin_enabled(enum cplugin_type type);
 
 /* init.c */
 bool library_initialized(void);
-magic_t *library_get_cookie(void);
 struct random_data *library_random_data(void);
 cjson_t *library_configuration(void);
 const char *library_package_name(void);
+char *library_file_mime_type(const char *filename);
+char *library_buffer_mime_type(const unsigned char *buffer, unsigned int size);
 
 /* glist.c */
 void *cglist_node_ref(void *node, enum cl_object object);

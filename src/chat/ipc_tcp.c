@@ -138,7 +138,7 @@ int tcp_connect(ipc_data_t *ipc_data)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
     struct sockaddr_in sc_in;
-    struct addrinfo *res;
+    struct addrinfo *res = NULL;
 
     if (getaddrinfo(d->ip, NULL, NULL, &res) != 0)
         return -1;
@@ -148,6 +148,9 @@ int tcp_connect(ipc_data_t *ipc_data)
     sc_in.sin_family = AF_INET;
     sc_in.sin_port = htons(d->port);
     memset(sc_in.sin_zero, 0, 8);
+
+    if (res != NULL)
+        freeaddrinfo(res);
 
     return connect(d->fd, (struct sockaddr *)&sc_in, sizeof(struct sockaddr));
 }

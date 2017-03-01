@@ -163,6 +163,7 @@ LIBCOLLECTIONS_0.1 {
         cjson_replace_item_in_array;
         cjson_replace_item_in_object;
         cjson_to_cstring;
+        cjson_to_string;
         cl_type_to_cstring;
         cmemdup;
         collections_version;
@@ -333,7 +334,7 @@ LIBCOLLECTIONS_0.1 {
         cimage_resize;
         cimage_extract;
         cimage_raw_export;
-        cimage_raw_import;
+        cimage_raw_content;
         cimage_cv_export;
         cimage_cv_import;
         cimage_size;

@@ -97,9 +97,10 @@ static int equals_keys(clist_node_t *a, clist_node_t *b)
     return 0;
 }
 
-static clist_t *create_list_of_keys(void)
+static clist_t *create_list_of_keys(bool dup)
 {
-    return clist_create(free, compare_to_keys, filter_keys, equals_keys);
+    return clist_create((dup == true) ? free : NULL, compare_to_keys,
+                        filter_keys, equals_keys);
 }
 
 /*
@@ -204,18 +205,19 @@ static void destroy_hashtable_s(const struct cref_s *ref)
 
     if (h->keys != NULL) {
         for (i = 0; i < h->size; i++)
-            if (h->keys[i] != NULL) {
-                if (h->release != NULL)
-                    (h->release)(h->keys[i]);
-
+            if (h->keys[i] != NULL)
                 free(h->keys[i]);
-            }
 
         free(h->keys);
     }
 
-    if (h->table != NULL)
+    if (h->table != NULL) {
+        for (i = 0; i < h->size; i++)
+            if ((h->table[i] != NULL) && (h->release != NULL))
+                (h->release)(h->table[i]);
+
         free(h->table);
+    }
 
     free(h);
 }
@@ -541,7 +543,7 @@ __PUB_API__ clist_t *chashtable_keys(chashtable_t *hashtable, bool dup)
     clist_t *keys = NULL;
 
     __clib_function_init__(true, hashtable, CHASHTABLE, NULL);
-    keys = create_list_of_keys();
+    keys = create_list_of_keys(dup);
 
     if (NULL == keys)
         return NULL;

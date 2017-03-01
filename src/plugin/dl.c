@@ -186,15 +186,12 @@ void dl_library_uninit(void)
 
 static cstring_t *get_file_info(const char *filename)
 {
+    char *mime;
     cstring_t *s = NULL;
-    magic_t *cookie = NULL;
 
-    cookie = library_get_cookie();
-
-    if (NULL == cookie)
-        return s;
-
-    s = cstring_create("%s", magic_file(*cookie, filename));
+    mime = library_file_mime_type(filename);
+    s = cstring_create("%s", mime);
+    free(mime);
 
     return s;
 }

@@ -39,18 +39,102 @@ static void help(void)
     fprintf(stdout, "\nOptions:\n");
     fprintf(stdout, "  -h\t\t\tShow this help screen.\n");
     fprintf(stdout, "  -f [file name]\tIndicate the image file to "
-                    "handle.\n");
+                    "be filled inside a cimage_t.\n");
 
+    fprintf(stdout, "  -l [file name]\tIndicate the image file name "
+                    "to be loaded.\n");
+
+    fprintf(stdout, "  -e [file name]\tThe exported file name.\n");
+    fprintf(stdout, "  -T [type]\tThe exported image type.\n");
     fprintf(stdout, "\n");
+}
+
+static void print_image_info(cimage_t *image)
+{
+    fprintf(stdout, "Image type: %d\n", cimage_type(image));
+    fprintf(stdout, "Image format: %d\n", cimage_format(image));
+    fprintf(stdout, "Resolution: %dx%d\n", cimage_width(image),
+            cimage_height(image));
+
+    fprintf(stdout, "Number of channels: %d\n", cimage_channels(image));
+    fprintf(stdout, "Size in bytes: %d\n", cimage_size(image));
+}
+
+static cimage_t *load_image_file(const char *filename)
+{
+    cimage_t *image;
+
+    image = cimage_load_from_file(filename);
+
+    if (NULL == image) {
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        return NULL;
+    }
+
+    /* print image info */
+    print_image_info(image);
+
+    return image;
+}
+
+static cimage_t *fill_image_with_file(const char *filename)
+{
+    cimage_t *image;
+    unsigned char *buffer;
+    unsigned int bsize;
+
+    image = cimage_create();
+
+    if (NULL == image) {
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        return NULL;
+    }
+
+    /* load the RAW image */
+    buffer = cfload(filename, &bsize);
+
+    if (NULL == buffer) {
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        return NULL;
+    }
+
+    cimage_fill(image, buffer, bsize, CIMAGE_FMT_YUYV, 640, 480, CIMAGE_FILL_OWNER);
+    print_image_info(image);
+//    free(buffer);
+
+    return image;
+}
+
+static void export_image(cimage_t *image, const char *filename,
+    enum cimage_type type)
+{
+    enum cimage_format fmt;
+
+    if (NULL == image)
+        return;
+
+    fmt = cimage_format(image);
+
+    if ((fmt != CIMAGE_FMT_BGR) || (fmt != CIMAGE_FMT_RGB) ||
+        (fmt != CIMAGE_FMT_GRAY))
+    {
+        /* Needs to convert */
+    }
+
+    if (cimage_save_to_file(image, filename, type) < 0) {
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        return;
+    }
 }
 
 int main(int argc, char **argv)
 {
-    const char *opt = "f:h";
+    const char *opt = "f:hl:T:e:";
     int option;
-    char *filename = NULL;
-    cimage_t *image, *yuyv;
-    cimage_caption_t *caption;
+    bool load = true, export = false;
+    cimage_t *image = NULL;
+    char *filename = NULL, *out_filename = NULL;
+    enum cimage_type type = -1;
 
     do {
         option = getopt(argc, argv, opt);
@@ -60,8 +144,23 @@ int main(int argc, char **argv)
                 help();
                 return 1;
 
+            case 'e':
+                export = true;
+                out_filename = strdup(optarg);
+                break;
+
             case 'f':
+                load = false;
                 filename = strdup(optarg);
+                break;
+
+            case 'l':
+                load = true;
+                filename = strdup(optarg);
+                break;
+
+            case 'T':
+                type = atoi(optarg);
                 break;
 
             case '?':
@@ -76,46 +175,22 @@ int main(int argc, char **argv)
 
     collections_init(NULL);
 
-    unsigned char *ptr, *ptr2;
-    unsigned int size=0;
-    unsigned int w, h;
+    if (load == true)
+        image = load_image_file(filename);
+    else
+        image = fill_image_with_file(filename);
 
-    ptr = cfload(filename, &size);
-
-    yuyv = cimage_create();
-//    image = cimage_load_from_file(filename);
-
-    if (NULL == yuyv) {
-        printf("%s: %d\n", __FUNCTION__, cget_last_error());
-        return -1;
-    }
-
-    if (cimage_fill(yuyv, ptr, size, CIMAGE_FMT_YUYV, 640, 480) != 0) {
-        printf("%s 2: %d\n", __FUNCTION__, cget_last_error());
-        return -1;
-    }
-
-    ptr2 = cimage_raw_export(yuyv, CIMAGE_RAW, CIMAGE_FMT_RGB, &size, &w, &h);
-
-    image = cimage_create();
-    if (cimage_fill(image, ptr2, size, CIMAGE_FMT_RGB, 640, 480) != 0) {
-        printf("%s 3: %d\n", __FUNCTION__, cget_last_error());
-        return -1;
-    }
-
-    printf("%s: %d - %dx%d\n", __FUNCTION__, size, w, h);
-//    caption = caption_configure("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf", 10);
-
-    printf("Image type: %d\n", cimage_type(image));
-
-//    cimage_add_caption(caption, image, 10, 10, CAPTION_WHITE, "teste teste teste");
-    cimage_save_to_file(image, "teste.jpg", CIMAGE_JPG);
-
-    caption_destroy(caption);
-    cimage_destroy(image);
+    if (export == true)
+        export_image(image, out_filename, type);
 
     if (filename != NULL)
         free(filename);
+
+    if (out_filename != NULL)
+        free(out_filename);
+
+    if (image != NULL)
+        cimage_unref(image);
 
     collections_uninit();
 

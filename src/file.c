@@ -135,8 +135,6 @@ __PUB_API__ char *cfreadline(FILE *infile)
 
 __PUB_API__ char *cfile_mime_type(const char *pathname)
 {
-    magic_t *cookie = NULL;
-
     __clib_function_init__(false, NULL, -1, NULL);
 
     if (NULL == pathname) {
@@ -144,19 +142,12 @@ __PUB_API__ char *cfile_mime_type(const char *pathname)
         return NULL;
     }
 
-    cookie = library_get_cookie();
-
-    if (NULL == cookie)
-        return NULL;
-
-    return strdup(magic_file(*cookie, pathname));
+    return library_file_mime_type(pathname);
 }
 
 __PUB_API__ char *cbuffer_mime_type(const unsigned char *buffer,
     unsigned int size)
 {
-    magic_t *cookie = NULL;
-
     __clib_function_init__(false, NULL, -1, NULL);
 
     if ((NULL == buffer) || (size == 0)) {
@@ -164,11 +155,6 @@ __PUB_API__ char *cbuffer_mime_type(const unsigned char *buffer,
         return NULL;
     }
 
-    cookie = library_get_cookie();
-
-    if (NULL == cookie)
-        return NULL;
-
-    return strdup(magic_buffer(*cookie, buffer, size));
+    return library_buffer_mime_type(buffer, size);
 }
 

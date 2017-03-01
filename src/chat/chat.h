@@ -46,7 +46,7 @@ typedef void                    drv_data_t;
 typedef void                    ipc_data_t;
 
 /* Default size of a received package */
-#define DEFAULT_RECV_DATA_SIZE  1024
+#define DEFAULT_RECV_DATA_SIZE  8192
 
 /* Tipos de IPC suportados */
 enum chat_ipc_protocol {

@@ -85,7 +85,9 @@ static const char *__cdescriptions[] = {
     "Data convertion failed",
     "The library was not initialized",
     "Failed creating directory",
-    "A collision inside the hashtable just happened"
+    "A collision inside the hashtable just happened",
+    "Unsupported RAW image",
+    "Unable to load image"
 };
 
 static const char *__cunknown_error = "Unknown error";
