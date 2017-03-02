@@ -220,6 +220,7 @@ static void destroy_hashtable_s(const struct cref_s *ref)
     }
 
     free(h);
+    h = NULL;
 }
 
 static hashtable_s *new_hashtable_s(unsigned int size, bool replace_data,

@@ -49,6 +49,7 @@ static void destroy_circular_queue_s(const struct cref_s *ref)
         cqueue_destroy(q->queue);
 
     free(q);
+    q = NULL;
 }
 
 static circular_queue_s *new_circular_queue_s(unsigned int max_size)

@@ -211,6 +211,7 @@ static void destroy_caption(const struct cref_s *ref)
 
     ft_uninit(caption);
     free(caption);
+    caption = NULL;
 }
 
 static caption_s *new_caption(void)

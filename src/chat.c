@@ -532,6 +532,7 @@ static void restores_sigpipe(chat_s *c)
 static void destroy_chat_s(chat_s *c)
 {
     free(c);
+    c = NULL;
 }
 
 static void __destroy_chat_s(const struct cref_s *ref)

@@ -114,6 +114,7 @@ static void destroy_cobject_s(const struct cref_s *ref)
         cspec_destroy(o->specs);
 
     free(o);
+    o = NULL;
 }
 
 static cobject_s *new_cobject_s(enum cl_type type)

@@ -36,6 +36,9 @@ __PUB_API__ inline void cref_inc(const struct cref_s *ref)
 
 __PUB_API__ inline void cref_dec(const struct cref_s *ref)
 {
+    if (NULL == ref)
+        return;
+
     if (__sync_sub_and_fetch((int *)&ref->count, 1) == 0)
         (ref->free)(ref);
 }

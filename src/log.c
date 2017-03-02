@@ -188,6 +188,7 @@ static void __destroy_clog_s(const struct cref_s *ref)
         cstring_destroy(l->lmsg.msg);
 
     free(l);
+    l = NULL;
 }
 
 /*

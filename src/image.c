@@ -261,6 +261,7 @@ static void destroy_cimage(const struct cref_s *ref)
     }
 
     free(image);
+    image = NULL;
 }
 
 /*
@@ -1510,8 +1511,6 @@ __PUB_API__ const unsigned char *cimage_raw_content(const cimage_t *image,
     *bsize = *width * *height * get_channels_by_format(i->format);
     *format = i->format;
     ptr = i->headless_raw;
-
-    cimage_unref(i);
 
     /*
      * For this to work, the user must keep a reference to the cimage_t

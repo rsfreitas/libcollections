@@ -195,5 +195,8 @@ typedef void                chashtable_t;
 /** circular queue type */
 typedef void                circular_queue_t;
 
+/** circular stack type */
+typedef void                circular_stack_t;
+
 #endif
 

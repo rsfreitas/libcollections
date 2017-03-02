@@ -64,7 +64,8 @@ enum cl_object {
     CQUEUE_NODE,
     CIMAGE_CAPTION,
     CHASHTABLE,
-    CIRCULAR_QUEUE
+    CIRCULAR_QUEUE,
+    CIRCULAR_STACK
 };
 
 struct cobject_hdr {
