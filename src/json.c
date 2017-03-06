@@ -566,13 +566,13 @@ static const char *parse(cjson_s *n, const char *s)
     return NULL;
 }
 
-__PUB_API__ cjson_t *cjson_parse(const cstring_t *string)
+__PUB_API__ cjson_t *cjson_parse_string(const char *string)
 {
     cjson_s *c = NULL;
 
-    __clib_function_init__(true, string, CSTRING, NULL);
+    __clib_function_init__(false, NULL, -1, NULL);
 
-    if (cstring_length(string) == 0) {
+    if (strlen(string) == 0) {
         cset_errno(CL_INVALID_VALUE);
         return NULL;
     }
@@ -583,12 +583,19 @@ __PUB_API__ cjson_t *cjson_parse(const cstring_t *string)
         return NULL;
 
     /* parse */
-    if (parse(c, skip_chars(cstring_valueof(string))) == NULL) {
+    if (parse(c, skip_chars(string)) == NULL) {
         cjson_delete(c);
         return NULL;
     }
 
     return c;
+}
+
+__PUB_API__ cjson_t *cjson_parse(const cstring_t *string)
+{
+    __clib_function_init__(true, string, CSTRING, NULL);
+
+    return cjson_parse_string(cstring_valueof(string));
 }
 
 __PUB_API__ cjson_t *cjson_read_file(const char *filename)
@@ -1492,5 +1499,18 @@ __PUB_API__ cstring_t *cjson_to_cstring(const cjson_t *j, bool friendly_output)
     free(p);
 
     return out;
+}
+
+__PUB_API__ char *cjson_to_string(const cjson_t *j, bool friendly_output)
+{
+    char *p = NULL;
+
+    __clib_function_init_ex__(true, j, CJSON, CJSON_OBJECT_OFFSET, NULL);
+    p = print_value((cjson_s *)j, 0, friendly_output);
+
+    if (NULL == p)
+        return NULL;
+
+    return p;
 }
 

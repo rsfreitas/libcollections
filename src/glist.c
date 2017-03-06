@@ -164,6 +164,7 @@ static void destroy_node(struct gnode_s *node, bool free_content)
     }
 
     free(node);
+    node = NULL;
 }
 
 /*
@@ -226,6 +227,7 @@ static void destroy_list(const struct cref_s *ref)
 
     pthread_mutex_destroy(&list->lock);
     free(list);
+    list = NULL;
 }
 
 /*
@@ -428,7 +430,9 @@ void *cglist_map(const void *list, enum cl_object object,
         return NULL;
     }
 
+    pthread_mutex_lock(&l->lock);
     node = cdll_map(l->list, foo, data);
+    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -450,7 +454,9 @@ void *cglist_map_indexed(const void *list, enum cl_object object,
         return NULL;
     }
 
+    pthread_mutex_lock(&l->lock);
     node = cdll_map_indexed(l->list, foo, data);
+    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -471,7 +477,9 @@ void *cglist_map_reverse(const void *list, enum cl_object object,
         return NULL;
     }
 
+    pthread_mutex_lock(&l->lock);
     node = cdll_map_reverse(l->list, foo, data);
+    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -493,7 +501,9 @@ void *cglist_map_reverse_indexed(const void *list,
         return NULL;
     }
 
+    pthread_mutex_lock(&l->lock);
     node = cdll_map_indexed_reverse(l->list, foo, data);
+    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -508,7 +518,9 @@ void *cglist_at(const void *list, enum cl_object object,
     struct gnode_s *node = NULL;
 
     __clib_function_init__(true, list, object, NULL);
+    pthread_mutex_lock(&l->lock);
     node = cdll_at(l->list, index);
+    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;

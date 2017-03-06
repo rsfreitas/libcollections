@@ -30,7 +30,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          1
-# define BUILD                  15
+# define BUILD                  26
 #endif
 
 #ifdef __cplusplus
@@ -41,12 +41,15 @@ extern "C" {
 #include <cl/cl_cfg.h>
 #include <cl/cl_chat.h>
 #include <cl/cl_counter.h>
+#include <cl/cl_cqueue.h>
+#include <cl/cl_cstack.h>
 #include <cl/cl_datetime.h>
 #include <cl/cl_dir.h>
 #include <cl/cl_dll.h>
 #include <cl/cl_error.h>
 #include <cl/cl_event.h>
 #include <cl/cl_file.h>
+#include <cl/cl_hashtable.h>
 
 #ifdef IMAGEAPI
 # include <cl/cl_image.h>

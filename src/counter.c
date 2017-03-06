@@ -127,6 +127,7 @@ static void destroy_counter_s(const struct cref_s *ref)
 
     pthread_mutex_destroy(&c->lock);
     free(c);
+    c = NULL;
 }
 
 static counter_s *new_counter_s(enum counter_precision precision,

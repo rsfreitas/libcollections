@@ -138,9 +138,9 @@
 /*
  * Plugin mandatory informations.
  */
-#define CPLUGIN_SET_INFO(plugin_name, version, author, description, api) \
+#define CPLUGIN_SET_INFO(name, version, author, description, api) \
     CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *plugin_name(void) {\
-        return #plugin_name;\
+        return #name;\
     }\
 \
     CPLUGIN_EXTERN_C() const char CPLUGIN_FNEXPORT *plugin_version(void) {\

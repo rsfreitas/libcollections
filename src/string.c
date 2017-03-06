@@ -55,6 +55,7 @@ static void destroy_string(const struct cref_s *ref)
         free(string->str);
 
     free(string);
+    string = NULL;
 }
 
 static cstring_s *new_cstring(void)

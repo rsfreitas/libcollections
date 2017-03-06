@@ -26,7 +26,6 @@
 
 #include <stdarg.h>
 
-//#include <freetype2/ft2build.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -212,6 +211,7 @@ static void destroy_caption(const struct cref_s *ref)
 
     ft_uninit(caption);
     free(caption);
+    caption = NULL;
 }
 
 static caption_s *new_caption(void)

@@ -58,6 +58,12 @@ enum cimage_type {
     CIMAGE_PPM
 };
 
+enum cimage_fill_format {
+    CIMAGE_FILL_REFERENCE,
+    CIMAGE_FILL_OWNER,
+    CIMAGE_FILL_COPY
+};
+
 /**
  * @name cimage_ref
  * @brief Increases the reference count for a cimage_t item.
@@ -115,8 +121,8 @@ int cimage_destroy(cimage_t *image);
  * image, without our internal header. To do this, we must correctly inform
  * \a format, \a width and \a height from the RAW image.
  *
- * After doing this the \a buffer the user does not have to free it, the library
- * will do so.
+ * After doing this, the \a buffer the user has does not have to be release it,
+ * the library will do so.
  *
  * @param [in,out] image: The cimage_t object.
  * @param [in] buffer: The image buffer.
@@ -125,12 +131,15 @@ int cimage_destroy(cimage_t *image);
  *                     CIMAGE_RAW.
  * @param [in] width: The image width.
  * @param [in] height: The image height.
+ * @param [in] fill_format: The format which will be used to point to the
+ *                          original image buffer.
  *
  * @return On success returns 0 or -1 otherwise.
  */
 int cimage_fill(cimage_t *image, const unsigned char *buffer,
                 unsigned int bsize, enum cimage_format format,
-                unsigned int width, unsigned int height);
+                unsigned int width, unsigned int height,
+                enum cimage_fill_format fill_format);
 
 /**
  * @name cimage_load
@@ -146,12 +155,14 @@ int cimage_fill(cimage_t *image, const unsigned char *buffer,
  *                    CIMAGE_RAW.
  * @param [in] width: The image width.
  * @param [in] height: The image height.
+ * @param [in] fill_format: The format which will be used to point to the
+ *                          original image buffer.
  *
  * @return On success returns a cimage_t object with the image or NULL otherwise.
  */
 cimage_t *cimage_load(const unsigned char *buffer, unsigned int bsize,
                       enum cimage_format format, unsigned int width,
-                      unsigned int height);
+                      unsigned int height, enum cimage_fill_format fill_format);
 
 /**
  * @name cimage_load_from_file
@@ -270,26 +281,22 @@ unsigned char *cimage_raw_export(const cimage_t *image, enum cimage_type type,
                                  unsigned int *width, unsigned int *height);
 
 /**
- * @name cimage_raw_import
- * @brief Imports an image buffer to a cimage_t object.
+ * @name cimage_raw_content
+ * @brief Gets the content of a RAW image.
  *
- * This is just another name to the cimage_fill function.
+ * @param [in] image: The cimage_t object.
+ * @param [out] bsize: The image buffer size.
+ * @param [out] width: The image width.
+ * @param [out] height: The image height.
+ * @param [out] format: The image format.
  *
- * If \a image already have an image inside it will be released before importing
- * the new one.
- *
- * @param [in] buffer: The image buffer.
- * @param [in] bsize: The image buffer size.
- * @param [in] format The image buffer color format, if we're passing a
- *                    CIMAGE_RAW.
- * @param [in] width: The image width.
- * @param [in] height: The image height.
- *
- * @return On success returns 0 or -1 otherwise.
+ * @return On success returns a pointer to the RAW image inside the object or
+ *         NULL otherwise.
  */
-int cimage_raw_import(cimage_t *image, const unsigned char *buffer,
-                      unsigned int bsize, enum cimage_format format,
-                      unsigned int width, unsigned int height);
+const unsigned char *cimage_raw_content(const cimage_t *image,
+                                        unsigned int *bsize, unsigned int *width,
+                                        unsigned int *height,
+                                        enum cimage_format *format);
 
 /**
  * @name cimage_cv_export
@@ -380,6 +387,24 @@ enum cimage_format cimage_format(const cimage_t *image);
  * @return On success returns the number of channels or -1 otherwise.
  */
 int cimage_channels(const cimage_t *image);
+
+/**
+ * @name craw_cvt_format
+ * @brief Converts between RAW image formats.
+ *
+ * @param [in] buffer: The input RAW image.
+ * @param [in] fmt_in: The input RAW image format.
+ * @param [in] width: The image width.
+ * @param [in] height: The image height.
+ * @param [in] fmt_out: The output RAW image format.
+ * @param [out]  bsize: The output RAW image size.
+ *
+ * @return On success returns a converted RAW image buffer or NULL otherwise.
+ */
+unsigned char *craw_cvt_format(const unsigned char *buffer,
+                               enum cimage_format fmt_in, unsigned int width,
+                               unsigned int height, enum cimage_format fmt_out,
+                               unsigned int *bsize);
 
 #endif
 

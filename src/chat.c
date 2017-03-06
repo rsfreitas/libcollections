@@ -36,7 +36,6 @@
 
 /*
  * TODO: Save client info on the server side.
- *       Validate object in every exported function.
  */
 
 /* IPCs methods */
@@ -533,6 +532,7 @@ static void restores_sigpipe(chat_s *c)
 static void destroy_chat_s(chat_s *c)
 {
     free(c);
+    c = NULL;
 }
 
 static void __destroy_chat_s(const struct cref_s *ref)
@@ -803,10 +803,15 @@ __PUB_API__ int chat_stop(chat_t *chat)
 
 __PUB_API__ int chat_fd(chat_t *chat)
 {
+    int fd;
+
     __clib_function_init__(true, chat, CHAT, -1);
     chat_ref(chat);
 
-    return chat_ipc_fd(chat);
+    fd = chat_ipc_fd(chat);
+    chat_unref(chat);
+
+    return fd;
 }
 
 __PUB_API__ chat_t *chat_ref(chat_t *chat)

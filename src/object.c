@@ -114,6 +114,7 @@ static void destroy_cobject_s(const struct cref_s *ref)
         cspec_destroy(o->specs);
 
     free(o);
+    o = NULL;
 }
 
 static cobject_s *new_cobject_s(enum cl_type type)
@@ -533,6 +534,7 @@ __PUB_API__ enum cl_type cobject_type(const cobject_t *object)
 static int get_object_check(const cobject_t *object, enum cl_type type)
 {
     cobject_s *o = (cobject_s *)object;
+    va_list ap;
 
     if (cobject_is_of_type(object, type) == false) {
         cset_errno(CL_WRONG_TYPE);
@@ -541,7 +543,7 @@ static int get_object_check(const cobject_t *object, enum cl_type type)
 
     if (o->specs != NULL) {
         if (cspec_validate(o->specs, (cobject_t *)object, false,
-                           CL_VALIDATE_IGNORED, 0) == false)
+                           CL_VALIDATE_IGNORED, ap) == false)
         {
             cset_errno(CL_INVALID_VALUE);
             return -1;

@@ -49,7 +49,7 @@ void *clist_node_content(clist_node_t *node);
 
 /**
  * @name clist_node_ref
- * @brief Increases the reference count for a void item.
+ * @brief Increases the reference count for a clist_node_t item.
  *
  * @param [in,out] node: The node item.
  *
@@ -60,7 +60,7 @@ clist_node_t *clist_node_ref(clist_node_t *node);
 
 /**
  * @name clist_node_unref
- * @brief Decreases the reference count for a void item.
+ * @brief Decreases the reference count for a clist_node_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -73,7 +73,7 @@ int clist_node_unref(clist_node_t *node);
 
 /**
  * @name clist_ref
- * @brief Increases the reference count for a void item.
+ * @brief Increases the reference count for a clist_t item.
  *
  * @param [in,out] list: The list item.
  *
@@ -84,7 +84,7 @@ clist_t *clist_ref(clist_t *list);
 
 /**
  * @name clist_unref
- * @brief Decreases the reference count for a void item.
+ * @brief Decreases the reference count for a clist_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -99,8 +99,7 @@ int clist_unref(clist_t *list);
  * @name clist_create
  * @brief Creates a new list object.
  *
- * This function creates a new list object to manipulate all kind of data. It is
- * not recommended manipulate primitive types.
+ * This function creates a new list object to manipulate all kind of data.
  *
  * The function receives a few function pointers to be used by its API,
  * \a free_data is a function used to release the content of a list node,

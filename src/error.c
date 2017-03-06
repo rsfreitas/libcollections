@@ -84,7 +84,10 @@ static const char *__cdescriptions[] = {
     "Failed to get python object dictionary",
     "Data convertion failed",
     "The library was not initialized",
-    "Failed creating directory"
+    "Failed creating directory",
+    "A collision inside the hashtable just happened",
+    "Unsupported RAW image",
+    "Unable to load image"
 };
 
 static const char *__cunknown_error = "Unknown error";

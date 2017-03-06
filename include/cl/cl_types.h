@@ -189,5 +189,14 @@ typedef void                cqueue_node_t;
 /** image text */
 typedef void                cimage_caption_t;
 
+/** hashtable type */
+typedef void                chashtable_t;
+
+/** circular queue type */
+typedef void                circular_queue_t;
+
+/** circular stack type */
+typedef void                circular_stack_t;
+
 #endif
 

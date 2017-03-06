@@ -33,6 +33,10 @@
 # endif
 #endif
 
+#ifndef _LIBINTL_H
+# include <libintl.h>
+#endif
+
 /**
  * @name tr
  * @brief Macro to shorten the gettext term inside a source file.

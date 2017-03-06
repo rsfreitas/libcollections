@@ -49,6 +49,17 @@ enum cjson_type {
 };
 
 /**
+ * @name cjson_parse_string
+ * @brief Parse a C string containing a JSON data.
+ *
+ * @param [in] string: The C string containing a JSON data.
+ *
+ * @return On success returns a cjson_t object containing the JSON data or
+ *         NULL otherwise.
+ */
+cjson_t *cjson_parse_string(const char *string);
+
+/**
  * @name cjson_parse
  * @brief Parse a string containing a JSON data.
  *
@@ -371,6 +382,19 @@ int cjson_replace_item_in_object(cjson_t *root, const char *name,
  * @return On success returns a cstring_t containing the cjson_t object.
  */
 cstring_t *cjson_to_cstring(const cjson_t *j, bool friendly_output);
+
+/**
+ * @name cjson_to_string
+ * @brief Converts a cjson_t object into a human readable C string.
+ *
+ * @param [in] j: The cjson_t object.
+ * @param [in] friendly_output: Boolean flag to format or not the output string
+ *                              in a user friendly format.
+ *
+ * @return On success returns a C string containing the cjson_t object or NULL
+ *         otherwise.
+ */
+char *cjson_to_string(const cjson_t *j, bool friendly_output);
 
 #endif
 
