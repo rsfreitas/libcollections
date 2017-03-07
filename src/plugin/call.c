@@ -29,12 +29,14 @@
 #include "collections.h"
 #include "plugin.h"
 
-int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
+int adjust_arguments(struct cplugin_function_s *foo,
+    struct function_argument *args, int argc, va_list ap)
 {
     int i = 0, increment = 0, t = 0;
     struct cplugin_fdata_s *arg = NULL;
     char *tmp;
     cstring_t *p;
+    void *ptr;
 
     if (foo->type_of_args == CPLUGIN_ARG_FIXED)
         increment = 2;
@@ -44,6 +46,8 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
         cset_errno(CL_WRONG_TYPE);
         return -1;
     }
+
+    args->jargs = cjson_create_object();
 
     for (i = 0; i < argc; i += increment) {
         /*
@@ -145,9 +149,9 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
                 break;
 
             case CL_POINTER:
-                arg->value = cobject_create(CL_POINTER, false,
-                                            va_arg(ap, void *), 0, NULL);
-
+                ptr = va_arg(ap, void *);
+                arg->value = cobject_create(CL_POINTER, false, ptr, 0, NULL);
+                args->ptr = ptr;
                 break;
 
             case CL_BOOLEAN:

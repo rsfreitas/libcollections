@@ -49,6 +49,16 @@
 cobject_t *cobject_create(enum cl_type type, ...);
 
 /**
+ * @name cobject_create_empty
+ * @brief Creates a new empty cobject_t object.
+ *
+ * @param [in] type: The object type of the new object.
+ *
+ * @return On success returns a cobject_t object or NULL othewise.
+ */
+cobject_t *cobject_create_empty(enum cl_type type);
+
+/**
  * @name cobject_create_with_spec
  * @brief Creates a new cobject_t with parameters specification support.
  *
@@ -91,10 +101,10 @@ enum cl_type cobject_type(const cobject_t *object);
 
 /**
  * @name cobject_set
- * @brief Changes the object of a cobject_t.
+ * @brief Changes the content of a cobject_t.
  *
  * @param [in] object: The cobject_t object.
- * @param [in] ...: The new object of the object.
+ * @param [in] ...: The new content of the object.
  *
  * @return On success returns 0 or -1 otherwise.
  */

@@ -431,6 +431,23 @@ __PUB_API__ cobject_t *cobject_create(enum cl_type type, ...)
     return o;
 }
 
+__PUB_API__ cobject_t *cobject_create_empty(enum cl_type type)
+{
+    cobject_s *o = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (validate_cl_type(type) == false)
+        return NULL;
+
+    o = new_cobject_s(type);
+
+    if (NULL == o)
+        return NULL;
+
+    return o;
+}
+
 __PUB_API__ cobject_t *cobject_create_with_spec(enum cl_type type, cspec_t *spec)
 {
     cobject_s *o = NULL;

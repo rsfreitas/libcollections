@@ -304,8 +304,9 @@ int jni_close(void *data, void *handle __attribute__((unused)))
     return 0;
 }
 
-void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
-    cplugin_t *cpl)
+cobject_t *jni_call(void *data, struct cplugin_function_s *foo,
+    uint32_t caller_id, cplugin_t *cpl,
+    struct function_argument *args __attribute__((unused)))
 {
     struct jdriver *j = (struct jdriver *)data;
     cplugin_s *c = (cplugin_s *)cpl;
@@ -315,7 +316,7 @@ void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
     jinfo = (struct jinfo *)info_get_custom_data(c->info);
 
     if (NULL == jinfo)
-        return;
+        return NULL;
 
     if (foo->return_value == CL_VOID) {
         if (foo->type_of_args != CPLUGIN_NO_ARGS) {
@@ -337,6 +338,8 @@ void jni_call(void *data, struct cplugin_function_s *foo, uint32_t caller_id,
                                                 caller_id, &ret);
         }
     }
+
+    return NULL;
 }
 
 int jni_plugin_startup(void *data, void *handle, cplugin_info_t *info)

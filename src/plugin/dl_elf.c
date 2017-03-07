@@ -37,14 +37,107 @@ struct elf_info {
     void    (*shutdown)(void);
 };
 
-/* Exported functions prototype */
+/* Exported function prototypes */
 typedef void (*elf_exported_function)(uint32_t, cplugin_t *, cplugin_arg_t *);
 typedef int (*elf_startup_function)(void);
 typedef void (*elf_shutdown_function)(void);
 typedef const char *(*elf_plugin_info)(void);
 
-/* Function name to get the internal plugin information */
-#define CPLUGIN_SET_PLUGIN_ENTRY_NAME_SYMBOL    "cplugin_set_plugin_entry_name"
+/** void function classes by arguments */
+typedef void (*elf_v_jptr)(const char *, void *);
+typedef void (*elf_v_j)(const char *);
+typedef void (*elf_v_ptr)(void *);
+typedef void (*elf_v)(void);
+
+/** char function classes by arguments */
+typedef char (*elf_c_jptr)(const char *, void *);
+typedef char (*elf_c_j)(const char *);
+typedef char (*elf_c_ptr)(void *);
+typedef char (*elf_c)(void);
+
+/** unsigned char function classes by arguments */
+typedef unsigned char (*elf_uc_jptr)(const char *, void *);
+typedef unsigned char (*elf_uc_j)(const char *);
+typedef unsigned char (*elf_uc_ptr)(void *);
+typedef unsigned char (*elf_uc)(void);
+
+/** int function classes by arguments */
+typedef int (*elf_i_jptr)(const char *, void *);
+typedef int (*elf_i_j)(const char *);
+typedef int (*elf_i_ptr)(void *);
+typedef int (*elf_i)(void);
+
+/** unsigned int function classes by arguments */
+typedef unsigned int (*elf_ui_jptr)(const char *, void *);
+typedef unsigned int (*elf_ui_j)(const char *);
+typedef unsigned int (*elf_ui_ptr)(void *);
+typedef unsigned int (*elf_ui)(void);
+
+/** short int function classes by arguments */
+typedef short int (*elf_si_jptr)(const char *, void *);
+typedef short int (*elf_si_j)(const char *);
+typedef short int (*elf_si_ptr)(void *);
+typedef short int (*elf_si)(void);
+
+/** unsigned short int function classes by arguments */
+typedef unsigned short int (*elf_usi_jptr)(const char *, void *);
+typedef unsigned short int (*elf_usi_j)(const char *);
+typedef unsigned short int (*elf_usi_ptr)(void *);
+typedef unsigned short int (*elf_usi)(void);
+
+/** long function classes by arguments */
+typedef long (*elf_l_jptr)(const char *, void *);
+typedef long (*elf_l_j)(const char *);
+typedef long (*elf_l_ptr)(void *);
+typedef long (*elf_l)(void);
+
+/** unsigned long function classes by arguments */
+typedef unsigned long (*elf_ul_jptr)(const char *, void *);
+typedef unsigned long (*elf_ul_j)(const char *);
+typedef unsigned long (*elf_ul_ptr)(void *);
+typedef unsigned long (*elf_ul)(void);
+
+/** long long function classes by arguments */
+typedef long long (*elf_ll_jptr)(const char *, void *);
+typedef long long (*elf_ll_j)(const char *);
+typedef long long (*elf_ll_ptr)(void *);
+typedef long long (*elf_ll)(void);
+
+/** unsigned long long function classes by arguments */
+typedef unsigned long long (*elf_ull_jptr)(const char *, void *);
+typedef unsigned long long (*elf_ull_j)(const char *);
+typedef unsigned long long (*elf_ull_ptr)(void *);
+typedef unsigned long long (*elf_ull)(void);
+
+/** float function classes by arguments */
+typedef float (*elf_f_jptr)(const char *, void *);
+typedef float (*elf_f_j)(const char *);
+typedef float (*elf_f_ptr)(void *);
+typedef float (*elf_f)(void);
+
+/** double function classes by arguments */
+typedef double (*elf_d_jptr)(const char *, void *);
+typedef double (*elf_d_j)(const char *);
+typedef double (*elf_d_ptr)(void *);
+typedef double (*elf_d)(void);
+
+/** string function classes by arguments */
+typedef char *(*elf_cp_jptr)(const char *, void *);
+typedef char *(*elf_cp_j)(const char *);
+typedef char *(*elf_cp_ptr)(void *);
+typedef char *(*elf_cp)(void);
+
+/** pointer function classes by arguments */
+typedef void *(*elf_p_jptr)(const char *, void *);
+typedef void *(*elf_p_j)(const char *);
+typedef void *(*elf_p_ptr)(void *);
+typedef void *(*elf_p)(void);
+
+/** boolean function classes by arguments */
+typedef bool (*elf_b_jptr)(const char *, void *);
+typedef bool (*elf_b_j)(const char *);
+typedef bool (*elf_b_ptr)(void *);
+typedef bool (*elf_b)(void);
 
 /*
  * Sets the startup and shutdown function pointers to the real functions
@@ -184,17 +277,693 @@ int elf_close(void *data __attribute__((unused)), void *handle)
     return dlclose(handle);
 }
 
-void elf_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
-    uint32_t caller_id, cplugin_t *cpl)
+static void elf_call_v(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
 {
-    elf_exported_function f;
+    elf_v f;
+    elf_v_ptr fptr;
+    elf_v_j fj;
+    elf_v_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            f();
+            break;
+
+        default:
+            break;
+    }
+}
+
+static char elf_call_c(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    char c = -1;
+    elf_c f;
+    elf_c_ptr fptr;
+    elf_c_j fj;
+    elf_c_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            c = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            c = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            c = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            c = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return c;
+}
+
+static unsigned char elf_call_uc(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    unsigned char c = 0;
+    elf_uc f;
+    elf_uc_ptr fptr;
+    elf_uc_j fj;
+    elf_uc_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            c = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            c = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            c = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            c = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return c;
+}
+
+static int elf_call_i(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    int i = -1;
+    elf_i f;
+    elf_i_ptr fptr;
+    elf_i_j fj;
+    elf_i_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            i = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            i = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            i = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            i = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return i;
+}
+
+static unsigned int elf_call_ui(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    unsigned int i = 0;
+    elf_ui f;
+    elf_ui_ptr fptr;
+    elf_ui_j fj;
+    elf_ui_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            i = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            i = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            i = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            i = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return i;
+}
+
+static short int elf_call_si(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    short int i = -1;
+    elf_si f;
+    elf_si_ptr fptr;
+    elf_si_j fj;
+    elf_si_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            i = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            i = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            i = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            i = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return i;
+}
+
+static unsigned short int elf_call_usi(struct cplugin_function_s *foo,
+    const char *jarg, void *ptr_arg)
+{
+    unsigned short int i = 0;
+    elf_usi f;
+    elf_usi_ptr fptr;
+    elf_usi_j fj;
+    elf_usi_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            i = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            i = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            i = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            i = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return i;
+}
+
+static long elf_call_l(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    long l = -1;
+    elf_l f;
+    elf_l_ptr fptr;
+    elf_l_j fj;
+    elf_l_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            l = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            l = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            l = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            l = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return l;
+}
+
+static unsigned long elf_call_ul(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    unsigned long l = 0;
+    elf_ul f;
+    elf_ul_ptr fptr;
+    elf_ul_j fj;
+    elf_ul_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            l = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            l = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            l = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            l = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return l;
+}
+
+static long long elf_call_ll(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    long long l = -1;
+    elf_ll f;
+    elf_ll_ptr fptr;
+    elf_ll_j fj;
+    elf_ll_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            l = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            l = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            l = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            l = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return l;
+}
+
+static unsigned long long elf_call_ull(struct cplugin_function_s *foo,
+    const char *jarg, void *ptr_arg)
+{
+    unsigned long long l = 0;
+    elf_ull f;
+    elf_ull_ptr fptr;
+    elf_ull_j fj;
+    elf_ull_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            l = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            l = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            l = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            l = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return l;
+}
+
+static float elf_call_f(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    float d = 0.0f;
+    elf_f f;
+    elf_f_ptr fptr;
+    elf_f_j fj;
+    elf_f_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            d = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            d = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            d = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            d = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return d;
+}
+
+static double elf_call_d(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    double d = 0.0;
+    elf_d f;
+    elf_d_ptr fptr;
+    elf_d_j fj;
+    elf_d_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            d = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            d = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            d = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            d = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return d;
+}
+
+static bool elf_call_b(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    bool b = false;
+    elf_b f;
+    elf_b_ptr fptr;
+    elf_b_j fj;
+    elf_b_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            b = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            b = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            b = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            b = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return b;
+}
+
+static char *elf_call_cp(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    char *ptr = NULL;
+    elf_cp f;
+    elf_cp_ptr fptr;
+    elf_cp_j fj;
+    elf_cp_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            ptr = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            ptr = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            ptr = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            ptr = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return ptr;
+}
+
+static void *elf_call_p(struct cplugin_function_s *foo, const char *jarg,
+    void *ptr_arg)
+{
+    void *ptr = NULL;
+    elf_p f;
+    elf_p_ptr fptr;
+    elf_p_j fj;
+    elf_p_jptr fjptr;
+
+    switch (foo->function_class) {
+        case CPL_FUNCTION_JPTR:
+            fjptr = foo->symbol;
+            ptr = fjptr(jarg, ptr_arg);
+            break;
+
+        case CPL_FUNCTION_J:
+            fj = foo->symbol;
+            ptr = fj(jarg);
+            break;
+
+        case CPL_FUNCTION_PTR:
+            fptr = foo->symbol;
+            ptr = fptr(ptr_arg);
+            break;
+
+        case CPL_FUNCTION_VOID:
+            f = foo->symbol;
+            ptr = f();
+            break;
+
+        default:
+            break;
+    }
+
+    return ptr;
+}
+
+cobject_t *elf_call(void *data __attribute__((unused)),
+    struct cplugin_function_s *foo, uint32_t caller_id, cplugin_t *cpl,
+    struct function_argument *args)
+{
+//    elf_exported_function f;
+    cobject_t *ret = NULL;
+    char *tmp;
+    void *ptr;
 
     if (NULL == foo->symbol)
         /* do nothing */
-        return;
+        return NULL;
 
-    f = foo->symbol;
-    f(caller_id, cpl, foo->args);
+//    f = foo->symbol;
+//    f(caller_id, cpl, foo->args);
+    ret = cobject_create_empty(foo->return_value);
+
+    switch (foo->return_value) {
+        case CL_VOID:
+            elf_call_v(foo, args->jargs, args->ptr);
+            break;
+
+        case CL_CHAR:
+            cobject_set_char(ret, elf_call_c(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_UCHAR:
+            cobject_set_uchar(ret, elf_call_uc(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_INT:
+            cobject_set_int(ret, elf_call_i(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_UINT:
+            cobject_set_uint(ret, elf_call_ui(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_SINT:
+            cobject_set_sint(ret, elf_call_si(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_USINT:
+            cobject_set_usint(ret, elf_call_usi(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_FLOAT:
+            cobject_set_float(ret, elf_call_f(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_DOUBLE:
+            cobject_set_double(ret, elf_call_d(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_LONG:
+            cobject_set_long(ret, elf_call_l(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_ULONG:
+            cobject_set_ulong(ret, elf_call_ul(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_LLONG:
+            cobject_set_llong(ret, elf_call_ll(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_ULLONG:
+            cobject_set_ullong(ret, elf_call_ull(foo, args->jargs, args->ptr));
+            break;
+
+        case CL_POINTER:
+            ptr = elf_call_p(foo, args->jargs, args->ptr);
+            cobject_set(ret, false, ptr, -1);
+            break;
+
+        case CL_STRING:
+            tmp = elf_call_cp(foo, args->jargs, args->ptr);
+
+            if (tmp != NULL) {
+                cobject_set_string(ret, tmp);
+                free(tmp);
+            } else {
+                /* We must destroy the object and return NULL to the caller */
+                cobject_destroy(ret);
+                ret = NULL;
+            }
+
+            break;
+
+        case CL_BOOLEAN:
+            cobject_set_boolean(ret, elf_call_b(foo, args->jargs, args->ptr));
+            break;
+
+        default:
+            break;
+    }
+
+    return ret;
 }
 
 int elf_plugin_startup(void *data __attribute__((unused)),

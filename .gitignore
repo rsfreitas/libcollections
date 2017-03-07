@@ -37,3 +37,9 @@
 
 # Python objects
 *.pyc
+
+# Misc files
+*.jpg
+*.tar
+*.json
+

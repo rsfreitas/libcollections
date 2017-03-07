@@ -396,6 +396,10 @@ __PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
     int fargc = 0;
     cobject_t *cplv = NULL;
     uint32_t caller_id = 0;
+    struct function_argument args = {
+        .jargs = NULL,
+        .ptr = NULL
+    };
 
     __clib_function_init__(true, cpl, CPLUGIN, NULL);
 
@@ -421,7 +425,7 @@ __PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
 
     /* Set up arguments value */
     if (foo->type_of_args != CPLUGIN_NO_ARGS)
-        if (adjust_arguments(foo, argc, ap) < 0)
+        if (adjust_arguments(foo, &args, argc, ap) < 0)
             return NULL;
 
     /*
@@ -442,10 +446,10 @@ __PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
      */
 
     /* Call the function */
-    dl_call(pl, foo, caller_id);
+    cplv = dl_call(pl, foo, caller_id, &args);
 
-    if (foo->return_value != CL_VOID)
-        cplv = cplugin_get_return_value(pl, function_name, caller_id);
+//    if (foo->return_value != CL_VOID)
+//        cplv = cplugin_get_return_value(pl, function_name, caller_id);
 
     /* Unload arguments */
     if (foo->type_of_args == CPLUGIN_ARG_VAR) {
@@ -454,7 +458,14 @@ __PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
     }
 
     if ((NULL == cplv) && (foo->return_value != CL_VOID))
+        /* It's an error? */
         return NULL;
+
+    /* Release the returned object if we're a void function */
+    if (foo->return_value == CL_VOID) {
+        cobject_destroy(cplv);
+        cplv = NULL;
+    }
 
     return cplv;
 }

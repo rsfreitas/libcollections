@@ -55,9 +55,22 @@ enum cplugin_info {
     CPLUGIN_INFO_AUTHOR
 };
 
+enum cpl_function_class {
+    CPL_FUNCTION_UNKNOWN,
+    CPL_FUNCTION_JPTR,
+    CPL_FUNCTION_J,
+    CPL_FUNCTION_PTR,
+    CPL_FUNCTION_VOID
+};
+
 /** Structures */
 
 struct cplugin_function_s;
+
+struct function_argument {
+    cjson_t             *jargs;
+    void                *ptr;
+};
 
 struct dl_plugin_driver {
     enum cplugin_type   type;
@@ -76,8 +89,9 @@ struct dl_plugin_driver {
 
     void                *(*open)(void *, const char *);
     int                 (*close)(void *, void *);
-    void                (*call)(void *, struct cplugin_function_s *,
-                                uint32_t, cplugin_t *);
+    cobject_t           *(*call)(void *, struct cplugin_function_s *,
+                                 uint32_t, cplugin_t *,
+                                 struct function_argument *);
 
     int                 (*plugin_startup)(void *, void *,
                                           cplugin_info_t *);
@@ -113,6 +127,7 @@ struct cplugin_function_s {
     enum cl_type                return_value;
     struct cplugin_fdata_s      *values;
     pthread_mutex_t             m_return_value;
+    enum cpl_function_class     function_class;
 
     /* Function arguments */
     enum cplugin_arg            type_of_args;
@@ -162,7 +177,8 @@ enum cl_type api_function_arg_type(const cplugin_info_t *info,
                                    const char *argument_name);
 
 /* call.c */
-int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap);
+int adjust_arguments(struct cplugin_function_s *foo,
+                     struct function_argument *args, int argc, va_list ap);
 
 /* dl.c */
 void dl_enable_plugin_types(enum cplugin_type types);
@@ -174,8 +190,8 @@ int dl_load_functions(struct dl_plugin_driver *drv,
 
 void dl_unload_functions(cplugin_s *cpl);
 cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle);
-void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
-             uint32_t caller_id);
+cobject_t * dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
+                    uint32_t caller_id, struct function_argument *args);
 
 int dl_plugin_shutdown(cplugin_s *cpl);
 int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,

@@ -117,7 +117,10 @@ static void add_preconfigured_paths(void)
     for (i = 0; i < t; i++) {
         p = cjson_get_array_item(paths, i);
         s = cjson_get_object_value(p);
-        asprintf(&tmp, "sys.path.append(%s)", cstring_valueof(s));
+
+        if (asprintf(&tmp, "sys.path.append(%s)", cstring_valueof(s)) == -1)
+            return;
+
         PyRun_SimpleString(tmp);
         free(tmp);
     }
@@ -127,6 +130,8 @@ void *py_library_init(void)
 {
     setenv("PYTHONPATH", "/usr/local/lib", 1);
     Py_Initialize();
+    PyEval_InitThreads();
+    PyEval_ReleaseLock();
     add_preconfigured_paths();
 
     return NULL;
@@ -134,7 +139,10 @@ void *py_library_init(void)
 
 void py_library_uninit(void *data __attribute__((unused)))
 {
-    Py_Finalize();
+    printf("%s\n", __FUNCTION__);
+    PyEval_AcquireLock();
+    /* FIXME: We're having a segfault here on multi-thread applications */
+//    Py_Finalize();
 }
 
 /*
@@ -146,6 +154,7 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
     PyObject *class = NULL, *instance = NULL, *result = NULL;
     unsigned int i = 0, t = 0;
     cplugin_info_t *info = NULL;
+    PyGILState_STATE gstate;
     struct plugin_internal_function pyinfo[] = {
         /*
          * These names are based upon the method names from the CpluginEntryAPI
@@ -160,6 +169,7 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
         { "get_shutdown",       NULL }
     };
 
+    gstate = PyGILState_Ensure();
     class = PyDict_GetItemString(dict, "CpluginMainEntry");
 
     if (NULL == class)
@@ -180,7 +190,7 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
         result = PyObject_CallMethod(instance, pyinfo[i].name, NULL);
 
         if (NULL == result)
-            return NULL;
+            goto end_block;
 
         pyinfo[i].return_value = PyString_AS_STRING(result);
         Py_DECREF(result);
@@ -198,6 +208,11 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 
     Py_DECREF(instance);
 
+    for (i = 0; i < t; i++)
+        free(pyinfo[i].data);
+
+end_block:
+    PyGILState_Release(gstate);
     return info;
 }
 
@@ -241,6 +256,7 @@ void *py_open(void *data __attribute__((unused)), const char *pathname)
     module = PyImport_Import(pname);
 
     if (NULL == module) {
+        PyErr_Print();
         cset_errno(CL_PY_IMPORT_FAILED);
         return NULL;
     }
@@ -267,8 +283,9 @@ int py_close(void *data __attribute__((unused)), void *ptr)
     return 0;
 }
 
-void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
-    uint32_t caller_id, cplugin_t *cpl)
+cobject_t *py_call(void *data __attribute__((unused)),
+    struct cplugin_function_s *foo, uint32_t caller_id, cplugin_t *cpl,
+    struct function_argument *args __attribute__((unused)))
 {
     PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL, *pret;
     PyGILState_STATE gstate;
@@ -304,6 +321,8 @@ void py_call(void *data __attribute__((unused)), struct cplugin_function_s *foo,
     Py_DECREF(pvalue);
 
     PyGILState_Release(gstate);
+
+    return NULL;
 }
 
 int py_plugin_startup(void *data __attribute__((unused)), void *handle,
@@ -312,7 +331,9 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
     PyObject *dict, *foo, *pvalue, *pret;
     struct py_info *plinfo = NULL;
     int ret = -1;
+    PyGILState_STATE gstate;
 
+    gstate = PyGILState_Ensure();
     plinfo = (struct py_info *)info_get_custom_data(info);
 
     if (NULL == plinfo)
@@ -332,6 +353,8 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
         Py_DECREF(pvalue);
     }
 
+    PyGILState_Release(gstate);
+
     return ret;
 }
 
@@ -340,7 +363,9 @@ int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
 {
     PyObject *dict, *foo, *pvalue, *pret;
     struct py_info *plinfo = NULL;
+    PyGILState_STATE gstate;
 
+    gstate = PyGILState_Ensure();
     plinfo = (struct py_info *)info_get_custom_data(info);
 
     if (NULL == plinfo)
@@ -357,6 +382,7 @@ int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
     }
 
     release_custom_plugin_info(plinfo);
+    PyGILState_Release(gstate);
 
     return 0;
 }

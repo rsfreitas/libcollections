@@ -357,15 +357,16 @@ end_block:
     return ret;
 }
 
-void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
-    uint32_t caller_id)
+cobject_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
+    uint32_t caller_id, struct function_argument *args)
 {
     struct dl_plugin_driver *drv = NULL;
 
     if ((NULL == cpl) || (NULL == cpl->dl))
-        return;
+        return NULL;
 
     drv = cpl->dl;
-    (drv->call)(drv->data, foo, caller_id, cpl);
+
+    return (drv->call)(drv->data, foo, caller_id, cpl, args);
 }
 
