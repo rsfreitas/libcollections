@@ -1,0 +1,12 @@
+[package]
+name = "rust"
+version = "0.1.0"
+authors = ["Rodrigo Freitas"]
+
+[lib]
+name = "plugin"
+crate-type = ["dylib"]
+
+[dependencies]
+libc = "0.2.0"
+
