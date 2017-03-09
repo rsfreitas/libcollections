@@ -55,20 +55,12 @@ enum cplugin_info {
     CPLUGIN_INFO_AUTHOR
 };
 
-enum cpl_function_class {
-    CPL_FUNCTION_UNKNOWN,
-    CPL_FUNCTION_JPTR,
-    CPL_FUNCTION_J,
-    CPL_FUNCTION_PTR,
-    CPL_FUNCTION_VOID
-};
-
 /** Structures */
 
 struct cplugin_function_s;
 
 struct function_argument {
-    cjson_t             *jargs;
+    char                *jargs;
     void                *ptr;
 };
 
@@ -90,8 +82,7 @@ struct dl_plugin_driver {
     void                *(*open)(void *, const char *);
     int                 (*close)(void *, void *);
     cobject_t           *(*call)(void *, struct cplugin_function_s *,
-                                 uint32_t, cplugin_t *,
-                                 struct function_argument *);
+                                 cplugin_t *, struct function_argument *);
 
     int                 (*plugin_startup)(void *, void *,
                                           cplugin_info_t *);
@@ -109,8 +100,6 @@ struct cplugin_fdata_s {
     struct cobject_hdr  hdr;
     char                *name;
     enum cl_type        type;
-    cobject_t           *value;
-    uint32_t            caller_id;
 };
 
 #define CPLUGIN_ARG_OBJECT_OFFSET   \
@@ -125,12 +114,9 @@ struct cplugin_function_s {
 
     /* Function type and return value */
     enum cl_type                return_value;
-    struct cplugin_fdata_s      *values;
-    pthread_mutex_t             m_return_value;
-    enum cpl_function_class     function_class;
 
     /* Function arguments */
-    enum cplugin_arg            type_of_args;
+    enum cplugin_arg_mode       arg_mode;
     struct cplugin_fdata_s      *args;
 
     /* Pointer to the real function */
@@ -169,8 +155,8 @@ cstring_list_t *api_function_arguments(const cplugin_info_t *info,
 enum cl_type api_function_return_type(const cplugin_info_t *info,
                                       const char *function_name);
 
-enum cplugin_arg api_function_arg_mode(const cplugin_info_t *info,
-                                       const char *function_name);
+enum cplugin_arg_mode api_function_arg_mode(const cplugin_info_t *info,
+                                            const char *function_name);
 
 enum cl_type api_function_arg_type(const cplugin_info_t *info,
                                    const char *function_name,
@@ -191,7 +177,7 @@ int dl_load_functions(struct dl_plugin_driver *drv,
 void dl_unload_functions(cplugin_s *cpl);
 cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle);
 cobject_t * dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
-                    uint32_t caller_id, struct function_argument *args);
+                    struct function_argument *args);
 
 int dl_plugin_shutdown(cplugin_s *cpl);
 int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
@@ -217,34 +203,29 @@ void info_set_custom_data(cplugin_info_t *info, void *ptr);
 void *info_get_custom_data(cplugin_info_t *info);
 
 /* plugin_misc.c */
-struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,
-                                            uint32_t caller_id);
-
+struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type);
 void destroy_cplugin_fdata_s(void *a);
 cplugin_s *new_cplugin_s(void);
 int destroy_cplugin_s(cplugin_s *cpl);
 
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
                                                   enum cl_type return_value,
-                                                  enum cplugin_arg arg_type,
+                                                  enum cplugin_arg_mode arg_mode,
                                                   struct cplugin_fdata_s *args);
 
 void destroy_cplugin_function_s_list(struct cplugin_function_s *flist);
 int search_cplugin_function_s(void *a, void *b);
 int search_cplugin_fdata_s(void *a, void *b);
-int search_cplugin_fdata_s_by_caller_id(void *a, void *b);
 struct cplugin_list_s *new_cplugin_list_s(const char *name, enum cl_type type);
-
 void destroy_cplugin_list_s(struct cplugin_list_s *l);
-uint32_t random_caller_id(struct cplugin_function_s *foo);
 
 struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
 
 /* rv.c */
-cobject_t *cplugin_get_return_value(cplugin_s *cpl,
-                                    const char *function_name,
-                                    uint32_t caller_id);
+//cobject_t *cplugin_get_return_value(cplugin_s *cpl,
+//                                    const char *function_name,
+//                                    uint32_t caller_id);
 
 #endif
 

@@ -515,5 +515,7 @@ bool cstring_contains(const cstring_t *string, const char *needle);
  */
 int cstring_count_matches(const cstring_t *string, const char *needle);
 
+int cstring_set_content(cstring_t *s, const char *content);
+
 #endif
 

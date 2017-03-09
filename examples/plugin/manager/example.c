@@ -206,6 +206,7 @@ int main(int argc, char **argv)
     bool info = false;
     cobject_t *ret;
     int i, run = 1;
+    void *p;
 
     do {
         option = getopt(argc, argv, opt);
@@ -275,27 +276,30 @@ int main(int argc, char **argv)
                      "arg14", "Sample text",
                      NULL);
 
-        ret = cplugin_call(cpl, "foo_class", "data", "Ola, sou uma classe",
+/*        ret = cplugin_call(cpl, "foo_class", "data", "Ola, sou uma classe",
                            NULL);
 
         printf("Type of return: %d\n", cobject_type(ret));
+        p = COBJECT_AS_POINTER(ret);
         cobject_unref(ret);
-        ret = cplugin_call(cpl, "foo_pointer", "data", COBJECT_AS_POINTER(ret),
-                           NULL);
-
+        ret = cplugin_call(cpl, "foo_pointer", "data", p, NULL);
         printf("Second return: %d\n", COBJECT_AS_INT(ret));
-        cobject_unref(ret);
+        cobject_unref(ret);*/
     }
 
     cplugin_unload(cpl);
+    printf("%s\n", __FUNCTION__);
 
     if (filename != NULL)
         free(filename);
+    printf("%s\n", __FUNCTION__);
 
     collections_uninit();
+    printf("%s\n", __FUNCTION__);
 
     /* This makes valgrind report no memory leaks. */
     cexit();
+    printf("%s\n", __FUNCTION__);
 
     return 0;
 }

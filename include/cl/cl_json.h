@@ -396,5 +396,7 @@ cstring_t *cjson_to_cstring(const cjson_t *j, bool friendly_output);
  */
 char *cjson_to_string(const cjson_t *j, bool friendly_output);
 
+cjson_t *cjson_create_stringv(const char *fmt, ...);
+
 #endif
 

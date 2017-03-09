@@ -285,23 +285,25 @@ static void elf_call_v(struct cplugin_function_s *foo, const char *jarg,
     elf_v_j fj;
     elf_v_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    printf("%s: '%s'\n", __FUNCTION__, jarg);
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             fj(jarg);
+            printf("TESTE\n");
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             f();
             break;
@@ -320,23 +322,23 @@ static char elf_call_c(struct cplugin_function_s *foo, const char *jarg,
     elf_c_j fj;
     elf_c_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             c = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             c = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             c = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             c = f();
             break;
@@ -357,23 +359,23 @@ static unsigned char elf_call_uc(struct cplugin_function_s *foo, const char *jar
     elf_uc_j fj;
     elf_uc_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             c = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             c = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             c = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             c = f();
             break;
@@ -394,23 +396,23 @@ static int elf_call_i(struct cplugin_function_s *foo, const char *jarg,
     elf_i_j fj;
     elf_i_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             i = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             i = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             i = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             i = f();
             break;
@@ -431,23 +433,23 @@ static unsigned int elf_call_ui(struct cplugin_function_s *foo, const char *jarg
     elf_ui_j fj;
     elf_ui_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             i = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             i = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             i = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             i = f();
             break;
@@ -468,23 +470,23 @@ static short int elf_call_si(struct cplugin_function_s *foo, const char *jarg,
     elf_si_j fj;
     elf_si_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             i = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             i = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             i = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             i = f();
             break;
@@ -505,23 +507,23 @@ static unsigned short int elf_call_usi(struct cplugin_function_s *foo,
     elf_usi_j fj;
     elf_usi_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             i = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             i = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             i = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             i = f();
             break;
@@ -542,23 +544,23 @@ static long elf_call_l(struct cplugin_function_s *foo, const char *jarg,
     elf_l_j fj;
     elf_l_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             l = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             l = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             l = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             l = f();
             break;
@@ -579,23 +581,23 @@ static unsigned long elf_call_ul(struct cplugin_function_s *foo, const char *jar
     elf_ul_j fj;
     elf_ul_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             l = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             l = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             l = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             l = f();
             break;
@@ -616,23 +618,23 @@ static long long elf_call_ll(struct cplugin_function_s *foo, const char *jarg,
     elf_ll_j fj;
     elf_ll_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             l = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             l = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             l = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             l = f();
             break;
@@ -653,23 +655,23 @@ static unsigned long long elf_call_ull(struct cplugin_function_s *foo,
     elf_ull_j fj;
     elf_ull_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             l = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             l = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             l = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             l = f();
             break;
@@ -690,23 +692,23 @@ static float elf_call_f(struct cplugin_function_s *foo, const char *jarg,
     elf_f_j fj;
     elf_f_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             d = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             d = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             d = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             d = f();
             break;
@@ -727,23 +729,23 @@ static double elf_call_d(struct cplugin_function_s *foo, const char *jarg,
     elf_d_j fj;
     elf_d_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             d = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             d = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             d = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             d = f();
             break;
@@ -764,23 +766,23 @@ static bool elf_call_b(struct cplugin_function_s *foo, const char *jarg,
     elf_b_j fj;
     elf_b_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             b = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             b = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             b = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             b = f();
             break;
@@ -801,23 +803,23 @@ static char *elf_call_cp(struct cplugin_function_s *foo, const char *jarg,
     elf_cp_j fj;
     elf_cp_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             ptr = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             ptr = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             ptr = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             ptr = f();
             break;
@@ -838,23 +840,23 @@ static void *elf_call_p(struct cplugin_function_s *foo, const char *jarg,
     elf_p_j fj;
     elf_p_jptr fjptr;
 
-    switch (foo->function_class) {
-        case CPL_FUNCTION_JPTR:
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
             ptr = fjptr(jarg, ptr_arg);
             break;
 
-        case CPL_FUNCTION_J:
+        case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             ptr = fj(jarg);
             break;
 
-        case CPL_FUNCTION_PTR:
+        case CPLUGIN_ARGS_POINTER_ONLY:
             fptr = foo->symbol;
             ptr = fptr(ptr_arg);
             break;
 
-        case CPL_FUNCTION_VOID:
+        case CPLUGIN_ARGS_VOID:
             f = foo->symbol;
             ptr = f();
             break;
@@ -867,10 +869,9 @@ static void *elf_call_p(struct cplugin_function_s *foo, const char *jarg,
 }
 
 cobject_t *elf_call(void *data __attribute__((unused)),
-    struct cplugin_function_s *foo, uint32_t caller_id, cplugin_t *cpl,
+    struct cplugin_function_s *foo, cplugin_t *cpl __attribute__((unused)),
     struct function_argument *args)
 {
-//    elf_exported_function f;
     cobject_t *ret = NULL;
     char *tmp;
     void *ptr;
@@ -879,8 +880,6 @@ cobject_t *elf_call(void *data __attribute__((unused)),
         /* do nothing */
         return NULL;
 
-//    f = foo->symbol;
-//    f(caller_id, cpl, foo->args);
     ret = cobject_create_empty(foo->return_value);
 
     switch (foo->return_value) {
@@ -963,6 +962,7 @@ cobject_t *elf_call(void *data __attribute__((unused)),
             break;
     }
 
+    printf("%s\n", __FUNCTION__);
     return ret;
 }
 

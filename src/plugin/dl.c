@@ -358,7 +358,7 @@ end_block:
 }
 
 cobject_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
-    uint32_t caller_id, struct function_argument *args)
+    struct function_argument *args)
 {
     struct dl_plugin_driver *drv = NULL;
 
@@ -367,6 +367,6 @@ cobject_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
 
     drv = cpl->dl;
 
-    return (drv->call)(drv->data, foo, caller_id, cpl, args);
+    return (drv->call)(drv->data, foo, cpl, args);
 }
 

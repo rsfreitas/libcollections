@@ -40,8 +40,7 @@ int elf_load_functions(void *data, struct cplugin_function_s *flist, void *handl
 void *elf_open(void *data, const char *pathname);
 int elf_close(void *data, void *handle);
 cobject_t* elf_call(void *data, struct cplugin_function_s *foo,
-                    uint32_t caller_id, cplugin_t *cpl,
-                    struct function_argument *args);
+                    cplugin_t *cpl, struct function_argument *args);
 
 int elf_plugin_startup(void *data, void *handle, cplugin_info_t *info);
 int elf_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);

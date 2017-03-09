@@ -327,7 +327,9 @@ def foo_class(caller_id, cplugin_t, args):
 def foo_pointer(caller_id, cplugin_t, args):
     print '--',cplugin.CpluginFunctionName()
     a = cplugin.CpluginFunctionArguments(args)
+    print '1'
     data = a.argument('data')
+    print '2'
     print data.a,data.b,data.c
     rv = cplugin.CpluginFunctionReturnValue(caller_id, cplugin_t,
                                             cplugin.CpluginFunctionName())
