@@ -38,6 +38,8 @@ int adjust_arguments(struct cplugin_function_s *foo,
     cjson_t *node, *jargs;
     void *ptr;
     int i = 0;
+    bool b;
+    enum cjson_type type;
 
     jargs = cjson_create_object();
 
@@ -58,53 +60,85 @@ int adjust_arguments(struct cplugin_function_s *foo,
 
         switch (arg->type) {
             case CL_CHAR:
-                node = cjson_create_stringv("%c", (char)va_arg(ap, int));
+                node = cjson_create_node(CJSON_STRING, "%c",
+                                         (char)va_arg(ap, int));
+
                 break;
 
             case CL_UCHAR:
-                node = cjson_create_stringv("%c", (unsigned char)va_arg(ap, int));
+                node = cjson_create_node(CJSON_STRING, "%c",
+                                         (unsigned char)va_arg(ap, int));
+
+                break;
+
+            case CL_BOOLEAN:
+                b = (bool)va_arg(ap, int);
+
+                if (b == true)
+                    type = CJSON_TRUE;
+                else
+                    type = CJSON_FALSE;
+
+                node = cjson_create_node(type, "%d", b);
                 break;
 
             case CL_INT:
-            case CL_BOOLEAN:
-                node = cjson_create_stringv("%d", va_arg(ap, int));
+                node = cjson_create_node(CJSON_NUMBER, "%d",
+                                         va_arg(ap, int));
+
                 break;
 
             case CL_UINT:
-                node = cjson_create_stringv("%u", (unsigned int)va_arg(ap, int));
+                node = cjson_create_node(CJSON_NUMBER, "%u",
+                                         (unsigned int)va_arg(ap, int));
+
                 break;
 
             case CL_SINT:
-                node = cjson_create_stringv("%hd", (short int)va_arg(ap, int));
+                node = cjson_create_node(CJSON_NUMBER, "%hd",
+                                         (short int)va_arg(ap, int));
+
                 break;
 
             case CL_USINT:
-                node = cjson_create_stringv("%hu", (unsigned int)va_arg(ap, int));
+                node = cjson_create_node(CJSON_NUMBER, "%hu",
+                                         (unsigned int)va_arg(ap, int));
+
                 break;
 
             case CL_FLOAT:
-                node = cjson_create_stringv("%f", (float)va_arg(ap, double));
+                node = cjson_create_node(CJSON_NUMBER_FLOAT, "%f",
+                                         (float)va_arg(ap, double));
+
                 break;
 
             case CL_DOUBLE:
-                node = cjson_create_stringv("%f", va_arg(ap, double));
+                node = cjson_create_node(CJSON_NUMBER_FLOAT, "%f",
+                                         va_arg(ap, double));
+
                 break;
 
             case CL_LONG:
-                node = cjson_create_stringv("%ld", va_arg(ap, long));
+                node = cjson_create_node(CJSON_NUMBER, "%ld",
+                                         va_arg(ap, long));
+
                 break;
 
             case CL_ULONG:
-                node = cjson_create_stringv("%lu", va_arg(ap, unsigned long));
+                node = cjson_create_node(CJSON_NUMBER, "%lu",
+                                         va_arg(ap, unsigned long));
+
                 break;
 
             case CL_LLONG:
-                node = cjson_create_stringv("%lld", va_arg(ap, long long));
+                node = cjson_create_node(CJSON_NUMBER, "%lld",
+                                         va_arg(ap, long long));
+
                 break;
 
             case CL_ULLONG:
-                node = cjson_create_stringv("%llu",
-                                            va_arg(ap, unsigned long long));
+                node = cjson_create_node(CJSON_NUMBER, "%llu",
+                                         va_arg(ap, unsigned long long));
 
                 break;
 
@@ -120,7 +154,7 @@ int adjust_arguments(struct cplugin_function_s *foo,
                  */
                 p = cstring_create("%s", va_arg(ap, char *));
                 cstring_rplsubstr(p, "\"", "\\\"");
-                node = cjson_create_stringv("%s", cstring_valueof(p));
+                node = cjson_create_node(CJSON_STRING, "%s", cstring_valueof(p));
                 cstring_unref(p);
                 break;
 

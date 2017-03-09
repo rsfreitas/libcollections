@@ -515,6 +515,18 @@ bool cstring_contains(const cstring_t *string, const char *needle);
  */
 int cstring_count_matches(const cstring_t *string, const char *needle);
 
+/**
+ * @name cstring_set_content
+ * @brief Sets a string content to a previously created buffer.
+ *
+ * This function receives a previously created buffer and take its ownership.
+ * After its call, the user must not free this buffer.
+ *
+ * @param [in] s: The cstring_t object.
+ * @param [in] content: The previously created string.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
 int cstring_set_content(cstring_t *s, const char *content);
 
 #endif

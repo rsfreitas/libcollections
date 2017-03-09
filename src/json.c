@@ -907,8 +907,8 @@ __PUB_API__ cjson_t *cjson_create_string(const char *string)
     return p;
 }
 
-/* TODO: Rename this */
-__PUB_API__ cjson_t *cjson_create_stringv(const char *fmt, ...)
+__PUB_API__ cjson_t *cjson_create_node(enum cjson_type type,
+    const char *fmt, ...)
 {
     cjson_s *p = NULL;
     va_list ap;
@@ -927,7 +927,7 @@ __PUB_API__ cjson_t *cjson_create_stringv(const char *fmt, ...)
 
     s = cstring_create_empty(0);
     cstring_set_content(s, buff);
-    p->type = CJSON_STRING;
+    p->type = type;
     p->value = s;
 
     return p;

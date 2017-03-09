@@ -1,23 +1,17 @@
+
 extern crate libc;
+extern crate rcollections;
 
-use std::ffi::CStr;
-use std::str;
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-    }
-}
+use rcollections::utils;
 
 /**
  *
- * Funções de informaço do plugin
+ * Plugin informations...
  *
  */
 #[no_mangle]
 pub extern "C" fn plugin_name() -> *const u8 {
-    "rhttp".as_ptr()
+    "RUST-PLUGIN".as_ptr()
 }
 
 #[no_mangle]
@@ -30,7 +24,11 @@ pub extern "C" fn plugin_author() -> *const u8 {
     "Rodrigo Freitas".as_ptr()
 }
 
-/*        { \"name\": \"foo_uint\", \"return_type\": \"uint\" },\
+#[no_mangle]
+pub extern "C" fn plugin_api() -> *const u8 {
+    "{\"API\": [\
+        { \"name\": \"foo_int\", \"return_type\": \"int\" },\
+        { \"name\": \"foo_uint\", \"return_type\": \"uint\" },\
         { \"name\": \"foo_char\", \"return_type\": \"char\" },\
         { \"name\": \"foo_uchar\", \"return_type\": \"uchar\" },\
         { \"name\": \"foo_sint\", \"return_type\": \"sint\" },\
@@ -41,11 +39,7 @@ pub extern "C" fn plugin_author() -> *const u8 {
         { \"name\": \"foo_ulong\", \"return_type\": \"ulong\" },\
         { \"name\": \"foo_llong\", \"return_type\": \"llong\" },\
         { \"name\": \"foo_ullong\", \"return_type\": \"ullong\" },\
-        { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" }\*/
-#[no_mangle]
-pub extern "C" fn plugin_api() -> *const u8 {
-    "{\"API\": [\
-        { \"name\": \"foo_int\", \"return_type\": \"int\" },\
+        { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" },\
         { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
             { \"name\": \"arg1\", \"type\": \"int\" },\
             { \"name\": \"arg2\", \"type\": \"uint\" },\
@@ -68,27 +62,28 @@ pub extern "C" fn plugin_api() -> *const u8 {
 
 #[no_mangle]
 pub extern "C" fn plugin_description() -> *const u8 {
-    "Rust HTTP JOB sender".as_ptr()
+    "Rust plugin example".as_ptr()
 }
 
 /**
  *
- * Inicialização e finalização do plugin
+ * Init and uninit function
  *
  */
 #[no_mangle]
 pub extern "C" fn plugin_init() -> i32 {
+    println!("RUST init");
     0 /* OK */
 }
 
 #[no_mangle]
 pub extern "C" fn plugin_uninit() {
-    println!("uninit");
+    println!("RUST uninit");
 }
 
 /**
  *
- * API principal
+ * Main API
  *
  */
 #[no_mangle]
@@ -97,12 +92,76 @@ pub extern "C" fn foo_int() -> i32 {
 }
 
 #[no_mangle]
-pub extern "C" fn foo_args(args: *const libc::c_char) {
-    println!("TESTE...");
-    //println!("{:?}", args);
-    let c_str = unsafe { CStr::from_ptr(args) };
-    let r_str = c_str.to_string_lossy();
-//    println!("{:?}", c_str.to_str());
-    println!("{}", r_str);
+pub extern "C" fn foo_uint() -> u32 {
+    420
+}
+
+#[no_mangle]
+pub extern "C" fn foo_sint() -> i16 {
+    421
+}
+
+#[no_mangle]
+pub extern "C" fn foo_usint() -> u16 {
+    4201
+}
+
+#[no_mangle]
+pub extern "C" fn foo_char() -> i8 {
+    'a' as i8
+}
+
+#[no_mangle]
+pub extern "C" fn foo_uchar() -> u8 {
+    230
+}
+
+#[no_mangle]
+pub extern "C" fn foo_float() -> f32 {
+    42.5
+}
+
+#[no_mangle]
+pub extern "C" fn foo_double() -> f64 {
+    4.2
+}
+
+#[no_mangle]
+pub extern "C" fn foo_boolean() -> bool {
+    false
+}
+
+#[no_mangle]
+pub extern "C" fn foo_long() -> i32 {
+    42000
+}
+
+#[no_mangle]
+pub extern "C" fn foo_ulong() -> u32 {
+    420001
+}
+
+#[no_mangle]
+pub extern "C" fn foo_llong() -> i64 {
+    420009
+}
+
+#[no_mangle]
+pub extern "C" fn foo_ullong() -> u64 {
+    4200019
+}
+
+#[no_mangle]
+pub extern "C" fn foo_args(args: *const i8) {
+    let jargs = match utils::retrieve_c_arguments_as_json(args) {
+        Ok(value) => value,
+        Err(_) => return,
+    };
+
+    println!("{:?}", jargs);
+    println!("{}", jargs);
+
+    let arg1 = jargs.as_object().unwrap().get("arg1").unwrap().as_u64().unwrap();
+    println!("{}", arg1);
 }
 

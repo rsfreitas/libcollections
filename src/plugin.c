@@ -231,26 +231,22 @@ __PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
 
     /* Call the function */
     cplv = dl_call(pl, foo, &args);
-    printf("%s\n", __FUNCTION__);
 
     /* Unload arguments */
     if (foo->arg_mode != CPLUGIN_ARGS_VOID) {
         if (args.jargs != NULL)
             free(args.jargs);
     }
-    printf("%s\n", __FUNCTION__);
 
     if ((NULL == cplv) && (foo->return_value != CL_VOID))
         /* It's an error? */
         return NULL;
-    printf("%s\n", __FUNCTION__);
 
     /* Release the returned object if we're a void function */
     if (foo->return_value == CL_VOID) {
         cobject_destroy(cplv);
         cplv = NULL;
     }
-    printf("%s\n", __FUNCTION__);
 
     return cplv;
 }

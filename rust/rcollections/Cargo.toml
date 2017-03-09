@@ -1,0 +1,8 @@
+[package]
+name = "rcollections"
+version = "0.1.0"
+authors = ["Rodrigo Freitas"]
+
+[dependencies]
+rustc-serialize = "0.3.22"
+

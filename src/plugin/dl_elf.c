@@ -285,7 +285,6 @@ static void elf_call_v(struct cplugin_function_s *foo, const char *jarg,
     elf_v_j fj;
     elf_v_jptr fjptr;
 
-    printf("%s: '%s'\n", __FUNCTION__, jarg);
     switch (foo->arg_mode) {
         case CPLUGIN_ARGS_POINTER_AND_ARGS:
             fjptr = foo->symbol;
@@ -295,7 +294,6 @@ static void elf_call_v(struct cplugin_function_s *foo, const char *jarg,
         case CPLUGIN_ARGS_ONLY:
             fj = foo->symbol;
             fj(jarg);
-            printf("TESTE\n");
             break;
 
         case CPLUGIN_ARGS_POINTER_ONLY:
@@ -962,7 +960,6 @@ cobject_t *elf_call(void *data __attribute__((unused)),
             break;
     }
 
-    printf("%s\n", __FUNCTION__);
     return ret;
 }
 

@@ -288,18 +288,14 @@ int main(int argc, char **argv)
     }
 
     cplugin_unload(cpl);
-    printf("%s\n", __FUNCTION__);
 
     if (filename != NULL)
         free(filename);
-    printf("%s\n", __FUNCTION__);
 
     collections_uninit();
-    printf("%s\n", __FUNCTION__);
 
     /* This makes valgrind report no memory leaks. */
     cexit();
-    printf("%s\n", __FUNCTION__);
 
     return 0;
 }
