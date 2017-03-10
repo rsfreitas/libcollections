@@ -276,7 +276,7 @@ int main(int argc, char **argv)
                      "arg14", "Sample text",
                      NULL);
 
-        ret = cplugin_call(cpl, "foo_class", "data", "Hi, I'm a class data...",
+/*        ret = cplugin_call(cpl, "foo_class", "data", "Hi, I'm a class data...",
                            NULL);
 
         printf("Type of return: %d\n", cobject_type(ret));
@@ -284,7 +284,7 @@ int main(int argc, char **argv)
         cobject_unref(ret);
         ret = cplugin_call(cpl, "foo_pointer", "data", p, NULL);
         printf("Second return: %d\n", COBJECT_AS_INT(ret));
-        cobject_unref(ret);
+        cobject_unref(ret);*/
     }
 
     cplugin_unload(cpl);

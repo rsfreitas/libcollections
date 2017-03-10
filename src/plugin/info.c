@@ -61,8 +61,8 @@ static void __destroy_info_s(const struct cref_s *ref)
     free(info);
 }
 
-static cinfo_s *new_info_s(const char *name,
-    const char *version, const char *description, const char *author)
+static cinfo_s *new_info_s(const char *name, const char *version,
+    const char *description, const char *author)
 {
     cinfo_s *i = NULL;
 

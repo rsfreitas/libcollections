@@ -25,6 +25,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <dlfcn.h>
 
@@ -232,7 +233,7 @@ cplugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
         if (dlerror() != NULL)
             return NULL;
 
-        functions[i].return_value = (char *)foo();
+        functions[i].return_value = strdup((char *)foo());
     }
 
     info = info_create_from_data(functions[0].return_value,
@@ -243,6 +244,9 @@ cplugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
 
     if (info != NULL)
         set_custom_plugin_info(info, handle);
+
+    for (i = 0; i < t; i++)
+        free(functions[i].return_value);
 
     return info;
 }
