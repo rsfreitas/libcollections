@@ -33,7 +33,8 @@ PLUGIN_PATH = ./plugin
 PYTHON_PATH = ./python
 VPATH = ../include:.:$(PLUGIN_PATH):$(PYTHON_PATH)
 
-PLUGIN_SOURCE = $(wildcard $(PLUGIN_PATH)/*.c)
+PLUGIN_SOURCES = $(wildcard $(PLUGIN_PATH)/*.c)
+PLUGIN_SOURCES := $(filter-out $(PLUGIN_PATH)/dl_java.c, $(PLUGIN_SOURCES))
 PLUGIN_OBJS = $(PLUGIN_SOURCES:.c=.o)
 #PLUGIN_OBJS =	\
 	api_parser.o	\
@@ -45,8 +46,8 @@ PLUGIN_OBJS = $(PLUGIN_SOURCES:.c=.o)
 	pl_misc.o		\
 	rv.o
 
-PYTHON_SOURCE = $(wildcard $(PYTHON_PATH)/*.c)
-PYTHON_OBJS = $(PYTHON_SOURCE:.c=.o)
+PYTHON_SOURCES = $(wildcard $(PYTHON_PATH)/*.c)
+PYTHON_OBJS = $(PYTHON_SOURCES:.c=.o)
 #PYTHON_OBJS =	\
 	_cplugin.o
 

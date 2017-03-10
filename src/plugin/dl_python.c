@@ -72,6 +72,7 @@ static int py_load_function(void *a, void *b)
     PyObject *dict = (PyObject *)b;
 
     foo->symbol = PyDict_GetItemString(dict, (char *)foo->name);
+    printf("%s: %s\n", __FUNCTION__, foo->name);
 
     if (PyCallable_Check(foo->symbol))
         return 0;
@@ -208,8 +209,8 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 
     Py_DECREF(instance);
 
-    for (i = 0; i < t; i++)
-        free(pyinfo[i].return_value);
+//    for (i = 0; i < t; i++)
+//        free(pyinfo[i].return_value);
 
 end_block:
     PyGILState_Release(gstate);
@@ -285,9 +286,9 @@ int py_close(void *data __attribute__((unused)), void *ptr)
 
 cobject_t *py_call(void *data __attribute__((unused)),
     struct cplugin_function_s *foo, cplugin_t *cpl __attribute__((unused)),
-    struct function_argument *args __attribute__((unused)))
+    struct function_argument *args)
 {
-    PyObject *pvalue, /*capsule_of_cpl = NULL,*/ *capsule_of_args = NULL, *pret;
+    PyObject *pvalue, *capsule_of_args = NULL, *pret;
     PyGILState_STATE gstate;
     cobject_t *ret;
 
@@ -301,16 +302,28 @@ cobject_t *py_call(void *data __attribute__((unused)),
     if (foo->arg_mode != CPLUGIN_ARGS_VOID)
         capsule_of_args = PyCapsule_New(foo->args, PYARGS, NULL);
 
-    /* TODO: This will be removed */
-//    if (foo->return_value != CL_VOID)
-//        capsule_of_cpl = PyCapsule_New(cpl, PYCPLUGIN_T, NULL);
+    switch (foo->arg_mode) {
+        case CPLUGIN_ARGS_VOID:
+            pvalue = Py_BuildValue("()");
+            break;
 
-    if (foo->arg_mode == CPLUGIN_ARGS_VOID)
-        pvalue = Py_BuildValue("()");
-    else
-        pvalue = Py_BuildValue("(O)", capsule_of_args);
+        case CPLUGIN_ARGS_ONLY:
+            pvalue = Py_BuildValue("(s)", args->jargs);
+            break;
+
+        case CPLUGIN_ARGS_POINTER_ONLY:
+            //pvalue = Py_BuildValue("(O)", capsule_of_args);
+            break;
+
+        case CPLUGIN_ARGS_POINTER_AND_ARGS:
+            //pvalue = Py_BuildValue("(sO)", args->jargs, capsule_of_args);
+            break;
+    }
 
     pret = PyObject_CallObject(foo->symbol, pvalue);
+        PyErr_Print();
+
+    printf("%s: %d\n", __FUNCTION__, pret == NULL);
     ret = cobject_create_empty(foo->return_value);
 
     switch (foo->return_value) {
@@ -380,7 +393,7 @@ cobject_t *py_call(void *data __attribute__((unused)),
             break;
     }
 
-    Py_DECREF(pret);
+//    Py_DECREF(pret);
     Py_DECREF(pvalue);
 
     PyGILState_Release(gstate);

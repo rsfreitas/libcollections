@@ -28,7 +28,7 @@
 
 #include "collections.h"
 
-static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
+/*static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
 {
     cobject_t *cplv = NULL;
     PyObject *v = NULL;
@@ -40,9 +40,9 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
         return Py_BuildValue("s", "null");
 
     switch (cobject_type(cplv)) {
-        case CL_VOID:
+        case CL_VOID:*/
             /* noop */
-            break;
+/*            break;
 
         case CL_CHAR:
             v = Py_BuildValue("b", COBJECT_AS_CHAR(cplv));
@@ -92,21 +92,21 @@ static PyObject *argument_object(cplugin_arg_t *acpl, const char *argument_name)
             v = Py_BuildValue("K", COBJECT_AS_ULLONG(cplv));
             break;
 
-        case CL_POINTER:
+        case CL_POINTER:*/
             /*
              * XXX: Is this the right way?
              */
-            v = COBJECT_AS_POINTER(cplv);
+//            v = COBJECT_AS_POINTER(cplv);
 
             /*
              * We increase the reference count of this pointer as this may be a
              * python object and we want to live longer.
              */
-            Py_INCREF(v);
-            break;
+//            Py_INCREF(v);
+//            break;
 
         /* XXX: We still can't receive arguments of this type. */
-        case CL_CSTRING:
+/*        case CL_CSTRING:
             v = Py_BuildValue("s", "##unsupported argument type##");
             break;
 
@@ -150,8 +150,8 @@ static PyObject *arg_count(PyObject *self, PyObject *args)
 
     return Py_BuildValue("i", cplugin_arg_count(acpl));
 }
-
-static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
+*/
+/*static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
     const char *function_name, enum cl_type type, const void *value)
 {
     cstring_t *s = NULL;
@@ -159,9 +159,9 @@ static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
     char *c;
 
     switch (type) {
-        case CL_VOID:
+        case CL_VOID:*/
             /* noop */
-            break;
+/*            break;
 
         case CL_CHAR:
             c = (char *)value;
@@ -241,9 +241,9 @@ static int set_real_return_value(cplugin_t *cpl, uint32_t caller_id,
     }
 
     return -1;
-}
+}*/
 
-static PyObject *set_return_value(PyObject *self, PyObject *args)
+/*static PyObject *set_return_value(PyObject *self, PyObject *args)
 {
     PyObject *pcpl;
     cplugin_t *cpl;
@@ -254,19 +254,19 @@ static PyObject *set_return_value(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "iOsis", &caller_id, &pcpl, &function_name,
                           &value_type, (char *)&value))
-    {
+    {*/
         /* Try to get the argument as an object. */
-        if (!PyArg_ParseTuple(args, "iOsiO", &caller_id, &pcpl, &function_name,
+/*        if (!PyArg_ParseTuple(args, "iOsiO", &caller_id, &pcpl, &function_name,
                               &value_type, &value))
         {
             return NULL;
         }
-
+*/
         /*
          * Since we just received an object as an argument, we increase its
          * reference count, so we don't lose it.
          */
-        Py_INCREF(value);
+/*        Py_INCREF(value);
     }
 
     cpl = (cplugin_t *)PyCapsule_GetPointer(pcpl, PYCPLUGIN_T);
@@ -274,7 +274,7 @@ static PyObject *set_return_value(PyObject *self, PyObject *args)
     return Py_BuildValue("i", set_real_return_value(cpl, caller_id,
                                                     function_name, value_type,
                                                     value));
-}
+}*/
 
 /*static PyObject *release_argument(PyObject *self, PyObject *args)
 {
@@ -285,9 +285,9 @@ static char module_docstring[] =
     "through libcollections library.";
 
 static PyMethodDef module_methods[] = {
-    { "argument",           argument,           METH_VARARGS, ""   },
-    { "arg_count",          arg_count,          METH_VARARGS, ""   },
-    { "set_return_value",   set_return_value,   METH_VARARGS, ""   },
+//    { "argument",           argument,           METH_VARARGS, ""   },
+//    { "arg_count",          arg_count,          METH_VARARGS, ""   },
+//    { "set_return_value",   set_return_value,   METH_VARARGS, ""   },
 //    { "release_argument",   release_argument,   METH_VARARGS, ""   },
     { NULL,                 NULL,               0,            NULL }
 };
