@@ -72,7 +72,6 @@ static int py_load_function(void *a, void *b)
     PyObject *dict = (PyObject *)b;
 
     foo->symbol = PyDict_GetItemString(dict, (char *)foo->name);
-    printf("%s: %s\n", __FUNCTION__, foo->name);
 
     if (PyCallable_Check(foo->symbol))
         return 0;
@@ -140,7 +139,6 @@ void *py_library_init(void)
 
 void py_library_uninit(void *data __attribute__((unused)))
 {
-    printf("%s\n", __FUNCTION__);
     PyEval_AcquireLock();
     /* FIXME: We're having a segfault here on multi-thread applications */
 //    Py_Finalize();
@@ -193,7 +191,7 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
         if (NULL == result)
             goto end_block;
 
-        pyinfo[i].return_value = PyString_AS_STRING(result);
+        pyinfo[i].return_value = strdup(PyString_AS_STRING(result));
         Py_DECREF(result);
     }
 
@@ -209,8 +207,8 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 
     Py_DECREF(instance);
 
-//    for (i = 0; i < t; i++)
-//        free(pyinfo[i].return_value);
+    for (i = 0; i < t; i++)
+        free(pyinfo[i].return_value);
 
 end_block:
     PyGILState_Release(gstate);
@@ -288,19 +286,13 @@ cobject_t *py_call(void *data __attribute__((unused)),
     struct cplugin_function_s *foo, cplugin_t *cpl __attribute__((unused)),
     struct function_argument *args)
 {
-    PyObject *pvalue, *capsule_of_args = NULL, *pret;
+    PyObject *pvalue, *pret, *ptr_arg = NULL;;
     PyGILState_STATE gstate;
     cobject_t *ret;
+    cstring_t *s;
+    char *tmp;
 
     gstate = PyGILState_Ensure();
-
-    /*
-     * Encapsulates 'cplugin_t' and 'foo->args' so we can pass them as a
-     * specific Python object, so we can "travel" them between C codes.
-     */
-
-    if (foo->arg_mode != CPLUGIN_ARGS_VOID)
-        capsule_of_args = PyCapsule_New(foo->args, PYARGS, NULL);
 
     switch (foo->arg_mode) {
         case CPLUGIN_ARGS_VOID:
@@ -312,18 +304,26 @@ cobject_t *py_call(void *data __attribute__((unused)),
             break;
 
         case CPLUGIN_ARGS_POINTER_ONLY:
-            //pvalue = Py_BuildValue("(O)", capsule_of_args);
+            ptr_arg = args->ptr;
+            Py_INCREF(ptr_arg);
+            pvalue = Py_BuildValue("(O)", ptr_arg);
             break;
 
         case CPLUGIN_ARGS_POINTER_AND_ARGS:
-            //pvalue = Py_BuildValue("(sO)", args->jargs, capsule_of_args);
+            ptr_arg = args->ptr;
+            Py_INCREF(ptr_arg);
+            pvalue = Py_BuildValue("(sO)", args->jargs, ptr_arg);
             break;
+
+        default:
+            return NULL;
     }
 
     pret = PyObject_CallObject(foo->symbol, pvalue);
-        PyErr_Print();
 
-    printf("%s: %d\n", __FUNCTION__, pret == NULL);
+    if (NULL == pret)
+        goto end_block;
+
     ret = cobject_create_empty(foo->return_value);
 
     switch (foo->return_value) {
@@ -332,7 +332,8 @@ cobject_t *py_call(void *data __attribute__((unused)),
             break;
 
         case CL_CHAR:
-            cobject_set_char(ret, (char)PyInt_AsLong(pret));
+            tmp = PyString_AsString(pret);
+            cobject_set_char(ret, tmp[0]);
             break;
 
         case CL_UCHAR:
@@ -380,21 +381,37 @@ cobject_t *py_call(void *data __attribute__((unused)),
             break;
 
         case CL_POINTER:
-        case CL_CSTRING:     /* collections strings */
-            /* Not supported yet */
+            cobject_set_pointer(ret, false, pret, -1, NULL);
+
+            /*
+             * Since we just received an object as an argument, we increase its
+             * reference count, so we don't lose it.
+             */
+            Py_INCREF(pret);
             break;
 
-        case CL_STRING:      /* 'char *' strings */
+        case CL_STRING:
             cobject_set_string(ret, PyString_AsString(pret));
             break;
 
         case CL_BOOLEAN:
             cobject_set_boolean(ret, (char)PyInt_AsLong(pret));
             break;
+
+        case CL_CSTRING: /* collections strings */
+            s = cstring_create("%s", PyString_AsString(pret));
+            cobject_set_cstring(ret, s);
+            cstring_unref(s);
+            break;
     }
 
-//    Py_DECREF(pret);
+    Py_DECREF(pret);
+
+end_block:
     Py_DECREF(pvalue);
+
+    if (ptr_arg != NULL)
+        Py_DECREF(ptr_arg);
 
     PyGILState_Release(gstate);
 

@@ -150,6 +150,8 @@ void cobject_set_ullong(cobject_t *value, unsigned long long ull);
 void cobject_set_boolean(cobject_t *value, bool b);
 void cobject_set_string(cobject_t *value, char *s);
 void cobject_set_cstring(cobject_t *value, cstring_t *s);
+void cobject_set_pointer(cobject_t *object, bool dup_data, void *data,
+                         unsigned int size, void (*free_object)(void *));
 
 /* util.c */
 char *value_to_hex(void *p, unsigned int size);

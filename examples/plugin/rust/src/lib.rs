@@ -11,17 +11,17 @@ use rcollections::utils;
  */
 #[no_mangle]
 pub extern "C" fn plugin_name() -> *const u8 {
-    "RUST-PLUGIN".as_ptr()
+    "RUST-PLUGIN\0".as_ptr()
 }
 
 #[no_mangle]
 pub extern "C" fn plugin_version() -> *const u8 {
-    "0.1".as_ptr()
+    "0.1\0".as_ptr()
 }
 
 #[no_mangle]
 pub extern "C" fn plugin_author() -> *const u8 {
-    "Rodrigo Freitas".as_ptr()
+    "Rodrigo Freitas\0".as_ptr()
 }
 
 #[no_mangle]
@@ -57,12 +57,12 @@ pub extern "C" fn plugin_api() -> *const u8 {
             { \"name\": \"arg14\", \"type\": \"string\" }\
             ] }\
     ]\
-    }".as_ptr()
+    }\0".as_ptr()
 }
 
 #[no_mangle]
 pub extern "C" fn plugin_description() -> *const u8 {
-    "Rust plugin example".as_ptr()
+    "Rust plugin example\0".as_ptr()
 }
 
 /**
@@ -72,13 +72,13 @@ pub extern "C" fn plugin_description() -> *const u8 {
  */
 #[no_mangle]
 pub extern "C" fn plugin_init() -> i32 {
-    println!("RUST init");
+//    println!("RUST init");
     0 /* OK */
 }
 
 #[no_mangle]
 pub extern "C" fn plugin_uninit() {
-    println!("RUST uninit");
+//    println!("RUST uninit");
 }
 
 /**

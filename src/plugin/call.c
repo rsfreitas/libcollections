@@ -148,11 +148,16 @@ int adjust_arguments(struct cplugin_function_s *foo,
                 break;
 
             case CL_STRING:
+            case CL_CSTRING:
+                if (arg->type == CL_STRING)
+                    p = cstring_create("%s", va_arg(ap, char *));
+                else
+                    p = (cstring_t *)va_arg(ap, void *);
+
                 /*
                  * We support receiving JSON strings also. And to do this we need
                  * to replace every " for a \".
                  */
-                p = cstring_create("%s", va_arg(ap, char *));
                 cstring_rplsubstr(p, "\"", "\\\"");
                 node = cjson_create_node(CJSON_STRING, "%s", cstring_valueof(p));
                 cstring_unref(p);
