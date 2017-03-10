@@ -33,17 +33,21 @@ PLUGIN_PATH = ./plugin
 PYTHON_PATH = ./python
 VPATH = ../include:.:$(PLUGIN_PATH):$(PYTHON_PATH)
 
-PLUGIN_OBJS =	\
+PLUGIN_SOURCE = $(wildcard $(PLUGIN_PATH)/*.c)
+PLUGIN_OBJS = $(PLUGIN_SOURCES:.c=.o)
+#PLUGIN_OBJS =	\
 	api_parser.o	\
 	call.o			\
 	dl.o			\
-	dl_c.o			\
+	dl_elf.o		\
 	dl_python.o		\
 	info.o			\
 	pl_misc.o		\
 	rv.o
 
-PYTHON_OBJS =	\
+PYTHON_SOURCE = $(wildcard $(PYTHON_PATH)/*.c)
+PYTHON_OBJS = $(PYTHON_SOURCE:.c=.o)
+#PYTHON_OBJS =	\
 	_cplugin.o
 
 OBJS = 		\
@@ -62,7 +66,7 @@ OBJS = 		\
 	ref.o			\
 	specs.o			\
 	string.o		\
-	stringlist.o		\
+	stringlist.o	\
 	typeof.o		\
 	util.o
 

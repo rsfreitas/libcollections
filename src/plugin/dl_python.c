@@ -209,7 +209,7 @@ cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
     Py_DECREF(instance);
 
     for (i = 0; i < t; i++)
-        free(pyinfo[i].data);
+        free(pyinfo[i].return_value);
 
 end_block:
     PyGILState_Release(gstate);
@@ -284,11 +284,12 @@ int py_close(void *data __attribute__((unused)), void *ptr)
 }
 
 cobject_t *py_call(void *data __attribute__((unused)),
-    struct cplugin_function_s *foo, uint32_t caller_id, cplugin_t *cpl,
+    struct cplugin_function_s *foo, cplugin_t *cpl __attribute__((unused)),
     struct function_argument *args __attribute__((unused)))
 {
-    PyObject *pvalue, *capsule_of_cpl = NULL, *capsule_of_args = NULL, *pret;
+    PyObject *pvalue, /*capsule_of_cpl = NULL,*/ *capsule_of_args = NULL, *pret;
     PyGILState_STATE gstate;
+    cobject_t *ret;
 
     gstate = PyGILState_Ensure();
 
@@ -297,32 +298,94 @@ cobject_t *py_call(void *data __attribute__((unused)),
      * specific Python object, so we can "travel" them between C codes.
      */
 
-    if (foo->type_of_args != CPLUGIN_NO_ARGS)
+    if (foo->arg_mode != CPLUGIN_ARGS_VOID)
         capsule_of_args = PyCapsule_New(foo->args, PYARGS, NULL);
 
-    if (foo->return_value != CL_VOID)
-        capsule_of_cpl = PyCapsule_New(cpl, PYCPLUGIN_T, NULL);
+    /* TODO: This will be removed */
+//    if (foo->return_value != CL_VOID)
+//        capsule_of_cpl = PyCapsule_New(cpl, PYCPLUGIN_T, NULL);
 
-    if (foo->return_value == CL_VOID) {
-        if (foo->type_of_args == CPLUGIN_NO_ARGS)
-            pvalue = Py_BuildValue("()");
-        else
-            pvalue = Py_BuildValue("(O)", capsule_of_args);
-    } else {
-        if (foo->type_of_args == CPLUGIN_NO_ARGS)
-            pvalue = Py_BuildValue("(iO)", caller_id, capsule_of_cpl);
-        else
-            pvalue = Py_BuildValue("(iOO)", caller_id, capsule_of_cpl,
-                                   capsule_of_args);
-    }
+    if (foo->arg_mode == CPLUGIN_ARGS_VOID)
+        pvalue = Py_BuildValue("()");
+    else
+        pvalue = Py_BuildValue("(O)", capsule_of_args);
 
     pret = PyObject_CallObject(foo->symbol, pvalue);
+    ret = cobject_create_empty(foo->return_value);
+
+    switch (foo->return_value) {
+        case CL_VOID:
+            /* noop */
+            break;
+
+        case CL_CHAR:
+            cobject_set_char(ret, (char)PyInt_AsLong(pret));
+            break;
+
+        case CL_UCHAR:
+            cobject_set_uchar(ret, (unsigned char)PyInt_AsLong(pret));
+            break;
+
+        case CL_INT:
+            cobject_set_int(ret, (int)PyInt_AsLong(pret));
+            break;
+
+        case CL_UINT:
+            cobject_set_uint(ret, (unsigned int)PyInt_AsLong(pret));
+            break;
+
+        case CL_SINT:
+            cobject_set_sint(ret, (short int)PyInt_AsLong(pret));
+            break;
+
+        case CL_USINT:
+            cobject_set_usint(ret, (unsigned short int)PyInt_AsLong(pret));
+            break;
+
+        case CL_FLOAT:
+            cobject_set_float(ret, (float)PyFloat_AsDouble(pret));
+            break;
+
+        case CL_DOUBLE:
+            cobject_set_double(ret, PyFloat_AsDouble(pret));
+            break;
+
+        case CL_LONG:
+            cobject_set_long(ret, PyInt_AsLong(pret));
+            break;
+
+        case CL_ULONG:
+            cobject_set_ulong(ret, (unsigned long)PyInt_AsLong(pret));
+            break;
+
+        case CL_LLONG:
+            cobject_set_llong(ret, (long long)PyLong_AsLongLong(pret));
+            break;
+
+        case CL_ULLONG:
+            cobject_set_ullong(ret, (unsigned long long)PyLong_AsLongLong(pret));
+            break;
+
+        case CL_POINTER:
+        case CL_CSTRING:     /* collections strings */
+            /* Not supported yet */
+            break;
+
+        case CL_STRING:      /* 'char *' strings */
+            cobject_set_string(ret, PyString_AsString(pret));
+            break;
+
+        case CL_BOOLEAN:
+            cobject_set_boolean(ret, (char)PyInt_AsLong(pret));
+            break;
+    }
+
     Py_DECREF(pret);
     Py_DECREF(pvalue);
 
     PyGILState_Release(gstate);
 
-    return NULL;
+    return ret;
 }
 
 int py_plugin_startup(void *data __attribute__((unused)), void *handle,
