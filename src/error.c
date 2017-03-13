@@ -146,7 +146,7 @@ __PUB_API__ void cexit(void)
         return;
     }
 
-#ifndef IMAGEAPI
+#ifndef USE_CL_IMAGEAPI
     pthread_exit(NULL);
 #endif
 }

@@ -49,8 +49,8 @@ enum cthread_state {
 };
 
 /**
- * @name cthread_create
- * @brief Creates a ne thread.
+ * @name cthread_spawn
+ * @brief Creates a new thread.
  *
  * This function creates a new thread to execute the \a start_routine function.
  * It uses 'pthread' functions inside.
@@ -61,9 +61,8 @@ enum cthread_state {
  *
  * @return On success returns a cthread_t object or NULL otherwise.
  */
-cthread_t *cthread_create(enum cthread_type type,
-                          void *(*start_routine)(cthread_t *),
-                          void *user_data);
+cthread_t *cthread_spawn(enum cthread_type type,
+                         void *(*start_routine)(cthread_t *), void *user_data);
 
 /**
  * @name cthread_destroy

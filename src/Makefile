@@ -84,8 +84,8 @@ ifeq ($(GCCVERSION), 5)
     CFLAGS += -fgnu89-inline
 endif
 
-ifeq ($(IMAGEAPI), 1)
-    CFLAGS += -DIMAGEAPI
+ifeq ($(CL_IMAGEAPI), 1)
+    CFLAGS += -DUSE_CL_IMAGEAPI
 endif
 
 VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)

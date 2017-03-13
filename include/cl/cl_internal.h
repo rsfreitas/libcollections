@@ -247,7 +247,7 @@ unsigned int cl_cseed(void);
 int intl_start(const char *package, const char *locale_dir);
 
 /* image.c */
-#ifdef IMAGEAPI
+#ifdef USE_CL_IMAGEAPI
 void draw_onto_the_image(cimage_t *image, unsigned int x, unsigned int y,
                          unsigned char *buffer, int bwidth,
                          unsigned int max_width, unsigned int max_height,

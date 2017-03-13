@@ -108,6 +108,17 @@ void cjson_delete(cjson_t *j);
 int cjson_get_array_size(const cjson_t *array);
 
 /**
+ * @name cjson_get_array_item_by_name
+ * @brief Gets a pointer to an element from a cjson_t array.
+ *
+ * @param [in] array: The cjson_t array.
+ * @param [in] name: The array element name.
+ *
+ * @return On success returns a pointer to the element or NULL otherwise.
+ */
+cjson_t *cjson_get_array_item_by_name(const cjson_t *array, const char *name);
+
+/**
  * @name cjson_get_array_item
  * @brief Gets a pointer to an element from a cjson_t array.
  *

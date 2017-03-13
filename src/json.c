@@ -704,6 +704,23 @@ static int find_object(void *a, void *b)
     return 0;
 }
 
+__PUB_API__ cjson_t *cjson_get_array_item_name_by_name(const cjson_t *array,
+    const char *name)
+{
+    cjson_s *p = (cjson_s *)array, *n;
+    int size;
+
+    __clib_function_init_ex__(true, array, CJSON, CJSON_OBJECT_OFFSET, NULL);
+    size = cjson_get_array_size(array);
+
+    if (size <= 0)
+        return NULL;
+
+    n = cdll_map(p->child, find_object, (char *)name);
+
+    return n;
+}
+
 __PUB_API__ cjson_t *cjson_get_object_item(const cjson_t *json, const char *name)
 {
     cjson_s *p = NULL, *root = (cjson_s *)json;

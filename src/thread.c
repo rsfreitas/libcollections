@@ -133,7 +133,7 @@ __PUB_API__ int cthread_destroy(cthread_t *t)
     return 0;
 }
 
-__PUB_API__ cthread_t *cthread_create(enum cthread_type type,
+__PUB_API__ cthread_t *cthread_spawn(enum cthread_type type,
     void *(*start_routine)(cthread_t *), void *user_data)
 {
     cthread_s *td = NULL;

@@ -30,7 +30,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          1
-# define BUILD                  28
+# define BUILD                  29
 #endif
 
 #ifdef __cplusplus
@@ -51,7 +51,7 @@ extern "C" {
 #include <cl/cl_file.h>
 #include <cl/cl_hashtable.h>
 
-#ifdef IMAGEAPI
+#ifdef USE_CL_IMAGEAPI
 # include <cl/cl_image.h>
 # include <cl/cl_caption.h>
 

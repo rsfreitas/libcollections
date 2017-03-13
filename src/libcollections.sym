@@ -138,6 +138,7 @@ LIBCOLLECTIONS_0.1 {
         cjson_delete;
         cjson_get_array_size;
         cjson_get_array_item;
+        cjson_get_array_item_by_name;
         cjson_get_object_item;
         cjson_get_object_name;
         cjson_get_object_value;
@@ -236,7 +237,7 @@ LIBCOLLECTIONS_0.1 {
         cthread_set_state;
         cthread_wait_startup;
         cthread_destroy;
-        cthread_create;
+        cthread_spawn;
         ctimer_set_state;
         ctimer_get_timer;
         ctimer_update_interval;
