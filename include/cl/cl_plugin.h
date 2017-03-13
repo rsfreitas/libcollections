@@ -36,7 +36,7 @@
 enum cplugin_type {
     CPLUGIN_UNKNOWN = 0,
     CPLUGIN_ELF     = (1 << 0),         /* C, C++, Rust and Go */
-    CPLUGIN_PYTHON  = (1 << 1),         /* Python */
+    CPLUGIN_PYTHON  = (1 << 1),
     CPLUGIN_JAVA    = (1 << 2)
 };
 

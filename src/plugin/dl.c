@@ -96,7 +96,7 @@ static struct dl_plugin_driver __dl_driver[] = {
 #ifdef PLUGIN_JAVA
     {
         .type               = CPLUGIN_JAVA,
-        .enabled            = false,
+        .enabled            = true,
         .plugin_test        = jni_plugin_test,
         .library_init       = jni_library_init,
         .library_uninit     = jni_library_uninit,

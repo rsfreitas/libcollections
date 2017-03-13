@@ -42,8 +42,7 @@ int jni_load_functions(void *data, struct cplugin_function_s *flist,
 void *jni_open(void *data, const char *pathname);
 int jni_close(void *data, void *ptr);
 cobject_t *jni_call(void *data, struct cplugin_function_s *foo,
-                    uint32_t caller_id, cplugin_t *cpl,
-                    struct function_argument *args);
+                    cplugin_t *cpl, struct function_argument *args);
 
 int jni_plugin_startup(void *data, void *handle, cplugin_info_t *info);
 int jni_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
