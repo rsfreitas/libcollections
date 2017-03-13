@@ -224,11 +224,34 @@ cstring_t *type_to_jni_type(enum cl_type type)
     return r;
 }
 
+static void add_arguments_signature(cstring_t *jargs,
+    struct cplugin_function_s *foo)
+{
+}
+
+static void add_return_value_signature(cstring_t *jargs,
+    struct cplugin_function_s *foo)
+{
+    cstring_t *foo_return = NULL;
+
+    foo_return = type_to_jni_type(foo->return_value);
+    cstring_cat(jargs, ")%s", cstring_valueof(foo_return));
+    cstring_unref(foo_return);
+}
+
 static cstring_t *create_method_signature(struct cplugin_function_s *foo)
 {
     cstring_t *jargs = cstring_create("(");
 
-    if (foo->return_value == CL_VOID) {
+    if (foo->arg_mode != CPLUGIN_ARGS_VOID)
+        add_arguments_signature(jargs, foo);
+
+    if (foo->return_value == CL_VOID)
+        cstring_cat(jargs, ")V");
+    else
+        add_return_value_signature(jargs, foo);
+
+/*    if (foo->return_value == CL_VOID) {
         if (foo->type_of_args != CPLUGIN_NO_ARGS)
             cstring_cat(jargs, "Lcplugin/CpluginArguments;");
 
@@ -238,7 +261,7 @@ static cstring_t *create_method_signature(struct cplugin_function_s *foo)
             cstring_cat(jargs, "Lcplugin/CpluginArguments;");
 
         cstring_cat(jargs, ")Lcplugin/CpluginObject;");
-    }
+    }*/
 
     return jargs;
 }
@@ -311,12 +334,15 @@ cobject_t *jni_call(void *data, struct cplugin_function_s *foo,
     struct jdriver *j = (struct jdriver *)data;
     cplugin_s *c = (cplugin_s *)cpl;
     struct jinfo *jinfo = NULL;
-    jobject ret, args;
+    jobject jret = NULL, args;
+    cobject_t *ret;
 
     jinfo = (struct jinfo *)info_get_custom_data(c->info);
 
     if (NULL == jinfo)
         return NULL;
+
+    ret = cobject_create_empty(foo->return_value);
 
     if (foo->return_value == CL_VOID) {
         if (foo->type_of_args != CPLUGIN_NO_ARGS) {
@@ -327,19 +353,19 @@ cobject_t *jni_call(void *data, struct cplugin_function_s *foo,
     } else {
         if (foo->type_of_args != CPLUGIN_NO_ARGS) {
             args = newCpluginArguments(j->env, foo);
-            ret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol,
+            jret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol,
                                               args);
         } else
-            ret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol);
+            jret = (*j->env)->CallObjectMethod(j->env, jinfo->obj, foo->symbol);
 
-        if (ret != NULL) {
+        if (jret != NULL) {
             /* Sets the return value from the function */
             set_return_value_from_CpluginObject(j->env, cpl, foo->name,
-                                                caller_id, &ret);
+                                                caller_id, &jret);
         }
     }
 
-    return NULL;
+    return ret;
 }
 
 int jni_plugin_startup(void *data, void *handle, cplugin_info_t *info)

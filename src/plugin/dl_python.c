@@ -294,29 +294,24 @@ cobject_t *py_call(void *data __attribute__((unused)),
 
     gstate = PyGILState_Ensure();
 
-    switch (foo->arg_mode) {
-        case CPLUGIN_ARGS_VOID:
-            pvalue = Py_BuildValue("()");
-            break;
-
-        case CPLUGIN_ARGS_ONLY:
-            pvalue = Py_BuildValue("(s)", args->jargs);
-            break;
-
-        case CPLUGIN_ARGS_POINTER_ONLY:
-            ptr_arg = args->ptr;
-            Py_INCREF(ptr_arg);
-            pvalue = Py_BuildValue("(O)", ptr_arg);
-            break;
-
-        case CPLUGIN_ARGS_POINTER_AND_ARGS:
-            ptr_arg = args->ptr;
-            Py_INCREF(ptr_arg);
-            pvalue = Py_BuildValue("(sO)", args->jargs, ptr_arg);
-            break;
-
-        default:
-            return NULL;
+    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    {
+        ptr_arg = args->ptr;
+        Py_INCREF(ptr_arg);
+        pvalue = Py_BuildValue("(sO)", args->jargs, ptr_arg);
+    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    {
+        pvalue = Py_BuildValue("(s)", args->jargs);
+    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    {
+        ptr_arg = args->ptr;
+        Py_INCREF(ptr_arg);
+        pvalue = Py_BuildValue("(O)", ptr_arg);
+    } else {
+        pvalue = Py_BuildValue("()");
     }
 
     pret = PyObject_CallObject(foo->symbol, pvalue);

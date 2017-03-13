@@ -34,19 +34,17 @@
 
 /** Plugin supported languages */
 enum cplugin_type {
-    CPLUGIN_UNKNOWN = (1 << 0),
-    CPLUGIN_ELF     = (1 << 1),         /* C, C++, Go and Rust */
-    CPLUGIN_PYTHON  = (1 << 2),         /* Python */
-    CPLUGIN_JAVA    = (1 << 3)
+    CPLUGIN_UNKNOWN = 0,
+    CPLUGIN_ELF     = (1 << 0),         /* C, C++, Rust and Go */
+    CPLUGIN_PYTHON  = (1 << 1),         /* Python */
+    CPLUGIN_JAVA    = (1 << 2)
 };
 
 /** Functions argument mode */
 enum cplugin_arg_mode {
-    CPLUGIN_ARGS_UNKNOWN,
-    CPLUGIN_ARGS_POINTER_AND_ARGS,
-    CPLUGIN_ARGS_ONLY,
-    CPLUGIN_ARGS_POINTER_ONLY,
-    CPLUGIN_ARGS_VOID
+    CPLUGIN_ARGS_VOID               = 0,
+    CPLUGIN_ARGS_COMMON             = (1 << 0),
+    CPLUGIN_ARGS_POINTER            = (1 << 1)
 };
 
 /** Identification of a C/C++ plugin */
