@@ -1155,3 +1155,24 @@ __PUB_API__ int cstring_count_matches(const cstring_t *string,
     return count;
 }
 
+__PUB_API__ int cstring_set_content(cstring_t *s, const char *content)
+{
+    cstring_s *p = NULL;
+
+    __clib_function_init__(true, s, CSTRING, -1);
+
+    if (NULL == content) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    cstring_clear(s);
+
+    p = cstring_ref(s);
+    p->str = (char *)content;
+    p->size = strlen(content);
+    cstring_unref(p);
+
+    return 0;
+}
+

@@ -32,203 +32,6 @@
 #include "plugin/plugin.h"
 
 /*
- * -- ARGUMENTS
- */
-
-__PUB_API__ cobject_t *cplugin_argument(const cplugin_arg_t *args,
-    const char *arg_name)
-{
-    struct cplugin_fdata_s *p = NULL;
-
-    __clib_function_init_ex__(true, args, CPLUGIN_ARG,
-                              CPLUGIN_ARG_OBJECT_OFFSET, NULL);
-
-    if (NULL == arg_name) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    p = cdll_map((void *)args, search_cplugin_fdata_s, (char *)arg_name);
-
-    if (NULL == p) {
-        cset_errno(CL_NULL_DATA);
-        return NULL;
-    }
-
-    return cobject_ref(p->value);
-}
-
-__PUB_API__ int cplugin_arg_count(const cplugin_arg_t *args)
-{
-    __clib_function_init_ex__(true, args, CPLUGIN_ARG,
-                              CPLUGIN_ARG_OBJECT_OFFSET, -1);
-
-    return cdll_size((void *)args);
-}
-
-/*
- * -- RETURN VALUE
- */
-
-__PUB_API__ int cplugin_set_return_value(cplugin_t *cpl, const char *function_name,
-    unsigned int caller_id, enum cl_type type, ...)
-{
-    cplugin_s *pl = (cplugin_s *)cpl;
-    struct cplugin_function_s *foo = NULL;
-    struct cplugin_fdata_s *return_value = NULL;
-    va_list ap;
-    void *p;
-    int psize;
-
-    __clib_function_init__(true, cpl, CPLUGIN, -1);
-
-    if (NULL == function_name) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    /* Don't create anything since we returning void from a function. */
-    if (type == CL_VOID)
-        return 0;
-
-    foo = cdll_map(pl->functions, search_cplugin_function_s,
-                   (char *)function_name);
-
-    if (NULL == foo) {
-        cset_errno(CL_OBJECT_NOT_FOUND);
-        return -1;
-    }
-
-    return_value = new_cplugin_fdata_s(NULL, type, caller_id);
-
-    if (NULL == return_value)
-        return -1;
-
-    va_start(ap, NULL);
-
-    switch (type) {
-        case CL_INT:
-            return_value->value = cobject_create(CL_INT, va_arg(ap, int), NULL);
-            break;
-
-        case CL_UINT:
-            return_value->value = cobject_create(CL_UINT,
-                                                 (unsigned int)va_arg(ap, int),
-                                                 NULL);
-
-            break;
-
-        case CL_SINT:
-            return_value->value = cobject_create(CL_SINT,
-                                                 (short int)va_arg(ap, int),
-                                                 NULL);
-            break;
-
-        case CL_USINT:
-            return_value->value = cobject_create(CL_USINT,
-                                                 (unsigned short int)va_arg(ap,
-                                                                            int),
-                                                 NULL);
-
-            break;
-
-        case CL_VOID:
-            /* noop */
-            break;
-
-        case CL_POINTER:
-            p = va_arg(ap, void *);
-            psize = va_arg(ap, int);
-
-            /* Don't duplicate our pointer value inside the function */
-            return_value->value = cobject_create(CL_POINTER, false, p, psize,
-                                                 NULL);
-
-            break;
-
-        case CL_STRING:
-            return_value->value = cobject_create(CL_STRING, va_arg(ap, char *),
-                                                 NULL);
-
-            break;
-
-        case CL_CSTRING:
-            p = va_arg(ap, void *);
-            return_value->value = cobject_create(CL_CSTRING, p, NULL);
-            break;
-
-        case CL_CHAR:
-            return_value->value = cobject_create(CL_CHAR, (char)va_arg(ap, int),
-                                                 NULL);
-
-            break;
-
-        case CL_UCHAR:
-            return_value->value = cobject_create(CL_UCHAR,
-                                                 (unsigned char)va_arg(ap, int),
-                                                 NULL);
-
-            break;
-
-        case CL_FLOAT:
-            return_value->value = cobject_create(CL_FLOAT, va_arg(ap, double),
-                                                 NULL);
-
-            break;
-
-        case CL_DOUBLE:
-            return_value->value = cobject_create(CL_DOUBLE, va_arg(ap, double),
-                                                 NULL);
-
-            break;
-
-        case CL_BOOLEAN:
-            return_value->value = cobject_create(CL_BOOLEAN, va_arg(ap, int),
-                                                 NULL);
-
-            break;
-
-        case CL_LONG:
-            return_value->value = cobject_create(CL_LONG, va_arg(ap, long),
-                                                 NULL);
-
-            break;
-
-        case CL_ULONG:
-            return_value->value = cobject_create(CL_ULONG, va_arg(ap, long),
-                                                 NULL);
-
-            break;
-
-        case CL_LLONG:
-            return_value->value = cobject_create(CL_LLONG, va_arg(ap, long),
-                                                 NULL);
-
-            break;
-
-        case CL_ULLONG:
-            return_value->value = cobject_create(CL_ULLONG, va_arg(ap, long),
-                                                 NULL);
-
-            break;
-
-        default:
-            cset_errno(CL_UNSUPPORTED_TYPE);
-            destroy_cplugin_fdata_s(return_value);
-            return -1;
-    }
-
-    va_end(ap);
-
-    /* Add into the return values list */
-    pthread_mutex_lock(&foo->m_return_value);
-    foo->values = cdll_unshift(foo->values, return_value);
-    pthread_mutex_unlock(&foo->m_return_value);
-
-    return 0;
-}
-
-/*
  * -- PLUGIN INFORMATION API
  */
 
@@ -357,7 +160,7 @@ __PUB_API__ cstring_list_t *cplugin_function_arguments(const cplugin_info_t *inf
     return api_function_arguments(info, function_name);
 }
 
-__PUB_API__ enum cplugin_arg cplugin_function_arg_mode(const cplugin_info_t *info,
+__PUB_API__ enum cplugin_arg_mode cplugin_function_arg_mode(const cplugin_info_t *info,
     const char *function_name)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, -1);
@@ -395,7 +198,10 @@ __PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
     va_list ap;
     int fargc = 0;
     cobject_t *cplv = NULL;
-    uint32_t caller_id = 0;
+    struct function_argument args = {
+        .jargs = NULL,
+        .ptr = NULL
+    };
 
     __clib_function_init__(true, cpl, CPLUGIN, NULL);
 
@@ -410,51 +216,37 @@ __PUB_API__ cobject_t *cplugin_call_ex(int argc, cplugin_t *cpl,
     }
 
     /* Checks if the arguments are right */
-    if (foo->type_of_args == CPLUGIN_ARG_FIXED) {
+    if (foo->arg_mode != CPLUGIN_ARGS_VOID) {
         fargc = cdll_size(foo->args);
 
         if ((argc / 2) != fargc) {
             cset_errno(CL_INVALID_VALUE);
             return NULL;
         }
+
+        /* Set up arguments value */
+        if (adjust_arguments(foo, &args, argc, ap) < 0)
+            return NULL;
     }
 
-    /* Set up arguments value */
-    if (foo->type_of_args != CPLUGIN_NO_ARGS)
-        if (adjust_arguments(foo, argc, ap) < 0)
-            return NULL;
-
-    /*
-     * Creates an identification number to the function.
-     *
-     * TODO: Implement a way to ensure that this will not repeat for other
-     *       calls.
-     */
-    caller_id = random_caller_id(foo);
-
-    /*
-     * If the same function is called at the same time, one may set its
-     * return value while the other is still trying to get it or both may
-     * try set it at the same time.
-     *
-     * One way to solve this is to use the random identification number
-     * and passed it to the called function.
-     */
-
     /* Call the function */
-    dl_call(pl, foo, caller_id);
-
-    if (foo->return_value != CL_VOID)
-        cplv = cplugin_get_return_value(pl, function_name, caller_id);
+    cplv = dl_call(pl, foo, &args);
 
     /* Unload arguments */
-    if (foo->type_of_args == CPLUGIN_ARG_VAR) {
-        cdll_free(foo->args, destroy_cplugin_fdata_s);
-        foo->args = NULL;
+    if (foo->arg_mode != CPLUGIN_ARGS_VOID) {
+        if (args.jargs != NULL)
+            free(args.jargs);
     }
 
     if ((NULL == cplv) && (foo->return_value != CL_VOID))
+        /* It's an error? */
         return NULL;
+
+    /* Release the returned object if we're a void function */
+    if (foo->return_value == CL_VOID) {
+        cobject_destroy(cplv);
+        cplv = NULL;
+    }
 
     return cplv;
 }

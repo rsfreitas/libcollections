@@ -42,7 +42,7 @@
  *         return value or NULL otherwise. The user is responsible for release
  *         the cplugin_value_t object.
  */
-cobject_t *cplugin_get_return_value(cplugin_s *cpl,
+/*cobject_t *cplugin_get_return_value(cplugin_s *cpl,
     const char *function_name, uint32_t caller_id)
 {
     struct cplugin_function_s *foo = NULL;
@@ -56,9 +56,9 @@ cobject_t *cplugin_get_return_value(cplugin_s *cpl,
         cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
-
+*/
     /* Search for a return value structure with the same @caller_id. */
-    pthread_mutex_lock(&foo->m_return_value);
+/*    pthread_mutex_lock(&foo->m_return_value);
     return_value = cdll_filter(&foo->values, search_cplugin_fdata_s_by_caller_id,
                                &caller_id);
 
@@ -70,10 +70,10 @@ cobject_t *cplugin_get_return_value(cplugin_s *cpl,
     }
 
     o = cobject_ref(return_value->value);
-
+*/
     /* Since we filtered this we must manually release it */
-    destroy_cplugin_fdata_s(return_value);
+/*    destroy_cplugin_fdata_s(return_value);
 
     return o;
-}
+}*/
 

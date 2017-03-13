@@ -37,3 +37,10 @@
 
 # Python objects
 *.pyc
+
+# Misc files
+*.jpg
+*.tar
+*.json
+rust/rcollections/Cargo.lock
+

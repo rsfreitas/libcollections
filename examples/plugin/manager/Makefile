@@ -3,7 +3,7 @@ CC = gcc
 TARGET = plugin-manager
 
 INCLUDEDIR = -I../../../include
-CFLAGS = -Wall -O0 -ggdb -D_GNU_SOURCE $(INCLUDEDIR)
+CFLAGS = -Wall -O0 -ggdb -D_GNU_SOURCE -fgnu89-inline $(INCLUDEDIR)
 
 LIBDIR = -L/usr/local/lib
 LIBS = -lcollections

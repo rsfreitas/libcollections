@@ -29,6 +29,7 @@
 #include <string.h>
 #include <limits.h>
 #include <float.h>
+#include <stdarg.h>
 
 #include <math.h>
 
@@ -901,6 +902,32 @@ __PUB_API__ cjson_t *cjson_create_string(const char *string)
 
     s = cstring_create("%s", string);
     p->type = CJSON_STRING;
+    p->value = s;
+
+    return p;
+}
+
+__PUB_API__ cjson_t *cjson_create_node(enum cjson_type type,
+    const char *fmt, ...)
+{
+    cjson_s *p = NULL;
+    va_list ap;
+    char *buff;
+    cstring_t *s = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cjson_new();
+
+    if (NULL == p)
+        return NULL;
+
+    va_start(ap, fmt);
+    vasprintf(&buff, fmt, ap);
+    va_end(ap);
+
+    s = cstring_create_empty(0);
+    cstring_set_content(s, buff);
+    p->type = type;
     p->value = s;
 
     return p;

@@ -96,7 +96,7 @@ static struct dl_plugin_driver __dl_driver[] = {
 #ifdef PLUGIN_JAVA
     {
         .type               = CPLUGIN_JAVA,
-        .enabled            = false,
+        .enabled            = true,
         .plugin_test        = jni_plugin_test,
         .library_init       = jni_library_init,
         .library_uninit     = jni_library_uninit,
@@ -357,15 +357,16 @@ end_block:
     return ret;
 }
 
-void dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
-    uint32_t caller_id)
+cobject_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
+    struct function_argument *args)
 {
     struct dl_plugin_driver *drv = NULL;
 
     if ((NULL == cpl) || (NULL == cpl->dl))
-        return;
+        return NULL;
 
     drv = cpl->dl;
-    (drv->call)(drv->data, foo, caller_id, cpl);
+
+    return (drv->call)(drv->data, foo, cpl, args);
 }
 

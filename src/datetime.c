@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <sys/time.h>
+#include <ctype.h>
 
 #include "collections.h"
 
@@ -468,7 +469,8 @@ __PUB_API__ cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
                     break;
             }
         } else
-            cstring_cat(d, "%c", *fmt);
+            if (isprint(*fmt))
+                cstring_cat(d, "%c", *fmt);
     } while (*fmt++);
 
     return d;

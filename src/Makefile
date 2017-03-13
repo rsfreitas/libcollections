@@ -69,9 +69,6 @@ ifeq ($(JAVAPLUGIN), 1)
     LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/$(ARCH)/server/
     JAVA_DL_OBJS =	\
 					$(PLUGIN_PATH)/dl_java.o
-
-    JNI_SOURCES := $(wildcard $(JNI_PATH)/*.c)
-    JNI_OBJS = $(JNI_SOURCES:.c=.o)
 endif
 
 PLUGIN_LIBS = $(PYTHON_LIBS) $(JAVA_LIBS)
@@ -106,8 +103,7 @@ PLUGIN_SOURCES := $(wildcard $(PLUGIN_PATH)/*.c)
 PLUGIN_SOURCES := $(filter-out $(DL_SOURCES), $(PLUGIN_SOURCES))
 PLUGIN_OBJS = \
 			  $(PLUGIN_SOURCES:.c=.o)	\
-			  $(DL_OBJS)				\
-			  $(JNI_OBJS)
+			  $(DL_OBJS)
 
 SOURCES := $(wildcard *.c)
 SOURCES := $(filter-out image.c, $(SOURCES))
