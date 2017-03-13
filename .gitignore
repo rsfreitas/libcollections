@@ -42,4 +42,5 @@
 *.jpg
 *.tar
 *.json
+rust/rcollections/Cargo.lock
 

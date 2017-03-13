@@ -154,11 +154,6 @@ int adjust_arguments(struct cplugin_function_s *foo,
                 else
                     p = (cstring_t *)va_arg(ap, void *);
 
-                /*
-                 * We support receiving JSON strings also. And to do this we need
-                 * to replace every " for a \".
-                 */
-                cstring_rplsubstr(p, "\"", "\\\"");
                 node = cjson_create_node(CJSON_STRING, "%s", cstring_valueof(p));
                 cstring_unref(p);
                 break;

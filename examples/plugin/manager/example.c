@@ -295,7 +295,7 @@ int main(int argc, char **argv)
     collections_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    cexit();
+    //cexit();
 
     return 0;
 }
