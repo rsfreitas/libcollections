@@ -67,17 +67,17 @@ inline void cref_dec(const struct cref_s *ref);
  * @name cref_bool_compare
  * @brief Compares the current reference and swap its value.
  *
- * If the current reference value of ref->count is \a old, then write \a new
+ * If the current reference value of ref->count is \a old, then write \a new_
  * to it.
  *
  * @param [in,out] ref: A reference count structure to be compared.
  * @param [in] old: The old value from the reference count.
- * @param [in] new: The new value of the reference count.
+ * @param [in] new_: The new value of the reference count.
  *
  * @return On success, i.e, the comparison is successful and \a new was written,
  *         returns true, otherwise returns false.
  */
-inline bool cref_bool_compare(const struct cref_s *ref, int old, int new);
+inline bool cref_bool_compare(const struct cref_s *ref, int old, int new_);
 
 #endif
 

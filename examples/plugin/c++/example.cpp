@@ -85,165 +85,104 @@ CPLUGIN_SET_INFO(
     API
 )
 
-CPLUGIN_OBJECT_EXPORT(foo_int)
+CPLUGIN_OBJECT_VOID(int, foo_int)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_INT, 42);
+    return 42;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_uint)
+CPLUGIN_OBJECT_VOID(unsigned int, foo_uint)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_UINT, 420);
+    return 420;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_sint)
+CPLUGIN_OBJECT_VOID(short int, foo_sint)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_SINT, 421);
+    return 421;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_usint)
+CPLUGIN_OBJECT_VOID(unsigned short int, foo_usint)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_USINT, 4201);
+    return 4201;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_char)
+CPLUGIN_OBJECT_VOID(char, foo_char)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_CHAR, 'a');
+    return 'a';
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_uchar)
+CPLUGIN_OBJECT_VOID(unsigned char, foo_uchar)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_UCHAR, 230);
+    return 230;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_float)
+CPLUGIN_OBJECT_VOID(float, foo_float)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_FLOAT, 42.5f);
+    return 42.5f;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_double)
+CPLUGIN_OBJECT_VOID(double, foo_double)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_DOUBLE, 4.2);
+    return 4.2;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_boolean)
+CPLUGIN_OBJECT_VOID(bool, foo_boolean)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_BOOLEAN, true);
+    return true;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_long)
+CPLUGIN_OBJECT_VOID(long, foo_long)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_LONG, 42000);
+    return 42000;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_ulong)
+CPLUGIN_OBJECT_VOID(unsigned long, foo_ulong)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_ULONG, 420001);
+    return 420001;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_llong)
+CPLUGIN_OBJECT_VOID(long long, foo_llong)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_LLONG, 420009);
+    return 420009;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_ullong)
+CPLUGIN_OBJECT_VOID(unsigned long long, foo_ullong)
 {
-    CPLUGIN_SET_VOID_ARGS();
-
     cout << __FUNCTION__ << endl;
-    CPLUGIN_SET_RETURN_VALUE(CL_ULLONG, 4200019);
+    return 4200019;
 }
 
-CPLUGIN_OBJECT_EXPORT(foo_args)
+CPLUGIN_OBJECT_ARGS_ONLY(void, foo_args)
 {
-    char *s;
-    cobject_t *arg1, *arg2, *arg3, *arg4, *arg5, *arg6, *arg7, *arg8, *arg9,
-             *arg10, *arg11, *arg12, *arg13, *arg14;
 
-    cout << "Number of arguments: " << CPLUGIN_ARG_COUNT() << endl;
+    CPLUGIN_LOAD_ARGUMENTS();
 
-    arg1 = CPLUGIN_ARGUMENT("arg1");
-    arg2 = CPLUGIN_ARGUMENT("arg2");
-    arg3 = CPLUGIN_ARGUMENT("arg3");
-    arg4 = CPLUGIN_ARGUMENT("arg4");
-    arg5 = CPLUGIN_ARGUMENT("arg5");
-    arg6 = CPLUGIN_ARGUMENT("arg6");
-    arg7 = CPLUGIN_ARGUMENT("arg7");
-    arg8 = CPLUGIN_ARGUMENT("arg8");
-    arg9 = CPLUGIN_ARGUMENT("arg9");
-    arg10 = CPLUGIN_ARGUMENT("arg10");
-    arg11 = CPLUGIN_ARGUMENT("arg11");
-    arg12 = CPLUGIN_ARGUMENT("arg12");
-    arg13 = CPLUGIN_ARGUMENT("arg13");
-    arg14 = CPLUGIN_ARGUMENT("arg14");
+    cout << "arg1 value: " << CPLUGIN_ARGUMENT_INT("arg1") << endl;
+    cout << "arg2 value: " << CPLUGIN_ARGUMENT_UINT("arg2") << endl;
+    cout << "arg3 value: " << CPLUGIN_ARGUMENT_SINT("arg3") << endl;
+    cout << "arg4 value: " << CPLUGIN_ARGUMENT_USINT("arg4") << endl;
+    cout << "arg5 value: " << CPLUGIN_ARGUMENT_CHAR("arg5") << endl;
+    cout << "arg6 value: " << CPLUGIN_ARGUMENT_UCHAR("arg6") << endl;
+    cout << "arg7 value: " << CPLUGIN_ARGUMENT_FLOAT("arg7") << endl;
+    cout << "arg8 value: " << CPLUGIN_ARGUMENT_DOUBLE("arg8") << endl;
+    cout << "arg9 value: " << CPLUGIN_ARGUMENT_LONG("arg9") << endl;
+    cout << "arg10 value: " << CPLUGIN_ARGUMENT_ULONG("arg10") << endl;
+    cout << "arg11 value: " << CPLUGIN_ARGUMENT_LLONG("arg11") << endl;
+    cout << "arg12 value: " << CPLUGIN_ARGUMENT_ULLONG("arg12") << endl;
+    cout << "arg13 value: " << CPLUGIN_ARGUMENT_BOOL("arg13") << endl;
+    cout << "arg14 value: " << CPLUGIN_ARGUMENT_STRING("arg14") << endl;
 
-    cout << "arg1 value: " << COBJECT_AS_INT(arg1) << endl;
-    cout << "arg2 value: " << COBJECT_AS_UINT(arg2) << endl;
-    cout << "arg3 value: " << COBJECT_AS_SINT(arg3) << endl;
-    cout << "arg4 value: " << COBJECT_AS_USINT(arg4) << endl;
-    cout << "arg5 value: " << COBJECT_AS_CHAR(arg5) << endl;
-    cout << "arg6 value: " << COBJECT_AS_UCHAR(arg6) << endl;
-    cout << "arg7 value: " << COBJECT_AS_FLOAT(arg7) << endl;
-    cout << "arg8 value: " << COBJECT_AS_DOUBLE(arg8) << endl;
-    cout << "arg9 value: " << COBJECT_AS_LONG(arg9) << endl;
-    cout << "arg10 value: " << COBJECT_AS_ULONG(arg10) << endl;
-    cout << "arg11 value: " << COBJECT_AS_LLONG(arg11) << endl;
-    cout << "arg12 value: " << COBJECT_AS_ULLONG(arg12) << endl;
-    cout << "arg13 value: " << COBJECT_AS_BOOLEAN(arg13) << endl;
-
-    s = COBJECT_AS_STRING(arg14);
-    cout << "arg14 value: " << s << endl;
-
-    cobject_unref(arg14);
-    cobject_unref(arg13);
-    cobject_unref(arg12);
-    cobject_unref(arg11);
-    cobject_unref(arg10);
-    cobject_unref(arg9);
-    cobject_unref(arg8);
-    cobject_unref(arg7);
-    cobject_unref(arg6);
-    cobject_unref(arg5);
-    cobject_unref(arg4);
-    cobject_unref(arg3);
-    cobject_unref(arg2);
-    cobject_unref(arg1);
-
-    CPLUGIN_SET_RETURN_VALUE_AS_VOID();
+    CPLUGIN_UNLOAD_ARGUMENTS();
 }
 
