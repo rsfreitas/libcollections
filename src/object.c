@@ -297,6 +297,32 @@ void cobject_set_string(cobject_t *object, char *s)
     v->s = cstring_create("%s", s);
 }
 
+void cobject_set_pointer(cobject_t *object, bool dup_data, void *data,
+    unsigned int size, void (*free_object)(void *))
+{
+    cobject_s *v = (cobject_s *)object;
+
+    if (NULL == object)
+        return;
+
+    if (v->s != NULL)
+        cstring_unref(v->s);
+
+    v->dup_data = dup_data;
+    v->psize = size;
+
+    if (v->dup_data == true) {
+        if (v->p != NULL)
+            free_object_data(v);
+
+        v->p = cmemdup(data, v->psize);
+    } else
+        v->p = data;
+
+    if (free_object != NULL)
+        v->free_object = free_object;
+}
+
 static void set_cobject_object(cobject_s *o, va_list ap)
 {
     void *p;
@@ -368,6 +394,7 @@ static void set_cobject_object(cobject_s *o, va_list ap)
             } else
                 o->p = p;
 
+            /* Object free function */
             p = va_arg(ap, void *);
 
             if (p != NULL)
@@ -427,6 +454,23 @@ __PUB_API__ cobject_t *cobject_create(enum cl_type type, ...)
     va_start(ap, NULL);
     set_cobject_object(o, ap);
     va_end(ap);
+
+    return o;
+}
+
+__PUB_API__ cobject_t *cobject_create_empty(enum cl_type type)
+{
+    cobject_s *o = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (validate_cl_type(type) == false)
+        return NULL;
+
+    o = new_cobject_s(type);
+
+    if (NULL == o)
+        return NULL;
 
     return o;
 }

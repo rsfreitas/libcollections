@@ -154,6 +154,7 @@ LIBCOLLECTIONS_0.1 {
         cjson_create_int_array;
         cjson_create_float_array;
         cjson_create_string_array;
+        cjson_create_node;
         cjson_add_item_to_array;
         cjson_add_item_to_object;
         cjson_add_item_reference_to_array;
@@ -230,6 +231,7 @@ LIBCOLLECTIONS_0.1 {
         cstring_list_size;
         cstring_dchr;
         cstring_idchr;
+        cstring_set_content;
         cthread_get_user_data;
         cthread_set_state;
         cthread_wait_startup;

@@ -34,17 +34,17 @@
 
 /** Plugin supported languages */
 enum cplugin_type {
-    CPLUGIN_UNKNOWN = (1 << 0),
-    CPLUGIN_ELF     = (1 << 1),         /* C, C++, Go and Rust */
-    CPLUGIN_PYTHON  = (1 << 2),         /* Python */
-    CPLUGIN_JAVA    = (1 << 3)
+    CPLUGIN_UNKNOWN = 0,
+    CPLUGIN_ELF     = (1 << 0),         /* C, C++, Rust and Go */
+    CPLUGIN_PYTHON  = (1 << 1),
+    CPLUGIN_JAVA    = (1 << 2)
 };
 
 /** Functions argument mode */
-enum cplugin_arg {
-    CPLUGIN_ARG_FIXED,
-    CPLUGIN_ARG_VAR,
-    CPLUGIN_NO_ARGS
+enum cplugin_arg_mode {
+    CPLUGIN_ARGS_VOID               = 0,
+    CPLUGIN_ARGS_COMMON             = (1 << 0),
+    CPLUGIN_ARGS_POINTER            = (1 << 1)
 };
 
 /** Identification of a C/C++ plugin */
@@ -227,8 +227,8 @@ cstring_list_t *cplugin_function_arguments(const cplugin_info_t *info,
  * @return On success returns the argument mode (as a number) from the requested
  *         function or -1 otherwise.
  */
-enum cplugin_arg cplugin_function_arg_mode(const cplugin_info_t *info,
-                                           const char *function_name);
+enum cplugin_arg_mode cplugin_function_arg_mode(const cplugin_info_t *info,
+                                                const char *function_name);
 
 /**
  * @name cplugin_function_arg_type

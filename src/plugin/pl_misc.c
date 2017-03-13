@@ -30,8 +30,7 @@
 #include "collections.h"
 #include "plugin.h"
 
-struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,
-    uint32_t caller_id)
+struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type)
 {
     struct cplugin_fdata_s *f = NULL;
 
@@ -46,8 +45,6 @@ struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type,
         f->name = strdup(name);
 
     f->type = type;
-    f->caller_id = caller_id;
-    f->value = NULL;
     set_typeof_with_offset(CPLUGIN_ARG, f, CPLUGIN_ARG_OBJECT_OFFSET);
 
     return f;
@@ -60,9 +57,6 @@ void destroy_cplugin_fdata_s(void *a)
     if (NULL == fdata)
         return;
 
-    if (fdata->value != NULL)
-        cobject_destroy(fdata->value);
-
     if (fdata->name != NULL)
         free(fdata->name);
 
@@ -70,7 +64,7 @@ void destroy_cplugin_fdata_s(void *a)
 }
 
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
-    enum cl_type return_value, enum cplugin_arg arg_type,
+    enum cl_type return_value, enum cplugin_arg_mode arg_mode,
     struct cplugin_fdata_s *args)
 {
     struct cplugin_function_s *f = NULL;
@@ -84,11 +78,8 @@ struct cplugin_function_s *new_cplugin_function_s(const char *name,
 
     f->name = strdup(name);
     f->return_value = return_value;
-    f->type_of_args = arg_type;
     f->args = args;
-    f->values = NULL;
-
-    pthread_mutex_init(&f->m_return_value, NULL);
+    f->arg_mode = arg_mode;
 
     return f;
 }
@@ -99,9 +90,6 @@ static void destroy_cplugin_function_s(void *a)
 
     if (f->args != NULL)
         cdll_free(f->args, destroy_cplugin_fdata_s);
-
-    if (f->values != NULL)
-        cdll_free(f->values, destroy_cplugin_fdata_s);
 
     free(f->name);
     free(f);
@@ -175,47 +163,5 @@ int search_cplugin_fdata_s(void *a, void *b)
         return 1;
 
     return 0;
-}
-
-/*
- * Compares if a specific struct 'struct cplugin_fdata_s' matches an argument
- * indicated in @b.
- */
-int search_cplugin_fdata_s_by_caller_id(void *a, void *b)
-{
-    struct cplugin_fdata_s *v = (struct cplugin_fdata_s *)a;
-    unsigned int *caller_id = (unsigned int *)b;
-
-    if (v->caller_id == *caller_id)
-        return 1;
-
-    return 0;
-}
-
-/*
- * Raffles a random number so it can be used as a return value identification
- * from a function, satisfied that there is no other repetead number inside.
- */
-uint32_t random_caller_id(struct cplugin_function_s *foo)
-{
-    struct cplugin_fdata_s *p;
-    uint32_t n = 0;
-    int loop = 0;
-
-    if (NULL == foo->values)
-        return random();
-
-    do {
-        loop = 0;
-        n = random();
-
-        for (p = foo->values; p; p = p->next)
-            if (p->caller_id == n) {
-                loop = 1;
-                break;
-            }
-    } while (loop);
-
-    return n;
 }
 

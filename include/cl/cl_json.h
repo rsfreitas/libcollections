@@ -33,10 +33,6 @@
 # endif
 #endif
 
-/*
- * TODO: Add function to search item in array using a key.
- */
-
 enum cjson_type {
     CJSON_STRING,
     CJSON_NUMBER,
@@ -242,6 +238,18 @@ cjson_t *cjson_create_number_float(float n);
  * @return On success returns the created cjson_t object or NULL otherwise.
  */
 cjson_t *cjson_create_string(const char *string);
+
+/**
+ * @name cjson_create_node
+ * @brief Creates a JSON node of a certain type.
+ *
+ * @param [in] type: The node type.
+ * @param [in] fmt: The content format.
+ * @param [in] ...: The real content.
+ *
+ * @return On success returns the created cjson_t object or NULL otherwise.
+ */
+cjson_t *cjson_create_node(enum cjson_type type, const char *fmt, ...);
 
 /**
  * @name cjson_create_int_array

@@ -29,23 +29,23 @@
 #include "collections.h"
 #include "plugin.h"
 
-int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
+int adjust_arguments(struct cplugin_function_s *foo,
+    struct function_argument *args, int argc, va_list ap)
 {
-    int i = 0, increment = 0, t = 0;
     struct cplugin_fdata_s *arg = NULL;
-    char *tmp;
+    char *arg_name;
     cstring_t *p;
+    cjson_t *node, *jargs;
+    void *ptr;
+    int i = 0;
+    bool b;
+    enum cjson_type type;
 
-    if (foo->type_of_args == CPLUGIN_ARG_FIXED)
-        increment = 2;
-    else if (foo->type_of_args == CPLUGIN_ARG_VAR)
-        increment = 3;
-    else {
-        cset_errno(CL_WRONG_TYPE);
-        return -1;
-    }
+    jargs = cjson_create_object();
 
-    for (i = 0; i < argc; i += increment) {
+    for (i = 0; i < argc; i += 2) {
+        arg_name = va_arg(ap, char *);
+
         /*
          * Search for the structure that contains the value passed as
          * argument by its own argument name informed by the user at the
@@ -53,127 +53,122 @@ int adjust_arguments(struct cplugin_function_s *foo, int argc, va_list ap)
          *
          * Example: call("arg_name", value, "arg_name", value);
          */
-        if (foo->type_of_args == CPLUGIN_ARG_FIXED) {
-            arg = cdll_map(foo->args, search_cplugin_fdata_s,
-                           va_arg(ap, char *));
-        } else if (foo->type_of_args == CPLUGIN_ARG_VAR) {
-            tmp = va_arg(ap, char *);
-            t = va_arg(ap, int);
-            arg = new_cplugin_fdata_s(tmp, t, 0);
-        }
+        arg = cdll_map(foo->args, search_cplugin_fdata_s, arg_name);
 
         if (NULL == arg)
             return -1;
 
-        if (arg->value != NULL)
-            cobject_unref(arg->value);
-
         switch (arg->type) {
             case CL_CHAR:
-                arg->value = cobject_create(CL_CHAR, (char)va_arg(ap, int),
-                                            NULL);
+                node = cjson_create_node(CJSON_STRING, "%c",
+                                         (char)va_arg(ap, int));
 
                 break;
 
             case CL_UCHAR:
-                arg->value = cobject_create(CL_UCHAR,
-                                            (unsigned char)va_arg(ap, int),
-                                            NULL);
-
-                break;
-
-            case CL_INT:
-                arg->value = cobject_create(CL_INT, va_arg(ap, int), NULL);
-                break;
-
-            case CL_UINT:
-                arg->value = cobject_create(CL_UINT,
-                                            (unsigned int)va_arg(ap, int),
-                                            NULL);
-
-                break;
-
-            case CL_SINT:
-                arg->value = cobject_create(CL_SINT,
-                                            (short int)va_arg(ap, int), NULL);
-
-                break;
-
-            case CL_USINT:
-                arg->value = cobject_create(CL_USINT,
-                                            (unsigned short int)va_arg(ap, int),
-                                            NULL);
-
-                break;
-
-            case CL_FLOAT:
-                arg->value = cobject_create(CL_FLOAT,
-                                            (float)va_arg(ap, double), NULL);
-
-                break;
-
-            case CL_DOUBLE:
-                arg->value = cobject_create(CL_DOUBLE,
-                                            va_arg(ap, double), NULL);
-
-                break;
-
-            case CL_LONG:
-                arg->value = cobject_create(CL_LONG,
-                                            va_arg(ap, long), NULL);
-
-                break;
-
-            case CL_ULONG:
-                arg->value = cobject_create(CL_ULONG,
-                                            va_arg(ap, unsigned long),
-                                            NULL);
-
-                break;
-
-            case CL_LLONG:
-                arg->value = cobject_create(CL_LLONG,
-                                            va_arg(ap, long long), NULL);
-
-                break;
-
-            case CL_ULLONG:
-                arg->value = cobject_create(CL_ULLONG,
-                                            va_arg(ap, unsigned long long),
-                                            NULL);
-
-                break;
-
-            case CL_POINTER:
-                arg->value = cobject_create(CL_POINTER, false,
-                                            va_arg(ap, void *), 0, NULL);
+                node = cjson_create_node(CJSON_STRING, "%c",
+                                         (unsigned char)va_arg(ap, int));
 
                 break;
 
             case CL_BOOLEAN:
-                arg->value = cobject_create(CL_BOOLEAN, va_arg(ap, int), NULL);
+                b = (bool)va_arg(ap, int);
+
+                if (b == true)
+                    type = CJSON_TRUE;
+                else
+                    type = CJSON_FALSE;
+
+                node = cjson_create_node(type, "%d", b);
+                break;
+
+            case CL_INT:
+                node = cjson_create_node(CJSON_NUMBER, "%d",
+                                         va_arg(ap, int));
+
+                break;
+
+            case CL_UINT:
+                node = cjson_create_node(CJSON_NUMBER, "%u",
+                                         (unsigned int)va_arg(ap, int));
+
+                break;
+
+            case CL_SINT:
+                node = cjson_create_node(CJSON_NUMBER, "%hd",
+                                         (short int)va_arg(ap, int));
+
+                break;
+
+            case CL_USINT:
+                node = cjson_create_node(CJSON_NUMBER, "%hu",
+                                         (unsigned int)va_arg(ap, int));
+
+                break;
+
+            case CL_FLOAT:
+                node = cjson_create_node(CJSON_NUMBER_FLOAT, "%f",
+                                         (float)va_arg(ap, double));
+
+                break;
+
+            case CL_DOUBLE:
+                node = cjson_create_node(CJSON_NUMBER_FLOAT, "%f",
+                                         va_arg(ap, double));
+
+                break;
+
+            case CL_LONG:
+                node = cjson_create_node(CJSON_NUMBER, "%ld",
+                                         va_arg(ap, long));
+
+                break;
+
+            case CL_ULONG:
+                node = cjson_create_node(CJSON_NUMBER, "%lu",
+                                         va_arg(ap, unsigned long));
+
+                break;
+
+            case CL_LLONG:
+                node = cjson_create_node(CJSON_NUMBER, "%lld",
+                                         va_arg(ap, long long));
+
+                break;
+
+            case CL_ULLONG:
+                node = cjson_create_node(CJSON_NUMBER, "%llu",
+                                         va_arg(ap, unsigned long long));
+
+                break;
+
+            case CL_POINTER:
+                ptr = va_arg(ap, void *);
+                args->ptr = ptr;
                 break;
 
             case CL_STRING:
-                arg->value = cobject_create(CL_STRING, va_arg(ap, char *),
-                                            NULL);
-
-                break;
-
             case CL_CSTRING:
-                p = va_arg(ap, void *);
-                arg->value = cobject_create(CL_CSTRING, p, NULL);
+                if (arg->type == CL_STRING)
+                    p = cstring_create("%s", va_arg(ap, char *));
+                else
+                    p = (cstring_t *)va_arg(ap, void *);
+
+                node = cjson_create_node(CJSON_STRING, "%s", cstring_valueof(p));
                 cstring_unref(p);
                 break;
 
             default:
-                cset_errno(CL_UNSUPPORTED_TYPE);
-                return -1;
+                node = NULL;
+                break;
         }
 
-        if (foo->type_of_args == CPLUGIN_ARG_VAR)
-            foo->args = cdll_unshift(foo->args, arg);
+        if (node != NULL)
+            cjson_add_item_to_object(jargs, arg_name, node);
     }
+
+    args->jargs = cjson_to_string(jargs, false);
+    cjson_delete(jargs);
 
     return 0;
 }

@@ -1,9 +1,6 @@
 
 import cplugin.CpluginEntryAPI;
 import cplugin.CpluginModule;
-import cplugin.CpluginType;
-import cplugin.CpluginArguments;
-import cplugin.CpluginObject;
 
 /**
  * We need to follow the Java coding style and keep the main class with the
@@ -65,8 +62,8 @@ public class Jplugin implements CpluginEntryAPI, CpluginModule {
     }
 
     @Override
-    public String getCreator() {
-        System.out.println("getCreator");
+    public String getAuthor() {
+        System.out.println("getAuthor");
         return creator;
     }
 
@@ -99,116 +96,75 @@ public class Jplugin implements CpluginEntryAPI, CpluginModule {
     }
 
     /** Module API Examples */
-    public CpluginObject foo_int() {
+    public int foo_int() {
         System.out.println("foo_int");
-
-        return new CpluginObject(CpluginType.CL_INT, 42);
+        return 42;
     }
 
-    public CpluginObject foo_uint() {
+    public int foo_uint() {
         System.out.println("foo_uint");
-
-        return new CpluginObject(CpluginType.CL_UINT, 420);
+        return 420;
     }
 
-    public CpluginObject foo_sint() {
+    public short foo_sint() {
         System.out.println("foo_sint");
-
-        return new CpluginObject(CpluginType.CL_SINT, 421);
+        return 421;
     }
 
-    public CpluginObject foo_usint() {
+    public short foo_usint() {
         System.out.println("foo_usint");
-
-        return new CpluginObject(CpluginType.CL_USINT, 4201);
+        return 4201;
     }
 
-    public CpluginObject foo_char() {
+    public byte foo_char() {
         System.out.println("foo_char");
-
-        return new CpluginObject(CpluginType.CL_CHAR, 'a');
+        return 'a';
     }
 
-    public CpluginObject foo_uchar() {
+    public byte foo_uchar() {
         System.out.println("foo_uchar");
-
-        return new CpluginObject(CpluginType.CL_UCHAR, 230);
+        return (byte)230;
     }
 
-    public CpluginObject foo_float() {
+    public float foo_float() {
         System.out.println("foo_float");
-
-        return new CpluginObject(CpluginType.CL_FLOAT, 42.5f);
+        return 42.5f;
     }
 
-    public CpluginObject foo_double() {
+    public double foo_double() {
         System.out.println("foo_double");
-
-        return new CpluginObject(CpluginType.CL_DOUBLE, 4.2);
+        return 4.2;
     }
 
-    public CpluginObject foo_boolean() {
+    public boolean foo_boolean() {
         System.out.println("foo_boolean");
-
-        return new CpluginObject(CpluginType.CL_BOOLEAN, true);
+        return true;
     }
 
-    public CpluginObject foo_long() {
+    public int foo_long() {
         System.out.println("foo_long");
-
-        return new CpluginObject(CpluginType.CL_LONG, 42000);
+        return 42000;
     }
 
-    public CpluginObject foo_ulong() {
+    public int foo_ulong() {
         System.out.println("foo_ulong");
-
-        return new CpluginObject(CpluginType.CL_ULONG, 420001);
+        return 420001;
     }
 
-    public CpluginObject foo_llong() {
+    public long foo_llong() {
         System.out.println("foo_llong");
-
-        return new CpluginObject(CpluginType.CL_LLONG, 420009);
+        return 420009;
     }
 
-    public CpluginObject foo_ullong() {
+    public long foo_ullong() {
         System.out.println("foo_ullong");
-
-        return new CpluginObject(CpluginType.CL_LLONG, 4200019);
+        return 4200019;
     }
 
     /* With arguments, with return */
-    public void foo_args(CpluginArguments args) {
-        System.out.println("Number of arguments: " + args.argCount());
-        int arg1 = (Integer)args.getArgument("arg1");
-        int arg2 = (Integer)args.getArgument("arg2");
-        short arg3 = (Short)args.getArgument("arg3");
-        short arg4 = (Short)args.getArgument("arg4");
-        byte arg5 = (Byte)args.getArgument("arg5");
-        byte arg6 = (Byte)args.getArgument("arg6");
-        float arg7 = (Float)args.getArgument("arg7");
-        double arg8 = (Double)args.getArgument("arg8");
-        int arg9 = (Integer)args.getArgument("arg9");
-        int arg10 = (Integer)args.getArgument("arg10");
-        long arg11 = (Long)args.getArgument("arg11");
-        long arg12 = (Long)args.getArgument("arg12");
-        boolean arg13 = (Boolean)args.getArgument("arg13");
-        String arg14 = (String)args.getArgument("arg14");
-
-        System.out.println("argument 1 = " + arg1);
-        System.out.println("argument 2 = " + arg2);
-        System.out.println("argument 3 = " + arg3);
-        System.out.println("argument 4 = " + arg4);
-        System.out.println("argument 5 = " + arg5);
-        System.out.println("argument 6 = " + arg6);
-        System.out.println("argument 7 = " + arg7);
-        System.out.println("argument 8 = " + arg8);
-        System.out.println("argument 9 = " + arg9);
-        System.out.println("argument 10 = " + arg10);
-        System.out.println("argument 11 = " + arg11);
-        System.out.println("argument 12 = " + arg12);
-        System.out.println("argument 13 = " + arg13);
-        System.out.println("argument 14 = " + arg14);
+    public void foo_args(String args) {
+        /* XXX: The arguments are in a JSON format. */
+        System.out.println("Arguments: " + args);
     }
 }
 

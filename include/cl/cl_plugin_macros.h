@@ -48,54 +48,9 @@
 /*
  * Macros to be used with libcollections while manipulating plugins.
  *
- * Upper case macros must be used from within a plugin.
  * Lower case macros must be used from a 'plugin manager'.
+ * Upper case macros must be used from within a plugin.
  */
-
-/* Macro to identify an exported plugin function */
-#define CPLUGIN_OBJECT_EXPORT(foo)              \
-    CPLUGIN_EXTERN_C() void CPLUGIN_FNEXPORT foo(uint32_t caller_id, \
-                                                 cplugin_t *cpl, \
-                                                 cplugin_arg_t *args)
-
-/*
- * Macro to set the return value from an exported plugin function. To be used
- * instead of a 'return' call.
- */
-#define CPLUGIN_SET_RETURN_VALUE(type, arg...)      \
-    cplugin_set_return_value(cpl, __FUNCTION__, caller_id, type, ## arg)
-
-/* Macro to set the return value from an exported function as void */
-#define CPLUGIN_SET_RETURN_VALUE_AS_VOID()      \
-    {\
-        CPLUGIN_SET_RETURN_VALUE(CL_VOID, 0);\
-    }\
-
-/* Macro to get the number of arguments from an exported plugin function */
-#define CPLUGIN_ARG_COUNT()                     \
-    cplugin_arg_count(args)
-
-/*
- * Macro to get the actual value from an argument of an exported plugin
- * function.
- */
-#define CPLUGIN_ARGUMENT(arg_name)              \
-    cplugin_argument(args, arg_name)
-
-/*
- * Macro to release an argument loaded inside a plugin function.
- */
-#define CPLUGIN_RELEASE_ARGUMENT(argument)      \
-    cobject_unref(argument)
-
-/*
- * Macro to access the argument @args from an exported function and
- * remove the GCC warning.
- */
-#define CPLUGIN_SET_VOID_ARGS()                 \
-    {\
-        (void)args;\
-    }\
 
 /*
  * Macro to make the call to an exported plugin function, so the correct
@@ -106,11 +61,122 @@
     cplugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
                     cpl, function_name, ## arg)
 
+/* Macro to identify an exported plugin function */
+/*#define CPLUGIN_OBJECT_EXPORT(foo)              \
+    CPLUGIN_EXTERN_C() void CPLUGIN_FNEXPORT foo(uint32_t caller_id, \
+                                                 cplugin_t *cpl, \
+                                                 cplugin_arg_t *args)
+*/
+#define CPLUGIN_OBJECT_VOID(return_type, foo)       \
+    CPLUGIN_EXTERN_C() return_type CPLUGIN_FNEXPORT foo(void)
+
+#define CPLUGIN_OBJECT_PTR_ONLY(return_type, foo)   \
+    CPLUGIN_EXTERN_C() return_type CPLUGIN_FNEXPORT foo(void *ptr)
+
+#define CPLUGIN_OBJECT_ARGS_ONLY(return_type, foo)   \
+    CPLUGIN_EXTERN_C() return_type CPLUGIN_FNEXPORT foo(const char *args)
+
+#define CPLUGIN_OBJECT_ARGS_AND_PTR(return_type, foo)   \
+    CPLUGIN_EXTERN_C() return_type CPLUGIN_FNEXPORT foo(const char *args, void *ptr)
+
+/*
+ * Macro to set the return value from an exported plugin function. To be used
+ * instead of a 'return' call.
+ */
+/*#define CPLUGIN_SET_RETURN_VALUE(type, arg...)      \
+    cplugin_set_return_value(cpl, __FUNCTION__, caller_id, type, ## arg)
+*/
+/* Macro to set the return value from an exported function as void */
+/*#define CPLUGIN_SET_RETURN_VALUE_AS_VOID()      \
+    {\
+        CPLUGIN_SET_RETURN_VALUE(CL_VOID, 0);\
+    }\
+*/
+/* Macro to get the number of arguments from an exported plugin function */
+/*#define CPLUGIN_ARG_COUNT()                     \
+    cplugin_arg_count(args)
+*/
+/*
+ * Macro to get the actual value from an argument of an exported plugin
+ * function.
+ */
+/*#define CPLUGIN_ARGUMENT(arg_name)              \
+    cplugin_argument(args, arg_name)
+*/
+/*
+ * Macro to release an argument loaded inside a plugin function.
+ */
+/*#define CPLUGIN_RELEASE_ARGUMENT(argument)      \
+    cobject_unref(argument)
+*/
+/*
+ * Macro to access the argument @args from an exported function and
+ * remove the GCC warning.
+ */
+/*#define CPLUGIN_SET_VOID_ARGS()                 \
+    {\
+        (void)args;\
+    }\
+*/
+#define CPLUGIN_PTR_ARGUMENT()                  \
+    ptr
+
+#define CPLUGIN_LOAD_ARGUMENTS()                \
+    cjson_t *___jargs = cjson_parse_string(args)
+
+#define CPLUGIN_UNLOAD_ARGUMENTS()              \
+    cjson_delete(___jargs)
+
+/*
+ * Macros to get arguments inside an exported plugin function.
+ */
+#define CPLUGIN_ARGUMENT_CHAR(arg_name)          \
+    ({ char __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = cstring_at(___value, 0); __x; })
+
+#define CPLUGIN_ARGUMENT_UCHAR(arg_name)          \
+    ({ unsigned char __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = (unsigned char)cstring_at(___value, 0); __x; })
+
+#define CPLUGIN_ARGUMENT_INT(arg_name)          \
+    ({ int __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = cstring_to_int(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_UINT(arg_name)         \
+    ({ unsigned int __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = (unsigned int)cstring_to_int(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_SINT(arg_name)          \
+    ({ short int __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = (short int)cstring_to_int(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_USINT(arg_name)        \
+    ({ unsigned short int __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = (unsigned short int)cstring_to_int(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_LONG(arg_name)          \
+    ({ long __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = cstring_to_long(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_ULONG(arg_name)        \
+    ({ unsigned long __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = (unsigned long)cstring_to_long(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_LLONG(arg_name)        \
+    ({ long long __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = cstring_to_long_long(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_ULLONG(arg_name)       \
+    ({ unsigned long long __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = (unsigned long long)cstring_to_long_long(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_FLOAT(arg_name)        \
+    ({ float __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = cstring_to_float(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_DOUBLE(arg_name)       \
+    ({ double __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = cstring_to_double(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_STRING(arg_name)       \
+    ({ char *__x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = (char *)cstring_valueof(___value); __x; })
+
+#define CPLUGIN_ARGUMENT_BOOL(arg_name)          \
+    ({ bool __x; cjson_t *___node = cjson_get_object_item(___jargs, arg_name); cstring_t *___value = cjson_get_object_value(___node); __x = cstring_to_int(___value); __x; })
+
 /**
  * Macros to mandatory plugin functions.
  *
- * An Elf plugin must have a few functions so we may be able to call them
- * from here. These functions are the way that a plugin manager will find
+ * A plugin must have a few functions so we may be able to call them from
+ * the library. These functions are the way that a plugin manager will find
  * its information. They all must return a constant string, and their
  * prototypes are:
  *

@@ -6,11 +6,7 @@ DEST_DIR = /usr/local/lib
 
 JAVA_OBJS = \
 	CpluginEntryAPI.java    	\
-	CpluginModule.java		\
-	CpluginType.java		\
-	CpluginArguments.java		\
-	CpluginObject.java		\
-	Argument.java
+	CpluginModule.java
 
 jar:
 	$(shell test -d $(OUTCLASSPATH) || mkdir $(OUTCLASSPATH))
