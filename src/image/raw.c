@@ -41,6 +41,113 @@ struct my_error_mgr {
 
 typedef struct my_error_mgr *my_error_ptr;
 
+static bool is_header_from_raw_image(const unsigned char *buffer)
+{
+    struct raw_header hdr;
+
+    memset(&hdr, 0, sizeof(struct raw_header));
+    memcpy(&hdr, buffer, sizeof(struct raw_header));
+
+    if (hdr.id == RAW_ID)
+        return true;
+
+    return false;
+}
+
+static int raw_load_from_mem(const unsigned char *buffer, cimage_s *image)
+{
+    /* Are we receiving a RAW image with header? */
+    if (is_header_from_raw_image(buffer))
+        memcpy(&image->raw_hdr, buffer, sizeof(struct raw_header));
+    else {
+        /*
+         * We can't load a RAW image without its header, since we need to
+         * know a few informations about it.
+         */
+        cset_errno(CL_UNSUPPORTED_RAW_IMAGE);
+        return -1;
+    }
+
+    /*
+     * We need to save the original pointer, so we can free it correctly later.
+     */
+    image->raw_original_ptr = (unsigned char *)buffer;
+    image->headless_raw = (unsigned char *)buffer + sizeof(struct raw_header);
+    image->type = CIMAGE_RAW;
+    image->format = image->raw_hdr.format;
+    image->fill_format = CIMAGE_FILL_OWNER;
+
+    return 0;
+}
+
+int raw_load(const char *filename, cimage_s *image)
+{
+    unsigned char *buffer = NULL;
+    unsigned int bsize = 0;
+    int ret;
+
+    buffer = cfload(filename, &bsize);
+
+    if (NULL == buffer)
+        return -1;
+
+    ret = raw_load_from_mem(buffer, image);
+
+    if (ret < 0)
+        if (buffer != NULL)
+            free(buffer);
+
+    return ret;
+}
+
+int raw_save_to_mem(const cimage_s *image, unsigned char **buffer,
+    unsigned int *bsize)
+{
+    struct raw_header hdr;
+    unsigned char *b = NULL;
+
+    /* Create the RAW image header, so we can save it correctly */
+    hdr.id = RAW_ID;
+    hdr.width = image->raw_hdr.width;
+    hdr.height = image->raw_hdr.height;
+    hdr.size = image->raw_hdr.size;
+    hdr.format = image->format;
+
+    *bsize = hdr.size + sizeof(struct raw_header);
+    b = calloc(*bsize, sizeof(unsigned char));
+
+    if (NULL == b)
+        return -1;
+
+    memcpy(b, &hdr, sizeof(struct raw_header));
+    memcpy(b + sizeof(struct raw_header), image->headless_raw,
+           hdr.size);
+
+    *buffer = b;
+
+    return 0;
+}
+
+int raw_save(const cimage_s *image, const char *filename)
+{
+    unsigned char *buffer = NULL;
+    unsigned int bsize = 0;
+
+    if (raw_save_to_mem(image, &buffer, &bsize) < 0)
+        return -1;
+
+    cfsave(filename, buffer, bsize);
+    free(buffer);
+
+    return 0;
+}
+
+/*
+ *
+ * Conversion between RAW and JPG images.
+ *
+ */
+
 METHODDEF(void) my_error_exit(j_common_ptr cinfo)
 {
     my_error_ptr myerr = (my_error_ptr)cinfo->err;
@@ -238,4 +345,119 @@ unsigned char *jpg_to_RAW_mem(const unsigned char *buffer, unsigned int jsize,
 
     return bout;
 }
+
+static int get_raw_size(enum cimage_format format, unsigned int width,
+    unsigned int height)
+{
+    int size = -1;
+
+    switch (format) {
+        case CIMAGE_FMT_BGR:
+        case CIMAGE_FMT_RGB:
+            size = width * height * 3;
+            break;
+
+        case CIMAGE_FMT_YUV422:
+        case CIMAGE_FMT_YUV420:
+        case CIMAGE_FMT_YUYV:
+            size = width * height * 2;
+            break;
+
+        case CIMAGE_FMT_GRAY:
+            size = width * height;
+            break;
+
+        default:
+            break;
+    }
+
+    return size;
+}
+
+/*
+ * Our "real" image format conversion routine. ;-)
+ */
+__PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
+    enum cimage_format fmt_in, unsigned int width, unsigned int height,
+    enum cimage_format fmt_out, unsigned int *bsize)
+{
+    enum PixelFormat sws_fmt_in, sws_fmt_out;
+    struct SwsContext *ctx;
+    unsigned char *b = NULL;
+    uint8_t *data_in[4], *data_out[4];
+    int linesize[4], out_linesize[4];
+
+    sws_fmt_in = cimage_format_to_PixelFormat(fmt_in);
+    sws_fmt_out = cimage_format_to_PixelFormat(fmt_out);
+    *bsize = get_raw_size(fmt_out, width, height);
+    b = calloc(*bsize, sizeof(unsigned char));
+
+    if (NULL == b)
+        return NULL;
+
+    ctx = sws_getContext(width, height, sws_fmt_in, width, height, sws_fmt_out,
+                         SWS_BICUBIC, 0, 0, 0);
+
+    if (NULL == ctx)
+        return NULL;
+
+    av_image_fill_linesizes(linesize, sws_fmt_in, width);
+    av_image_fill_linesizes(out_linesize, sws_fmt_out, width);
+    av_image_fill_pointers(data_in, sws_fmt_in, height, (uint8_t *)buffer,
+                           linesize);
+
+    av_image_fill_pointers(data_out, sws_fmt_out, height, b, out_linesize);
+    sws_scale(ctx, (const uint8_t * const *)data_in, linesize, 0, height,
+              data_out, out_linesize);
+
+    sws_freeContext(ctx);
+
+    return b;
+}
+
+/*
+ * Fills the cimage_t object with a raw image buffer.
+ */
+int fill_raw_image(cimage_s *image, const unsigned char *buffer,
+    enum cimage_format format, unsigned int width, unsigned int height,
+    enum cimage_fill_format fill_format)
+{
+    unsigned int offset = 0;
+
+    /* Are we receiving a RAW image with header? */
+    if (is_header_from_raw_image(buffer)) {
+        offset = sizeof(struct raw_header);
+        memcpy(&image->raw_hdr, buffer, sizeof(struct raw_header));
+    } else {
+        /* Sets the RAW header informations */
+        image->raw_hdr.id = RAW_ID;
+        image->raw_hdr.width = width;
+        image->raw_hdr.height = height;
+        image->raw_hdr.format = format;
+        image->raw_hdr.size = width * height * get_channels_by_format(format);
+    }
+
+    /*
+     * We just point to the raw buffer of the image, discarding the previously
+     * saved RAW header.
+     */
+    switch (fill_format) {
+        case CIMAGE_FILL_REFERENCE:
+        case CIMAGE_FILL_OWNER:
+            image->raw_original_ptr = (unsigned char *)buffer;
+            break;
+
+        case CIMAGE_FILL_COPY:
+            image->raw_original_ptr = cmemdup((unsigned char *)buffer,
+                                              image->raw_hdr.size);
+
+            break;
+    }
+
+    image->fill_format = fill_format;
+    image->headless_raw = (unsigned char *)buffer + offset;
+
+    return 0;
+}
+
 

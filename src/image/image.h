@@ -33,6 +33,28 @@
 # endif
 #endif
 
+/* To the main image manipulation we use the OpenCv */
+#include <opencv2/core/core_c.h>
+#include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/highgui/highgui_c.h>
+
+/* To do any kind of RAW format conversion we use the libswscale */
+#include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
+
+/* To do image annotations */
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+/* Known file extensions */
+#define EXT_RAW                     "raw"
+#define EXT_PPM                     "ppm"
+#define EXT_TIFF                    "tiff"
+#define EXT_JPG2K                   "jp2"
+#define EXT_PNG                     "png"
+#define EXT_BMP                     "bmp"
+#define EXT_JPG                     "jpg"
+
 /* A RAW image file header */
 struct raw_header {
     unsigned int        id;
@@ -57,7 +79,20 @@ cl_struct_declare(cimage_s, cimage_members);
 #define cimage_s                    cl_struct(cimage_s)
 #define RAW_ID                      cl_fourcc('R', 'A', 'W', '1')
 
+/* cvt.c */
+unsigned char *convert_image_formats(cimage_s *image, enum cimage_type type,
+                                     enum cimage_format format,
+                                     unsigned int *bsize);
+
+unsigned char *convert_raw_formats(cimage_s *image, enum cimage_format format,
+                                   unsigned int *bsize);
+
 /* raw.c */
+int raw_load(const char *filename, cimage_s *image);
+int raw_save_to_mem(const cimage_s *image, unsigned char **buffer,
+                    unsigned int *bsize);
+
+int raw_save(const cimage_s *image, const char *filename);
 unsigned char *RAW_to_jpg_mem(const unsigned char *buffer, int width,
                               int height, bool color, int quality,
                               unsigned int *jsize);
@@ -65,11 +100,20 @@ unsigned char *RAW_to_jpg_mem(const unsigned char *buffer, int width,
 unsigned char *jpg_to_RAW_mem(const unsigned char *buffer, unsigned int jsize,
                               int *width, int *height, bool *color);
 
+int fill_raw_image(cimage_s *image, const unsigned char *buffer,
+                   enum cimage_format format, unsigned int width,
+                   unsigned int height, enum cimage_fill_format fill_format);
+
 /* utils.c */
 enum cimage_type cimage_detect_type(const unsigned char *buffer,
                                     unsigned int bsize);
 
 enum cimage_type cimage_detect_type_from_file(const char *filename);
+enum PixelFormat cimage_format_to_PixelFormat(enum cimage_format fmt);
+bool has_internal_image(cimage_s *image);
+int get_channels_by_format(enum cimage_format format);
+char *cimage_type_to_extension(enum cimage_type type);
+bool is_known_extension(const char *filename);
 
 #endif
 

@@ -153,7 +153,7 @@ void cobject_set_cstring(cobject_t *value, cstring_t *s);
 void cobject_set_pointer(cobject_t *object, bool dup_data, void *data,
                          unsigned int size, void (*free_object)(void *));
 
-/* util.c */
+/* utils.c */
 char *value_to_hex(void *p, unsigned int size);
 char *strip_filename(const char *pathname);
 char *file_extension(const char *pathname);
@@ -245,14 +245,6 @@ unsigned int cl_cseed(void);
 
 /* intl.c */
 int intl_start(const char *package, const char *locale_dir);
-
-/* image.c */
-#ifdef USE_CL_IMAGEAPI
-void draw_onto_the_image(cimage_t *image, unsigned int x, unsigned int y,
-                         unsigned char *buffer, int bwidth,
-                         unsigned int max_width, unsigned int max_height,
-                         CvScalar color);
-#endif
 
 #endif
 

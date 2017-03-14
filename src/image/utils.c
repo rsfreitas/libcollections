@@ -196,3 +196,126 @@ end_block:
     return type;
 }
 
+enum PixelFormat cimage_format_to_PixelFormat(enum cimage_format fmt)
+{
+    enum PixelFormat px_fmt = PIX_FMT_GRAY8;
+
+    switch (fmt) {
+        case CIMAGE_FMT_BGR:
+            px_fmt = PIX_FMT_BGR24;
+            break;
+
+        case CIMAGE_FMT_RGB:
+            px_fmt = PIX_FMT_RGB24;
+            break;
+
+        case CIMAGE_FMT_YUV422:
+            px_fmt = PIX_FMT_YUV422P;
+            break;
+
+        case CIMAGE_FMT_YUV420:
+            px_fmt = PIX_FMT_YUV420P;
+            break;
+
+        case CIMAGE_FMT_YUYV:
+            px_fmt = PIX_FMT_YUYV422;
+            break;
+
+        case CIMAGE_FMT_GRAY:
+        default:
+            break;
+    }
+
+    return px_fmt;
+}
+
+bool has_internal_image(cimage_s *image)
+{
+    if (((image->type == CIMAGE_RAW) && (image->raw_original_ptr != NULL)) ||
+        ((image->type != CIMAGE_RAW) && (image->image != NULL)))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+int get_channels_by_format(enum cimage_format format)
+{
+    int channels = 0;
+
+    switch (format) {
+        case CIMAGE_FMT_UNKNOWN:
+        case CIMAGE_FMT_GRAY:
+            channels = 1;
+            break;
+
+        case CIMAGE_FMT_BGR:
+        case CIMAGE_FMT_RGB:
+            channels = 3;
+            break;
+
+        case CIMAGE_FMT_YUV422:
+        case CIMAGE_FMT_YUV420:
+        case CIMAGE_FMT_YUYV:
+            channels = 2;
+            break;
+    }
+
+    return channels;
+}
+
+char *cimage_type_to_extension(enum cimage_type type)
+{
+    switch (type) {
+        case CIMAGE_JPG:
+            return strdup(EXT_JPG);
+
+        case CIMAGE_BMP:
+            return strdup(EXT_BMP);
+
+        case CIMAGE_PNG:
+            return strdup(EXT_PNG);
+
+        case CIMAGE_JPG2K:
+            return strdup(EXT_JPG2K);
+
+        case CIMAGE_TIFF:
+            return strdup(EXT_TIFF);
+
+        case CIMAGE_PPM:
+            return strdup(EXT_PPM);
+
+        case CIMAGE_RAW:
+            return strdup(EXT_RAW);
+
+        default:
+            break;
+    }
+
+    return NULL;
+}
+
+bool is_known_extension(const char *filename)
+{
+    char *ext = NULL;
+
+    ext = file_extension(filename);
+
+    if (NULL == ext)
+        return false;
+
+    if ((strcmp(ext, EXT_JPG) == 0) ||
+        (strcmp(ext, EXT_BMP) == 0) ||
+        (strcmp(ext, EXT_PNG) == 0) ||
+        (strcmp(ext, EXT_JPG2K) == 0) ||
+        (strcmp(ext, EXT_TIFF) == 0) ||
+        (strcmp(ext, EXT_PPM) == 0) ||
+        (strcmp(ext, EXT_RAW) == 0))
+    {
+        return true;
+    }
+
+    return false;
+}
+

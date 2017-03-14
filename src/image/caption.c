@@ -26,9 +26,6 @@
 
 #include <stdarg.h>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 #include "collections.h"
 #include "image.h"
 
@@ -160,6 +157,47 @@ static bool validate_text_position(cimage_t *image, unsigned int x,
     }
 
     return true;
+}
+
+static void draw_onto_the_image(cimage_t *image, unsigned int x, unsigned int y,
+    unsigned char *buffer, int bwidth, unsigned int max_width,
+    unsigned int max_height, CvScalar color)
+{
+    cimage_s *img = (cimage_s *)image;
+    unsigned char *ptr;
+    unsigned int fp, ip, cp;
+    int channels, ptr_width, k;
+    unsigned int i, j;
+
+    if (max_width > (img->image->width - x))
+        max_width = img->image->width - x;
+
+    if (max_height > (img->image->height - y))
+        max_height = img->image->height - y;
+
+    channels = get_channels_by_format(img->format);
+    ptr = (unsigned char *)(img->image->imageData + y * img->image->widthStep +
+                            x * channels);
+
+    ptr_width = img->image->widthStep - (max_width * channels);
+
+    for (i = 0; i < max_height; i++) {
+        for (j = 0; j < max_width; j++) {
+            for (k = 0; k < channels; k++) {
+                fp = (unsigned char)*buffer;
+                cp = (unsigned char)*ptr;
+                ip = (unsigned char)color.val[k];
+
+                *ptr = (fp * cp + (255 - fp) * ip) / 255.0f;
+                ptr++;
+            }
+
+            buffer++;
+        }
+
+        ptr += ptr_width;
+        buffer += bwidth;
+    }
 }
 
 /* FIXME */
