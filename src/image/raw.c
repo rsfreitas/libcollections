@@ -32,6 +32,7 @@
 #include <jerror.h>
 
 #include "collections.h"
+#include "image.h"
 
 struct my_error_mgr {
     struct jpeg_error_mgr   pub;

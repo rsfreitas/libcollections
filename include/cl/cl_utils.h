@@ -24,12 +24,12 @@
  * USA
  */
 
-#ifndef _COLLECTIONS_CL_UTIL_H
-#define _COLLECTIONS_CL_UTIL_H     1
+#ifndef _COLLECTIONS_CL_UTILS_H
+#define _COLLECTIONS_CL_UTILS_H     1
 
 #ifndef LIBCOLLECTIONS_COMPILE
 # ifndef _COLLECTIONS_H
-#  error "Never use <cl_util.h> directly; include <collections.h> instead."
+#  error "Never use <cl_utils.h> directly; include <collections.h> instead."
 # endif
 #endif
 

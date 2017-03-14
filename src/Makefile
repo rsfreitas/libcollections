@@ -40,7 +40,6 @@ PLUGIN_PATH = ./plugin
 JNI_PATH = ./plugin/java
 IMAGE_PATH = ./image
 ADT_PATH = ./adt
-VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH):$(IMAGE_PATH):$(ADT_PATH)
 
 ifeq ($(CL_IMAGEAPI), 1)
     OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui \
@@ -128,7 +127,7 @@ install:
 
 install_headers:
 	$(shell [ ! -d /usr/local/include/cl ] && mkdir -p /usr/local/include/cl)
-	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h|^cl_raw.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
+	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
 	cp -f ../include/collections.h /usr/local/include
 
 dev_install: install_headers install

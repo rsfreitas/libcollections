@@ -53,11 +53,6 @@ extern "C" {
 
 #ifdef USE_CL_IMAGEAPI
 # include <cl/cl_image.h>
-# include <cl/cl_caption.h>
-
-# ifdef LIBCOLLECTIONS_COMPILE
-#  include <cl/cl_raw.h>
-# endif
 #endif
 
 #include <cl/cl_init.h>
@@ -81,7 +76,7 @@ extern "C" {
 #include <cl/cl_thread.h>
 #include <cl/cl_timeout.h>
 #include <cl/cl_timer.h>
-#include <cl/cl_util.h>
+#include <cl/cl_utils.h>
 
 #ifdef LIBCOLLECTIONS_COMPILE
 # include <cl/cl_internal.h>

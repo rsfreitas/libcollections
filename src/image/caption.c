@@ -30,6 +30,7 @@
 #include FT_FREETYPE_H
 
 #include "collections.h"
+#include "image.h"
 
 #define caption_members                                         \
     cl_struct_member(unsigned int, size)                        \
