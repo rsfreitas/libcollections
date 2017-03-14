@@ -36,29 +36,29 @@ static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
      * We still don't known how to convert a YUV RAW image to JPG so we
      * need to convert.
      */
-    switch (image->raw_hdr.format) {
+    switch (image->raw.hdr.format) {
         case CIMAGE_FMT_YUV422:
         case CIMAGE_FMT_YUV420:
         case CIMAGE_FMT_YUYV:
             free_data = true;
-            data = craw_cvt_format((const unsigned char *)image->headless_raw,
-                                   image->raw_hdr.format, image->raw_hdr.width,
-                                   image->raw_hdr.height, CIMAGE_FMT_RGB, bsize);
+            data = craw_cvt_format((const unsigned char *)image->raw.headless,
+                                   image->raw.hdr.format, image->raw.hdr.width,
+                                   image->raw.hdr.height, CIMAGE_FMT_RGB, bsize);
 
             break;
 
         default:
-            data = (unsigned char *)image->headless_raw;
+            data = (unsigned char *)image->raw.headless;
             break;
     }
 
-    if (image->raw_hdr.format == CIMAGE_FMT_GRAY)
+    if (image->raw.hdr.format == CIMAGE_FMT_GRAY)
         color = false;
     else
         color = true;
 
     /* directly convert to jpg */
-    jpg = RAW_to_jpg_mem(data, image->raw_hdr.width, image->raw_hdr.height,
+    jpg = RAW_to_jpg_mem(data, image->raw.hdr.width, image->raw.hdr.height,
                          color, 75, bsize);
 
     if (free_data)
@@ -337,13 +337,13 @@ unsigned char *convert_raw_formats(cimage_s *image, enum cimage_format format,
     if ((format == image->format) ||
         image->format == CIMAGE_FMT_GRAY)
     {
-        *bsize = image->raw_hdr.size;
-        return (unsigned char *)image->headless_raw;
+        *bsize = image->raw.hdr.size;
+        return (unsigned char *)image->raw.headless;
     }
 
-    return craw_cvt_format((const unsigned char *)image->headless_raw,
-                           image->format, image->raw_hdr.width,
-                           image->raw_hdr.height, format, bsize);
+    return craw_cvt_format((const unsigned char *)image->raw.headless,
+                           image->format, image->raw.hdr.width,
+                           image->raw.hdr.height, format, bsize);
 }
 
 

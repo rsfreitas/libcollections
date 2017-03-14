@@ -40,7 +40,7 @@ __PUB_API__ int cimage_size(const cimage_t *image)
     }
 
     if (i->type == CIMAGE_RAW)
-        s = i->raw_hdr.size;
+        s = i->raw.hdr.size;
     else
         s = i->image->imageSize;
 
@@ -60,7 +60,7 @@ __PUB_API__ int cimage_width(const cimage_t *image)
     }
 
     if (i->type == CIMAGE_RAW)
-        w = i->raw_hdr.width;
+        w = i->raw.hdr.width;
     else
         w = i->image->width;
 
@@ -80,7 +80,7 @@ __PUB_API__ int cimage_height(const cimage_t *image)
     }
 
     if (i->type == CIMAGE_RAW)
-        h = i->raw_hdr.height;
+        h = i->raw.hdr.height;
     else
         h = i->image->height;
 

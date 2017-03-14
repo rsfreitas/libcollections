@@ -410,9 +410,9 @@ LIBCOLLECTIONS_0.1 {
         caption_unref;
         caption_configure;
         caption_destroy;
-        cimage_add_caption_vf;
-        cimage_add_caption_f;
-        cimage_add_caption;
+        caption_addvf;
+        caption_addf;
+        caption_add;
         chashtable_ref;
         chashtable_unref;
         chashtable_init;

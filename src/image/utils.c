@@ -231,7 +231,7 @@ enum PixelFormat cimage_format_to_PixelFormat(enum cimage_format fmt)
 
 bool has_internal_image(cimage_s *image)
 {
-    if (((image->type == CIMAGE_RAW) && (image->raw_original_ptr != NULL)) ||
+    if (((image->type == CIMAGE_RAW) && (image->raw.original != NULL)) ||
         ((image->type != CIMAGE_RAW) && (image->image != NULL)))
     {
         return true;

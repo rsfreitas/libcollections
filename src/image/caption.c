@@ -29,12 +29,19 @@
 #include "collections.h"
 #include "image.h"
 
+struct font_color {
+    CvScalar        foreground;
+    CvScalar        background;
+};
+
 #define caption_members                                         \
     cl_struct_member(unsigned int, size)                        \
     cl_struct_member(unsigned int, max_horizontal_bearing_y)    \
     cl_struct_member(FT_Library, library)                       \
     cl_struct_member(FT_Face, face)                             \
     cl_struct_member(FT_GlyphSlot, slot)                        \
+    cl_struct_member(struct font_color, gray_font)              \
+    cl_struct_member(struct font_color, rgb_font)               \
     cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(caption_s, caption_members);
@@ -219,14 +226,11 @@ static void draw_char(caption_s *caption, unsigned int x, unsigned int y,
 
 /* FIXME */
 static int add_caption(caption_s *caption, cimage_t *image, unsigned int x,
-    unsigned int y, enum caption_color color, const char *text)
+    unsigned int y, CvScalar color, const char *text)
 {
-    CvScalar sc_color;
     FT_ULong c;
     size_t len = strlen(text);
     unsigned int i;
-
-    sc_color = caption_color_to_CvScalar(color, cimage_format(image));
 
     for (i = 0; i < len; i++) {
         c = utf8_to_unicode(text, (int *)&i);
@@ -234,7 +238,7 @@ static int add_caption(caption_s *caption, cimage_t *image, unsigned int x,
         if (FT_Load_Char(caption->face, c, FT_LOAD_RENDER))
             continue;
 
-        draw_char(caption, x, y, sc_color, image);
+        draw_char(caption, x, y, color, image);
         x += caption->slot->advance.x >> 8;
     }
 
@@ -300,7 +304,7 @@ __PUB_API__ int caption_unref(cimage_caption_t *caption)
 }
 
 __PUB_API__ cimage_caption_t *caption_configure(const char *ttf_pathname,
-    unsigned int font_size)
+    unsigned int font_size, enum cl_color foreground, enum cl_color background)
 {
     caption_s *c = NULL;
 
@@ -315,6 +319,19 @@ __PUB_API__ cimage_caption_t *caption_configure(const char *ttf_pathname,
         return NULL;
     }
 
+    /* Caption colors */
+    c->gray_font.foreground = caption_color_to_CvScalar(foreground,
+                                                         CIMAGE_FMT_GRAY);
+
+    c->gray_font.background = caption_color_to_CvScalar(background,
+                                                         CIMAGE_FMT_GRAY);
+
+    c->rgb_font.foreground = caption_color_to_CvScalar(foreground,
+                                                        CIMAGE_FMT_GRAY);
+
+    c->rgb_font.background = caption_color_to_CvScalar(background,
+                                                        CIMAGE_FMT_GRAY);
+
     return c;
 }
 
@@ -323,12 +340,38 @@ __PUB_API__ int caption_destroy(cimage_caption_t *caption)
     return caption_unref(caption);
 }
 
-__PUB_API__ int cimage_add_caption_vf(cimage_caption_t *caption,
-    cimage_t *image, unsigned int x, unsigned int y, enum caption_color color,
+static cimage_t *create_background_image(cimage_s *image, bool fill_width,
+    struct font_color *font, caption_s *caption)
+{
+    cimage_t *img;
+    IplImage *background = NULL;
+    int w = 0, h = caption->size; /* TODO: Fix the height */
+
+    if (fill_width == true)
+        w = cimage_width(image);
+    else {
+        // TODO: set the width limit
+    }
+
+    img = cimage_create();
+    background = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,
+                               cimage_channels(image));
+
+    cvSet(background, font->background, NULL);
+    cimage_cv_import(img, background);
+
+    return img;
+}
+
+__PUB_API__ int caption_addvf(cimage_caption_t *caption, cimage_t *image,
+    bool fill_width, bool overlap, unsigned int x, unsigned int y,
     const char *fmt, va_list ap)
 {
+    caption_s *c = (caption_s *)caption;
     char *text = NULL;
     int ret;
+    cimage_t *background;
+    struct font_color *font;
 
     __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
     __clib_function_init__(true, image, CIMAGE, -1);
@@ -338,17 +381,32 @@ __PUB_API__ int cimage_add_caption_vf(cimage_caption_t *caption,
         return -1;
     }
 
+    if (cimage_format(image) == CIMAGE_FMT_GRAY)
+        font = &c->gray_font;
+    else
+        font = &c->rgb_font;
+
+    /*
+     * Create the background image, choose between gray or rgb according
+     * @image->format
+     */
+    background = create_background_image(image, fill_width, font, caption);
     vasprintf(&text, fmt, ap);
-    ret = add_caption(caption, image, x, y, color, text);
+    ret = add_caption(caption, background, x, y, font->foreground, text);
 
     if (text != NULL)
         free(text);
 
+    /* Concatenate or overlap the images */
+    if (overlap == true) {
+    } else {
+    }
+
     return ret;
 }
 
-__PUB_API__ int cimage_add_caption_f(cimage_caption_t *caption, cimage_t *image,
-    unsigned int x, unsigned int y, enum caption_color color,
+__PUB_API__ int caption_addf(cimage_caption_t *caption, cimage_t *image,
+    bool fill_width, bool overlap, unsigned int x, unsigned int y,
     const char *fmt, ...)
 {
     va_list ap;
@@ -363,14 +421,15 @@ __PUB_API__ int cimage_add_caption_f(cimage_caption_t *caption, cimage_t *image,
     }
 
     va_start(ap, fmt);
-    ret = cimage_add_caption_vf(caption, image, x, y, color, fmt, ap);
+    ret = caption_addvf(caption, image, fill_width, overlap, x, y, fmt, ap);
     va_end(ap);
 
     return ret;
 }
 
-__PUB_API__ int cimage_add_caption(cimage_caption_t *caption, cimage_t *image,
-    unsigned int x, unsigned int y, enum caption_color color, const char *text)
+__PUB_API__ int caption_add(cimage_caption_t *caption, cimage_t *image,
+    bool fill_width, bool overlap, unsigned int x, unsigned int y,
+    const char *text)
 {
     __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
     __clib_function_init__(true, image, CIMAGE, -1);
@@ -380,6 +439,6 @@ __PUB_API__ int cimage_add_caption(cimage_caption_t *caption, cimage_t *image,
         return -1;
     }
 
-    return cimage_add_caption_f(caption, image, x, y, color, "%s", text);
+    return caption_addf(caption, image, fill_width, overlap, x, y, "%s", text);
 }
 

@@ -1,6 +1,6 @@
 
 /*
- * Description: Functions to convert between RAW and JPG image format.
+ * Description: Functions to handle RAW image.
  *
  * Author: Rodrigo Freitas
  * Created at: Sun Feb 19 07:36:05 2017
@@ -58,7 +58,7 @@ static int raw_load_from_mem(const unsigned char *buffer, cimage_s *image)
 {
     /* Are we receiving a RAW image with header? */
     if (is_header_from_raw_image(buffer))
-        memcpy(&image->raw_hdr, buffer, sizeof(struct raw_header));
+        memcpy(&image->raw.hdr, buffer, sizeof(struct raw_header));
     else {
         /*
          * We can't load a RAW image without its header, since we need to
@@ -71,10 +71,10 @@ static int raw_load_from_mem(const unsigned char *buffer, cimage_s *image)
     /*
      * We need to save the original pointer, so we can free it correctly later.
      */
-    image->raw_original_ptr = (unsigned char *)buffer;
-    image->headless_raw = (unsigned char *)buffer + sizeof(struct raw_header);
+    image->raw.original = (unsigned char *)buffer;
+    image->raw.headless = (unsigned char *)buffer + sizeof(struct raw_header);
     image->type = CIMAGE_RAW;
-    image->format = image->raw_hdr.format;
+    image->format = image->raw.hdr.format;
     image->fill_format = CIMAGE_FILL_OWNER;
 
     return 0;
@@ -108,9 +108,9 @@ int raw_save_to_mem(const cimage_s *image, unsigned char **buffer,
 
     /* Create the RAW image header, so we can save it correctly */
     hdr.id = RAW_ID;
-    hdr.width = image->raw_hdr.width;
-    hdr.height = image->raw_hdr.height;
-    hdr.size = image->raw_hdr.size;
+    hdr.width = image->raw.hdr.width;
+    hdr.height = image->raw.hdr.height;
+    hdr.size = image->raw.hdr.size;
     hdr.format = image->format;
 
     *bsize = hdr.size + sizeof(struct raw_header);
@@ -120,7 +120,7 @@ int raw_save_to_mem(const cimage_s *image, unsigned char **buffer,
         return -1;
 
     memcpy(b, &hdr, sizeof(struct raw_header));
-    memcpy(b + sizeof(struct raw_header), image->headless_raw,
+    memcpy(b + sizeof(struct raw_header), image->raw.headless,
            hdr.size);
 
     *buffer = b;
@@ -375,6 +375,57 @@ static int get_raw_size(enum cimage_format format, unsigned int width,
 }
 
 /*
+ * Fills the cimage_t object with a raw image buffer.
+ */
+int fill_raw_image(cimage_s *image, const unsigned char *buffer,
+    enum cimage_format format, unsigned int width, unsigned int height,
+    enum cimage_fill_format fill_format)
+{
+    unsigned int offset = 0;
+
+    /* Are we receiving a RAW image with header? */
+    if (is_header_from_raw_image(buffer)) {
+        offset = sizeof(struct raw_header);
+        memcpy(&image->raw.hdr, buffer, sizeof(struct raw_header));
+    } else {
+        /* Sets the RAW header informations */
+        image->raw.hdr.id = RAW_ID;
+        image->raw.hdr.width = width;
+        image->raw.hdr.height = height;
+        image->raw.hdr.format = format;
+        image->raw.hdr.size = width * height * get_channels_by_format(format);
+    }
+
+    /*
+     * We just point to the raw buffer of the image, discarding the previously
+     * saved RAW header.
+     */
+    switch (fill_format) {
+        case CIMAGE_FILL_REFERENCE:
+        case CIMAGE_FILL_OWNER:
+            image->raw.original = (unsigned char *)buffer;
+            break;
+
+        case CIMAGE_FILL_COPY:
+            image->raw.original = cmemdup((unsigned char *)buffer,
+                                          image->raw.hdr.size);
+
+            break;
+    }
+
+    image->fill_format = fill_format;
+    image->raw.headless = (unsigned char *)buffer + offset;
+
+    return 0;
+}
+
+/*
+ *
+ * Public API
+ *
+ */
+
+/*
  * Our "real" image format conversion routine. ;-)
  */
 __PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
@@ -414,50 +465,4 @@ __PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
 
     return b;
 }
-
-/*
- * Fills the cimage_t object with a raw image buffer.
- */
-int fill_raw_image(cimage_s *image, const unsigned char *buffer,
-    enum cimage_format format, unsigned int width, unsigned int height,
-    enum cimage_fill_format fill_format)
-{
-    unsigned int offset = 0;
-
-    /* Are we receiving a RAW image with header? */
-    if (is_header_from_raw_image(buffer)) {
-        offset = sizeof(struct raw_header);
-        memcpy(&image->raw_hdr, buffer, sizeof(struct raw_header));
-    } else {
-        /* Sets the RAW header informations */
-        image->raw_hdr.id = RAW_ID;
-        image->raw_hdr.width = width;
-        image->raw_hdr.height = height;
-        image->raw_hdr.format = format;
-        image->raw_hdr.size = width * height * get_channels_by_format(format);
-    }
-
-    /*
-     * We just point to the raw buffer of the image, discarding the previously
-     * saved RAW header.
-     */
-    switch (fill_format) {
-        case CIMAGE_FILL_REFERENCE:
-        case CIMAGE_FILL_OWNER:
-            image->raw_original_ptr = (unsigned char *)buffer;
-            break;
-
-        case CIMAGE_FILL_COPY:
-            image->raw_original_ptr = cmemdup((unsigned char *)buffer,
-                                              image->raw_hdr.size);
-
-            break;
-    }
-
-    image->fill_format = fill_format;
-    image->headless_raw = (unsigned char *)buffer + offset;
-
-    return 0;
-}
-
 

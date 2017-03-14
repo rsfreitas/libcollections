@@ -64,6 +64,16 @@ enum cimage_fill_format {
     CIMAGE_FILL_COPY
 };
 
+enum cl_color {
+    CL_COLOR_BLACK,
+    CL_COLOR_WHITE,
+    CL_COLOR_RED,
+    CL_COLOR_GREEN,
+    CL_COLOR_BLUE,
+    CL_COLOR_YELLOW,
+    CL_COLOR_GREY
+};
+
 enum caption_color {
     CAPTION_BLACK,
     CAPTION_WHITE,
@@ -77,16 +87,21 @@ enum caption_color {
 cimage_caption_t *caption_ref(cimage_caption_t *caption);
 int caption_unref(cimage_caption_t *caption);
 cimage_caption_t *caption_configure(const char *ttf_pathname,
-    unsigned int font_size);
+    unsigned int font_size, enum cl_color foreground, enum cl_color background);
 int caption_destroy(cimage_caption_t *caption);
-int cimage_add_caption_vf(cimage_caption_t *caption,
+
+/*int caption_addvf(cimage_caption_t *caption,
     cimage_t *image, unsigned int x, unsigned int y, enum caption_color color,
     const char *fmt, va_list ap);
-int cimage_add_caption_f(cimage_caption_t *caption, cimage_t *image,
+
+int caption_addf(cimage_caption_t *caption, cimage_t *image,
     unsigned int x, unsigned int y, enum caption_color color,
     const char *fmt, ...);
-int cimage_add_caption(cimage_caption_t *caption, cimage_t *image,
-    unsigned int x, unsigned int y, enum caption_color color, const char *text);
+
+int caption_add(cimage_caption_t *caption, cimage_t *image,
+                unsigned int x, unsigned int y, enum caption_color color,
+                const char *text);
+*/
 
 /**
  * @name cimage_ref

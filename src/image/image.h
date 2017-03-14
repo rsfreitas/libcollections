@@ -61,17 +61,23 @@ struct raw_header {
     unsigned int        size;
     unsigned int        width;
     unsigned int        height;
+
+    /* Duplicated information, since it goes into the file */
     unsigned int        format;
+};
+
+struct raw_image {
+    unsigned char       *original;  /** The original RAW image */
+    unsigned char       *headless;  /** The RAW image without the header */
+    struct raw_header   hdr;
 };
 
 #define cimage_members                                      \
     cl_struct_member(IplImage *, image)                     \
-    cl_struct_member(unsigned char *, raw_original_ptr)     \
-    cl_struct_member(unsigned char *, headless_raw)         \
+    cl_struct_member(struct raw_image, raw)                 \
     cl_struct_member(enum cimage_format, format)            \
     cl_struct_member(enum cimage_type, type)                \
     cl_struct_member(enum cimage_fill_format, fill_format)  \
-    cl_struct_member(struct raw_header, raw_hdr)            \
     cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(cimage_s, cimage_members);

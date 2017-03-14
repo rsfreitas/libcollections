@@ -46,7 +46,7 @@ static void destroy_cimage(const struct cref_s *ref)
         if ((image->fill_format == CIMAGE_FILL_COPY) ||
             (image->fill_format == CIMAGE_FILL_OWNER))
         {
-            free(image->raw_original_ptr);
+            free(image->raw.original);
         }
     } else {
         if (image->image != NULL)
@@ -72,8 +72,8 @@ static cimage_s *new_cimage(void)
     }
 
     i->image = NULL;
-    i->raw_original_ptr = NULL;
-    i->headless_raw = NULL;
+    i->raw.original = NULL;
+    i->raw.headless = NULL;
 
     /* Initialize the reference count */
     i->ref.free = destroy_cimage;
@@ -215,9 +215,13 @@ static cimage_t *duplicate_image(cimage_s *image)
     if (NULL == i)
         return NULL;
 
-    i->type = image->type;
-    i->format = image->format;
-    i->image = cvCloneImage(image->image);
+    if (image->type == CIMAGE_RAW) {
+        /* TODO */
+    } else {
+        i->type = image->type;
+        i->format = image->format;
+        i->image = cvCloneImage(image->image);
+    }
 
     return i;
 }
@@ -557,8 +561,8 @@ __PUB_API__ unsigned char *cimage_raw_export(const cimage_t *image,
     } else {
         /* Or we'll only need to manipulate the RAW and convert the format */
         buffer = convert_raw_formats(i, format, bsize);
-        *width = i->raw_hdr.width;
-        *height = i->raw_hdr.height;
+        *width = i->raw.hdr.width;
+        *height = i->raw.hdr.height;
     }
 
     return buffer;
@@ -578,11 +582,11 @@ __PUB_API__ const unsigned char *cimage_raw_content(const cimage_t *image,
         return NULL;
     }
 
-    *width = i->raw_hdr.width;
-    *height = i->raw_hdr.height;
+    *width = i->raw.hdr.width;
+    *height = i->raw.hdr.height;
     *bsize = *width * *height * get_channels_by_format(i->format);
     *format = i->format;
-    ptr = i->headless_raw;
+    ptr = i->raw.headless;
 
     /*
      * For this to work, the user must keep a reference to the cimage_t
