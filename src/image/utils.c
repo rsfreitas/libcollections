@@ -30,16 +30,16 @@
 union file_header {
     char data[10];
     struct header {
-        unsigned char b1:1;
-        unsigned char b2:1;
-        unsigned char b3:1;
-        unsigned char b4:1;
-        unsigned char b5:1;
-        unsigned char b6:1;
-        unsigned char b7:1;
-        unsigned char b8:1;
-        unsigned char b9:1;
-        unsigned char b10:1;
+        char b1;
+        char b2;
+        char b3;
+        char b4;
+        char b5;
+        char b6;
+        char b7;
+        char b8;
+        char b9;
+        char b10;
     } header;
 };
 
@@ -47,8 +47,11 @@ static bool header_from_BMP(union file_header hdr)
 {
     bool valid = false;
 
-    if ((hdr.header.b1 == 0x42) && (hdr.header.b2 == 0x40))
+    if (((unsigned char)hdr.header.b1 == 0x42) &&
+        ((unsigned char)hdr.header.b2 == 0x40))
+    {
         valid = true;
+    }
 
     return valid;
 }
@@ -57,14 +60,21 @@ static bool header_from_TIFF(union file_header hdr)
 {
     bool valid = false;
 
-    if (((hdr.header.b1 == 0x49) && (hdr.header.b2 == 0x20) &&
-         (hdr.header.b3 == 0x49)) ||
-        ((hdr.header.b1 == 0x49) && (hdr.header.b2 == 0x49) &&
-         (hdr.header.b3 == 0x2A) && (hdr.header.b4 == 0x00)) ||
-        ((hdr.header.b1 == 0x4D) && (hdr.header.b2 == 0x4D) &&
-         (hdr.header.b3 == 0x00) && (hdr.header.b4 == 0x2A)) ||
-        ((hdr.header.b1 == 0x4D) && (hdr.header.b2 == 0x4D) &&
-         (hdr.header.b3 == 0x00) && (hdr.header.b4 == 0x2B)))
+    if ((((unsigned char)hdr.header.b1 == 0x49) &&
+         ((unsigned char)hdr.header.b2 == 0x20) &&
+         ((unsigned char)hdr.header.b3 == 0x49)) ||
+        (((unsigned char)hdr.header.b1 == 0x49) &&
+         ((unsigned char)hdr.header.b2 == 0x49) &&
+         ((unsigned char)hdr.header.b3 == 0x2A) &&
+         ((unsigned char)hdr.header.b4 == 0x00)) ||
+        (((unsigned char)hdr.header.b1 == 0x4D) &&
+         ((unsigned char)hdr.header.b2 == 0x4D) &&
+         ((unsigned char)hdr.header.b3 == 0x00) &&
+         ((unsigned char)hdr.header.b4 == 0x2A)) ||
+        (((unsigned char)hdr.header.b1 == 0x4D) &&
+         ((unsigned char)hdr.header.b2 == 0x4D) &&
+         ((unsigned char)hdr.header.b3 == 0x00) &&
+         ((unsigned char)hdr.header.b4 == 0x2B)))
     {
         valid = true;
     }
@@ -76,10 +86,10 @@ static bool header_from_PPM(union file_header hdr)
 {
     bool valid = false;
 
-    if ((hdr.header.b1 == 'P') &&
-        ((hdr.header.b2 == '1') ||
-         (hdr.header.b2 == '2') ||
-         (hdr.header.b2 == '3')))
+    if (((unsigned char)hdr.header.b1 == 'P') &&
+        (((unsigned char)hdr.header.b2 == '1') ||
+         ((unsigned char)hdr.header.b2 == '2') ||
+         ((unsigned char)hdr.header.b2 == '3')))
     {
         valid = true;
     }
@@ -91,11 +101,16 @@ static bool header_from_JPG2K(union file_header hdr)
 {
     bool valid = false;
 
-    if ((hdr.header.b1 == 0x00) && (hdr.header.b2 == 0x00) &&
-        (hdr.header.b3 == 0x00) && (hdr.header.b4 == 0x0C) &&
-        (hdr.header.b5 == 0x6A) && (hdr.header.b6 == 0x50) &&
-        (hdr.header.b7 == 0x20) && (hdr.header.b8 == 0x20) &&
-        (hdr.header.b9 == 0x0D) && (hdr.header.b10 == 0x0A))
+    if (((unsigned char)hdr.header.b1 == 0x00) &&
+        ((unsigned char)hdr.header.b2 == 0x00) &&
+        ((unsigned char)hdr.header.b3 == 0x00) &&
+        ((unsigned char)hdr.header.b4 == 0x0C) &&
+        ((unsigned char)hdr.header.b5 == 0x6A) &&
+        ((unsigned char)hdr.header.b6 == 0x50) &&
+        ((unsigned char)hdr.header.b7 == 0x20) &&
+        ((unsigned char)hdr.header.b8 == 0x20) &&
+        ((unsigned char)hdr.header.b9 == 0x0D) &&
+        ((unsigned char)hdr.header.b10 == 0x0A))
     {
         valid = true;
     }
@@ -107,10 +122,14 @@ static bool header_from_PNG(union file_header hdr)
 {
     bool valid = false;
 
-    if ((hdr.header.b1 == 0x89) && (hdr.header.b2 == 0x50) &&
-        (hdr.header.b3 == 0x4E) && (hdr.header.b4 == 0x47) &&
-        (hdr.header.b5 == 0x0D) && (hdr.header.b6 == 0x0A) &&
-        (hdr.header.b7 == 0x1A) && (hdr.header.b8 == 0x0A))
+    if (((unsigned char)hdr.header.b1 == 0x89) &&
+        ((unsigned char)hdr.header.b2 == 0x50) &&
+        ((unsigned char)hdr.header.b3 == 0x4E) &&
+        ((unsigned char)hdr.header.b4 == 0x47) &&
+        ((unsigned char)hdr.header.b5 == 0x0D) &&
+        ((unsigned char)hdr.header.b6 == 0x0A) &&
+        ((unsigned char)hdr.header.b7 == 0x1A) &&
+        ((unsigned char)hdr.header.b8 == 0x0A))
     {
         valid = true;
     }
@@ -122,12 +141,18 @@ static bool header_from_JPG(union file_header hdr)
 {
     bool valid = false;
 
-    if (((hdr.header.b1 == 0xFF) && (hdr.header.b2 == 0xD8) &&
-         (hdr.header.b3 == 0xFF) && (hdr.header.b4 == 0xE0)) ||
-        ((hdr.header.b1 == 0xFF) && (hdr.header.b2 == 0xD8) &&
-         (hdr.header.b3 == 0xFF) && (hdr.header.b4 == 0xE1)) ||
-        ((hdr.header.b1 == 0xFF) && (hdr.header.b2 == 0xD8) &&
-         (hdr.header.b3 == 0xFF) && (hdr.header.b4 == 0xE8)))
+    if ((((unsigned char)hdr.header.b1 == 0xFF) &&
+         ((unsigned char)hdr.header.b2 == 0xD8) &&
+         ((unsigned char)hdr.header.b3 == 0xFF) &&
+         ((unsigned char)hdr.header.b4 == 0xE0)) ||
+        (((unsigned char)hdr.header.b1 == 0xFF) &&
+         ((unsigned char)hdr.header.b2 == 0xD8) &&
+         ((unsigned char)hdr.header.b3 == 0xFF) &&
+         ((unsigned char)hdr.header.b4 == 0xE1)) ||
+        (((unsigned char)hdr.header.b1 == 0xFF) &&
+         ((unsigned char)hdr.header.b2 == 0xD8) &&
+         ((unsigned char)hdr.header.b3 == 0xFF) &&
+         ((unsigned char)hdr.header.b4 == 0xE8)))
     {
         valid = true;
     }
@@ -299,6 +324,7 @@ char *cimage_type_to_extension(enum cimage_type type)
 bool is_known_extension(const char *filename)
 {
     char *ext = NULL;
+    bool known = false;
 
     ext = file_extension(filename);
 
@@ -313,9 +339,12 @@ bool is_known_extension(const char *filename)
         (strcmp(ext, EXT_PPM) == 0) ||
         (strcmp(ext, EXT_RAW) == 0))
     {
-        return true;
+        known = true;
     }
 
-    return false;
+    if (ext != NULL)
+        free(ext);
+
+    return known;
 }
 

@@ -58,12 +58,14 @@ enum cimage_type {
     CIMAGE_PPM
 };
 
+/** Supported internal buffer handle */
 enum cimage_fill_format {
     CIMAGE_FILL_REFERENCE,
     CIMAGE_FILL_OWNER,
     CIMAGE_FILL_COPY
 };
 
+/** Supported colors */
 enum cl_color {
     CL_COLOR_BLACK,
     CL_COLOR_WHITE,
@@ -73,35 +75,6 @@ enum cl_color {
     CL_COLOR_YELLOW,
     CL_COLOR_GREY
 };
-
-enum caption_color {
-    CAPTION_BLACK,
-    CAPTION_WHITE,
-    CAPTION_RED,
-    CAPTION_GREEN,
-    CAPTION_BLUE,
-    CAPTION_YELLOW,
-    CAPTION_GREY
-};
-
-cimage_caption_t *caption_ref(cimage_caption_t *caption);
-int caption_unref(cimage_caption_t *caption);
-cimage_caption_t *caption_configure(const char *ttf_pathname,
-    unsigned int font_size, enum cl_color foreground, enum cl_color background);
-int caption_destroy(cimage_caption_t *caption);
-
-/*int caption_addvf(cimage_caption_t *caption,
-    cimage_t *image, unsigned int x, unsigned int y, enum caption_color color,
-    const char *fmt, va_list ap);
-
-int caption_addf(cimage_caption_t *caption, cimage_t *image,
-    unsigned int x, unsigned int y, enum caption_color color,
-    const char *fmt, ...);
-
-int caption_add(cimage_caption_t *caption, cimage_t *image,
-                unsigned int x, unsigned int y, enum caption_color color,
-                const char *text);
-*/
 
 /**
  * @name cimage_ref
@@ -444,6 +417,101 @@ unsigned char *craw_cvt_format(const unsigned char *buffer,
                                enum cimage_format fmt_in, unsigned int width,
                                unsigned int height, enum cimage_format fmt_out,
                                unsigned int *bsize);
+
+/**
+ * @name caption_ref
+ * @brief Increases the reference count for a caption_t item.
+ *
+ * @param [in,out] caption: The caption_t item.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+caption_t *caption_ref(caption_t *caption);
+
+/**
+ * @name caption_unref
+ * @brief Decreases the reference count for a caption_t item.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] caption: The caption_t item.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int caption_unref(caption_t *caption);
+
+/**
+ * @name caption_configure
+ * @brief Creates a caption object with specific configurations.
+ *
+ * @param [in] ttf_pathname: The caption font.
+ * @param [in] font_size: The caption font size (height).
+ * @param [in] foreground: The caption font color.
+ * @param [in] background: The caption background color.
+ *
+ * @return On success returns a caption_t object to be used or NULL otherwise.
+ */
+caption_t *caption_configure(const char *ttf_pathname, unsigned int font_size,
+                             enum cl_color foreground, enum cl_color background);
+
+/**
+ * @name caption_destroy
+ * @brief Releases a caption_t object from memory.
+ *
+ * @param [in] caption: The caption_t object.
+ *
+ * @return On sucess returns 0 or -1 otherwise.
+ */
+int caption_destroy(caption_t *caption);
+
+/**
+ * @name caption_addvf
+ * @brief Adds a caption into an image.
+ *
+ * @param [in] caption: The caption_t object.
+ * @param [in] image: The image which will be updated.
+ * @param [in] append: A boolean flag indicating the caption position, below or
+ *                     above the image.
+ * @param [in] fmt: The caption text format.
+ * @param [in] ap: The caption text variadic values.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int caption_addvf(caption_t *caption, cimage_t *image, bool append,
+                  const char *fmt, va_list ap);
+
+/**
+ * @name caption_addf
+ * @brief Adds a caption into an image.
+ *
+ * @param [in] caption: The caption_t object.
+ * @param [in] image: The image which will be updated.
+ * @param [in] append: A boolean flag indicating the caption position, below or
+ *                     above the image.
+ * @param [in] fmt: The caption text format.
+ * @param [in] ...: The caption text values.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int caption_addf(caption_t *caption, cimage_t *image, bool append,
+                 const char *fmt, ...);
+
+/**
+ * @name caption_add
+ * @brief Adds a caption into an image.
+ *
+ * @param [in] caption: The caption_t object.
+ * @param [in] image: The image which will be updated.
+ * @param [in] append: A boolean flag indicating the caption position, below or
+ *                     above the image.
+ * @param [in] text: The caption text.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int caption_add(caption_t *caption, cimage_t *image, bool append,
+                const char *text);
 
 #endif
 

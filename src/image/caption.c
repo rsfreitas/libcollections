@@ -29,6 +29,9 @@
 #include "collections.h"
 #include "image.h"
 
+#define CAPTION_HEIGHT_BORDER           3
+#define INITIAL_CAPTION_X               0
+
 struct font_color {
     CvScalar        foreground;
     CvScalar        background;
@@ -109,14 +112,47 @@ library_error_block:
     return -1;
 }
 
-static CvScalar caption_color_to_CvScalar(enum caption_color color,
+unsigned int to_hex_color(enum cl_color color)
+{
+    switch (color) {
+        case CL_COLOR_BLACK:
+            return 0x000000;
+
+        case CL_COLOR_WHITE:
+            return 0xFFFFFF;
+
+        case CL_COLOR_GREY:
+            return 0x7F7F7F;
+
+        case CL_COLOR_BLUE:
+            return 0x00007F;
+
+        case CL_COLOR_RED:
+            return 0x7F0000;
+
+        case CL_COLOR_GREEN:
+            return 0x007F00;
+
+        case CL_COLOR_YELLOW:
+            return 0xFFFF00;
+
+        default:
+            break;
+    }
+
+    return 0x000000F;
+}
+
+static CvScalar caption_color_to_CvScalar(enum cl_color color,
     enum cimage_format format)
 {
+    unsigned int c;
     double r, g, b;
 
-    r = (color & 0xFF0000) >> 16;
-    g = (color & 0xFF00) >> 8;
-    b = color & 0xFF;
+    c = to_hex_color(color);
+    r = (c & 0xFF0000) >> 16;
+    g = (c & 0xFF00) >> 8;
+    b = c & 0xFF;
 
     switch (format) {
         case CIMAGE_FMT_GRAY:
@@ -166,66 +202,68 @@ static bool validate_text_position(cimage_t *image, unsigned int x,
     return true;
 }
 
-static void draw_onto_the_image(cimage_t *image, unsigned int x, unsigned int y,
-    unsigned char *buffer, int bwidth, unsigned int max_width,
-    unsigned int max_height, CvScalar color)
+static void draw_onto_the_image(FT_Bitmap *bitmap, CvScalar color,
+    cimage_s *image, unsigned int x, unsigned int y, unsigned int max_width,
+    unsigned int max_height)
 {
-    cimage_s *img = (cimage_s *)image;
-    unsigned char *ptr;
-    unsigned int fp, ip, cp;
-    int channels, ptr_width, k;
-    unsigned int i, j;
+    char *dest_image;
+    unsigned char *font_buffer;
+    unsigned int font_ptr, img_ptr, char_ptr, i, j;
+    int font_width_step, image_width_step, k;
 
-    if (max_width > (img->image->width - x))
-        max_width = img->image->width - x;
+    dest_image = image->image->imageData + y * image->image->widthStep + x *
+                 image->image->nChannels;
 
-    if (max_height > (img->image->height - y))
-        max_height = img->image->height - y;
+    image_width_step = image->image->widthStep -
+                       (max_width * image->image->nChannels);
 
-    channels = get_channels_by_format(img->format);
-    ptr = (unsigned char *)(img->image->imageData + y * img->image->widthStep +
-                            x * channels);
-
-    ptr_width = img->image->widthStep - (max_width * channels);
+    font_buffer = bitmap->buffer;
+    font_width_step = bitmap->width - max_width;
 
     for (i = 0; i < max_height; i++) {
         for (j = 0; j < max_width; j++) {
-            for (k = 0; k < channels; k++) {
-                fp = (unsigned char)*buffer;
-                cp = (unsigned char)*ptr;
-                ip = (unsigned char)color.val[k];
+            for (k = 0; k < image->image->nChannels; k++) {
+                font_ptr = (unsigned char)*font_buffer;
+                img_ptr = (unsigned char)*dest_image;
+                char_ptr = (unsigned char)color.val[k];
 
-                *ptr = (fp * cp + (255 - fp) * ip) / 255.0f;
-                ptr++;
+                *dest_image = (font_ptr * char_ptr +
+                               (255 - font_ptr) * img_ptr) / 255.0f;
+
+                dest_image++;
             }
 
-            buffer++;
+            font_buffer++;
         }
 
-        ptr += ptr_width;
-        buffer += bwidth;
+        dest_image += image_width_step;
+        font_buffer += font_width_step;
     }
 }
 
-/* FIXME */
 static void draw_char(caption_s *caption, unsigned int x, unsigned int y,
-    CvScalar color, cimage_t *image)
+    CvScalar color, cimage_s *image)
 {
     FT_Bitmap *bitmap = &caption->slot->bitmap;
+    int max_width, max_height;
 
     if (validate_text_position(image, x, y) == false)
         return;
 
-    x += caption->slot->bitmap_left;
-    y += caption->max_horizontal_bearing_y / 64 -
-                caption->slot->metrics.horiBearingY / 64;
+    if (bitmap->rows > (image->image->height - (int)y))
+        max_height = image->image->height -y;
+    else
+        max_height = bitmap->rows;
 
-    draw_onto_the_image(image, x, y, bitmap->buffer, 0,
-                        bitmap->width, bitmap->rows, color);
+    if (bitmap->width > (image->image->width - (int)x))
+        max_width = image->image->width - x;
+    else
+        max_width = bitmap->width;
+
+    draw_onto_the_image(bitmap, color, image, x, y, max_width, max_height);
 }
 
-/* FIXME */
-static int add_caption(caption_s *caption, cimage_t *image, unsigned int x,
+static int add_caption(caption_s *caption, cimage_s *image, unsigned int x,
     unsigned int y, CvScalar color, const char *text)
 {
     FT_ULong c;
@@ -238,8 +276,11 @@ static int add_caption(caption_s *caption, cimage_t *image, unsigned int x,
         if (FT_Load_Char(caption->face, c, FT_LOAD_RENDER))
             continue;
 
-        draw_char(caption, x, y, color, image);
-        x += caption->slot->advance.x >> 8;
+        draw_char(caption, x + caption->slot->bitmap_left,
+                  y + caption->max_horizontal_bearing_y / 64 -
+                  caption->slot->metrics.horiBearingY / 64, color, image);
+
+        x += caption->slot->advance.x >> 6;
     }
 
     return -1;
@@ -277,13 +318,70 @@ static caption_s *new_caption(void)
     return c;
 }
 
+static cimage_t *create_background_caption(cimage_s *image,
+    struct font_color *font, caption_s *caption)
+{
+    cimage_t *img;
+    IplImage *background = NULL;
+    int w = 0, h = 0;
+
+    w = cimage_width(image);
+    h = caption->size + CAPTION_HEIGHT_BORDER;
+    img = cimage_create();
+    background = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,
+                               cimage_channels(image));
+
+    cvSet(background, font->background, NULL);
+    cimage_cv_import(img, background);
+
+    return img;
+}
+
+static void join_images(cimage_t *image, cimage_t *caption, bool append)
+{
+    IplImage *ipl_image, *ipl_caption, *final;
+
+    ipl_image = cimage_cv_export(image);
+    ipl_caption = cimage_cv_export(caption);
+
+    cvResetImageROI(ipl_image);
+    final = cvCreateImage(cvSize(ipl_image->width,
+                                 ipl_image->height + ipl_caption->height),
+                          ipl_image->depth, ipl_image->nChannels);
+
+    cvZero(final);
+
+    if (append) {
+        cvSetImageROI(final, cvRect(0, 0, ipl_image->width, ipl_image->height));
+        cvCopy(ipl_image, final, NULL);
+        cvResetImageROI(final);
+        cvSetImageROI(final, cvRect(0, ipl_image->height, ipl_caption->width,
+                                    ipl_caption->height));
+
+        cvCopy(ipl_caption, final, NULL);
+    } else {
+        cvSetImageROI(final, cvRect(0, 0, ipl_caption->width,
+                                    ipl_caption->height));
+
+        cvCopy(ipl_caption, final, NULL);
+        cvResetImageROI(final);
+        cvSetImageROI(final, cvRect(0, ipl_caption->height, ipl_image->width,
+                                    ipl_image->height));
+
+        cvCopy(ipl_image, final, NULL);
+    }
+
+    cvResetImageROI(final);
+    cimage_cv_import(image, final);
+}
+
 /*
  *
  * Public API
  *
  */
 
-__PUB_API__ cimage_caption_t *caption_ref(cimage_caption_t *caption)
+__PUB_API__ caption_t *caption_ref(caption_t *caption)
 {
     caption_s *c = (caption_s *)caption;
 
@@ -293,7 +391,7 @@ __PUB_API__ cimage_caption_t *caption_ref(cimage_caption_t *caption)
     return caption;
 }
 
-__PUB_API__ int caption_unref(cimage_caption_t *caption)
+__PUB_API__ int caption_unref(caption_t *caption)
 {
     caption_s *c = (caption_s *)caption;
 
@@ -303,7 +401,7 @@ __PUB_API__ int caption_unref(cimage_caption_t *caption)
     return 0;
 }
 
-__PUB_API__ cimage_caption_t *caption_configure(const char *ttf_pathname,
+__PUB_API__ caption_t *caption_configure(const char *ttf_pathname,
     unsigned int font_size, enum cl_color foreground, enum cl_color background)
 {
     caption_s *c = NULL;
@@ -327,45 +425,21 @@ __PUB_API__ cimage_caption_t *caption_configure(const char *ttf_pathname,
                                                          CIMAGE_FMT_GRAY);
 
     c->rgb_font.foreground = caption_color_to_CvScalar(foreground,
-                                                        CIMAGE_FMT_GRAY);
+                                                        CIMAGE_FMT_RGB);
 
     c->rgb_font.background = caption_color_to_CvScalar(background,
-                                                        CIMAGE_FMT_GRAY);
+                                                        CIMAGE_FMT_RGB);
 
     return c;
 }
 
-__PUB_API__ int caption_destroy(cimage_caption_t *caption)
+__PUB_API__ int caption_destroy(caption_t *caption)
 {
     return caption_unref(caption);
 }
 
-static cimage_t *create_background_image(cimage_s *image, bool fill_width,
-    struct font_color *font, caption_s *caption)
-{
-    cimage_t *img;
-    IplImage *background = NULL;
-    int w = 0, h = caption->size; /* TODO: Fix the height */
-
-    if (fill_width == true)
-        w = cimage_width(image);
-    else {
-        // TODO: set the width limit
-    }
-
-    img = cimage_create();
-    background = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,
-                               cimage_channels(image));
-
-    cvSet(background, font->background, NULL);
-    cimage_cv_import(img, background);
-
-    return img;
-}
-
-__PUB_API__ int caption_addvf(cimage_caption_t *caption, cimage_t *image,
-    bool fill_width, bool overlap, unsigned int x, unsigned int y,
-    const char *fmt, va_list ap)
+__PUB_API__ int caption_addvf(caption_t *caption, cimage_t *image,
+    bool append, const char *fmt, va_list ap)
 {
     caption_s *c = (caption_s *)caption;
     char *text = NULL;
@@ -390,24 +464,21 @@ __PUB_API__ int caption_addvf(cimage_caption_t *caption, cimage_t *image,
      * Create the background image, choose between gray or rgb according
      * @image->format
      */
-    background = create_background_image(image, fill_width, font, caption);
+    background = create_background_caption(image, font, caption);
     vasprintf(&text, fmt, ap);
-    ret = add_caption(caption, background, x, y, font->foreground, text);
+    ret = add_caption(caption, background, 0, 0, font->foreground, text);
 
     if (text != NULL)
         free(text);
 
-    /* Concatenate or overlap the images */
-    if (overlap == true) {
-    } else {
-    }
+    join_images(image, background, append);
+    cimage_unref(background);
 
     return ret;
 }
 
-__PUB_API__ int caption_addf(cimage_caption_t *caption, cimage_t *image,
-    bool fill_width, bool overlap, unsigned int x, unsigned int y,
-    const char *fmt, ...)
+__PUB_API__ int caption_addf(caption_t *caption, cimage_t *image,
+    bool append, const char *fmt, ...)
 {
     va_list ap;
     int ret;
@@ -421,15 +492,14 @@ __PUB_API__ int caption_addf(cimage_caption_t *caption, cimage_t *image,
     }
 
     va_start(ap, fmt);
-    ret = caption_addvf(caption, image, fill_width, overlap, x, y, fmt, ap);
+    ret = caption_addvf(caption, image, append, fmt, ap);
     va_end(ap);
 
     return ret;
 }
 
-__PUB_API__ int caption_add(cimage_caption_t *caption, cimage_t *image,
-    bool fill_width, bool overlap, unsigned int x, unsigned int y,
-    const char *text)
+__PUB_API__ int caption_add(caption_t *caption, cimage_t *image,
+    bool append, const char *text)
 {
     __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
     __clib_function_init__(true, image, CIMAGE, -1);
@@ -439,6 +509,6 @@ __PUB_API__ int caption_add(cimage_caption_t *caption, cimage_t *image,
         return -1;
     }
 
-    return caption_addf(caption, image, fill_width, overlap, x, y, "%s", text);
+    return caption_addf(caption, image, append, "%s", text);
 }
 

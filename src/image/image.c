@@ -632,6 +632,9 @@ __PUB_API__ int cimage_cv_import(cimage_t *image, IplImage *cv_image)
     release_old_image(i);
     i->image = cv_image;
 
+    /* TODO: Need to inform the correctly type and format */
+    i->type = CIMAGE_JPG;
+
     return 0;
 }
 
