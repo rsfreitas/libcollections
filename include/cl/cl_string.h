@@ -281,7 +281,7 @@ int cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n);
  * @param [in] c1: The char which will be replaced.
  * @param [in] c2: The new char.
  *
- * @return On success returns 0 or -1 otherwise.
+ * @return On success returns the number of replaced occurrences or -1 otherwise.
  */
 int cstring_rplchr(cstring_t *string, char c1, char c2);
 
@@ -294,7 +294,7 @@ int cstring_rplchr(cstring_t *string, char c1, char c2);
  * @param [in] old: The old substring.
  * @param [in] new_: The new substring.
  *
- * @return On success returns 0 or -1 otherwise.
+ * @return On success returns the number of replaced occurrences or -1 otherwise.
  */
 int cstring_rplsubstr(cstring_t *string, const char *old, const char *new_);
 

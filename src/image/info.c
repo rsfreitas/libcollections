@@ -101,7 +101,7 @@ __PUB_API__ enum cimage_type cimage_type(const cimage_t *image)
     return i->type;
 }
 
-__PUB_API__ enum cimage_format cimage_format(const cimage_t *image)
+__PUB_API__ enum cimage_color_format cimage_color_format(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 

@@ -87,7 +87,8 @@ static const char *__cdescriptions[] = {
     "Failed creating directory",
     "A collision inside the hashtable just happened",
     "Unsupported RAW image",
-    "Unable to load image"
+    "Unable to load image",
+    "Unable to create temporary internal image"
 };
 
 static const char *__cunknown_error = "Unknown error";

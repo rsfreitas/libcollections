@@ -74,6 +74,9 @@ static void estimate_font_dimensions(caption_s *caption)
         }
 }
 
+/*
+ * Releases the freetype objects.
+ */
 static void ft_uninit(caption_s *caption)
 {
     FT_Done_Face(caption->face);
@@ -112,28 +115,31 @@ library_error_block:
     return -1;
 }
 
-unsigned int to_hex_color(enum cl_color color)
+/*
+ * Convert an internal color representation to its hexadecimal color code.
+ */
+unsigned int to_hex_color(enum cimage_color color)
 {
     switch (color) {
-        case CL_COLOR_BLACK:
+        case CIMAGE_COLOR_BLACK:
             return 0x000000;
 
-        case CL_COLOR_WHITE:
+        case CIMAGE_COLOR_WHITE:
             return 0xFFFFFF;
 
-        case CL_COLOR_GREY:
+        case CIMAGE_COLOR_GREY:
             return 0x7F7F7F;
 
-        case CL_COLOR_BLUE:
+        case CIMAGE_COLOR_BLUE:
             return 0x00007F;
 
-        case CL_COLOR_RED:
+        case CIMAGE_COLOR_RED:
             return 0x7F0000;
 
-        case CL_COLOR_GREEN:
+        case CIMAGE_COLOR_GREEN:
             return 0x007F00;
 
-        case CL_COLOR_YELLOW:
+        case CIMAGE_COLOR_YELLOW:
             return 0xFFFF00;
 
         default:
@@ -143,8 +149,11 @@ unsigned int to_hex_color(enum cl_color color)
     return 0x000000F;
 }
 
-static CvScalar caption_color_to_CvScalar(enum cl_color color,
-    enum cimage_format format)
+/*
+ * Converts an internal color representation to a CvScalar type.
+ */
+static CvScalar caption_color_to_CvScalar(enum cimage_color color,
+    enum cimage_color_format format)
 {
     unsigned int c;
     double r, g, b;
@@ -190,18 +199,9 @@ static FT_ULong utf8_to_unicode(const char *text, int *index)
     return c;
 }
 
-static bool validate_text_position(cimage_t *image, unsigned int x,
-    unsigned int y)
-{
-    if ((x >= (unsigned int)cimage_width(image)) ||
-        (y >= (unsigned int)cimage_height(image)))
-    {
-        return false;
-    }
-
-    return true;
-}
-
+/*
+ * Does the character drawing into the image.
+ */
 static void draw_onto_the_image(FT_Bitmap *bitmap, CvScalar color,
     cimage_s *image, unsigned int x, unsigned int y, unsigned int max_width,
     unsigned int max_height)
@@ -241,14 +241,20 @@ static void draw_onto_the_image(FT_Bitmap *bitmap, CvScalar color,
     }
 }
 
+/*
+ * Prepares the character image limits and call the function to draw it.
+ */
 static void draw_char(caption_s *caption, unsigned int x, unsigned int y,
     CvScalar color, cimage_s *image)
 {
     FT_Bitmap *bitmap = &caption->slot->bitmap;
     int max_width, max_height;
 
-    if (validate_text_position(image, x, y) == false)
+    if ((x >= (unsigned int)cimage_width(image)) ||
+        (y >= (unsigned int)cimage_height(image)))
+    {
         return;
+    }
 
     if (bitmap->rows > (image->image->height - (int)y))
         max_height = image->image->height -y;
@@ -263,6 +269,9 @@ static void draw_char(caption_s *caption, unsigned int x, unsigned int y,
     draw_onto_the_image(bitmap, color, image, x, y, max_width, max_height);
 }
 
+/*
+ * Adds a text caption into an image.
+ */
 static int add_caption(caption_s *caption, cimage_s *image, unsigned int x,
     unsigned int y, CvScalar color, const char *text)
 {
@@ -332,16 +341,16 @@ static cimage_t *create_background_caption(cimage_s *image,
                                cimage_channels(image));
 
     cvSet(background, font->background, NULL);
-    cimage_cv_import(img, background);
+    cimage_cv_import(img, background, CIMAGE_JPG);
 
     return img;
 }
 
-static void join_images(cimage_t *image, cimage_t *caption, bool append)
+static void join_images(cimage_s *image, cimage_s *caption, bool append)
 {
     IplImage *ipl_image, *ipl_caption, *final;
 
-    ipl_image = cimage_cv_export(image);
+    ipl_image = cimage_to_ocv(image);
     ipl_caption = cimage_cv_export(caption);
 
     cvResetImageROI(ipl_image);
@@ -372,7 +381,7 @@ static void join_images(cimage_t *image, cimage_t *caption, bool append)
     }
 
     cvResetImageROI(final);
-    cimage_cv_import(image, final);
+    cimage_cv_import(image, final, CIMAGE_JPG);
 }
 
 /*
@@ -402,7 +411,8 @@ __PUB_API__ int caption_unref(caption_t *caption)
 }
 
 __PUB_API__ caption_t *caption_configure(const char *ttf_pathname,
-    unsigned int font_size, enum cl_color foreground, enum cl_color background)
+    unsigned int font_size, enum cimage_color foreground,
+    enum cimage_color background)
 {
     caption_s *c = NULL;
 
@@ -444,7 +454,7 @@ __PUB_API__ int caption_addvf(caption_t *caption, cimage_t *image,
     caption_s *c = (caption_s *)caption;
     char *text = NULL;
     int ret;
-    cimage_t *background;
+    cimage_t *caption_image;
     struct font_color *font;
 
     __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
@@ -455,7 +465,7 @@ __PUB_API__ int caption_addvf(caption_t *caption, cimage_t *image,
         return -1;
     }
 
-    if (cimage_format(image) == CIMAGE_FMT_GRAY)
+    if (cimage_color_format(image) == CIMAGE_FMT_GRAY)
         font = &c->gray_font;
     else
         font = &c->rgb_font;
@@ -464,15 +474,15 @@ __PUB_API__ int caption_addvf(caption_t *caption, cimage_t *image,
      * Create the background image, choose between gray or rgb according
      * @image->format
      */
-    background = create_background_caption(image, font, caption);
+    caption_image = create_background_caption(image, font, caption);
     vasprintf(&text, fmt, ap);
-    ret = add_caption(caption, background, 0, 0, font->foreground, text);
+    ret = add_caption(caption, caption_image, 0, 0, font->foreground, text);
 
     if (text != NULL)
         free(text);
 
-    join_images(image, background, append);
-    cimage_unref(background);
+    join_images(image, caption_image, append);
+    cimage_unref(caption_image);
 
     return ret;
 }

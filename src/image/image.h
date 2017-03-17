@@ -75,7 +75,7 @@ struct raw_image {
 #define cimage_members                                      \
     cl_struct_member(IplImage *, image)                     \
     cl_struct_member(struct raw_image, raw)                 \
-    cl_struct_member(enum cimage_format, format)            \
+    cl_struct_member(enum cimage_color_format, format)      \
     cl_struct_member(enum cimage_type, type)                \
     cl_struct_member(enum cimage_fill_format, fill_format)  \
     cl_struct_member(struct cref_s, ref)
@@ -87,11 +87,14 @@ cl_struct_declare(cimage_s, cimage_members);
 
 /* cvt.c */
 unsigned char *convert_image_formats(cimage_s *image, enum cimage_type type,
-                                     enum cimage_format format,
+                                     enum cimage_color_format format,
                                      unsigned int *bsize);
 
-unsigned char *convert_raw_formats(cimage_s *image, enum cimage_format format,
+unsigned char *convert_raw_formats(cimage_s *image,
+                                   enum cimage_color_format format,
                                    unsigned int *bsize);
+
+IplImage *cimage_to_ocv(cimage_s *image);
 
 /* raw.c */
 int raw_load(const char *filename, cimage_s *image);
@@ -107,19 +110,25 @@ unsigned char *jpg_to_RAW_mem(const unsigned char *buffer, unsigned int jsize,
                               int *width, int *height, bool *color);
 
 int fill_raw_image(cimage_s *image, const unsigned char *buffer,
-                   enum cimage_format format, unsigned int width,
+                   enum cimage_color_format format, unsigned int width,
                    unsigned int height, enum cimage_fill_format fill_format);
+
+int raw_resize(cimage_s *out, cimage_s *in, unsigned int new_width,
+               unsigned int new_height);
 
 /* utils.c */
 enum cimage_type cimage_detect_type(const unsigned char *buffer,
                                     unsigned int bsize);
 
 enum cimage_type cimage_detect_type_from_file(const char *filename);
-enum PixelFormat cimage_format_to_PixelFormat(enum cimage_format fmt);
+enum PixelFormat cimage_format_to_PixelFormat(enum cimage_color_format fmt);
 bool has_internal_image(cimage_s *image);
-int get_channels_by_format(enum cimage_format format);
+int get_channels_by_format(enum cimage_color_format format);
 char *cimage_type_to_extension(enum cimage_type type);
 bool is_known_extension(const char *filename);
+bool is_supported_image_type(enum cimage_type type);
+bool is_supported_color_format(enum cimage_color_format fmt);
+bool is_supported_fill_format(enum cimage_fill_format fmt);
 
 #endif
 

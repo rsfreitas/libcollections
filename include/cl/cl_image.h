@@ -37,7 +37,7 @@
 #endif
 
 /** Supported image formats */
-enum cimage_format {
+enum cimage_color_format {
     CIMAGE_FMT_UNKNOWN,
     CIMAGE_FMT_GRAY,
     CIMAGE_FMT_BGR,
@@ -66,14 +66,14 @@ enum cimage_fill_format {
 };
 
 /** Supported colors */
-enum cl_color {
-    CL_COLOR_BLACK,
-    CL_COLOR_WHITE,
-    CL_COLOR_RED,
-    CL_COLOR_GREEN,
-    CL_COLOR_BLUE,
-    CL_COLOR_YELLOW,
-    CL_COLOR_GREY
+enum cimage_color {
+    CIMAGE_COLOR_BLACK,
+    CIMAGE_COLOR_WHITE,
+    CIMAGE_COLOR_RED,
+    CIMAGE_COLOR_GREEN,
+    CIMAGE_COLOR_BLUE,
+    CIMAGE_COLOR_YELLOW,
+    CIMAGE_COLOR_GREY
 };
 
 /**
@@ -129,18 +129,23 @@ int cimage_destroy(cimage_t *image);
  *
  * This function will put a previously loaded image from a buffer into a
  * cimage_t object. It will try to guess what kind of image is been pointed
- * by \a buffer. If we're passing a CIMAGE_RAW image we may use a pure RAW
- * image, without our internal header. To do this, we must correctly inform
- * \a format, \a width and \a height from the RAW image.
+ * by \a buffer. The correct color format must be informed with in \a color_format.
  *
- * After doing this, the \a buffer the user has does not have to be release it,
- * the library will do so.
+ * If we're passing a CIMAGE_RAW image we may use a pure RAW image, without
+ * our internal header. To do this, we must correctly inform \a width and
+ * \a height from the RAW image.
+ *
+ * When a CIMAGE_RAW buffer is used, the \a fill_format will indicate how this
+ * image buffer will be internally referenced. It may be only a reference to
+ * the original one, CIMAGE_FILL_REFERENCE, a copy from the original
+ * CIMAGE_FILL_COPY or the owner itself CIMAGE_FILL_OWNER.
+ *
+ * Any other kind of image buffers will behave like CIMAGE_FILL_COPY.
  *
  * @param [in,out] image: The cimage_t object.
  * @param [in] buffer: The image buffer.
  * @param [in] bsize: The image buffer size.
- * @param [in] format: The image buffer color format, if we're passing a
- *                     CIMAGE_RAW.
+ * @param [in] color_format: The image buffer color format.
  * @param [in] width: The image width.
  * @param [in] height: The image height.
  * @param [in] fill_format: The format which will be used to point to the
@@ -149,7 +154,7 @@ int cimage_destroy(cimage_t *image);
  * @return On success returns 0 or -1 otherwise.
  */
 int cimage_fill(cimage_t *image, const unsigned char *buffer,
-                unsigned int bsize, enum cimage_format format,
+                unsigned int bsize, enum cimage_color_format color_format,
                 unsigned int width, unsigned int height,
                 enum cimage_fill_format fill_format);
 
@@ -159,12 +164,19 @@ int cimage_fill(cimage_t *image, const unsigned char *buffer,
  *
  * This functions supports the following kind of images: JPG, JPG2000, PNG,
  * TIFF, PPM and RAW. And, just like cimage_fill, if we're passing a CIMAGE_RAW
- * buffer, we must pass a few more info about it.
+ * buffer and it is a pure RAW image, we must pass a few more info about it.
+ * The correct color format must be informed with in \a color_format.
+ *
+ * When a CIMAGE_RAW buffer is used, the \a fill_format will indicate how this
+ * image buffer will be internally referenced. It may be only a reference to
+ * the original one, CIMAGE_FILL_REFERENCE, a copy from the original
+ * CIMAGE_FILL_COPY or the owner itself CIMAGE_FILL_OWNER.
+ *
+ * Any other kind of image buffers will behave like CIMAGE_FILL_COPY.
  *
  * @param [in] buffer: The image buffer.
  * @param [in] bsize: The image buffer size.
- * @param [in] format The image buffer color format, if we're passing a
- *                    CIMAGE_RAW.
+ * @param [in] color_format The image buffer color format.
  * @param [in] width: The image width.
  * @param [in] height: The image height.
  * @param [in] fill_format: The format which will be used to point to the
@@ -173,7 +185,7 @@ int cimage_fill(cimage_t *image, const unsigned char *buffer,
  * @return On success returns a cimage_t object with the image or NULL otherwise.
  */
 cimage_t *cimage_load(const unsigned char *buffer, unsigned int bsize,
-                      enum cimage_format format, unsigned int width,
+                      enum cimage_color_format color_format, unsigned int width,
                       unsigned int height, enum cimage_fill_format fill_format);
 
 /**
@@ -182,6 +194,9 @@ cimage_t *cimage_load(const unsigned char *buffer, unsigned int bsize,
  *
  * This functions supports the following kind of images: JPG, JPG2000, PNG,
  * TIFF, PPM and RAW.
+ *
+ * RAW images loaded with this function must have the internal header, i.e, it
+ * must be a previously saved RAW image from this API.
  *
  * @param [in] filename: The file name which will be loaded.
  *
@@ -270,7 +285,7 @@ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
                          unsigned int y, unsigned int w, unsigned int h);
 
 /**
- * @name cimage_raw_export
+ * @name cimage_bin_export
  * @brief Exports the real image from a cimage_t object.
  *
  * This function export the real image helded by a cimage_t object. The user may
@@ -280,7 +295,7 @@ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
  *
  * @param [in] image: The cimage_t object.
  * @param [in] type: The desired image type.
- * @param [in] format: The desired image color format.
+ * @param [in] color_format: The desired image color format.
  * @param [out] bsize: The exported image buffer size.
  * @param [out] width: The exported image width.
  * @param [out] height: The exported image height.
@@ -288,27 +303,28 @@ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
  * @return On success returns a pointer the real image, that the user must free
  *         it later, or NULL otherwise.
  */
-unsigned char *cimage_raw_export(const cimage_t *image, enum cimage_type type,
-                                 enum cimage_format format, unsigned int *bsize,
-                                 unsigned int *width, unsigned int *height);
+unsigned char *cimage_bin_export(const cimage_t *image, enum cimage_type type,
+                                 enum cimage_color_format color_format,
+                                 unsigned int *bsize, unsigned int *width,
+                                 unsigned int *height);
 
 /**
- * @name cimage_raw_content
+ * @name cimage_bin_content
  * @brief Gets the content of a RAW image.
  *
  * @param [in] image: The cimage_t object.
  * @param [out] bsize: The image buffer size.
  * @param [out] width: The image width.
  * @param [out] height: The image height.
- * @param [out] format: The image format.
+ * @param [out] color_format: The image color format.
  *
  * @return On success returns a pointer to the RAW image inside the object or
  *         NULL otherwise.
  */
-const unsigned char *cimage_raw_content(const cimage_t *image,
+const unsigned char *cimage_bin_content(const cimage_t *image,
                                         unsigned int *bsize, unsigned int *width,
                                         unsigned int *height,
-                                        enum cimage_format *format);
+                                        enum cimage_color_format *color_format);
 
 /**
  * @name cimage_cv_export
@@ -335,10 +351,11 @@ IplImage *cimage_cv_export(const cimage_t *image);
  *
  * @param [in,out] image: The original cimage_t object.
  * @param [in] cv_image: The new OpenCv image.
+ * @param [in] type: The OpenCv image type.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cimage_cv_import(cimage_t *image, IplImage *cv_image);
+int cimage_cv_import(cimage_t *image, IplImage *cv_image, enum cimage_type type);
 
 /**
  * @name cimage_size
@@ -381,14 +398,14 @@ int cimage_height(const cimage_t *image);
 enum cimage_type cimage_type(const cimage_t *image);
 
 /**
- * @name cimage_format
+ * @name cimage_color_format
  * @brief Gets the image color format.
  *
  * @param [in] image: The cimage_t object.
  *
  * @return On success returns the image color format or -1 otherwise.
  */
-enum cimage_format cimage_format(const cimage_t *image);
+enum cimage_color_format cimage_color_format(const cimage_t *image);
 
 /**
  * @name cimage_channels
@@ -405,17 +422,18 @@ int cimage_channels(const cimage_t *image);
  * @brief Converts between RAW image formats.
  *
  * @param [in] buffer: The input RAW image.
- * @param [in] fmt_in: The input RAW image format.
+ * @param [in] fmt_in: The input RAW image color format.
  * @param [in] width: The image width.
  * @param [in] height: The image height.
- * @param [in] fmt_out: The output RAW image format.
+ * @param [in] fmt_out: The output RAW image color format.
  * @param [out]  bsize: The output RAW image size.
  *
  * @return On success returns a converted RAW image buffer or NULL otherwise.
  */
 unsigned char *craw_cvt_format(const unsigned char *buffer,
-                               enum cimage_format fmt_in, unsigned int width,
-                               unsigned int height, enum cimage_format fmt_out,
+                               enum cimage_color_format fmt_in,
+                               unsigned int width, unsigned int height,
+                               enum cimage_color_format fmt_out,
                                unsigned int *bsize);
 
 /**
@@ -454,7 +472,8 @@ int caption_unref(caption_t *caption);
  * @return On success returns a caption_t object to be used or NULL otherwise.
  */
 caption_t *caption_configure(const char *ttf_pathname, unsigned int font_size,
-                             enum cl_color foreground, enum cl_color background);
+                             enum cimage_color foreground,
+                             enum cimage_color background);
 
 /**
  * @name caption_destroy

@@ -3,7 +3,7 @@
  * Description:
  *
  * Author: Rodrigo Freitas
- * Created at: Wed Mar 15 00:21:32 2017
+ * Created at: Thu Mar 16 00:05:24 BRT 2017
  * Project: libcollections
  *
  * Copyright (C) 2017 Rodrigo Freitas
@@ -32,11 +32,9 @@
 
 int main(int argc, char **argv)
 {
-    const char *opt = "hf:\0";
-    int option;
-    char *filename = NULL;
-    cimage_t *in, *out;
-    caption_t *cap;
+    const char *opt = "h\0";
+    int option, ret;
+    cstring_t *s;
 
     do {
         option = getopt(argc, argv, opt);
@@ -45,37 +43,30 @@ int main(int argc, char **argv)
             case 'h':
                 return 1;
 
-            case 'f':
-                filename = strdup(optarg);
-                break;
-
             case '?':
                 return -1;
         }
     } while (option != -1);
 
     collections_init(NULL);
-    in = cimage_load_from_file(filename);
 
-    if (NULL == in) {
-        printf("Error: %s\n", cstrerror(cget_last_error()));
-        return -1;
+    /* cstring_rplsubstr */
+    {
+        s = cstring_create("1 2 3 4 1 2 3 1 2 3 1");
+        printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(s));
+        ret = cstring_rplsubstr(s, "1 2", "5 6");
+        printf("%s: '%s' - ret = %d\n", __FUNCTION__, cstring_valueof(s), ret);
+        cstring_unref(s);
     }
 
-    cap = caption_configure("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf",
-                            15, CIMAGE_COLOR_BLACK, CIMAGE_COLOR_WHITE);
-                           // 15, CIMAGE_COLOR_WHITE, CIMAGE_COLOR_BLACK);
-
-    caption_add(cap, in, true, "Only a minor test");
-    caption_add(cap, in, true, "Only a minor test 2");
-    caption_add(cap, in, false, "Only a minor test 3");
-    caption_add(cap, in, false, "Only a minor test 4: special chars éáçíúãõêàó");
-    caption_destroy(cap);
-    cimage_save_to_file(in, "teste.jpg", CIMAGE_JPG);
-    cimage_destroy(in);
-
-    if (filename != NULL)
-        free(filename);
+    /* cstring_rplchr */
+    {
+        s = cstring_create("1 2 3 4 1 2 3 1 2 3 1");
+        printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(s));
+        ret = cstring_rplchr(s, '1', '8');
+        printf("%s: '%s' - ret = %d\n", __FUNCTION__, cstring_valueof(s), ret);
+        cstring_unref(s);
+    }
 
     collections_uninit();
 

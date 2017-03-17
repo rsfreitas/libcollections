@@ -116,8 +116,10 @@ int raw_save_to_mem(const cimage_s *image, unsigned char **buffer,
     *bsize = hdr.size + sizeof(struct raw_header);
     b = calloc(*bsize, sizeof(unsigned char));
 
-    if (NULL == b)
+    if (NULL == b) {
+        cset_errno(CL_NO_MEM);
         return -1;
+    }
 
     memcpy(b, &hdr, sizeof(struct raw_header));
     memcpy(b + sizeof(struct raw_header), image->raw.headless,
@@ -346,7 +348,7 @@ unsigned char *jpg_to_RAW_mem(const unsigned char *buffer, unsigned int jsize,
     return bout;
 }
 
-static int get_raw_size(enum cimage_format format, unsigned int width,
+static int get_raw_size(enum cimage_color_format format, unsigned int width,
     unsigned int height)
 {
     int size = -1;
@@ -378,7 +380,7 @@ static int get_raw_size(enum cimage_format format, unsigned int width,
  * Fills the cimage_t object with a raw image buffer.
  */
 int fill_raw_image(cimage_s *image, const unsigned char *buffer,
-    enum cimage_format format, unsigned int width, unsigned int height,
+    enum cimage_color_format format, unsigned int width, unsigned int height,
     enum cimage_fill_format fill_format)
 {
     unsigned int offset = 0;
@@ -419,6 +421,70 @@ int fill_raw_image(cimage_s *image, const unsigned char *buffer,
     return 0;
 }
 
+int raw_resize(cimage_s *out, cimage_s *in, unsigned int new_width,
+    unsigned int new_height)
+{
+    enum PixelFormat sws_fmt_in, sws_fmt_out;
+    struct SwsContext *ctx;
+    unsigned char *b = NULL;
+    uint8_t *data_in[4], *data_out[4];
+    int linesize[4], out_linesize[4];
+    unsigned int bsize = 0;
+
+    /* Resize the image */
+    sws_fmt_in = cimage_format_to_PixelFormat(in->format);
+    sws_fmt_out = cimage_format_to_PixelFormat(in->format);
+    bsize = get_raw_size(in->format, new_width, new_height);
+    b = calloc(bsize, sizeof(unsigned char));
+
+    if (NULL == b)
+        return -1;
+
+    ctx = sws_getContext(in->raw.hdr.width, in->raw.hdr.height, sws_fmt_in,
+                         new_width, new_height, sws_fmt_out,
+                         SWS_BICUBIC, 0, 0, 0);
+
+    if (NULL == ctx)
+        return -1;
+
+    av_image_fill_linesizes(linesize, sws_fmt_in, in->raw.hdr.width);
+    av_image_fill_linesizes(out_linesize, sws_fmt_out, new_width);
+    av_image_fill_pointers(data_in, sws_fmt_in, in->raw.hdr.height,
+                           (uint8_t *)in->raw.headless, linesize);
+
+    av_image_fill_pointers(data_out, sws_fmt_out, new_height, b, out_linesize);
+    sws_scale(ctx, (const uint8_t * const *)data_in, linesize, 0, new_height,
+              data_out, out_linesize);
+
+    sws_freeContext(ctx);
+
+    /* And fill the cimage_t with its new content */
+    if (fill_raw_image(out, b, in->raw.hdr.format, new_width, new_height,
+                       CIMAGE_FILL_OWNER) < 0)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+int raw_extract(cimage_s *out, cimage_s *in, int x, int y, int w, int h)
+{
+    unsigned char *b = NULL;
+    unsigned int bsize = 0;
+
+    /* Extract the RAW image area */
+
+    /* And fill the cimage_t with its new content */
+    if (fill_raw_image(out, b, in->raw.hdr.format, w, h,
+                       CIMAGE_FILL_OWNER) < 0)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
 /*
  *
  * Public API
@@ -429,8 +495,8 @@ int fill_raw_image(cimage_s *image, const unsigned char *buffer,
  * Our "real" image format conversion routine. ;-)
  */
 __PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
-    enum cimage_format fmt_in, unsigned int width, unsigned int height,
-    enum cimage_format fmt_out, unsigned int *bsize)
+    enum cimage_color_format fmt_in, unsigned int width, unsigned int height,
+    enum cimage_color_format fmt_out, unsigned int *bsize)
 {
     enum PixelFormat sws_fmt_in, sws_fmt_out;
     struct SwsContext *ctx;

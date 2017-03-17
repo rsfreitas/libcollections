@@ -26,12 +26,15 @@
 
 #include <stdlib.h>
 
+#include <pthread.h>
+
 #include "collections.h"
 
 #define circular_queue_members                      \
     cl_struct_member(unsigned int, max_size)        \
     cl_struct_member(unsigned int, size)            \
     cl_struct_member(cqueue_t *, queue)             \
+    cl_struct_member(pthread_mutex_t, lock)         \
     cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(circular_queue_s, circular_queue_members);
@@ -64,6 +67,7 @@ static circular_queue_s *new_circular_queue_s(unsigned int max_size)
     }
 
     q->max_size = max_size;
+    pthread_mutex_init(&q->lock, NULL);
     set_typeof(CIRCULAR_QUEUE, q);
 
     /* Reference count */
@@ -155,6 +159,7 @@ __PUB_API__ int circular_queue_enqueue(circular_queue_t *cqueue,
     cqueue_node_t *node;
 
     __clib_function_init__(true, cqueue, CIRCULAR_QUEUE, -1);
+    pthread_mutex_lock(&q->lock);
 
     if (q->size >= q->max_size) {
         node = cqueue_dequeue(q->queue);
@@ -164,6 +169,7 @@ __PUB_API__ int circular_queue_enqueue(circular_queue_t *cqueue,
 
     ret = cqueue_enqueue(q->queue, data, data_size);
     q->size++;
+    pthread_mutex_unlock(&q->lock);
     circular_queue_unref(q);
 
     return ret;
@@ -175,6 +181,7 @@ __PUB_API__ cqueue_node_t *circular_queue_dequeue(circular_queue_t *cqueue)
     cqueue_node_t *node = NULL;
 
     __clib_function_init__(true, cqueue, CIRCULAR_QUEUE, NULL);
+    pthread_mutex_lock(&q->lock);
 
     if (q->size == 0)
         goto end_block;
@@ -183,7 +190,9 @@ __PUB_API__ cqueue_node_t *circular_queue_dequeue(circular_queue_t *cqueue)
     q->size--;
 
 end_block:
+    pthread_mutex_unlock(&q->lock);
     circular_queue_unref(q);
+
     return node;
 }
 

@@ -552,7 +552,7 @@ __PUB_API__ cstring_t *cstring_substr(const cstring_t *string, const char *needl
 __PUB_API__ int cstring_rplchr(cstring_t *string, char c1, char c2)
 {
     cstring_s *p;
-    int i, c = 0, index;
+    int i, c = 0, index, substitutions = 0;
 
     __clib_function_init__(true, string, CSTRING, -1);
 
@@ -571,11 +571,12 @@ __PUB_API__ int cstring_rplchr(cstring_t *string, char c1, char c2)
             break;
 
         cstring_set(p, c2, index);
+        substitutions++;
     }
 
     cstring_unref(p);
 
-    return 0;
+    return substitutions;
 }
 
 __PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
@@ -584,7 +585,7 @@ __PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
     cstring_s *p;
     size_t l_old, l_new, l;
     char *s_in1, *s_in2, *s_out, *n;
-    int n_old = 0;
+    int n_old = 0, substitutions = 0;
 
     __clib_function_init__(true, string, CSTRING, -1);
 
@@ -629,6 +630,7 @@ __PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
 
             s_in1 += l_old;
             s_in2 = s_in1;
+            substitutions++;
         }
     }
 
@@ -640,7 +642,7 @@ __PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
     p->size = l;
     cstring_unref(p);
 
-    return 0;
+    return substitutions;
 }
 
 /*

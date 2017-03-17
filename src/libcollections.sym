@@ -336,15 +336,15 @@ LIBCOLLECTIONS_0.1 {
         cimage_dup;
         cimage_resize;
         cimage_extract;
-        cimage_raw_export;
-        cimage_raw_content;
+        cimage_bin_export;
+        cimage_bin_content;
         cimage_cv_export;
         cimage_cv_import;
         cimage_size;
         cimage_width;
         cimage_height;
         cimage_type;
-        cimage_format;
+        cimage_color_format;
         cimage_channels;
         cstack_node_content;
         cstack_node_ref;

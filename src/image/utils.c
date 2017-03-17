@@ -221,7 +221,7 @@ end_block:
     return type;
 }
 
-enum PixelFormat cimage_format_to_PixelFormat(enum cimage_format fmt)
+enum PixelFormat cimage_format_to_PixelFormat(enum cimage_color_format fmt)
 {
     enum PixelFormat px_fmt = PIX_FMT_GRAY8;
 
@@ -265,7 +265,7 @@ bool has_internal_image(cimage_s *image)
     return false;
 }
 
-int get_channels_by_format(enum cimage_format format)
+int get_channels_by_format(enum cimage_color_format format)
 {
     int channels = 0;
 
@@ -346,5 +346,57 @@ bool is_known_extension(const char *filename)
         free(ext);
 
     return known;
+}
+
+bool is_supported_image_type(enum cimage_type type)
+{
+    switch (type) {
+        case CIMAGE_RAW:
+        case CIMAGE_JPG:
+        case CIMAGE_BMP:
+        case CIMAGE_PNG:
+        case CIMAGE_JPG2K:
+        case CIMAGE_TIFF:
+        case CIMAGE_PPM:
+            return true;
+
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool is_supported_color_format(enum cimage_color_format fmt)
+{
+    switch (fmt) {
+        case CIMAGE_FMT_GRAY:
+        case CIMAGE_FMT_BGR:
+        case CIMAGE_FMT_RGB:
+        case CIMAGE_FMT_YUV422:
+        case CIMAGE_FMT_YUV420:
+        case CIMAGE_FMT_YUYV:
+            return true;
+
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool is_supported_fill_format(enum cimage_fill_format fmt)
+{
+    switch (fmt) {
+        case CIMAGE_FILL_REFERENCE:
+        case CIMAGE_FILL_OWNER:
+        case CIMAGE_FILL_COPY:
+            return true;
+
+        default:
+            break;
+    }
+
+    return false;
 }
 

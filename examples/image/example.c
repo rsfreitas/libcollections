@@ -52,7 +52,7 @@ static void help(void)
 static void print_image_info(cimage_t *image)
 {
     fprintf(stdout, "Image type: %d\n", cimage_type(image));
-    fprintf(stdout, "Image format: %d\n", cimage_format(image));
+    fprintf(stdout, "Image format: %d\n", cimage_color_format(image));
     fprintf(stdout, "Resolution: %dx%d\n", cimage_width(image),
             cimage_height(image));
 
@@ -98,9 +98,10 @@ static cimage_t *fill_image_with_file(const char *filename)
         return NULL;
     }
 
-    cimage_fill(image, buffer, bsize, CIMAGE_FMT_YUYV, 640, 480, CIMAGE_FILL_OWNER);
+    cimage_fill(image, buffer, bsize, CIMAGE_FMT_YUYV, 640, 480,
+                CIMAGE_FILL_OWNER);
+
     print_image_info(image);
-//    free(buffer);
 
     return image;
 }
@@ -108,12 +109,12 @@ static cimage_t *fill_image_with_file(const char *filename)
 static void export_image(cimage_t *image, const char *filename,
     enum cimage_type type)
 {
-    enum cimage_format fmt;
+    enum cimage_color_format fmt;
 
     if (NULL == image)
         return;
 
-    fmt = cimage_format(image);
+    fmt = cimage_color_format(image);
 
     if ((fmt != CIMAGE_FMT_BGR) || (fmt != CIMAGE_FMT_RGB) ||
         (fmt != CIMAGE_FMT_GRAY))
