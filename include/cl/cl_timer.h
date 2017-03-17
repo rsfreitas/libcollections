@@ -35,33 +35,33 @@
 
 /** Timer states */
 enum cl_timer_state {
-    TIMER_ST_CREATED,
-    TIMER_ST_REGISTERED,
-    TIMER_ST_INSTALLED,
-    TIMER_ST_WAITING,
-    TIMER_ST_RUNNING,
-    TIMER_ST_TERMINATING,
-    TIMER_ST_FINALIZED,
+    CL_TIMER_ST_CREATED,
+    CL_TIMER_ST_REGISTERED,
+    CL_TIMER_ST_INSTALLED,
+    CL_TIMER_ST_WAITING,
+    CL_TIMER_ST_RUNNING,
+    CL_TIMER_ST_TERMINATING,
+    CL_TIMER_ST_FINALIZED,
 
-    TIMER_MAX_STATE
+    CL_TIMER_MAX_STATE
 };
 
 /** Timer informations */
 enum cl_timer_info_field {
-    TIMER_INFO_NAME = 0,
-    TIMER_INFO_INTERVAL,
-    TIMER_INFO_OVERRUN,
-    TIMER_INFO_FINISH_TIMEOUT,
-    TIMER_INFO_IMODE,
-    TIMER_INFO_IMODE_DESC,
-    TIMER_INFO_DATA,            /* XXX: Cannot be freed */
-    TIMER_MAX_INFO,
+    CL_TIMER_INFO_NAME = 0,
+    CL_TIMER_INFO_INTERVAL,
+    CL_TIMER_INFO_OVERRUN,
+    CL_TIMER_INFO_FINISH_TIMEOUT,
+    CL_TIMER_INFO_IMODE,
+    CL_TIMER_INFO_IMODE_DESC,
+    CL_TIMER_INFO_DATA,            /* XXX: Cannot be freed */
+    CL_TIMER_MAX_INFO,
 };
 
 /** Timer execution check modes */
 enum cl_timer_interval_mode {
-    TIMER_IMODE_DEFAULT,
-    TIMER_IMODE_DISCOUNT_RUNTIME
+    CL_TIMER_IMODE_DEFAULT,
+    CL_TIMER_IMODE_DISCOUNT_RUNTIME
 };
 
 /**
@@ -179,16 +179,16 @@ void *ctimer_get_info_data(const ctimer_info_t *timer_info,
  * two states, internally, through 'ctimer_set_state' function, to maintain
  * the correct internal logic during library treatments. They are:
  *
- * TIMER_ST_RUNNING - As soon as the function enters.
- * TIMER_ST_WAITING - Right before ending the function.
+ * CL_TIMER_ST_RUNNING - As soon as the function enters.
+ * CL_TIMER_ST_WAITING - Right before ending the function.
  *
  * This timer function should not have infinite loops. The system will be in
  * charge of running it again, from time to time.
  *
  * The argument \a imode should report the execution check mode between each
- * timer function call. In the case of TIMER_IMODE_DEFAULT the next call will
- * wait all execution interval \a exec_interval, right after TIMER_ST_WAITING
- * state. The TIMER_IMODE_DISCOUNT_RUNTINME discounts the execution time spent
+ * timer function call. In the case of CL_TIMER_IMODE_DEFAULT the next call will
+ * wait all execution interval \a exec_interval, right after CL_TIMER_ST_WAITING
+ * state. The CL_TIMER_IMODE_DISCOUNT_RUNTINME discounts the execution time spent
  * by the timer function on the next call.
  *
  * It is important to remember that regardless of the execution check mode,
@@ -208,7 +208,8 @@ void *ctimer_get_info_data(const ctimer_info_t *timer_info,
  * @return On success returns 0 or -1 otherwise.
  */
 int ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
-                    enum cl_timer_interval_mode imode, unsigned int finish_timeout,
+                    enum cl_timer_interval_mode imode,
+                    unsigned int finish_timeout,
                     const char *timer_name, void (*timer_function)(ctimer_arg_t),
                     void *arg, int (*init_function)(void *),
                     int (*uninit_function)(void *));
