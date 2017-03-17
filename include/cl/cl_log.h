@@ -33,7 +33,7 @@
 # endif
 #endif
 
-enum clog_level {
+enum cl_log_level {
     CLOG_OFF,
     CLOG_EMERG,
     CLOG_ALERT,
@@ -45,13 +45,13 @@ enum clog_level {
     CLOG_DEBUG
 };
 
-enum clog_mode {
+enum cl_log_mode {
     CLOG_SYNC_ALL_MSGS  = (1 << 0),
     CLOG_KEEP_FILE_OPEN = (1 << 1),
     CLOG_ROTATE_DAILY   = (1 << 2)  /* TODO */
 };
 
-enum clog_prefix_field {
+enum cl_log_prefix_field {
     CLOG_FIELD_DATE     = (1 << 0),
     CLOG_FIELD_TIME     = (1 << 1),
     CLOG_FIELD_PID      = (1 << 2),
@@ -83,9 +83,9 @@ enum clog_prefix_field {
  *
  * @return On success returns a clog_t object or NULL otherwise.
  */
-clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
-                     enum clog_level start_level, unsigned int max_repeat,
-                     char separator, enum clog_prefix_field prefixes);
+clog_t *clog_open_ex(const char *pathname, enum cl_log_mode mode,
+                     enum cl_log_level start_level, unsigned int max_repeat,
+                     char separator, enum cl_log_prefix_field prefixes);
 
 /**
  * @name clog_open
@@ -109,8 +109,8 @@ clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
  *
  * @return On success returns a clog_t object or NULL otherwise.
  */
-clog_t *clog_open(const char *pathname, enum clog_mode mode,
-                  enum clog_level start_level, unsigned int max_repeat);
+clog_t *clog_open(const char *pathname, enum cl_log_mode mode,
+                  enum cl_log_level start_level, unsigned int max_repeat);
 
 /**
  * @name clog_close
@@ -133,7 +133,7 @@ int clog_close(clog_t *log);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
+int clog_vprintf(clog_t *log, enum cl_log_level level, const char *fmt,
                  va_list args);
 
 /**
@@ -147,7 +147,7 @@ int clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clog_printf(clog_t *log, enum clog_level level, const char *fmt, ...);
+int clog_printf(clog_t *log, enum cl_log_level level, const char *fmt, ...);
 
 /**
  * @name clog_bprint
@@ -160,7 +160,7 @@ int clog_printf(clog_t *log, enum clog_level level, const char *fmt, ...);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clog_bprint(clog_t *log, enum clog_level level, const void *data,
+int clog_bprint(clog_t *log, enum cl_log_level level, const void *data,
                 unsigned int dsize);
 
 /**
@@ -172,7 +172,7 @@ int clog_bprint(clog_t *log, enum clog_level level, const void *data,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clog_set_log_level(clog_t *log, enum clog_level level);
+int clog_set_log_level(clog_t *log, enum cl_log_level level);
 
 /**
  * @name clog_set_separator

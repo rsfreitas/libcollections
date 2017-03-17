@@ -33,7 +33,7 @@
 # endif
 #endif
 
-enum cjson_type {
+enum cl_json_type {
     CJSON_STRING,
     CJSON_NUMBER,
     CJSON_NUMBER_FLOAT,
@@ -168,7 +168,7 @@ cstring_t *cjson_get_object_value(const cjson_t *o);
  *
  * @return On success returns the type of the object or -1 otherwise.
  */
-enum cjson_type cjson_get_object_type(const cjson_t *o);
+enum cl_json_type cjson_get_object_type(const cjson_t *o);
 
 /**
  * @name cjson_dup
@@ -260,7 +260,7 @@ cjson_t *cjson_create_string(const char *string);
  *
  * @return On success returns the created cjson_t object or NULL otherwise.
  */
-cjson_t *cjson_create_node(enum cjson_type type, const char *fmt, ...);
+cjson_t *cjson_create_node(enum cl_json_type type, const char *fmt, ...);
 
 /**
  * @name cjson_create_int_array

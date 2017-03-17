@@ -46,7 +46,7 @@
 /* Default number of arguments to 'cplugin_call_ex' function */
 #define CPLUGIN_CALL_DEF_ARGUMENTS          3
 
-enum cplugin_info {
+enum cl_plugin_info {
     CPLUGIN_INFO_NAME,
     CPLUGIN_INFO_VERSION,
     CPLUGIN_INFO_DESCRIPTION,
@@ -65,7 +65,7 @@ struct function_argument {
 };
 
 struct dl_plugin_driver {
-    enum cplugin_type   type;
+    enum cl_plugin_type   type;
     bool                enabled;
     bool                (*plugin_test)(const cstring_t *);
     void                *(*library_init)(void);
@@ -116,7 +116,7 @@ struct cplugin_function_s {
     enum cl_type                return_value;
 
     /* Function arguments */
-    enum cplugin_arg_mode       arg_mode;
+    enum cl_plugin_arg_mode       arg_mode;
     struct cplugin_fdata_s      *args;
 
     /* Pointer to the real function */
@@ -124,7 +124,7 @@ struct cplugin_function_s {
 };
 
 #define cplugin_members                                         \
-    cl_struct_member(enum cplugin_type, type)                   \
+    cl_struct_member(enum cl_plugin_type, type)                   \
     cl_struct_member(void *, handle)                            \
     cl_struct_member(struct cplugin_function_s *, functions)    \
     cl_struct_member(cplugin_info_t *, info)                    \
@@ -155,7 +155,7 @@ cstring_list_t *api_function_arguments(const cplugin_info_t *info,
 enum cl_type api_function_return_type(const cplugin_info_t *info,
                                       const char *function_name);
 
-enum cplugin_arg_mode api_function_arg_mode(const cplugin_info_t *info,
+enum cl_plugin_arg_mode api_function_arg_mode(const cplugin_info_t *info,
                                             const char *function_name);
 
 enum cl_type api_function_arg_type(const cplugin_info_t *info,
@@ -167,7 +167,7 @@ int adjust_arguments(struct cplugin_function_s *foo,
                      struct function_argument *args, int argc, va_list ap);
 
 /* dl.c */
-void dl_enable_plugin_types(enum cplugin_type types);
+void dl_enable_plugin_types(enum cl_plugin_type types);
 struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname);
 void *dl_open(struct dl_plugin_driver *drv, const char *pathname);
 int dl_close(struct dl_plugin_driver *drv, void *handle);
@@ -210,7 +210,7 @@ int destroy_cplugin_s(cplugin_s *cpl);
 
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
                                                   enum cl_type return_value,
-                                                  enum cplugin_arg_mode arg_mode,
+                                                  enum cl_plugin_arg_mode arg_mode,
                                                   struct cplugin_fdata_s *args);
 
 void destroy_cplugin_function_s_list(struct cplugin_function_s *flist);

@@ -34,7 +34,7 @@
 #endif
 
 /** Counter precisions */
-enum counter_precision {
+enum cl_counter_precision {
     CNT_8BIT,
     CNT_16BIT,
     CNT_32BIT,
@@ -60,7 +60,7 @@ enum counter_precision {
  *
  * @return On success returns a counter_t object or NULL otherwise.
  */
-counter_t *counter_create(enum counter_precision precision, long long min,
+counter_t *counter_create(enum cl_counter_precision precision, long long min,
                           long long max, long long start_value,
                           bool circular);
 

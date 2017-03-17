@@ -59,8 +59,8 @@ struct ctimer_s {
     clist_entry_t                   *next;
     struct cobject_hdr              hdr;
     struct ctimer_internal_data_s   tid;
-    enum ctimer_state               state;
-    enum ctimer_interval_mode       imode;
+    enum cl_timer_state               state;
+    enum cl_timer_interval_mode       imode;
     struct sigevent                 evp;
     union sigval                    sigval;
     pthread_attr_t                  attr;
@@ -108,7 +108,7 @@ static void gettime(struct timespec *ts)
 /*
  * Function to set actual state of a timer inside the library environment.
  */
-static int set_state(struct ctimer_s *timer, enum ctimer_state state)
+static int set_state(struct ctimer_s *timer, enum cl_timer_state state)
 {
     if (state >= TIMER_MAX_STATE) {
         cset_errno(CL_INVALID_STATE);
@@ -135,7 +135,7 @@ static int set_state(struct ctimer_s *timer, enum ctimer_state state)
     return 0;
 }
 
-__PUB_API__ int ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state)
+__PUB_API__ int ctimer_set_state(ctimer_arg_t arg, enum cl_timer_state state)
 {
     struct ctimer_s *t = NULL, *tlist = NULL;
     char *timer_name = NULL;
@@ -191,7 +191,7 @@ __PUB_API__ ctimer_t *ctimer_get_timer(const ctimer_t *timers_list,
     return t;
 }
 
-static bool validate_imode(enum ctimer_interval_mode imode)
+static bool validate_imode(enum cl_timer_interval_mode imode)
 {
     if ((imode == TIMER_IMODE_DEFAULT) ||
         (imode == TIMER_IMODE_DISCOUNT_RUNTIME))
@@ -202,7 +202,7 @@ static bool validate_imode(enum ctimer_interval_mode imode)
     return false;
 }
 
-static const char *translate_imode(enum ctimer_interval_mode imode)
+static const char *translate_imode(enum cl_timer_interval_mode imode)
 {
     switch (imode) {
         case TIMER_IMODE_DEFAULT:
@@ -359,7 +359,7 @@ __PUB_API__ ctimer_info_t *ctimer_load_info_within_timer(ctimer_arg_t arg)
 }
 
 __PUB_API__ void *ctimer_get_info_data(const ctimer_info_t *timer_info,
-    enum ctimer_info_field info)
+    enum cl_timer_info_field info)
 {
     ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
 
@@ -409,7 +409,7 @@ static void destroy_timer(struct ctimer_s *timer)
  * arguments and execution interval.
  */
 static void set_timer_info(struct ctimer_s *timer, unsigned int exec_interval,
-    enum ctimer_interval_mode imode, unsigned int finish_timeout,
+    enum cl_timer_interval_mode imode, unsigned int finish_timeout,
     void *timer_function, void *arg)
 {
     /* Sets thread attributes */
@@ -443,7 +443,7 @@ static void set_timer_info(struct ctimer_s *timer, unsigned int exec_interval,
 }
 
 __PUB_API__ int ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
-    enum ctimer_interval_mode imode, unsigned int finish_timeout,
+    enum cl_timer_interval_mode imode, unsigned int finish_timeout,
     const char *timer_name, void (*timer_function)(ctimer_arg_t), void *arg,
     int (*init_function)(void *), int (*uninit_function)(void *))
 {

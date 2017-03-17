@@ -37,7 +37,7 @@ struct event_condition_s {
     unsigned int                id;
     void                        *ptr;
     void                        *value;
-    enum event_validation       validation;
+    enum cl_event_validation      validation;
     int                         (*v_function)(void *, void *);
 };
 
@@ -46,7 +46,7 @@ struct event_condition_s {
     cl_struct_member(struct event_condition_s *, evc_and)           \
     cl_struct_member(pthread_t, t_id)                               \
     cl_struct_member(pthread_mutex_t, m_evc)                        \
-    cl_struct_member(enum event_execution, exec_type)               \
+    cl_struct_member(enum cl_event_execution, exec_type)               \
     cl_struct_member(char *, name)                                  \
     cl_struct_member(bool, sort)                                    \
     cl_struct_member(bool, end_thread)                              \
@@ -61,25 +61,25 @@ cl_struct_declare(cevent_s, cevent_members);
 
 #define cevent_s        cl_struct(cevent_s)
 
-bool validate_execution_type(enum event_execution exec_type)
+bool validate_execution_type(enum cl_event_execution exec_type)
 {
-    if (exec_type > EVENT_EXEC_UNLIMITED)
+    if (exec_type > CEVENT_EXEC_UNLIMITED)
         return false;
 
     return true;
 }
 
-bool validate_validation_type(enum event_validation val)
+bool validate_validation_type(enum cl_event_validation val)
 {
-    if (val > EVENT_VAL_CUSTOM)
+    if (val > CEVENT_VAL_CUSTOM)
         return false;
 
     return true;
 }
 
-bool validate_comparison_type(enum event_comparison_type cmp_type)
+bool validate_comparison_type(enum cl_event_comparison_type cmp_type)
 {
-    if ((cmp_type != EVENT_CMP_AND) && (cmp_type != EVENT_CMP_OR))
+    if ((cmp_type != CEVENT_CMP_AND) && (cmp_type != CEVENT_CMP_OR))
         return false;
 
     return true;
@@ -165,7 +165,7 @@ static bool or_validation(cevent_s *ev)
     struct event_condition_s *p = NULL;
 
     for (p = ev->evc_or; p; p = p->next)
-        if (call_validation_function(p, NULL) == EVENT_VAL_RETURN_OK) {
+        if (call_validation_function(p, NULL) == CEVENT_VAL_RETURN_OK) {
             /* Returns true on the first function that returns Ok value. */
             return true;
         }
@@ -179,7 +179,7 @@ static bool and_validation(cevent_s *ev)
 
     /*
      * If any internal function returns a value other than zero, i.e.,
-     * EVENT_VAL_RETURN_ERROR, the function 'cdll_map' returns a pointer to
+     * CEVENT_VAL_RETURN_ERROR, the function 'cdll_map' returns a pointer to
      * that element on the list.
      */
     ret = cdll_map(ev->evc_and, call_validation_function, NULL);
@@ -243,9 +243,9 @@ static void *cevent_thread(void *param)
             event_executed = true;
         }
 
-        /* If the event is of EVENT_EXEC_UNLIMITED type waits again. */
+        /* If the event is of CEVENT_EXEC_UNLIMITED type waits again. */
         if ((event_executed == true) &&
-            (event->exec_type == EVENT_EXEC_UNLIMITED))
+            (event->exec_type == CEVENT_EXEC_UNLIMITED))
         {
             event_executed = false;
         }
@@ -258,7 +258,7 @@ static void *cevent_thread(void *param)
      * If is a unique event, releases memory, preventing the user for having
      * to do that.
      */
-    if (event->exec_type == EVENT_EXEC_ONCE)
+    if (event->exec_type == CEVENT_EXEC_ONCE)
         destroy_event(event);
 
     return NULL;
@@ -308,9 +308,9 @@ static int v_eq(void *ptr, void *value)
     int *tptr = ptr, *tvalue = value;
 
     if (*tptr == *tvalue)
-        return EVENT_VAL_RETURN_OK;
+        return CEVENT_VAL_RETURN_OK;
 
-    return EVENT_VAL_RETURN_ERROR;
+    return CEVENT_VAL_RETURN_ERROR;
 }
 
 static int v_ne(void *ptr, void *value)
@@ -318,9 +318,9 @@ static int v_ne(void *ptr, void *value)
     int *tptr = ptr, *tvalue = value;
 
     if (*tptr != *tvalue)
-        return EVENT_VAL_RETURN_OK;
+        return CEVENT_VAL_RETURN_OK;
 
-    return EVENT_VAL_RETURN_ERROR;
+    return CEVENT_VAL_RETURN_ERROR;
 }
 
 static int v_gt(void *ptr, void *value)
@@ -328,9 +328,9 @@ static int v_gt(void *ptr, void *value)
     int *tptr = ptr, *tvalue = value;
 
     if (*tptr > *tvalue)
-        return EVENT_VAL_RETURN_OK;
+        return CEVENT_VAL_RETURN_OK;
 
-    return EVENT_VAL_RETURN_ERROR;
+    return CEVENT_VAL_RETURN_ERROR;
 }
 
 static int v_ge(void *ptr, void *value)
@@ -338,9 +338,9 @@ static int v_ge(void *ptr, void *value)
     int *tptr = ptr, *tvalue = value;
 
     if (*tptr >= *tvalue)
-        return EVENT_VAL_RETURN_OK;
+        return CEVENT_VAL_RETURN_OK;
 
-    return EVENT_VAL_RETURN_ERROR;
+    return CEVENT_VAL_RETURN_ERROR;
 }
 
 static int v_lt(void *ptr, void *value)
@@ -348,9 +348,9 @@ static int v_lt(void *ptr, void *value)
     int *tptr = ptr, *tvalue = value;
 
     if (*tptr < *tvalue)
-        return EVENT_VAL_RETURN_OK;
+        return CEVENT_VAL_RETURN_OK;
 
-    return EVENT_VAL_RETURN_ERROR;
+    return CEVENT_VAL_RETURN_ERROR;
 }
 
 static int v_le(void *ptr, void *value)
@@ -358,12 +358,12 @@ static int v_le(void *ptr, void *value)
     int *tptr = ptr, *tvalue = value;
 
     if (*tptr <= *tvalue)
-        return EVENT_VAL_RETURN_OK;
+        return CEVENT_VAL_RETURN_OK;
 
-    return EVENT_VAL_RETURN_ERROR;
+    return CEVENT_VAL_RETURN_ERROR;
 }
 
-__PUB_API__ cevent_t *cevent_init(enum event_execution exec, const char *name,
+__PUB_API__ cevent_t *cevent_init(enum cl_event_execution exec, const char *name,
     void (*event)(void *), void *arg, void (*reset_conditions)(void *),
     void *reset_arg)
 {
@@ -398,7 +398,7 @@ __PUB_API__ cevent_t *cevent_init(enum event_execution exec, const char *name,
 }
 
 __PUB_API__ int cevent_condition_register(cevent_t *e,
-    enum event_validation val, enum event_comparison_type cmp_type,
+    enum cl_event_validation val, enum cl_event_comparison_type cmp_type,
     unsigned int id, void *ptr, void *value,
     int (*custom_v_function)(void *, void *))
 {
@@ -428,31 +428,31 @@ __PUB_API__ int cevent_condition_register(cevent_t *e,
         return -1;
 
     switch (val) {
-        case EVENT_VAL_EQUAL:
+        case CEVENT_VAL_EQUAL:
             c->v_function = v_eq;
             break;
 
-        case EVENT_VAL_NOT_EQUAL:
+        case CEVENT_VAL_NOT_EQUAL:
             c->v_function = v_ne;
             break;
 
-        case EVENT_VAL_GREATER:
+        case CEVENT_VAL_GREATER:
             c->v_function = v_gt;
             break;
 
-        case EVENT_VAL_GREATER_EQUAL:
+        case CEVENT_VAL_GREATER_EQUAL:
             c->v_function = v_ge;
             break;
 
-        case EVENT_VAL_LESS:
+        case CEVENT_VAL_LESS:
             c->v_function = v_lt;
             break;
 
-        case EVENT_VAL_LESS_EQUAL:
+        case CEVENT_VAL_LESS_EQUAL:
             c->v_function = v_le;
             break;
 
-        case EVENT_VAL_CUSTOM:
+        case CEVENT_VAL_CUSTOM:
             c->v_function = custom_v_function;
             break;
     }
@@ -462,9 +462,9 @@ __PUB_API__ int cevent_condition_register(cevent_t *e,
     c->validation = val;
     c->id = id;
 
-    if (cmp_type == EVENT_CMP_AND)
+    if (cmp_type == CEVENT_CMP_AND)
         ev->evc_and = cdll_unshift(ev->evc_and, c);
-    else if (cmp_type == EVENT_CMP_OR)
+    else if (cmp_type == CEVENT_CMP_OR)
         ev->evc_or = cdll_unshift(ev->evc_or, c);
 
     update_total_conditions(ev);
@@ -476,7 +476,7 @@ __PUB_API__ int cevent_condition_register(cevent_t *e,
 }
 
 __PUB_API__ int cevent_condition_unregister(cevent_t *e,
-    enum event_comparison_type cmp_type, unsigned int cond_id)
+    enum cl_event_comparison_type cmp_type, unsigned int cond_id)
 {
     cevent_s *ev = (cevent_s *)e;
     struct event_condition_s *evc = NULL, *list = NULL;
@@ -491,9 +491,9 @@ __PUB_API__ int cevent_condition_unregister(cevent_t *e,
 
     pthread_mutex_lock(&ev->m_evc);
 
-    if (cmp_type == EVENT_CMP_AND)
+    if (cmp_type == CEVENT_CMP_AND)
         list = ev->evc_and;
-    else if (cmp_type == EVENT_CMP_OR)
+    else if (cmp_type == CEVENT_CMP_OR)
         list = ev->evc_or;
 
     evc = cdll_filter(list, filter_condition, p_id);
@@ -536,7 +536,7 @@ __PUB_API__ int cevent_install(cevent_t *e, bool sort_by_id)
      * Starts the thread (detachable if is a unique execution) to conditions
      * evaluation.
      */
-    if (ev->exec_type == EVENT_EXEC_ONCE)
+    if (ev->exec_type == CEVENT_EXEC_ONCE)
         detachstate = PTHREAD_CREATE_DETACHED;
 
     pthread_attr_init(&t_attr);
@@ -556,7 +556,7 @@ __PUB_API__ int cevent_uninstall(cevent_t *e)
 
     __clib_function_init__(true, e, CEVENT, -1);
 
-    if (ev->exec_type == EVENT_EXEC_UNLIMITED) {
+    if (ev->exec_type == CEVENT_EXEC_UNLIMITED) {
         ev->end_thread = true;
         pthread_join(ev->t_id, NULL);
     }

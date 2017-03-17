@@ -100,7 +100,7 @@ int tcp_uninit(ipc_data_t *ipc_data)
     return 0;
 }
 
-int tcp_set_up(ipc_data_t *ipc_data, enum chat_mode mode, va_list ap)
+int tcp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
     struct sockaddr_in sc_in;

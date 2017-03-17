@@ -114,7 +114,7 @@ int main(void)
 
     for (i = 0; i < 20; i++) {
         n = crand(100);
-        clist_push(list, new_node_example(n, n + 1));
+        clist_push(list, new_node_example(n, n + 1), -1);
     }
 
     printf("List size = %d\n", clist_size(list));
@@ -133,9 +133,9 @@ int main(void)
     printf("First list size = %d\n", clist_size(list));
     clist_map(list, print_node, NULL);
 
-    if (clist_contains(list, &e) == true)
+    if (clist_contains(list, &e, -1) == true)
         printf("Index of item with x = %d, y = %d => %d\n", e.x, e.y,
-               clist_indexof(list, &e));
+               clist_indexof(list, &e, -1));
 
     clist_destroy(list);
 

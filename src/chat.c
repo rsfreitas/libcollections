@@ -176,7 +176,7 @@ static int chat_ipc_uninit(chat_s *c)
     return 0;
 }
 
-static int chat_ipc_set_up(chat_s *c, enum chat_mode mode, va_list ap)
+static int chat_ipc_set_up(chat_s *c, enum cl_chat_mode mode, va_list ap)
 {
     struct chat_ipc_methods_s *cim = NULL;
 
@@ -330,7 +330,7 @@ static int chat_ipc_fd(chat_s *c)
  *
  */
 
-static struct chat_driver_info_s *get_chat_driver_info_s(enum chat_driver cd)
+static struct chat_driver_info_s *get_chat_driver_info_s(enum cl_chat_driver cd)
 {
     unsigned int i = 0, t = 0;
 
@@ -504,7 +504,7 @@ static void *chat_drv_process_recv_data(chat_s *c, struct chat_data_s *cd,
  *
  */
 
-static bool validate_chat_driver(enum chat_driver scd)
+static bool validate_chat_driver(enum cl_chat_driver scd)
 {
     if ((scd == CHAT_DRV_RAW_TCP) ||
         (scd == CHAT_DRV_RAW_UDP))
@@ -597,7 +597,7 @@ static chat_s *dup_chat_s(chat_s *c)
  *
  */
 
-__PUB_API__ chat_t *chat_create(enum chat_driver cd, enum chat_mode mode,
+__PUB_API__ chat_t *chat_create(enum cl_chat_driver cd, enum cl_chat_mode mode,
     bool sigpipe_block)
 {
     chat_s *c = NULL;

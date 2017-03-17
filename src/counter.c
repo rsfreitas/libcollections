@@ -31,15 +31,15 @@
 
 #include "collections.h"
 
-#define counter_members                                 \
-    cl_struct_member(enum counter_precision, precision) \
-    cl_struct_member(bool, circular_counter)            \
-    cl_struct_member(bool, negative_min)                \
-    cl_struct_member(cobject_t *, cnt)                  \
-    cl_struct_member(cobject_t *, min)                  \
-    cl_struct_member(cobject_t *, max)                  \
-    cl_struct_member(long long, start_value)            \
-    cl_struct_member(pthread_mutex_t, lock)             \
+#define counter_members                                     \
+    cl_struct_member(enum cl_counter_precision, precision)  \
+    cl_struct_member(bool, circular_counter)                \
+    cl_struct_member(bool, negative_min)                    \
+    cl_struct_member(cobject_t *, cnt)                      \
+    cl_struct_member(cobject_t *, min)                      \
+    cl_struct_member(cobject_t *, max)                      \
+    cl_struct_member(long long, start_value)                \
+    cl_struct_member(pthread_mutex_t, lock)                 \
     cl_struct_member(struct cref_s, ref)
 
 cl_struct_declare(counter_s, counter_members);
@@ -130,7 +130,7 @@ static void destroy_counter_s(const struct cref_s *ref)
     c = NULL;
 }
 
-static counter_s *new_counter_s(enum counter_precision precision,
+static counter_s *new_counter_s(enum cl_counter_precision precision,
     long long min, long long max, long long start_value, bool circular)
 {
     counter_s *c = NULL;
@@ -180,7 +180,7 @@ __PUB_API__ int counter_unref(counter_t *c)
     return 0;
 }
 
-__PUB_API__ counter_t *counter_create(enum counter_precision precision,
+__PUB_API__ counter_t *counter_create(enum cl_counter_precision precision,
     long long min, long long max, long long start_value, bool circular)
 {
     return new_counter_s(precision, min, max, start_value, circular);

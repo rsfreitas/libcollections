@@ -118,7 +118,7 @@ library_error_block:
 /*
  * Convert an internal color representation to its hexadecimal color code.
  */
-unsigned int to_hex_color(enum cimage_color color)
+unsigned int to_hex_color(enum cl_image_color color)
 {
     switch (color) {
         case CIMAGE_COLOR_BLACK:
@@ -152,8 +152,8 @@ unsigned int to_hex_color(enum cimage_color color)
 /*
  * Converts an internal color representation to a CvScalar type.
  */
-static CvScalar caption_color_to_CvScalar(enum cimage_color color,
-    enum cimage_color_format format)
+static CvScalar caption_color_to_CvScalar(enum cl_image_color color,
+    enum cl_image_color_format format)
 {
     unsigned int c;
     double r, g, b;
@@ -411,8 +411,8 @@ __PUB_API__ int caption_unref(caption_t *caption)
 }
 
 __PUB_API__ caption_t *caption_configure(const char *ttf_pathname,
-    unsigned int font_size, enum cimage_color foreground,
-    enum cimage_color background)
+    unsigned int font_size, enum cl_image_color foreground,
+    enum cl_image_color background)
 {
     caption_s *c = NULL;
 

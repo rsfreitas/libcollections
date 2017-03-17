@@ -31,8 +31,8 @@
 #include "collections.h"
 
 struct sync_data_s {
-    enum cthread_type   type;
-    enum cthread_state  state;
+    enum cl_thread_type   type;
+    enum cl_thread_state  state;
 };
 
 #define cthread_members                         \
@@ -70,7 +70,7 @@ static void destroy_thread_data(cthread_s *td)
     free(td);
 }
 
-static bool validate_thread_state(enum cthread_state state)
+static bool validate_thread_state(enum cl_thread_state state)
 {
     if (state >= CL_THREAD_ST_MAX_STATE)
         return false;
@@ -88,7 +88,7 @@ __PUB_API__ void *cthread_get_user_data(cthread_t *arg)
     return td->user_data;
 }
 
-__PUB_API__ int cthread_set_state(cthread_t *t, enum cthread_state state)
+__PUB_API__ int cthread_set_state(cthread_t *t, enum cl_thread_state state)
 {
     cthread_s *td = (cthread_s *)t;
 
@@ -133,7 +133,7 @@ __PUB_API__ int cthread_destroy(cthread_t *t)
     return 0;
 }
 
-__PUB_API__ cthread_t *cthread_spawn(enum cthread_type type,
+__PUB_API__ cthread_t *cthread_spawn(enum cl_thread_type type,
     void *(*start_routine)(cthread_t *), void *user_data)
 {
     cthread_s *td = NULL;

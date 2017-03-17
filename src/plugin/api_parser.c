@@ -152,10 +152,10 @@ static int find_pointer_argument(void *a, void *b __attribute__((unused)))
     return 0;
 }
 
-static enum cplugin_arg_mode get_arg_mode(struct cplugin_fdata_s *args)
+static enum cl_plugin_arg_mode get_arg_mode(struct cplugin_fdata_s *args)
 {
     struct cplugin_fdata_s *ptr = NULL;
-    enum cplugin_arg_mode arg_mode = CPLUGIN_ARGS_VOID;
+    enum cl_plugin_arg_mode arg_mode = CPLUGIN_ARGS_VOID;
     bool ptr_argument = false, other_arguments = false;
     int total = 0;
 
@@ -196,7 +196,7 @@ struct cplugin_function_s *api_parse(cplugin_info_t *info)
     int i, t_functions = 0;
     enum cl_type return_value;
     cstring_t *jname, *jrv;
-    enum cplugin_arg_mode arg_mode = CPLUGIN_ARGS_VOID;
+    enum cl_plugin_arg_mode arg_mode = CPLUGIN_ARGS_VOID;
 
     api = info_get_api(info);
     functions = cjson_get_object_item(api, PLUGIN_API);
@@ -357,12 +357,12 @@ enum cl_type api_function_return_type(const cplugin_info_t *info,
     return cvt_str_to_cv(cstring_valueof(v));
 }
 
-enum cplugin_arg_mode api_function_arg_mode(const cplugin_info_t *info,
+enum cl_plugin_arg_mode api_function_arg_mode(const cplugin_info_t *info,
     const char *function_name)
 {
     cjson_t *foo, *args, *p, *type;
     cstring_t *value;
-    enum cplugin_arg_mode mode = CPLUGIN_ARGS_VOID;
+    enum cl_plugin_arg_mode mode = CPLUGIN_ARGS_VOID;
     bool ptr_argument = false, other_arguments = false;
     int i, total;
 

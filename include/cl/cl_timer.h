@@ -34,7 +34,7 @@
 #endif
 
 /** Timer states */
-enum ctimer_state {
+enum cl_timer_state {
     TIMER_ST_CREATED,
     TIMER_ST_REGISTERED,
     TIMER_ST_INSTALLED,
@@ -47,7 +47,7 @@ enum ctimer_state {
 };
 
 /** Timer informations */
-enum ctimer_info_field {
+enum cl_timer_info_field {
     TIMER_INFO_NAME = 0,
     TIMER_INFO_INTERVAL,
     TIMER_INFO_OVERRUN,
@@ -59,7 +59,7 @@ enum ctimer_info_field {
 };
 
 /** Timer execution check modes */
-enum ctimer_interval_mode {
+enum cl_timer_interval_mode {
     TIMER_IMODE_DEFAULT,
     TIMER_IMODE_DISCOUNT_RUNTIME
 };
@@ -75,7 +75,7 @@ enum ctimer_interval_mode {
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int ctimer_set_state(ctimer_arg_t arg, enum ctimer_state state);
+int ctimer_set_state(ctimer_arg_t arg, enum cl_timer_state state);
 
 /**
  * @name ctimer_get_timer
@@ -148,7 +148,7 @@ ctimer_info_t *ctimer_load_info_within_timer(ctimer_arg_t arg);
  *         NULL otherwise.
  */
 void *ctimer_get_info_data(const ctimer_info_t *timer_info,
-                           enum ctimer_info_field info);
+                           enum cl_timer_info_field info);
 
 /**
  * @name ctimer_register
@@ -208,7 +208,7 @@ void *ctimer_get_info_data(const ctimer_info_t *timer_info,
  * @return On success returns 0 or -1 otherwise.
  */
 int ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
-                    enum ctimer_interval_mode imode, unsigned int finish_timeout,
+                    enum cl_timer_interval_mode imode, unsigned int finish_timeout,
                     const char *timer_name, void (*timer_function)(ctimer_arg_t),
                     void *arg, int (*init_function)(void *),
                     int (*uninit_function)(void *));

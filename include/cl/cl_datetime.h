@@ -34,7 +34,7 @@
 #endif
 
 /** Weekdays */
-enum cweekday {
+enum cl_weekday {
     CL_SUNDAY,
     CL_MONDAY,
     CL_TUESDAY,
@@ -45,7 +45,7 @@ enum cweekday {
 };
 
 /** Months */
-enum cmonth {
+enum cl_month {
     CL_JANUARY,
     CL_FEBRUARY,
     CL_MARCH,
@@ -176,7 +176,7 @@ bool cdt_leap_year(const cdatetime_t *dt);
  *
  * @return Returns the current weekday information.
  */
-enum cweekday cdt_weekday(const cdatetime_t *dt);
+enum cl_weekday cdt_weekday(const cdatetime_t *dt);
 
 /**
  * @name cdt_get_seconds
@@ -521,7 +521,7 @@ cdatetime_t *cdt_plus_hours(const cdatetime_t *dt, unsigned int hours);
  *
  * @return Returns the current weekday information.
  */
-enum cweekday cdt_current_weekday(void);
+enum cl_weekday cdt_current_weekday(void);
 
 /**
  * @name cdt_current_month
@@ -529,7 +529,7 @@ enum cweekday cdt_current_weekday(void);
  *
  * @return Returns the current month information.
  */
-enum cmonth cdt_current_month(void);
+enum cl_month cdt_current_month(void);
 
 /**
  * @name cdt_is_local_dst

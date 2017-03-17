@@ -34,13 +34,13 @@
 #endif
 
 /** Types of threads */
-enum cthread_type {
+enum cl_thread_type {
     CL_THREAD_JOINABLE,
     CL_THREAD_DETACHED
 };
 
 /** Possible thread states */
-enum cthread_state {
+enum cl_thread_state {
     CL_THREAD_ST_CREATED,
     CL_THREAD_ST_INITIALIZED,
     CL_THREAD_ST_INIT_ERROR,
@@ -61,7 +61,7 @@ enum cthread_state {
  *
  * @return On success returns a cthread_t object or NULL otherwise.
  */
-cthread_t *cthread_spawn(enum cthread_type type,
+cthread_t *cthread_spawn(enum cl_thread_type type,
                          void *(*start_routine)(cthread_t *), void *user_data);
 
 /**
@@ -97,7 +97,7 @@ int cthread_wait_startup(const cthread_t *t);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cthread_set_state(cthread_t *t, enum cthread_state state);
+int cthread_set_state(cthread_t *t, enum cl_thread_state state);
 
 /**
  * @name cthread_get_user_data

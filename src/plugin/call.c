@@ -39,7 +39,7 @@ int adjust_arguments(struct cplugin_function_s *foo,
     void *ptr;
     int i = 0;
     bool b;
-    enum cjson_type type;
+    enum cl_json_type type;
 
     jargs = cjson_create_object();
 

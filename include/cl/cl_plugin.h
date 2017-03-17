@@ -33,7 +33,7 @@
 #endif
 
 /** Plugin supported languages */
-enum cplugin_type {
+enum cl_plugin_type {
     CPLUGIN_UNKNOWN = 0,
     CPLUGIN_ELF     = (1 << 0),         /* C, C++, Rust and Go */
     CPLUGIN_PYTHON  = (1 << 1),
@@ -41,7 +41,7 @@ enum cplugin_type {
 };
 
 /** Functions argument mode */
-enum cplugin_arg_mode {
+enum cl_plugin_arg_mode {
     CPLUGIN_ARGS_VOID               = 0,
     CPLUGIN_ARGS_COMMON             = (1 << 0),
     CPLUGIN_ARGS_POINTER            = (1 << 1)
@@ -227,7 +227,7 @@ cstring_list_t *cplugin_function_arguments(const cplugin_info_t *info,
  * @return On success returns the argument mode (as a number) from the requested
  *         function or -1 otherwise.
  */
-enum cplugin_arg_mode cplugin_function_arg_mode(const cplugin_info_t *info,
+enum cl_plugin_arg_mode cplugin_function_arg_mode(const cplugin_info_t *info,
                                                 const char *function_name);
 
 /**
@@ -350,7 +350,7 @@ int cplugin_arg_count(const cplugin_arg_t *args);
  *
  * @param [in] types: A bitfield with all supported plugin types.
  */
-void cplugin_set_supported_types(enum cplugin_type types);
+void cplugin_set_supported_types(enum cl_plugin_type types);
 
 #endif
 

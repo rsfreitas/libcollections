@@ -144,7 +144,7 @@ static unsigned char *raw_to_other(cimage_s *image, unsigned int *bsize,
 }
 
 static unsigned char *convert_raw_image(cimage_s *image,
-    enum cimage_type type, unsigned int *bsize)
+    enum cl_image_type type, unsigned int *bsize)
 {
     unsigned char *b;
 
@@ -282,8 +282,8 @@ IplImage *convert_image_to_cv_image(cimage_s *image)
     return NULL;
 }
 
-unsigned char *convert_image_formats(cimage_s *image, enum cimage_type type,
-    enum cimage_color_format format __attribute__((unused)), unsigned int *bsize)
+unsigned char *convert_image_formats(cimage_s *image, enum cl_image_type type,
+    enum cl_image_color_format format __attribute__((unused)), unsigned int *bsize)
 {
     unsigned char *buffer = NULL;
     char *ext, *cv_ext = NULL;
@@ -323,7 +323,7 @@ unsigned char *convert_image_formats(cimage_s *image, enum cimage_type type,
 }
 
 unsigned char *convert_raw_formats(cimage_s *image,
-    enum cimage_color_format format, unsigned int *bsize)
+    enum cl_image_color_format format, unsigned int *bsize)
 {
     /* With these choices we don't need to convert the image */
     if ((format == image->format) ||

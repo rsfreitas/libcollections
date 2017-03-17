@@ -160,7 +160,7 @@ __PUB_API__ cstring_list_t *cplugin_function_arguments(const cplugin_info_t *inf
     return api_function_arguments(info, function_name);
 }
 
-__PUB_API__ enum cplugin_arg_mode cplugin_function_arg_mode(const cplugin_info_t *info,
+__PUB_API__ enum cl_plugin_arg_mode cplugin_function_arg_mode(const cplugin_info_t *info,
     const char *function_name)
 {
     __clib_function_init__(true, info, CPLUGIN_INFO, -1);
@@ -359,7 +359,7 @@ __PUB_API__ int cplugin_unload(cplugin_t *cpl)
     return 0;
 }
 
-__PUB_API__ void cplugin_set_supported_types(enum cplugin_type types)
+__PUB_API__ void cplugin_set_supported_types(enum cl_plugin_type types)
 {
     __clib_function_init_ex2__(false, NULL, -1);
     dl_enable_plugin_types(types);

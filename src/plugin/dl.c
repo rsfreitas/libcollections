@@ -116,7 +116,7 @@ static struct dl_plugin_driver __dl_driver[] = {
 #define NDRIVERS            \
     (sizeof(__dl_driver) / sizeof(__dl_driver[0]))
 
-void dl_enable_plugin_types(enum cplugin_type types)
+void dl_enable_plugin_types(enum cl_plugin_type types)
 {
     unsigned int i = 0;
 
@@ -128,7 +128,7 @@ void dl_enable_plugin_types(enum cplugin_type types)
     }
 }
 
-bool dl_is_plugin_enabled(enum cplugin_type type)
+bool dl_is_plugin_enabled(enum cl_plugin_type type)
 {
     int index = 0, value = type;
 
@@ -142,7 +142,7 @@ bool dl_is_plugin_enabled(enum cplugin_type type)
     return false;
 }
 
-static struct dl_plugin_driver *get_plugin_driver(enum cplugin_type type)
+static struct dl_plugin_driver *get_plugin_driver(enum cl_plugin_type type)
 {
     int i = 0;
 
@@ -196,9 +196,9 @@ static cstring_t *get_file_info(const char *filename)
     return s;
 }
 
-static enum cplugin_type parse_plugin_type(cstring_t *s)
+static enum cl_plugin_type parse_plugin_type(cstring_t *s)
 {
-    enum cplugin_type t = CPLUGIN_UNKNOWN;
+    enum cl_plugin_type t = CPLUGIN_UNKNOWN;
     unsigned int i;
 
     for (i = 1; i < NDRIVERS; i++)
@@ -213,7 +213,7 @@ static enum cplugin_type parse_plugin_type(cstring_t *s)
 struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
 {
     cstring_t *info = NULL;
-    enum cplugin_type type;
+    enum cl_plugin_type type;
 
     info = get_file_info(pathname);
 

@@ -84,7 +84,7 @@ static cimage_s *new_cimage(void)
     return i;
 }
 
-static char *build_disc_filename(enum cimage_type file_type,
+static char *build_disc_filename(enum cl_image_type file_type,
     const char *original_filename)
 {
     char *output_ext = NULL, *p = NULL, *dirc, *dname;
@@ -128,8 +128,8 @@ static void rename_image(const char *old, const char *new)
 /*
  * Sets all internal cimage_t object information.
  */
-static void cimage_set_info(cimage_s *image, enum cimage_type type,
-    enum cimage_color_format format)
+static void cimage_set_info(cimage_s *image, enum cl_image_type type,
+    enum cl_image_color_format format)
 {
     image->type = type;
     image->format = format;
@@ -151,12 +151,12 @@ static void release_old_image(cimage_s *image)
  * Fills a cimage_t object with a previously loaded image buffer.
  */
 static int fill_buffer_to_cimage(cimage_s *image, const unsigned char *buffer,
-    unsigned int bsize, enum cimage_color_format format, unsigned int width,
-    unsigned int height, enum cimage_fill_format fill_format)
+    unsigned int bsize, enum cl_image_color_format format, unsigned int width,
+    unsigned int height, enum cl_image_fill_format fill_format)
 {
     CvMat mat;
     int color = 0;
-    enum cimage_type type;
+    enum cl_image_type type;
 
     release_old_image(image);
 
@@ -191,7 +191,7 @@ static int fill_buffer_to_cimage(cimage_s *image, const unsigned char *buffer,
  * we're using the number of channels to make this guess, we're not able to
  * differentiate a RGB from a BGR or a YUV422 from a YUV420.
  */
-static enum cimage_color_format cimage_detect_format_by_image(IplImage *image)
+static enum cl_image_color_format cimage_detect_format_by_image(IplImage *image)
 {
     switch (image->nChannels) {
         case 1:
@@ -244,7 +244,7 @@ static cimage_t *duplicate_image(cimage_s *image)
 }
 
 static void save_image_to_file(const char *filename, cimage_s *image,
-    enum cimage_type type)
+    enum cl_image_type type)
 {
     unsigned char *ptr;
     unsigned int bsize;
@@ -306,8 +306,8 @@ __PUB_API__ cimage_t *cimage_create(void)
 }
 
 __PUB_API__ int cimage_fill(cimage_t *image, const unsigned char *buffer,
-    unsigned int bsize, enum cimage_color_format format, unsigned int width,
-    unsigned int height, enum cimage_fill_format fill_format)
+    unsigned int bsize, enum cl_image_color_format format, unsigned int width,
+    unsigned int height, enum cl_image_fill_format fill_format)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -330,8 +330,8 @@ __PUB_API__ int cimage_fill(cimage_t *image, const unsigned char *buffer,
 }
 
 __PUB_API__ cimage_t *cimage_load(const unsigned char *buffer,
-    unsigned int bsize, enum cimage_color_format format, unsigned int width,
-    unsigned int height, enum cimage_fill_format fill_format)
+    unsigned int bsize, enum cl_image_color_format format, unsigned int width,
+    unsigned int height, enum cl_image_fill_format fill_format)
 {
     cimage_s *i = NULL;
 
@@ -367,8 +367,8 @@ __PUB_API__ cimage_t *cimage_load(const unsigned char *buffer,
 __PUB_API__ cimage_t *cimage_load_from_file(const char *filename)
 {
     cimage_s *i = NULL;
-    enum cimage_type type;
-    enum cimage_color_format format;
+    enum cl_image_type type;
+    enum cl_image_color_format format;
     char *tmp = NULL, *ext = NULL;
     bool was_renamed = false;
     int error;
@@ -455,7 +455,7 @@ __PUB_API__ int cimage_save(const cimage_t *image, unsigned char **buffer,
 }
 
 __PUB_API__ int cimage_save_to_file(const cimage_t *image, const char *filename,
-    enum cimage_type file_type)
+    enum cl_image_type file_type)
 {
     char *disc_filename = NULL;
     cimage_s *i = (cimage_s *)image;
@@ -586,7 +586,7 @@ void cimage_cat(void)
 }
 
 __PUB_API__ unsigned char *cimage_bin_export(const cimage_t *image,
-    enum cimage_type type, enum cimage_color_format format, unsigned int *bsize,
+    enum cl_image_type type, enum cl_image_color_format format, unsigned int *bsize,
     unsigned int *width, unsigned int *height)
 {
     cimage_s *i = (cimage_s *)image;
@@ -621,7 +621,7 @@ __PUB_API__ unsigned char *cimage_bin_export(const cimage_t *image,
 
 __PUB_API__ const unsigned char *cimage_bin_content(const cimage_t *image,
     unsigned int *bsize, unsigned int *width, unsigned int *height,
-    enum cimage_color_format *format)
+    enum cl_image_color_format *format)
 {
     cimage_s *i = (cimage_s *)image;
     unsigned char *ptr = NULL;
@@ -673,7 +673,7 @@ __PUB_API__ IplImage *cimage_cv_export(const cimage_t *image)
 }
 
 __PUB_API__ int cimage_cv_import(cimage_t *image, IplImage *cv_image,
-    enum cimage_type type)
+    enum cl_image_type type)
 {
     cimage_s *i = (cimage_s *)image;
 

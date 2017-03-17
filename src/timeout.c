@@ -29,9 +29,9 @@
 
 #include "collections.h"
 
-#define ctimeout_members                        \
-    cl_struct_member(cdatetime_t *, dt)         \
-    cl_struct_member(enum ctimeout, precision)  \
+#define ctimeout_members                            \
+    cl_struct_member(cdatetime_t *, dt)             \
+    cl_struct_member(enum cl_timeout, precision)    \
     cl_struct_member(unsigned int, interval)
 
 cl_struct_declare(ctimeout_s, ctimeout_members);
@@ -39,7 +39,7 @@ cl_struct_declare(ctimeout_s, ctimeout_members);
 #define ctimeout_s          cl_struct(ctimeout_s)
 
 static ctimeout_s *new_ctimeout_s(unsigned int interval,
-    enum ctimeout precision)
+    enum cl_timeout precision)
 {
     cdatetime_t *dt = NULL;
     ctimeout_s *t = NULL;
@@ -77,7 +77,7 @@ static void destroy_ctimeout_s(ctimeout_s *t)
 }
 
 __PUB_API__ ctimeout_t *ctimeout_create(unsigned int interval,
-   enum ctimeout precision)
+   enum cl_timeout precision)
 {
     ctimeout_s *t;
 
@@ -101,7 +101,7 @@ __PUB_API__ int ctimeout_destroy(ctimeout_t *t)
 }
 
 __PUB_API__ int ctimeout_reset(ctimeout_t *t, unsigned int interval,
-    enum ctimeout precision)
+    enum cl_timeout precision)
 {
     ctimeout_s *ct = (ctimeout_s *)t;
 

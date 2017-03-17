@@ -37,7 +37,7 @@
 #endif
 
 /** Supported image formats */
-enum cimage_color_format {
+enum cl_image_color_format {
     CIMAGE_FMT_UNKNOWN,
     CIMAGE_FMT_GRAY,
     CIMAGE_FMT_BGR,
@@ -48,7 +48,7 @@ enum cimage_color_format {
 };
 
 /** Supported image types */
-enum cimage_type {
+enum cl_image_type {
     CIMAGE_RAW,
     CIMAGE_JPG,
     CIMAGE_BMP,
@@ -59,14 +59,14 @@ enum cimage_type {
 };
 
 /** Supported internal buffer handle */
-enum cimage_fill_format {
+enum cl_image_fill_format {
     CIMAGE_FILL_REFERENCE,
     CIMAGE_FILL_OWNER,
     CIMAGE_FILL_COPY
 };
 
 /** Supported colors */
-enum cimage_color {
+enum cl_image_color {
     CIMAGE_COLOR_BLACK,
     CIMAGE_COLOR_WHITE,
     CIMAGE_COLOR_RED,
@@ -154,9 +154,9 @@ int cimage_destroy(cimage_t *image);
  * @return On success returns 0 or -1 otherwise.
  */
 int cimage_fill(cimage_t *image, const unsigned char *buffer,
-                unsigned int bsize, enum cimage_color_format color_format,
+                unsigned int bsize, enum cl_image_color_format color_format,
                 unsigned int width, unsigned int height,
-                enum cimage_fill_format fill_format);
+                enum cl_image_fill_format fill_format);
 
 /**
  * @name cimage_load
@@ -185,8 +185,8 @@ int cimage_fill(cimage_t *image, const unsigned char *buffer,
  * @return On success returns a cimage_t object with the image or NULL otherwise.
  */
 cimage_t *cimage_load(const unsigned char *buffer, unsigned int bsize,
-                      enum cimage_color_format color_format, unsigned int width,
-                      unsigned int height, enum cimage_fill_format fill_format);
+                      enum cl_image_color_format color_format, unsigned int width,
+                      unsigned int height, enum cl_image_fill_format fill_format);
 
 /**
  * @name cimage_load_from_file
@@ -239,7 +239,7 @@ int cimage_save(const cimage_t *image, unsigned char **buffer,
  * @return On success returns 0 or -1 otherwise.
  */
 int cimage_save_to_file(const cimage_t *image, const char *filename,
-                        enum cimage_type file_type);
+                        enum cl_image_type file_type);
 
 /**
  * @name cimage_dup
@@ -303,8 +303,8 @@ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
  * @return On success returns a pointer the real image, that the user must free
  *         it later, or NULL otherwise.
  */
-unsigned char *cimage_bin_export(const cimage_t *image, enum cimage_type type,
-                                 enum cimage_color_format color_format,
+unsigned char *cimage_bin_export(const cimage_t *image, enum cl_image_type type,
+                                 enum cl_image_color_format color_format,
                                  unsigned int *bsize, unsigned int *width,
                                  unsigned int *height);
 
@@ -324,7 +324,7 @@ unsigned char *cimage_bin_export(const cimage_t *image, enum cimage_type type,
 const unsigned char *cimage_bin_content(const cimage_t *image,
                                         unsigned int *bsize, unsigned int *width,
                                         unsigned int *height,
-                                        enum cimage_color_format *color_format);
+                                        enum cl_image_color_format *color_format);
 
 /**
  * @name cimage_cv_export
@@ -355,7 +355,7 @@ IplImage *cimage_cv_export(const cimage_t *image);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cimage_cv_import(cimage_t *image, IplImage *cv_image, enum cimage_type type);
+int cimage_cv_import(cimage_t *image, IplImage *cv_image, enum cl_image_type type);
 
 /**
  * @name cimage_size
@@ -395,7 +395,7 @@ int cimage_height(const cimage_t *image);
  *
  * @return On success returns the image type or -1 otherwise.
  */
-enum cimage_type cimage_type(const cimage_t *image);
+enum cl_image_type cimage_type(const cimage_t *image);
 
 /**
  * @name cimage_color_format
@@ -405,7 +405,7 @@ enum cimage_type cimage_type(const cimage_t *image);
  *
  * @return On success returns the image color format or -1 otherwise.
  */
-enum cimage_color_format cimage_color_format(const cimage_t *image);
+enum cl_image_color_format cimage_color_format(const cimage_t *image);
 
 /**
  * @name cimage_channels
@@ -431,9 +431,9 @@ int cimage_channels(const cimage_t *image);
  * @return On success returns a converted RAW image buffer or NULL otherwise.
  */
 unsigned char *craw_cvt_format(const unsigned char *buffer,
-                               enum cimage_color_format fmt_in,
+                               enum cl_image_color_format fmt_in,
                                unsigned int width, unsigned int height,
-                               enum cimage_color_format fmt_out,
+                               enum cl_image_color_format fmt_out,
                                unsigned int *bsize);
 
 /**
@@ -472,8 +472,8 @@ int caption_unref(caption_t *caption);
  * @return On success returns a caption_t object to be used or NULL otherwise.
  */
 caption_t *caption_configure(const char *ttf_pathname, unsigned int font_size,
-                             enum cimage_color foreground,
-                             enum cimage_color background);
+                             enum cl_image_color foreground,
+                             enum cl_image_color background);
 
 /**
  * @name caption_destroy

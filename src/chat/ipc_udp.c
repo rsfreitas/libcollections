@@ -90,7 +90,7 @@ int udp_uninit(ipc_data_t *ipc_data)
     return 0;
 }
 
-int udp_set_up(ipc_data_t *ipc_data, enum chat_mode mode, va_list ap)
+int udp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
     struct sockaddr_in sc_in;

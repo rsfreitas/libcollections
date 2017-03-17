@@ -348,7 +348,7 @@ unsigned char *jpg_to_RAW_mem(const unsigned char *buffer, unsigned int jsize,
     return bout;
 }
 
-static int get_raw_size(enum cimage_color_format format, unsigned int width,
+static int get_raw_size(enum cl_image_color_format format, unsigned int width,
     unsigned int height)
 {
     int size = -1;
@@ -380,8 +380,8 @@ static int get_raw_size(enum cimage_color_format format, unsigned int width,
  * Fills the cimage_t object with a raw image buffer.
  */
 int fill_raw_image(cimage_s *image, const unsigned char *buffer,
-    enum cimage_color_format format, unsigned int width, unsigned int height,
-    enum cimage_fill_format fill_format)
+    enum cl_image_color_format format, unsigned int width, unsigned int height,
+    enum cl_image_fill_format fill_format)
 {
     unsigned int offset = 0;
 
@@ -495,8 +495,8 @@ int raw_extract(cimage_s *out, cimage_s *in, int x, int y, int w, int h)
  * Our "real" image format conversion routine. ;-)
  */
 __PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
-    enum cimage_color_format fmt_in, unsigned int width, unsigned int height,
-    enum cimage_color_format fmt_out, unsigned int *bsize)
+    enum cl_image_color_format fmt_in, unsigned int width, unsigned int height,
+    enum cl_image_color_format fmt_out, unsigned int *bsize)
 {
     enum PixelFormat sws_fmt_in, sws_fmt_out;
     struct SwsContext *ctx;

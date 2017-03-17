@@ -107,9 +107,9 @@ static cimage_t *fill_image_with_file(const char *filename)
 }
 
 static void export_image(cimage_t *image, const char *filename,
-    enum cimage_type type)
+    enum cl_image_type type)
 {
-    enum cimage_color_format fmt;
+    enum cl_image_color_format fmt;
 
     if (NULL == image)
         return;
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
     bool load = true, export = false;
     cimage_t *image = NULL;
     char *filename = NULL, *out_filename = NULL;
-    enum cimage_type type = -1;
+    enum cl_image_type type = -1;
 
     do {
         option = getopt(argc, argv, opt);

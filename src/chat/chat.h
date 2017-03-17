@@ -67,7 +67,7 @@ struct chat_ipc_methods_s {
     /* Mandatory IPC manipulation methods */
     ipc_data_t              *(*init)(void);
     int                     (*uninit)(ipc_data_t *);
-    int                     (*set_up)(ipc_data_t *, enum chat_mode, va_list);
+    int                     (*set_up)(ipc_data_t *, enum cl_chat_mode, va_list);
     int                     (*stop)(ipc_data_t *);
     int                     (*send)(ipc_data_t *, struct chat_data_s *);
     struct chat_data_s      *(*recv)(ipc_data_t *, unsigned int);
@@ -81,7 +81,7 @@ struct chat_ipc_methods_s {
 /* Protocol informations */
 struct chat_driver_info_s {
     /* Configurations */
-    enum chat_driver        driver_id;
+    enum cl_chat_driver        driver_id;
     enum chat_ipc_protocol  ipc_type;
 
     /* Driver events and dealing functions */
@@ -100,8 +100,8 @@ struct chat_driver_info_s {
 
 #define chat_members        \
     cl_struct_member(struct cref_s, ref)                        \
-    cl_struct_member(enum chat_mode, mode)                      \
-    cl_struct_member(enum chat_driver, driver_id)               \
+    cl_struct_member(enum cl_chat_mode, mode)                   \
+    cl_struct_member(enum cl_chat_driver, driver_id)            \
     cl_struct_member(struct chat_driver_info_s *, driver_info)  \
     cl_struct_member(struct chat_ipc_methods_s *, ipc_methods)  \
     cl_struct_member(bool, sigpipe)                             \
@@ -129,7 +129,7 @@ void *raw_socket_process_recv_data(drv_data_t *drv_data,
 /* TCP */
 ipc_data_t *tcp_init(void);
 int tcp_uninit(ipc_data_t *ipc_data);
-int tcp_set_up(ipc_data_t *ipc_data, enum chat_mode, va_list ap);
+int tcp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode, va_list ap);
 int tcp_connect(ipc_data_t *ipc_data);
 ipc_data_t *tcp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout);
 int tcp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send);
@@ -140,7 +140,7 @@ int tcp_fd(ipc_data_t *ipc_data);
 /* UDP */
 ipc_data_t *udp_init(void);
 int udp_uninit(ipc_data_t *ipc_data);
-int udp_set_up(ipc_data_t *ipc_data, enum chat_mode, va_list ap);
+int udp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode, va_list ap);
 int udp_connect(ipc_data_t *ipc_data);
 ipc_data_t *udp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout);
 int udp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send);

@@ -46,9 +46,9 @@ struct last_msg {
 #define clog_members                                    \
     cl_struct_member(FILE *, f)                         \
     cl_struct_member(char *, pathname)                  \
-    cl_struct_member(enum clog_mode, mode)              \
-    cl_struct_member(enum clog_level, level)            \
-    cl_struct_member(enum clog_prefix_field, prefixes)  \
+    cl_struct_member(enum cl_log_mode, mode)              \
+    cl_struct_member(enum cl_log_level, level)            \
+    cl_struct_member(enum cl_log_prefix_field, prefixes)  \
     cl_struct_member(unsigned int, max_repeat)          \
     cl_struct_member(char, separator)                   \
     cl_struct_member(struct last_msg, lmsg)             \
@@ -61,7 +61,7 @@ cl_struct_declare(clog_s, clog_members);
 
 static void close_log_file(clog_s *log);
 
-static bool is_mode_valid(enum clog_mode mode)
+static bool is_mode_valid(enum cl_log_mode mode)
 {
     switch (mode) {
         case CLOG_SYNC_ALL_MSGS:
@@ -75,7 +75,7 @@ static bool is_mode_valid(enum clog_mode mode)
     return false;
 }
 
-static bool is_level_valid(enum clog_level level)
+static bool is_level_valid(enum cl_log_level level)
 {
     switch (level) {
         case CLOG_OFF:
@@ -93,7 +93,7 @@ static bool is_level_valid(enum clog_level level)
     return false;
 }
 
-static const char *level_to_string(enum clog_level level)
+static const char *level_to_string(enum cl_log_level level)
 {
     switch (level) {
         case CLOG_OFF:
@@ -146,7 +146,7 @@ static bool compare_message(const char *m1, const char *m2)
     return false;
 }
 
-static bool may_write_message(clog_s *log, enum clog_level level)
+static bool may_write_message(clog_s *log, enum cl_log_level level)
 {
     if (level <= log->level)
         return true;
@@ -257,7 +257,7 @@ static void unlock_log_file(clog_s *log)
  * - CLOG_KEEP_FILE_OPEN: the file will be opened as long as the @log is active
  *                        inside the application.
  */
-static int set_logfile_handle_mode(clog_s *log, enum clog_mode mode,
+static int set_logfile_handle_mode(clog_s *log, enum cl_log_mode mode,
     const char *pathname)
 {
     log->f = NULL;
@@ -270,7 +270,7 @@ static int set_logfile_handle_mode(clog_s *log, enum clog_mode mode,
     return 0;
 }
 
-static cstring_t *message_prefix(clog_s *log, enum clog_level level)
+static cstring_t *message_prefix(clog_s *log, enum cl_log_level level)
 {
     cstring_t *p = NULL, *tmp = NULL;
     cdatetime_t *dt = NULL;
@@ -338,7 +338,7 @@ static bool needs_to_write_last_message(clog_s *log)
     return false;
 }
 
-static void write_last_message_counter(clog_s *log, enum clog_level level)
+static void write_last_message_counter(clog_s *log, enum cl_log_level level)
 {
     cstring_t *p = message_prefix(log, level);
 
@@ -351,7 +351,7 @@ static void write_last_message_counter(clog_s *log, enum clog_level level)
     fprintf(log->f, CLOG_COUNTER_MSG, log->lmsg.count);
 }
 
-static void write_message(clog_s *log, enum clog_level level,
+static void write_message(clog_s *log, enum cl_log_level level,
     const char *msg)
 {
     cstring_t *p = message_prefix(log, level);
@@ -383,7 +383,7 @@ static void write_message(clog_s *log, enum clog_level level,
     }
 }
 
-static void write_hex_message(clog_s *log, enum clog_level level,
+static void write_hex_message(clog_s *log, enum cl_log_level level,
     const void *data, unsigned int dsize)
 {
     unsigned int i;
@@ -405,7 +405,7 @@ static void write_hex_message(clog_s *log, enum clog_level level,
     fprintf(log->f, "\n");
 }
 
-static bool check_log_mode(clog_s *log, enum clog_mode mode)
+static bool check_log_mode(clog_s *log, enum cl_log_mode mode)
 {
     if (log->mode == mode)
         return true;
@@ -419,9 +419,9 @@ static bool check_log_mode(clog_s *log, enum clog_mode mode)
  *
  */
 
-__PUB_API__ clog_t *clog_open_ex(const char *pathname, enum clog_mode mode,
-    enum clog_level start_level, unsigned int max_repeat, char separator,
-    enum clog_prefix_field prefixes)
+__PUB_API__ clog_t *clog_open_ex(const char *pathname, enum cl_log_mode mode,
+    enum cl_log_level start_level, unsigned int max_repeat, char separator,
+    enum cl_log_prefix_field prefixes)
 {
     clog_s *log = NULL;
 
@@ -460,8 +460,8 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ clog_t *clog_open(const char *pathname, enum clog_mode mode,
-    enum clog_level start_level, unsigned int max_repeat)
+__PUB_API__ clog_t *clog_open(const char *pathname, enum cl_log_mode mode,
+    enum cl_log_level start_level, unsigned int max_repeat)
 {
     /* Creates the default log format: DATE; TIME; PID; LEVEL; msg */
     return clog_open_ex(pathname, mode, start_level, max_repeat, CLOG_SEPARATOR,
@@ -479,7 +479,7 @@ __PUB_API__ int clog_close(clog_t *log)
     return 0;
 }
 
-__PUB_API__ int clog_vprintf(clog_t *log, enum clog_level level, const char *fmt,
+__PUB_API__ int clog_vprintf(clog_t *log, enum cl_log_level level, const char *fmt,
     va_list args)
 {
     char *msg = NULL;
@@ -518,7 +518,7 @@ __PUB_API__ int clog_vprintf(clog_t *log, enum clog_level level, const char *fmt
     return 0;
 }
 
-__PUB_API__ int clog_printf(clog_t *log, enum clog_level level,
+__PUB_API__ int clog_printf(clog_t *log, enum cl_log_level level,
     const char *fmt, ...)
 {
     va_list ap;
@@ -533,7 +533,7 @@ __PUB_API__ int clog_printf(clog_t *log, enum clog_level level,
     return ret;
 }
 
-__PUB_API__ int clog_bprint(clog_t *log, enum clog_level level, const void *data,
+__PUB_API__ int clog_bprint(clog_t *log, enum cl_log_level level, const void *data,
     unsigned int dsize)
 {
     __clib_function_init__(true, log, CLOG, -1);
@@ -577,7 +577,7 @@ void clog_rprint(void)
 {
 }
 
-__PUB_API__ int clog_set_log_level(clog_t *log, enum clog_level level)
+__PUB_API__ int clog_set_log_level(clog_t *log, enum cl_log_level level)
 {
     clog_s *l = (clog_s *)log;
 

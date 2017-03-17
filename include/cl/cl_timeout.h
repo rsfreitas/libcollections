@@ -34,7 +34,7 @@
 #endif
 
 /** Types of timeout interval checks */
-enum ctimeout {
+enum cl_timeout {
     CL_TM_SECONDS,
     CL_TM_MSECONDS,
     CL_TM_USECONDS
@@ -50,7 +50,7 @@ enum ctimeout {
  * @return On success returns a ctimeout_t object with the timeout info or
  *         NULL otherwise.
  */
-ctimeout_t *ctimeout_create(unsigned int interval, enum ctimeout precision);
+ctimeout_t *ctimeout_create(unsigned int interval, enum cl_timeout precision);
 
 /**
  * @name ctimeout_destroy
@@ -73,7 +73,7 @@ int ctimeout_destroy(ctimeout_t *t);
  * @return On success returns 0 or -1 otherwise.
  */
 int ctimeout_reset(ctimeout_t *t, unsigned int interval,
-                   enum ctimeout precision);
+                   enum cl_timeout precision);
 
 /**
  * @name ctimeout_expired

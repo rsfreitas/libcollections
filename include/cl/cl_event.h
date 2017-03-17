@@ -34,31 +34,31 @@
 #endif
 
 /* Tipos de operacoes de validacao */
-enum event_validation {
-    EVENT_VAL_EQUAL,
-    EVENT_VAL_NOT_EQUAL,
-    EVENT_VAL_GREATER,
-    EVENT_VAL_GREATER_EQUAL,
-    EVENT_VAL_LESS,
-    EVENT_VAL_LESS_EQUAL,
-    EVENT_VAL_CUSTOM
+enum cl_event_validation {
+    CEVENT_VAL_EQUAL,
+    CEVENT_VAL_NOT_EQUAL,
+    CEVENT_VAL_GREATER,
+    CEVENT_VAL_GREATER_EQUAL,
+    CEVENT_VAL_LESS,
+    CEVENT_VAL_LESS_EQUAL,
+    CEVENT_VAL_CUSTOM
 };
 
 /* Tipo de execucao do evento */
-enum event_execution {
-    EVENT_EXEC_ONCE,
-    EVENT_EXEC_UNLIMITED
+enum cl_event_execution {
+    CEVENT_EXEC_ONCE,
+    CEVENT_EXEC_UNLIMITED
 };
 
 /* Tipo de comparacoes entre as condicoes registradas */
-enum event_comparison_type {
-    EVENT_CMP_AND,
-    EVENT_CMP_OR
+enum cl_event_comparison_type {
+    CEVENT_CMP_AND,
+    CEVENT_CMP_OR
 };
 
 /* Valores de retorno de uma funcao de validacao */
-#define EVENT_VAL_RETURN_OK                 0
-#define EVENT_VAL_RETURN_ERROR              -1
+#define CEVENT_VAL_RETURN_OK                 0
+#define CEVENT_VAL_RETURN_ERROR              -1
 
 /**
  * @name cevent_init
@@ -69,8 +69,8 @@ enum event_comparison_type {
  * will be executed, with \a arg as its argument.
  *
  * The number of times that this event may occur is defined by \a exec argument.
- * Allowing indicate an event that occurs only once (EVENT_EXEC_ONCE) or event
- * which can occur several times (EVENT_EXEC_UNLIMITED).
+ * Allowing indicate an event that occurs only once (CEVENT_EXEC_ONCE) or event
+ * which can occur several times (CEVENT_EXEC_UNLIMITED).
  *
  * The \a reset_conditions argument receives a pointer to a function responsable
  * for clear all registered conditions for such an event. This way, for an event
@@ -87,7 +87,7 @@ enum event_comparison_type {
  *
  * @return On success returns a cevent_t object or NULL otherwise.
  */
-cevent_t *cevent_init(enum event_execution exec, const char *name,
+cevent_t *cevent_init(enum cl_event_execution exec, const char *name,
                       void (*event)(void *), void *arg,
                       void (*reset_conditions)(void *), void *reset_arg);
 
@@ -95,7 +95,7 @@ cevent_t *cevent_init(enum event_execution exec, const char *name,
  * @name cevent_condition_register
  * @brief Adds a condition that requires to be attended for an event occur.
  *
- * To accomplish a condition, a function must return EVENT_VAL_RETURN_OK.
+ * To accomplish a condition, a function must return CEVENT_VAL_RETURN_OK.
  *
  * @param [in] e: The cevent_t object.
  * @param [in] val: Validation type that will be added.
@@ -103,15 +103,15 @@ cevent_t *cevent_init(enum event_execution exec, const char *name,
  * @param [in] id: Identification condition number.
  * @param [in] ptr: Pointer to the content that will be validated.
  * @param [in] value: Poniter to the value that the content must have so the
- *                    condition function may return EVENT_VAL_RETURN_OK.
+ *                    condition function may return CEVENT_VAL_RETURN_OK.
  * @param [in] custom_v_function: Alternative validation function, in case none
  *                                of the functions implemented in the library are
  *                                sufficient for.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cevent_condition_register(cevent_t *e, enum event_validation val,
-                              enum event_comparison_type cmp_type,
+int cevent_condition_register(cevent_t *e, enum cl_event_validation val,
+                              enum cl_event_comparison_type cmp_type,
                               unsigned int id, void *ptr, void *value,
                               int (*custom_v_function)(void *, void *));
 
@@ -125,7 +125,8 @@ int cevent_condition_register(cevent_t *e, enum event_validation val,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cevent_condition_unregister(cevent_t *e, enum event_comparison_type cmp_type,
+int cevent_condition_unregister(cevent_t *e,
+                                enum cl_event_comparison_type cmp_type,
                                 unsigned int cond_id);
 
 /**
@@ -148,7 +149,7 @@ int cevent_install(cevent_t *e, bool sort_by_id);
  * @name event_uninstall
  * @brief Ends a specific event.
  *
- * This function must be called if the event is of EVENT_EXEC_UNLIMITED type.
+ * This function must be called if the event is of CEVENT_EXEC_UNLIMITED type.
  *
  * @param [in] e: The cevent_t object.
  *

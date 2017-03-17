@@ -34,13 +34,13 @@
 #endif
 
 /** Working modes */
-enum chat_mode {
+enum cl_chat_mode {
     CHAT_CLIENT,
     CHAT_SERVER
 };
 
 /** Protocols */
-enum chat_driver {
+enum cl_chat_driver {
     CHAT_DRV_RAW_TCP,
     CHAT_DRV_RAW_UDP
 };
@@ -56,7 +56,8 @@ enum chat_driver {
  *
  * @return On success returns a chat_t object or NULL otherwise.
  */
-chat_t *chat_create(enum chat_driver cd, enum chat_mode mode, bool sigpipe_block);
+chat_t *chat_create(enum cl_chat_driver cd, enum cl_chat_mode mode,
+                    bool sigpipe_block);
 
 /**
  * @name chat_destroy

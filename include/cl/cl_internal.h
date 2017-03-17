@@ -131,7 +131,7 @@
 
 /* error.c */
 void cerrno_clear(void);
-void cset_errno(enum cerror_code error_code);
+void cset_errno(enum cl_error_code error_code);
 
 /* value.c */
 bool validate_cl_type(enum cl_type type);
@@ -161,7 +161,7 @@ char *file_extension(const char *pathname);
 /* plugin.c */
 void dl_library_init(void);
 void dl_library_uninit(void);
-bool dl_is_plugin_enabled(enum cplugin_type type);
+bool dl_is_plugin_enabled(enum cl_plugin_type type);
 
 /* init.c */
 bool library_initialized(void);

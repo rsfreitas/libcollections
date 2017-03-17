@@ -159,7 +159,7 @@ void cerrno_clear(void)
     __cerrno = CL_NO_ERROR;
 }
 
-void cset_errno(enum cerror_code error_code)
+void cset_errno(enum cl_error_code error_code)
 {
     __cerrno = error_code;
 }
@@ -167,7 +167,7 @@ void cset_errno(enum cerror_code error_code)
 /*
  * Gets the last error code internally occurred.
  */
-__PUB_API__ enum cerror_code cget_last_error(void)
+__PUB_API__ enum cl_error_code cget_last_error(void)
 {
     return __cerrno;
 }
@@ -175,7 +175,7 @@ __PUB_API__ enum cerror_code cget_last_error(void)
 /*
  * Converts a numeric error code in a text message.
  */
-__PUB_API__ const char *cstrerror(enum cerror_code error_code)
+__PUB_API__ const char *cstrerror(enum cl_error_code error_code)
 {
     if (error_code >= CL_MAX_ERROR_CODE)
         return __cunknown_error;

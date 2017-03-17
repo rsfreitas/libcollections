@@ -87,7 +87,7 @@ __PUB_API__ int cimage_height(const cimage_t *image)
     return h;
 }
 
-__PUB_API__ enum cimage_type cimage_type(const cimage_t *image)
+__PUB_API__ enum cl_image_type cimage_type(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 
@@ -101,7 +101,7 @@ __PUB_API__ enum cimage_type cimage_type(const cimage_t *image)
     return i->type;
 }
 
-__PUB_API__ enum cimage_color_format cimage_color_format(const cimage_t *image)
+__PUB_API__ enum cl_image_color_format cimage_color_format(const cimage_t *image)
 {
     cimage_s *i = (cimage_s *)image;
 

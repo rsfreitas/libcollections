@@ -64,7 +64,7 @@ void destroy_cplugin_fdata_s(void *a)
 }
 
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
-    enum cl_type return_value, enum cplugin_arg_mode arg_mode,
+    enum cl_type return_value, enum cl_plugin_arg_mode arg_mode,
     struct cplugin_fdata_s *args)
 {
     struct cplugin_function_s *f = NULL;

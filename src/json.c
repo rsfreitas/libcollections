@@ -43,7 +43,7 @@ typedef struct cjson_s {
     struct cobject_hdr  hdr;
     void                *child;
     cstring_t           *name;
-    enum cjson_type     type;
+    enum cl_json_type     type;
     cstring_t           *value;
 } cjson_s;
 
@@ -53,7 +53,7 @@ typedef struct cjson_s {
 struct jvalue_s {
     char            *value;
     size_t          vlen;
-    enum cjson_type type;
+    enum cl_json_type type;
 };
 
 static const char *parse(cjson_s *n, const char *s);
@@ -72,7 +72,7 @@ static const unsigned char __first_byte_mark[7] = {
     0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC
 };
 
-static const char *get_jvalue_value(enum cjson_type type)
+static const char *get_jvalue_value(enum cl_json_type type)
 {
     unsigned int i;
 
@@ -314,7 +314,7 @@ static const char *get_number(const char *num, double *n)
 }
 
 static const char *get_float_part(const char *num, double *d, double *scale,
-    enum cjson_type *type)
+    enum cl_json_type *type)
 {
     double n = *d, s = 0;
 
@@ -363,7 +363,7 @@ static const char *parse_number(cjson_s *j, const char *num)
 {
     double n = 0, sign = 1, scale = 0;
     int subscale = 0, sign_subscale = 1;
-    enum cjson_type type = CJSON_NUMBER;
+    enum cl_json_type type = CJSON_NUMBER;
 
     if (*num == '-') {
         sign = -1;
@@ -755,7 +755,7 @@ __PUB_API__ cstring_t *cjson_get_object_value(const cjson_t *o)
     return p->value;
 }
 
-__PUB_API__ enum cjson_type cjson_get_object_type(const cjson_t *o)
+__PUB_API__ enum cl_json_type cjson_get_object_type(const cjson_t *o)
 {
     cjson_s *p = (cjson_s *)o;
 
@@ -924,7 +924,7 @@ __PUB_API__ cjson_t *cjson_create_string(const char *string)
     return p;
 }
 
-__PUB_API__ cjson_t *cjson_create_node(enum cjson_type type,
+__PUB_API__ cjson_t *cjson_create_node(enum cl_json_type type,
     const char *fmt, ...)
 {
     cjson_s *p = NULL;

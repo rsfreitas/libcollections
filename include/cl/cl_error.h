@@ -34,7 +34,7 @@
 #endif
 
 /** Error codes from all internal APIs */
-enum cerror_code {
+enum cl_error_code {
     CL_NO_ERROR = 0,
 
     CL_NULL_ARG,
@@ -119,7 +119,7 @@ void cexit(void);
  *
  * @return Returns the last error code.
  */
-enum cerror_code cget_last_error(void);
+enum cl_error_code cget_last_error(void);
 
 /**
  * @name cstrerror
@@ -129,7 +129,7 @@ enum cerror_code cget_last_error(void);
  *
  * @return Returns the text corresponding the error code.
  */
-const char *cstrerror(enum cerror_code error_code);
+const char *cstrerror(enum cl_error_code error_code);
 
 #endif
 

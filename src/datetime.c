@@ -44,7 +44,7 @@
     cl_struct_member(unsigned int, hour)        \
     cl_struct_member(unsigned int, minute)      \
     cl_struct_member(unsigned int, second)      \
-    cl_struct_member(enum cweekday, weekday)    \
+    cl_struct_member(enum cl_weekday, weekday)    \
     cl_struct_member(bool, isdst)               \
     cl_struct_member(struct timeval, tv)        \
     cl_struct_member(cstring_t *, tzone)
@@ -243,7 +243,7 @@ __PUB_API__ bool cdt_leap_year(const cdatetime_t *dt)
     return is_leap_year(t->year);
 }
 
-__PUB_API__ enum cweekday cdt_weekday(const cdatetime_t *dt)
+__PUB_API__ enum cl_weekday cdt_weekday(const cdatetime_t *dt)
 {
     cdatetime_s *t = (cdatetime_s *)dt;
 
@@ -918,10 +918,10 @@ __PUB_API__ cdatetime_t *cdt_plus_hours(const cdatetime_t *dt, unsigned int hour
     return cdt_plus_seconds(dt, hours * 3600);
 }
 
-__PUB_API__ enum cweekday cdt_current_weekday(void)
+__PUB_API__ enum cl_weekday cdt_current_weekday(void)
 {
     cdatetime_t *dt = NULL;
-    enum cweekday w;
+    enum cl_weekday w;
 
     __clib_function_init__(false, NULL, -1, -1);
     dt = cdt_localtime();
@@ -935,10 +935,10 @@ __PUB_API__ enum cweekday cdt_current_weekday(void)
     return w;
 }
 
-__PUB_API__ enum cmonth cdt_current_month(void)
+__PUB_API__ enum cl_month cdt_current_month(void)
 {
     cdatetime_t *dt = NULL;
-    enum cmonth m;
+    enum cl_month m;
 
     __clib_function_init__(false, NULL, -1, -1);
     dt = cdt_localtime();

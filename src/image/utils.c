@@ -163,10 +163,10 @@ static bool header_from_JPG(union file_header hdr)
 /*
  * Uses libmagic to return the image type from a image buffer.
  */
-enum cimage_type cimage_detect_type(const unsigned char *buffer,
+enum cl_image_type cimage_detect_type(const unsigned char *buffer,
     unsigned int bsize __attribute__((unused)))
 {
-    enum cimage_type type = CIMAGE_RAW;
+    enum cl_image_type type = CIMAGE_RAW;
     union file_header hdr;
 
     memcpy(&hdr.data, buffer, sizeof(union file_header));
@@ -190,9 +190,9 @@ enum cimage_type cimage_detect_type(const unsigned char *buffer,
 /*
  * This function tries to detect the image file type from the file itself.
  */
-enum cimage_type cimage_detect_type_from_file(const char *filename)
+enum cl_image_type cimage_detect_type_from_file(const char *filename)
 {
-    enum cimage_type type = CIMAGE_RAW;
+    enum cl_image_type type = CIMAGE_RAW;
     FILE *f;
     union file_header hdr;
 
@@ -221,7 +221,7 @@ end_block:
     return type;
 }
 
-enum PixelFormat cimage_format_to_PixelFormat(enum cimage_color_format fmt)
+enum PixelFormat cimage_format_to_PixelFormat(enum cl_image_color_format fmt)
 {
     enum PixelFormat px_fmt = PIX_FMT_GRAY8;
 
@@ -265,7 +265,7 @@ bool has_internal_image(cimage_s *image)
     return false;
 }
 
-int get_channels_by_format(enum cimage_color_format format)
+int get_channels_by_format(enum cl_image_color_format format)
 {
     int channels = 0;
 
@@ -290,7 +290,7 @@ int get_channels_by_format(enum cimage_color_format format)
     return channels;
 }
 
-char *cimage_type_to_extension(enum cimage_type type)
+char *cimage_type_to_extension(enum cl_image_type type)
 {
     switch (type) {
         case CIMAGE_JPG:
@@ -348,7 +348,7 @@ bool is_known_extension(const char *filename)
     return known;
 }
 
-bool is_supported_image_type(enum cimage_type type)
+bool is_supported_image_type(enum cl_image_type type)
 {
     switch (type) {
         case CIMAGE_RAW:
@@ -367,7 +367,7 @@ bool is_supported_image_type(enum cimage_type type)
     return false;
 }
 
-bool is_supported_color_format(enum cimage_color_format fmt)
+bool is_supported_color_format(enum cl_image_color_format fmt)
 {
     switch (fmt) {
         case CIMAGE_FMT_GRAY:
@@ -385,7 +385,7 @@ bool is_supported_color_format(enum cimage_color_format fmt)
     return false;
 }
 
-bool is_supported_fill_format(enum cimage_fill_format fmt)
+bool is_supported_fill_format(enum cl_image_fill_format fmt)
 {
     switch (fmt) {
         case CIMAGE_FILL_REFERENCE:
