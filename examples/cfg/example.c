@@ -44,24 +44,24 @@ static void help(void)
     fprintf(stdout, "\n");
 }
 
-static void print_file_to_user(cfg_file_t *cfg)
+static void print_file_to_user(cl_cfg_file_t *cfg)
 {
-    cstring_t *s;
+    cl_string_t *s;
 
-    s = cfg_to_cstring(cfg);
+    s = cl_cfg_to_cstring(cfg);
 
     if (s != NULL) {
-        fprintf(stdout, "<<BEGIN>>%s<<END>>\n", cstring_valueof(s));
-        cstring_destroy(s);
+        fprintf(stdout, "<<BEGIN>>%s<<END>>\n", cl_string_valueof(s));
+        cl_string_destroy(s);
     }
 }
 
-static cfg_section_t *get_section(cfg_file_t *cfg, const char *name)
+static cl_cfg_section_t *get_section(cl_cfg_file_t *cfg, const char *name)
 {
-    cfg_section_t *s;
+    cl_cfg_section_t *s;
 
     fprintf(stdout, "Trying to get section '%s'\n", name);
-    s = cfg_get_section(cfg, name);
+    s = cl_cfg_get_section(cfg, name);
 
     if (NULL == s) {
         fprintf(stderr, "Section '%s' not found\n", name);
@@ -73,39 +73,39 @@ static cfg_section_t *get_section(cfg_file_t *cfg, const char *name)
     return s;
 }
 
-static int get_number_of_windows(cfg_section_t *section)
+static int get_number_of_windows(cl_cfg_section_t *section)
 {
-    cfg_key_t *k;
-    cobject_t *v;
+    cl_cfg_key_t *k;
+    cl_object_t *v;
     int value = 0;
 
-    k = cfg_get_key_from_section(section, "windows");
+    k = cl_cfg_get_key_from_section(section, "windows");
 
     if (NULL == k) {
         fprintf(stderr, "Key 'windows' not found\n");
         return -1;
     }
 
-    v = cfg_key_value(k);
-    value = COBJECT_AS_INT(v);
+    v = cl_cfg_key_value(k);
+    value = CL_OBJECT_AS_INT(v);
     fprintf(stdout, "Value of key 'windows' is: %d\n", value);
-    cobject_unref(v);
+    cl_object_unref(v);
 
     return value;
 }
 
-static void show_windows_config(cfg_file_t *cfg, int windows)
+static void show_windows_config(cl_cfg_file_t *cfg, int windows)
 {
     int i, w, h;
     char *s = NULL;
-    cobject_t *v;
-    cfg_key_t *k;
+    cl_object_t *v;
+    cl_cfg_key_t *k;
 
     for (i = 0; i < windows; i++) {
         asprintf(&s, "window_%d", i + 1);
 
         /* width */
-        k = cfg_get_key(cfg, s, "width");
+        k = cl_cfg_get_key(cfg, s, "width");
 
         if (NULL == k) {
             fprintf(stderr, "Key 'width' not found\n");
@@ -113,12 +113,12 @@ static void show_windows_config(cfg_file_t *cfg, int windows)
             return;
         }
 
-        v = cfg_key_value(k);
-        w = COBJECT_AS_INT(v);
-        cobject_unref(v);
+        v = cl_cfg_key_value(k);
+        w = CL_OBJECT_AS_INT(v);
+        cl_object_unref(v);
 
         /* height */
-        k = cfg_get_key(cfg, s, "height");
+        k = cl_cfg_get_key(cfg, s, "height");
 
         if (NULL == k) {
             fprintf(stderr, "Key 'height' not found\n");
@@ -126,9 +126,9 @@ static void show_windows_config(cfg_file_t *cfg, int windows)
             return;
         }
 
-        v = cfg_key_value(k);
-        h = COBJECT_AS_INT(v);
-        cobject_unref(v);
+        v = cl_cfg_key_value(k);
+        h = CL_OBJECT_AS_INT(v);
+        cl_object_unref(v);
 
         fprintf(stdout, "Window [%d]: width=%d, height=%d\n", i + 1, w, h);
         free(s);
@@ -140,8 +140,8 @@ int main(int argc, char **argv)
     const char *opt = "f:h";
     int option, wnd;
     char *filename = NULL;
-    cfg_file_t *cfg;
-    cfg_section_t *section;
+    cl_cfg_file_t *cfg;
+    cl_cfg_section_t *section;
 
     do {
         option = getopt(argc, argv, opt);
@@ -165,13 +165,13 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init(NULL);
+    cl_init(NULL);
 
     /* loads configuration file */
-    cfg = cfg_load(filename);
+    cfg = cl_cfg_load(filename);
 
     if (NULL == cfg) {
-        fprintf(stderr, "Error: %s.\n", cstrerror(cget_last_error()));
+        fprintf(stderr, "Error: %s.\n", cl_strerror(cl_get_last_error()));
         return -1;
     } else
         fprintf(stdout, "Successfully loaded '%s' file\n", filename);
@@ -186,26 +186,26 @@ int main(int argc, char **argv)
     show_windows_config(cfg, wnd);
 
     {
-        cfg_key_t *k;
-        cobject_t *v;
+        cl_cfg_key_t *k;
+        cl_object_t *v;
         char *p;
 
-        k = cfg_get_key(cfg, "window_3", "teste");
-        v = cfg_key_value(k);
-        p = COBJECT_AS_STRING(v);
+        k = cl_cfg_get_key(cfg, "window_3", "teste");
+        v = cl_cfg_key_value(k);
+        p = CL_OBJECT_AS_STRING(v);
         printf("%s: '%s'\n", __FUNCTION__, p);
     }
 
 end_block:
-    cfg_unload(cfg);
+    cl_cfg_unload(cfg);
 
     if (filename != NULL)
         free(filename);
 
-    collections_uninit();
+    cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    cexit();
+    cl_exit();
 
     return 0;
 }

@@ -61,183 +61,183 @@ enum cl_month {
 };
 
 /**
- * @name cdt_localtime
+ * @name cl_dt_localtime
  * @brief Gets the current date and time in localtime format.
  *
- * @return On success returns a cdatetime_t object with the localtime or NULL
+ * @return On success returns a cl_datetime_t object with the localtime or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_localtime(void);
+cl_datetime_t *cl_dt_localtime(void);
 
 /**
- * @name cdt_gmtime
+ * @name cl_dt_gmtime
  * @brief Gets the current date and time in GMT format.
  *
- * @return On success returns a cdatetime_t object with the GMT or NULL
+ * @return On success returns a cl_datetime_t object with the GMT or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_gmtime(void);
+cl_datetime_t *cl_dt_gmtime(void);
 
 /**
- * @name cdt_destroy
- * @brief Releases a cdatetime_t object from memory.
+ * @name cl_dt_destroy
+ * @brief Releases a cl_datetime_t object from memory.
  *
- * @param [in,out] dt: The cdatetime_t object which will be released.
+ * @param [in,out] dt: The cl_datetime_t object which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cdt_destroy(cdatetime_t *dt);
+int cl_dt_destroy(cl_datetime_t *dt);
 
 /**
- * @name cdt_day
- * @brief Gets the current day from whithin a cdatetime_t object.
+ * @name cl_dt_day
+ * @brief Gets the current day from whithin a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns the day value or -1 otherwise.
  */
-int cdt_day(const cdatetime_t *dt);
+int cl_dt_day(const cl_datetime_t *dt);
 
 /**
- * @name cdt_month
- * @brief Gets the current month from whithin a cdatetime_t object.
+ * @name cl_dt_month
+ * @brief Gets the current month from whithin a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns the month value or -1 otherwise.
  */
-int cdt_month(const cdatetime_t *dt);
+int cl_dt_month(const cl_datetime_t *dt);
 
 /**
- * @name cdt_year
- * @brief Gets the current year from whithin a cdatetime_t object.
+ * @name cl_dt_year
+ * @brief Gets the current year from whithin a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns the year value or -1 otherwise.
  */
-int cdt_year(const cdatetime_t *dt);
+int cl_dt_year(const cl_datetime_t *dt);
 
 /**
- * @name cdt_hour
- * @brief Gets the current hour from whithin a cdatetime_t object.
+ * @name cl_dt_hour
+ * @brief Gets the current hour from whithin a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns the hour value or -1 otherwise.
  */
-int cdt_hour(const cdatetime_t *dt);
+int cl_dt_hour(const cl_datetime_t *dt);
 
 /**
- * @name cdt_minute
- * @brief Gets the current minute from whithin a cdatetime_t object.
+ * @name cl_dt_minute
+ * @brief Gets the current minute from whithin a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns the minute value or -1 otherwise.
  */
-int cdt_minute(const cdatetime_t *dt);
+int cl_dt_minute(const cl_datetime_t *dt);
 
 /**
- * @name cdt_second
- * @brief Gets the current second from whithin a cdatetime_t object.
+ * @name cl_dt_second
+ * @brief Gets the current second from whithin a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns the second value or -1 otherwise.
  */
-int cdt_second(const cdatetime_t *dt);
+int cl_dt_second(const cl_datetime_t *dt);
 
 /**
- * @name cdt_isdst
- * @brief Gets the current DST information from whithin a cdatetime_t object.
+ * @name cl_dt_isdst
+ * @brief Gets the current DST information from whithin a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return Returns true or false if DST is set or not inside \a dt.
  */
-bool cdt_isdst(const cdatetime_t *dt);
+bool cl_dt_isdst(const cl_datetime_t *dt);
 
 /**
- * @name cdt_leap_year
- * @brief Gets info if a cdatetime_t object corresponds to a leap year.
+ * @name cl_dt_leap_year
+ * @brief Gets info if a cl_datetime_t object corresponds to a leap year.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return Returns true or false is \a dt corresponds to a leap year.
  */
-bool cdt_leap_year(const cdatetime_t *dt);
+bool cl_dt_leap_year(const cl_datetime_t *dt);
 
 /**
- * @name cdt_weekday
- * @brief Gets the current weekday information from within a cdatetime_t object.
+ * @name cl_dt_weekday
+ * @brief Gets the current weekday information from within a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return Returns the current weekday information.
  */
-enum cl_weekday cdt_weekday(const cdatetime_t *dt);
+enum cl_weekday cl_dt_weekday(const cl_datetime_t *dt);
 
 /**
- * @name cdt_get_seconds
+ * @name cl_dt_get_seconds
  * @brief Gets date and time information in seconds format.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns date and time converted to seconds or 0 otherwise.
  */
-unsigned int cdt_get_seconds(const cdatetime_t *dt);
+unsigned int cl_dt_get_seconds(const cl_datetime_t *dt);
 
 /**
- * @name cdt_get_mseconds
+ * @name cl_dt_get_mseconds
  * @brief Gets date and time information in milliseconds format.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns date and time converted to milliseconds or 0
  *         otherwise.
  */
-unsigned long long cdt_get_mseconds(const cdatetime_t *dt);
+unsigned long long cl_dt_get_mseconds(const cl_datetime_t *dt);
 
 /**
- * @name cdt_get_useconds
+ * @name cl_dt_get_useconds
  * @brief Gets date and time information in microseconds format.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns date and time converted to microseconds or 0
  *         otherwise.
  */
-unsigned long long cdt_get_useconds(const cdatetime_t *dt);
+unsigned long long cl_dt_get_useconds(const cl_datetime_t *dt);
 
 /**
- * @name cdt_month_of_year
- * @brief Gets the string of a month inside a cdatetime_t object.
+ * @name cl_dt_month_of_year
+ * @brief Gets the string of a month inside a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  * @param [in] full: Boolean flag to indicate if the month description will be
  *                   abbreviated or not.
  *
- * @return On success returns a cstring_t object with the month description or
+ * @return On success returns a cl_string_t object with the month description or
  *         NULL otherwise.
  */
-cstring_t *cdt_month_of_year(const cdatetime_t *dt, bool full);
+cl_string_t *cl_dt_month_of_year(const cl_datetime_t *dt, bool full);
 
 /**
- * @name cdt_day_of_week
- * @brief Gets the string of a weekday inside a cdatetime_t object.
+ * @name cl_dt_day_of_week
+ * @brief Gets the string of a weekday inside a cl_datetime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  * @param [in] full: Boolean flag to indicate if the weekday description will
  *                   be abbreviated or not.
  *
- * @return On success returns a cstring_t object with the weekday description
+ * @return On success returns a cl_string_t object with the weekday description
  *         or NULL otherwise.
  */
-cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
+cl_string_t *cl_dt_day_of_week(const cl_datetime_t *dt, bool full);
 
 /**
- * @name cdt_to_cstring
+ * @name cl_dt_to_cstring
  * @brief Gets the date and time in a specific string format.
  *
  * Supported formats:
@@ -270,97 +270,97 @@ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full);
  *
  * %1 - milliseconds
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  * @param [in] fmt: The output format.
  *
- * @return On success returns a cstring_t object containing date and time with
+ * @return On success returns a cl_string_t object containing date and time with
  *         the requested format.
  */
-cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt);
+cl_string_t *cl_dt_to_cstring(const cl_datetime_t *dt, const char *fmt);
 
 /**
- * @name cdt_dup
+ * @name cl_dt_dup
  * @brief Duplicates a cdatime_t object.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
  * @return On success returns a copy of \a dt or NULL otherwise.
  */
-cdatetime_t *cdt_dup(const cdatetime_t *dt);
+cl_datetime_t *cl_dt_dup(const cl_datetime_t *dt);
 
 /**
- * @name cdt_to_localtime
- * @brief Converts a cdatetime_t to localtime format.
+ * @name cl_dt_to_localtime
+ * @brief Converts a cl_datetime_t to localtime format.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
- * @return On success returns a new cdatetime_t object in localtime or NULL
+ * @return On success returns a new cl_datetime_t object in localtime or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_to_localtime(const cdatetime_t *dt);
+cl_datetime_t *cl_dt_to_localtime(const cl_datetime_t *dt);
 
 /**
- * @name cdt_to_gmtime
- * @brief Converts a cdatetime_t to GMT format.
+ * @name cl_dt_to_gmtime
+ * @brief Converts a cl_datetime_t to GMT format.
  *
- * @param [in] dt: The cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
  *
- * @return On success returns a new cdatetime_t object in GMT or NULL
+ * @return On success returns a new cl_datetime_t object in GMT or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_to_gmtime(const cdatetime_t *dt);
+cl_datetime_t *cl_dt_to_gmtime(const cl_datetime_t *dt);
 
 /**
- * @name cdt_cmp
- * @brief Compares two cdatetime_t objects.
+ * @name cl_dt_cmp
+ * @brief Compares two cl_datetime_t objects.
  *
- * @param [in] t1: The first cdatetime_t object.
- * @param [in] t2: The second cdatetime_t object.
+ * @param [in] t1: The first cl_datetime_t object.
+ * @param [in] t2: The second cl_datetime_t object.
  *
  * @return Returns a integer less than, equal to, or greater than zero if \a t1
  *         is found to be less than, to match, or be greater than \a t2.
  */
-int cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2);
+int cl_dt_cmp(const cl_datetime_t *t1, const cl_datetime_t *t2);
 
 /**
- * @name cdt_isafter
- * @brief Checks if a cdatetime_t object \a dt is after the specified
- *        cdatetime_t object \a other.
+ * @name cl_dt_isafter
+ * @brief Checks if a cl_datetime_t object \a dt is after the specified
+ *        cl_datetime_t object \a other.
  *
- * @param [in] dt: The cdatetime_t object.
- * @param [in] other: The other cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
+ * @param [in] other: The other cl_datetime_t object.
  *
  * @return Returns true or false if \a dt is after or not of \a other.
  */
-bool cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other);
+bool cl_dt_isafter(const cl_datetime_t *dt, const cl_datetime_t *other);
 
 /**
- * @name cdt_isbefore
- * @brief Checks if a cdatetime_t object \a dt is before the specified
- *        cdatetime_t object \a other.
+ * @name cl_dt_isbefore
+ * @brief Checks if a cl_datetime_t object \a dt is before the specified
+ *        cl_datetime_t object \a other.
  *
- * @param [in] dt: The cdatetime_t object.
- * @param [in] other: The other cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
+ * @param [in] other: The other cl_datetime_t object.
  *
  * @return Returns true or false if \a dt is before or not of \a other.
  */
-bool cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other);
+bool cl_dt_isbefore(const cl_datetime_t *dt, const cl_datetime_t *other);
 
 /**
- * @name cdt_isequal
- * @brief Checks if a cdatetime_t object \a dt is equal the specified
- *        cdatetime_t object \a other.
+ * @name cl_dt_isequal
+ * @brief Checks if a cl_datetime_t object \a dt is equal the specified
+ *        cl_datetime_t object \a other.
  *
- * @param [in] dt: The cdatetime_t object.
- * @param [in] other: The other cdatetime_t object.
+ * @param [in] dt: The cl_datetime_t object.
+ * @param [in] other: The other cl_datetime_t object.
  *
  * @return Returns true or false if \a dt is equal or not of \a other.
  */
-bool cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other);
+bool cl_dt_isequal(const cl_datetime_t *dt, const cl_datetime_t *other);
 
 /**
- * @name cdt_mktime
- * @brief Creates a cdatetime_t object with a specific date and time.
+ * @name cl_dt_mktime
+ * @brief Creates a cl_datetime_t object with a specific date and time.
  *
  * @param [in] year: The year.
  * @param [in] month: The month.
@@ -369,18 +369,18 @@ bool cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other);
  * @param [in] minute: The minutes.
  * @param [in] second: The seconds.
  *
- * @return On success a new cdatetime_t object will be returned or NULL
+ * @return On success a new cl_datetime_t object will be returned or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_mktime(unsigned int year, unsigned int month, unsigned int day,
-                        unsigned int hour, unsigned int minute,
-                        unsigned int second);
+cl_datetime_t *cl_dt_mktime(unsigned int year, unsigned int month,
+                            unsigned int day, unsigned int hour,
+                            unsigned int minute, unsigned int second);
 
 /**
- * @name cdt_mktime_from_cstring
- * @brief Creates a cdatetime_t object with a specific date and time.
+ * @name cl_dt_mktime_from_cstring
+ * @brief Creates a cl_datetime_t object with a specific date and time.
  *
- * In this case the date and time information comes from a cstring_t object,
+ * In this case the date and time information comes from a cl_string_t object,
  * with the following supported formats:
  *
  * YYYY-MM-DD HH:MM:SS
@@ -388,165 +388,165 @@ cdatetime_t *cdt_mktime(unsigned int year, unsigned int month, unsigned int day,
  * DD-MM-YYYY HH:MM:SS
  * DD/MM/YYYY HH:MM:SS
  *
- * @param [in] datetime: The cstring_t object.
+ * @param [in] datetime: The cl_string_t object.
  *
- * @return On success a new cdatetime_t object will be returned or NULL
+ * @return On success a new cl_datetime_t object will be returned or NULL
  *         otherwise.
  */
-cdatetime_t *cdt_mktime_from_cstring(const cstring_t *datetime);
+cl_datetime_t *cl_dt_mktime_from_cstring(const cl_string_t *datetime);
 
 /**
- * @name cdt_minus_years
- * @brief Subtracts a specific number of years from a cdatetime_t object.
+ * @name cl_dt_minus_years
+ * @brief Subtracts a specific number of years from a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] years: The years to subtract.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of years subtracted or NULL otherwise.
  */
-cdatetime_t *cdt_minus_years(const cdatetime_t *dt, unsigned int years);
+cl_datetime_t *cl_dt_minus_years(const cl_datetime_t *dt, unsigned int years);
 
 /**
- * @name cdt_minus_days
- * @brief Subtracts a specific number of days from a cdatetime_t object.
+ * @name cl_dt_minus_days
+ * @brief Subtracts a specific number of days from a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] days: The days to subtract.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of days subtracted or NULL otherwise.
  */
-cdatetime_t *cdt_minus_days(const cdatetime_t *dt, unsigned int days);
+cl_datetime_t *cl_dt_minus_days(const cl_datetime_t *dt, unsigned int days);
 
 /**
- * @name cdt_minus_seconds
- * @brief Subtracts a specific number of secondss from a cdatetime_t object.
+ * @name cl_dt_minus_seconds
+ * @brief Subtracts a specific number of secondss from a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] seconds: The seconds to subtract.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of secondss subtracted or NULL otherwise.
  */
-cdatetime_t *cdt_minus_seconds(const cdatetime_t *dt, unsigned int seconds);
+cl_datetime_t *cl_dt_minus_seconds(const cl_datetime_t *dt, unsigned int seconds);
 
 /**
- * @name cdt_minus_minutes
- * @brief Subtracts a specific number of minutes from a cdatetime_t object.
+ * @name cl_dt_minus_minutes
+ * @brief Subtracts a specific number of minutes from a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] minutes: The minutes to subtract.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of minutes subtracted or NULL otherwise.
  */
-cdatetime_t *cdt_minus_minutes(const cdatetime_t *dt, unsigned int minutes);
+cl_datetime_t *cl_dt_minus_minutes(const cl_datetime_t *dt, unsigned int minutes);
 
 /**
- * @name cdt_minus_hours
- * @brief Subtracts a specific number of hours from a cdatetime_t object.
+ * @name cl_dt_minus_hours
+ * @brief Subtracts a specific number of hours from a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] hours: The hours to subtract.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of hours subtracted or NULL otherwise.
  */
-cdatetime_t *cdt_minus_hours(const cdatetime_t *dt, unsigned int hours);
+cl_datetime_t *cl_dt_minus_hours(const cl_datetime_t *dt, unsigned int hours);
 
 /**
- * @name cdt_plus_years
- * @brief Adds a specific number of years to a cdatetime_t object.
+ * @name cl_dt_plus_years
+ * @brief Adds a specific number of years to a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] years: The years to add.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of years added or NULL otherwise.
  */
-cdatetime_t *cdt_plus_years(const cdatetime_t *dt, unsigned int years);
+cl_datetime_t *cl_dt_plus_years(const cl_datetime_t *dt, unsigned int years);
 
 /**
- * @name cdt_plus_days
- * @brief Adds a specific number of days to a cdatetime_t object.
+ * @name cl_dt_plus_days
+ * @brief Adds a specific number of days to a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] days: The days to add.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of days added or NULL otherwise.
  */
-cdatetime_t *cdt_plus_days(const cdatetime_t *dt, unsigned int days);
+cl_datetime_t *cl_dt_plus_days(const cl_datetime_t *dt, unsigned int days);
 
 /**
- * @name cdt_plus_seconds
- * @brief Adds a specific number of seconds to a cdatetime_t object.
+ * @name cl_dt_plus_seconds
+ * @brief Adds a specific number of seconds to a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] seconds: The seconds to add.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of seconds added or NULL otherwise.
  */
-cdatetime_t *cdt_plus_seconds(const cdatetime_t *dt, unsigned int seconds);
+cl_datetime_t *cl_dt_plus_seconds(const cl_datetime_t *dt, unsigned int seconds);
 
 /**
- * @name cdt_plus_minutes
- * @brief Adds a specific number of minutes to a cdatetime_t object.
+ * @name cl_dt_plus_minutes
+ * @brief Adds a specific number of minutes to a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] minutes : The minutes to add.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of minutes added or NULL otherwise.
  */
-cdatetime_t *cdt_plus_minutes(const cdatetime_t *dt, unsigned int minutes);
+cl_datetime_t *cl_dt_plus_minutes(const cl_datetime_t *dt, unsigned int minutes);
 
 /**
- * @name cdt_plus_hours
- * @brief Adds a specific number of hours to a cdatetime_t object.
+ * @name cl_dt_plus_hours
+ * @brief Adds a specific number of hours to a cl_datetime_t object.
  *
- * @param [in] dt: The original cdatetime_t object.
+ * @param [in] dt: The original cl_datetime_t object.
  * @param [in] hours: The hours to add.
  *
- * @return On success returns a new cdatetime_t object with the specified number
+ * @return On success returns a new cl_datetime_t object with the specified number
  *         of hours added or NULL otherwise.
  */
-cdatetime_t *cdt_plus_hours(const cdatetime_t *dt, unsigned int hours);
+cl_datetime_t *cl_dt_plus_hours(const cl_datetime_t *dt, unsigned int hours);
 
 /**
- * @name cdt_current_weekday
+ * @name cl_dt_current_weekday
  * @brief Gets current weekday information.
  *
  * @return Returns the current weekday information.
  */
-enum cl_weekday cdt_current_weekday(void);
+enum cl_weekday cl_dt_current_weekday(void);
 
 /**
- * @name cdt_current_month
+ * @name cl_dt_current_month
  * @brief Gets current month information.
  *
  * @return Returns the current month information.
  */
-enum cl_month cdt_current_month(void);
+enum cl_month cl_dt_current_month(void);
 
 /**
- * @name cdt_is_local_dst
+ * @name cl_dt_is_local_dst
  * @brief Returns true or false if DST is active or not.
  *
  * @return Returns true or false if DST is active or not.
  */
-bool cdt_is_local_dst(void);
+bool cl_dt_is_local_dst(void);
 
 /**
- * @name cdt_is_leap_year
+ * @name cl_dt_is_leap_year
  * @brief Returns true or false if the current year is a leap year or not.
  *
  * @return Returns true or false if the current year is a leap year or
  *         not.
  */
-bool cdt_is_leap_year(void);
+bool cl_dt_is_leap_year(void);
 
 #endif
 

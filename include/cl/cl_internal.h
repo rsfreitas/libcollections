@@ -42,12 +42,6 @@
  */
 #define __PUB_API__
 
-/* _cplugin.c */
-/* Keys to access PyObject encapsulated info */
-#define PYARGS                          "pyargs"
-#define PYCPLUGIN_T                     "pycplugin_t"
-#define PYSHUTDOWN_ARGS                 "pyshutargs"
-
 #include <cl/cl_typeof.h>
 
 /*
@@ -135,23 +129,23 @@ void cset_errno(enum cl_error_code error_code);
 
 /* value.c */
 bool validate_cl_type(enum cl_type type);
-void cobject_set_char(cobject_t *value, char c);
-void cobject_set_uchar(cobject_t *value, unsigned char uc);
-void cobject_set_int(cobject_t *value, int i);
-void cobject_set_uint(cobject_t *value, unsigned int ui);
-void cobject_set_sint(cobject_t *value, short int si);
-void cobject_set_usint(cobject_t *value, unsigned short int usi);
-void cobject_set_float(cobject_t *value, float f);
-void cobject_set_double(cobject_t *value, double d);
-void cobject_set_long(cobject_t *value, long l);
-void cobject_set_ulong(cobject_t *value, unsigned long ul);
-void cobject_set_llong(cobject_t *value, long long ll);
-void cobject_set_ullong(cobject_t *value, unsigned long long ull);
-void cobject_set_boolean(cobject_t *value, bool b);
-void cobject_set_string(cobject_t *value, char *s);
-void cobject_set_cstring(cobject_t *value, cstring_t *s);
-void cobject_set_pointer(cobject_t *object, bool dup_data, void *data,
-                         unsigned int size, void (*free_object)(void *));
+void cl_object_set_char(cl_object_t *value, char c);
+void cl_object_set_uchar(cl_object_t *value, unsigned char uc);
+void cl_object_set_int(cl_object_t *value, int i);
+void cl_object_set_uint(cl_object_t *value, unsigned int ui);
+void cl_object_set_sint(cl_object_t *value, short int si);
+void cl_object_set_usint(cl_object_t *value, unsigned short int usi);
+void cl_object_set_float(cl_object_t *value, float f);
+void cl_object_set_double(cl_object_t *value, double d);
+void cl_object_set_long(cl_object_t *value, long l);
+void cl_object_set_ulong(cl_object_t *value, unsigned long ul);
+void cl_object_set_llong(cl_object_t *value, long long ll);
+void cl_object_set_ullong(cl_object_t *value, unsigned long long ull);
+void cl_object_set_boolean(cl_object_t *value, bool b);
+void cl_object_set_string(cl_object_t *value, char *s);
+void cl_object_set_cstring(cl_object_t *value, cl_string_t *s);
+void cl_object_set_pointer(cl_object_t *object, bool dup_data, void *data,
+                           unsigned int size, void (*free_object)(void *));
 
 /* utils.c */
 char *value_to_hex(void *p, unsigned int size);
@@ -166,7 +160,7 @@ bool dl_is_plugin_enabled(enum cl_plugin_type type);
 /* init.c */
 bool library_initialized(void);
 struct random_data *library_random_data(void);
-cjson_t *library_configuration(void);
+cl_json_t *library_configuration(void);
 const char *library_package_name(void);
 char *library_file_mime_type(const char *filename);
 char *library_buffer_mime_type(const unsigned char *buffer, unsigned int size);

@@ -39,7 +39,7 @@ static void help(void)
     fprintf(stdout, "\nOptions:\n");
     fprintf(stdout, "  -h\t\t\tShow this help screen.\n");
     fprintf(stdout, "  -f [file name]\tIndicate the image file to "
-                    "be filled inside a cimage_t.\n");
+                    "be filled inside a cl_image_t.\n");
 
     fprintf(stdout, "  -l [file name]\tIndicate the image file name "
                     "to be loaded.\n");
@@ -49,25 +49,25 @@ static void help(void)
     fprintf(stdout, "\n");
 }
 
-static void print_image_info(cimage_t *image)
+static void print_image_info(cl_image_t *image)
 {
-    fprintf(stdout, "Image type: %d\n", cimage_type(image));
-    fprintf(stdout, "Image format: %d\n", cimage_color_format(image));
-    fprintf(stdout, "Resolution: %dx%d\n", cimage_width(image),
-            cimage_height(image));
+    fprintf(stdout, "Image type: %d\n", cl_image_type(image));
+    fprintf(stdout, "Image format: %d\n", cl_image_color_format(image));
+    fprintf(stdout, "Resolution: %dx%d\n", cl_image_width(image),
+            cl_image_height(image));
 
-    fprintf(stdout, "Number of channels: %d\n", cimage_channels(image));
-    fprintf(stdout, "Size in bytes: %d\n", cimage_size(image));
+    fprintf(stdout, "Number of channels: %d\n", cl_image_channels(image));
+    fprintf(stdout, "Size in bytes: %d\n", cl_image_size(image));
 }
 
-static cimage_t *load_image_file(const char *filename)
+static cl_image_t *load_image_file(const char *filename)
 {
-    cimage_t *image;
+    cl_image_t *image;
 
-    image = cimage_load_from_file(filename);
+    image = cl_image_load_from_file(filename);
 
     if (NULL == image) {
-        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cl_strerror(cl_get_last_error()));
         return NULL;
     }
 
@@ -77,36 +77,36 @@ static cimage_t *load_image_file(const char *filename)
     return image;
 }
 
-static cimage_t *fill_image_with_file(const char *filename)
+static cl_image_t *fill_image_with_file(const char *filename)
 {
-    cimage_t *image;
+    cl_image_t *image;
     unsigned char *buffer;
     unsigned int bsize;
 
-    image = cimage_create();
+    image = cl_image_create();
 
     if (NULL == image) {
-        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cl_strerror(cl_get_last_error()));
         return NULL;
     }
 
     /* load the RAW image */
-    buffer = cfload(filename, &bsize);
+    buffer = cl_fload(filename, &bsize);
 
     if (NULL == buffer) {
-        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cl_strerror(cl_get_last_error()));
         return NULL;
     }
 
-    cimage_fill(image, buffer, bsize, CIMAGE_FMT_YUYV, 640, 480,
-                CIMAGE_FILL_OWNER);
+    cl_image_fill(image, buffer, bsize, CL_IMAGE_FMT_YUYV, 640, 480,
+                  CL_IMAGE_FILL_OWNER);
 
     print_image_info(image);
 
     return image;
 }
 
-static void export_image(cimage_t *image, const char *filename,
+static void export_image(cl_image_t *image, const char *filename,
     enum cl_image_type type)
 {
     enum cl_image_color_format fmt;
@@ -114,16 +114,16 @@ static void export_image(cimage_t *image, const char *filename,
     if (NULL == image)
         return;
 
-    fmt = cimage_color_format(image);
+    fmt = cl_image_color_format(image);
 
-    if ((fmt != CIMAGE_FMT_BGR) || (fmt != CIMAGE_FMT_RGB) ||
-        (fmt != CIMAGE_FMT_GRAY))
+    if ((fmt != CL_IMAGE_FMT_BGR) || (fmt != CL_IMAGE_FMT_RGB) ||
+        (fmt != CL_IMAGE_FMT_GRAY))
     {
         /* Needs to convert */
     }
 
-    if (cimage_save_to_file(image, filename, type) < 0) {
-        fprintf(stderr, "%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+    if (cl_image_save_to_file(image, filename, type) < 0) {
+        fprintf(stderr, "%s: %s\n", __FUNCTION__, cl_strerror(cl_get_last_error()));
         return;
     }
 }
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
     const char *opt = "f:hl:T:e:";
     int option;
     bool load = true, export = false;
-    cimage_t *image = NULL;
+    cl_image_t *image = NULL;
     char *filename = NULL, *out_filename = NULL;
     enum cl_image_type type = -1;
 
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init(NULL);
+    cl_init(NULL);
 
     if (load == true)
         image = load_image_file(filename);
@@ -191,12 +191,12 @@ int main(int argc, char **argv)
         free(out_filename);
 
     if (image != NULL)
-        cimage_unref(image);
+        cl_image_unref(image);
 
-    collections_uninit();
+    cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    cexit();
+    cl_exit();
 
     return 0;
 }

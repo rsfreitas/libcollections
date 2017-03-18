@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 {
     const char *opt = "h\0";
     int option, ret;
-    cstring_t *s;
+    cl_string_t *s;
 
     do {
         option = getopt(argc, argv, opt);
@@ -48,27 +48,27 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init(NULL);
+    cl_init(NULL);
 
-    /* cstring_rplsubstr */
+    /* cl_string_rplsubstr */
     {
-        s = cstring_create("1 2 3 4 1 2 3 1 2 3 1");
-        printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(s));
-        ret = cstring_rplsubstr(s, "1 2", "5 6");
-        printf("%s: '%s' - ret = %d\n", __FUNCTION__, cstring_valueof(s), ret);
-        cstring_unref(s);
+        s = cl_string_create("1 2 3 4 1 2 3 1 2 3 1");
+        printf("%s: '%s'\n", __FUNCTION__, cl_string_valueof(s));
+        ret = cl_string_rplsubstr(s, "1 2", "5 6");
+        printf("%s: '%s' - ret = %d\n", __FUNCTION__, cl_string_valueof(s), ret);
+        cl_string_unref(s);
     }
 
-    /* cstring_rplchr */
+    /* cl_string_rplchr */
     {
-        s = cstring_create("1 2 3 4 1 2 3 1 2 3 1");
-        printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(s));
-        ret = cstring_rplchr(s, '1', '8');
-        printf("%s: '%s' - ret = %d\n", __FUNCTION__, cstring_valueof(s), ret);
-        cstring_unref(s);
+        s = cl_string_create("1 2 3 4 1 2 3 1 2 3 1");
+        printf("%s: '%s'\n", __FUNCTION__, cl_string_valueof(s));
+        ret = cl_string_rplchr(s, '1', '8');
+        printf("%s: '%s' - ret = %d\n", __FUNCTION__, cl_string_valueof(s), ret);
+        cl_string_unref(s);
     }
 
-    collections_uninit();
+    cl_uninit();
 
     return 0;
 }

@@ -81,18 +81,18 @@
     ]\
 }"
 
-CPLUGIN_INIT()
+CL_PLUGIN_INIT()
 {
     printf("pass through %s\n", __FUNCTION__);
     return 0;
 }
 
-CPLUGIN_UNINIT()
+CL_PLUGIN_UNINIT()
 {
     printf("pass through %s\n", __FUNCTION__);
 }
 
-CPLUGIN_SET_INFO(
+CL_PLUGIN_SET_INFO(
     teste,
     "0.1",
     "Rodrigo Freitas",
@@ -100,106 +100,106 @@ CPLUGIN_SET_INFO(
     API
 )
 
-CPLUGIN_OBJECT_VOID(int, foo_int)
+CL_PLUGIN_OBJECT_VOID(int, foo_int)
 {
     printf("%s\n", __FUNCTION__);
 
     return 42;
 }
 
-CPLUGIN_OBJECT_VOID(unsigned int, foo_uint)
+CL_PLUGIN_OBJECT_VOID(unsigned int, foo_uint)
 {
     printf("%s\n", __FUNCTION__);
     return 420;
 }
 
-CPLUGIN_OBJECT_VOID(short int, foo_sint)
+CL_PLUGIN_OBJECT_VOID(short int, foo_sint)
 {
     printf("%s\n", __FUNCTION__);
     return 421;
 }
 
-CPLUGIN_OBJECT_VOID(unsigned short int, foo_usint)
+CL_PLUGIN_OBJECT_VOID(unsigned short int, foo_usint)
 {
     printf("%s\n", __FUNCTION__);
     return 4201;
 }
 
-CPLUGIN_OBJECT_VOID(char, foo_char)
+CL_PLUGIN_OBJECT_VOID(char, foo_char)
 {
     printf("%s\n", __FUNCTION__);
     return 'a';
 }
 
-CPLUGIN_OBJECT_VOID(unsigned char, foo_uchar)
+CL_PLUGIN_OBJECT_VOID(unsigned char, foo_uchar)
 {
     printf("%s\n", __FUNCTION__);
     return 230;
 }
 
-CPLUGIN_OBJECT_VOID(float, foo_float)
+CL_PLUGIN_OBJECT_VOID(float, foo_float)
 {
     printf("%s\n", __FUNCTION__);
     return 42.5f;
 }
 
-CPLUGIN_OBJECT_VOID(double, foo_double)
+CL_PLUGIN_OBJECT_VOID(double, foo_double)
 {
     printf("%s\n", __FUNCTION__);
     return 4.2;
 }
 
-CPLUGIN_OBJECT_VOID(bool, foo_boolean)
+CL_PLUGIN_OBJECT_VOID(bool, foo_boolean)
 {
     printf("%s\n", __FUNCTION__);
     return true;
 }
 
-CPLUGIN_OBJECT_VOID(long, foo_long)
+CL_PLUGIN_OBJECT_VOID(long, foo_long)
 {
     printf("%s\n", __FUNCTION__);
     return 42000;
 }
 
-CPLUGIN_OBJECT_VOID(unsigned long, foo_ulong)
+CL_PLUGIN_OBJECT_VOID(unsigned long, foo_ulong)
 {
     printf("%s\n", __FUNCTION__);
     return 420001;
 }
 
-CPLUGIN_OBJECT_VOID(long long, foo_llong)
+CL_PLUGIN_OBJECT_VOID(long long, foo_llong)
 {
     printf("%s\n", __FUNCTION__);
     return 420009;
 }
 
-CPLUGIN_OBJECT_VOID(unsigned long long, foo_ullong)
+CL_PLUGIN_OBJECT_VOID(unsigned long long, foo_ullong)
 {
     printf("%s\n", __FUNCTION__);
     return 4200019;
 }
 
-CPLUGIN_OBJECT_ARGS_ONLY(void, foo_args)
+CL_PLUGIN_OBJECT_ARGS_ONLY(void, foo_args)
 {
     char *s;
 
-    CPLUGIN_LOAD_ARGUMENTS();
+    CL_PLUGIN_LOAD_ARGUMENTS();
 
-    printf("arg1 value %d\n", CPLUGIN_ARGUMENT_INT("arg1"));
-    printf("arg2 value %d\n", CPLUGIN_ARGUMENT_UINT("arg2"));
-    printf("arg3 value %d\n", CPLUGIN_ARGUMENT_SINT("arg3"));
-    printf("arg4 value %d\n", CPLUGIN_ARGUMENT_USINT("arg4"));
-    printf("arg5 value %c\n", CPLUGIN_ARGUMENT_CHAR("arg5"));
-    printf("arg6 value %d\n", CPLUGIN_ARGUMENT_UCHAR("arg6"));
-    printf("arg7 value %f\n", CPLUGIN_ARGUMENT_FLOAT("arg7"));
-    printf("arg8 value %f\n", CPLUGIN_ARGUMENT_DOUBLE("arg8"));
-    printf("arg9 value %ld\n", CPLUGIN_ARGUMENT_LONG("arg9"));
-    printf("arg10 value %lu\n", CPLUGIN_ARGUMENT_ULONG("arg10"));
-    printf("arg11 value %lld\n", CPLUGIN_ARGUMENT_LLONG("arg11"));
-    printf("arg12 value %llu\n", CPLUGIN_ARGUMENT_ULLONG("arg12"));
-    printf("arg13 value %d\n", CPLUGIN_ARGUMENT_BOOL("arg13"));
-    printf("arg14 value %s\n", CPLUGIN_ARGUMENT_STRING("arg14"));
+    printf("arg1 value %d\n", CL_PLUGIN_ARGUMENT_INT("arg1"));
+    printf("arg2 value %d\n", CL_PLUGIN_ARGUMENT_UINT("arg2"));
+    printf("arg3 value %d\n", CL_PLUGIN_ARGUMENT_SINT("arg3"));
+    printf("arg4 value %d\n", CL_PLUGIN_ARGUMENT_USINT("arg4"));
+    printf("arg5 value %c\n", CL_PLUGIN_ARGUMENT_CHAR("arg5"));
+    printf("arg6 value %d\n", CL_PLUGIN_ARGUMENT_UCHAR("arg6"));
+    printf("arg7 value %f\n", CL_PLUGIN_ARGUMENT_FLOAT("arg7"));
+    printf("arg8 value %f\n", CL_PLUGIN_ARGUMENT_DOUBLE("arg8"));
+    printf("arg9 value %ld\n", CL_PLUGIN_ARGUMENT_LONG("arg9"));
+    printf("arg10 value %lu\n", CL_PLUGIN_ARGUMENT_ULONG("arg10"));
+    printf("arg11 value %lld\n", CL_PLUGIN_ARGUMENT_LLONG("arg11"));
+    printf("arg12 value %llu\n", CL_PLUGIN_ARGUMENT_ULLONG("arg12"));
+    printf("arg13 value %d\n", CL_PLUGIN_ARGUMENT_BOOL("arg13"));
+    printf("arg14 value %s\n", CL_PLUGIN_ARGUMENT_STRING("arg14"));
 
-    CPLUGIN_UNLOAD_ARGUMENTS();
+    CL_PLUGIN_UNLOAD_ARGUMENTS();
 }
 

@@ -31,11 +31,11 @@
 #include "collections.h"
 #include "chat.h"
 
-struct chat_data_s *new_chat_data_s(unsigned int data_size)
+struct cl_chat_data_s *new_chat_data_s(unsigned int data_size)
 {
-    struct chat_data_s *d = NULL;
+    struct cl_chat_data_s *d = NULL;
 
-    d = calloc(1, sizeof(struct chat_data_s));
+    d = calloc(1, sizeof(struct cl_chat_data_s));
 
     if (NULL == d) {
         cset_errno(CL_NO_MEM);
@@ -55,7 +55,7 @@ struct chat_data_s *new_chat_data_s(unsigned int data_size)
     return d;
 }
 
-void destroy_chat_data_s(struct chat_data_s *data)
+void destroy_chat_data_s(struct cl_chat_data_s *data)
 {
     if (data->data != NULL)
         free(data->data);

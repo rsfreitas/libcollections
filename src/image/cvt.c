@@ -27,7 +27,7 @@
 #include "collections.h"
 #include "image.h"
 
-static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
+static unsigned char *raw_to_jpg(cl_image_s *image, unsigned int *bsize)
 {
     unsigned char *data = NULL, *jpg = NULL;
     bool color, free_data = false;
@@ -37,13 +37,14 @@ static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
      * need to convert.
      */
     switch (image->raw.hdr.format) {
-        case CIMAGE_FMT_YUV422:
-        case CIMAGE_FMT_YUV420:
-        case CIMAGE_FMT_YUYV:
+        case CL_IMAGE_FMT_YUV422:
+        case CL_IMAGE_FMT_YUV420:
+        case CL_IMAGE_FMT_YUYV:
             free_data = true;
-            data = craw_cvt_format((const unsigned char *)image->raw.headless,
-                                   image->raw.hdr.format, image->raw.hdr.width,
-                                   image->raw.hdr.height, CIMAGE_FMT_RGB, bsize);
+            data = cl_raw_cvt_format((const unsigned char *)image->raw.headless,
+                                     image->raw.hdr.format, image->raw.hdr.width,
+                                     image->raw.hdr.height, CL_IMAGE_FMT_RGB,
+                                     bsize);
 
             break;
 
@@ -52,7 +53,7 @@ static unsigned char *raw_to_jpg(cimage_s *image, unsigned int *bsize)
             break;
     }
 
-    if (image->raw.hdr.format == CIMAGE_FMT_GRAY)
+    if (image->raw.hdr.format == CL_IMAGE_FMT_GRAY)
         color = false;
     else
         color = true;
@@ -77,7 +78,7 @@ IplImage *jpg_buffer_to_ocv(const unsigned char *buffer, unsigned int width,
     return cvDecodeImage(&mat, color);
 }
 
-IplImage *cimage_to_ocv(cimage_s *image)
+IplImage *cl_image_to_ocv(cl_image_s *image)
 {
     unsigned char *bjpg = NULL;
     unsigned int bjpg_size = 0;
@@ -85,7 +86,7 @@ IplImage *cimage_to_ocv(cimage_s *image)
     IplImage *ipl;
     CvMat mat;
 
-    if (image->type != CIMAGE_RAW)
+    if (image->type != CL_IMAGE_RAW)
         return image->image;
 
     bjpg = raw_to_jpg(image, &bjpg_size);
@@ -93,7 +94,7 @@ IplImage *cimage_to_ocv(cimage_s *image)
     if (NULL == bjpg)
         return NULL;
 
-    if (image->format != CIMAGE_FMT_GRAY)
+    if (image->format != CL_IMAGE_FMT_GRAY)
         color = 1;
 
     mat = cvMat(image->raw.hdr.width, image->raw.hdr.height, CV_8UC1,
@@ -107,7 +108,7 @@ IplImage *cimage_to_ocv(cimage_s *image)
     return ipl;
 }
 
-static unsigned char *raw_to_other(cimage_s *image, unsigned int *bsize,
+static unsigned char *raw_to_other(cl_image_s *image, unsigned int *bsize,
     const char *other_extension)
 {
     unsigned char *bjpg = NULL, *b = NULL;
@@ -122,7 +123,7 @@ static unsigned char *raw_to_other(cimage_s *image, unsigned int *bsize,
     if (NULL == bjpg)
         return NULL;
 
-    if (image->format != CIMAGE_FMT_GRAY)
+    if (image->format != CL_IMAGE_FMT_GRAY)
         color = 1;
 
     /* Load the bpjg to IplImage */
@@ -143,33 +144,33 @@ static unsigned char *raw_to_other(cimage_s *image, unsigned int *bsize,
     return b;
 }
 
-static unsigned char *convert_raw_image(cimage_s *image,
+static unsigned char *convert_raw_image(cl_image_s *image,
     enum cl_image_type type, unsigned int *bsize)
 {
     unsigned char *b;
 
     switch (type) {
-        case CIMAGE_JPG:
+        case CL_IMAGE_JPG:
             b = raw_to_jpg(image, bsize);
             break;
 
-        case CIMAGE_BMP:
+        case CL_IMAGE_BMP:
             b = raw_to_other(image, bsize, "."EXT_BMP);
             break;
 
-        case CIMAGE_PNG:
+        case CL_IMAGE_PNG:
             b = raw_to_other(image, bsize, "."EXT_PNG);
             break;
 
-        case CIMAGE_JPG2K:
+        case CL_IMAGE_JPG2K:
             b = raw_to_other(image, bsize, "."EXT_JPG2K);
             break;
 
-        case CIMAGE_TIFF:
+        case CL_IMAGE_TIFF:
             b = raw_to_other(image, bsize, "."EXT_TIFF);
             break;
 
-        case CIMAGE_PPM:
+        case CL_IMAGE_PPM:
             b = raw_to_other(image, bsize, "."EXT_PPM);
             break;
 
@@ -184,7 +185,7 @@ static unsigned char *convert_raw_image(cimage_s *image,
  * Convert an image format using OpenCv. We need to receive the @out_extension
  * with the format: .extension, i.e, for a JPG image .jpg, for a PNG .png, etc.
  */
-static unsigned char *cv_cvt_image_type(cimage_s *image,
+static unsigned char *cv_cvt_image_type(cl_image_s *image,
     const char *out_extension, unsigned int *bsize)
 {
     IplImage *d = NULL;
@@ -192,7 +193,7 @@ static unsigned char *cv_cvt_image_type(cimage_s *image,
     unsigned char *b = NULL;
     int color = 0;
 
-    if (image->format != CIMAGE_FMT_GRAY)
+    if (image->format != CL_IMAGE_FMT_GRAY)
         color = 1;
 
     mat = cvEncodeImage(out_extension, image->image, 0);
@@ -204,7 +205,7 @@ static unsigned char *cv_cvt_image_type(cimage_s *image,
     return b;
 }
 
-static unsigned char *jpg_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *jpg_to_raw(cl_image_s *image, unsigned int *bsize)
 {
     int width, height;
     bool color;
@@ -220,50 +221,51 @@ static unsigned char *jpg_to_raw(cimage_s *image, unsigned int *bsize)
     return ptr;
 }
 
-static unsigned char *other_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *other_to_raw(cl_image_s *image, unsigned int *bsize)
 {
     unsigned char *b = NULL;
     CvMat *mat;
     IplImage *d;
     int color = 0;
-    cimage_t *i;
+    cl_image_t *i;
 
     /* First we need to convert to JPG */
-    if (image->format != CIMAGE_FMT_GRAY)
+    if (image->format != CL_IMAGE_FMT_GRAY)
         color = 1;
 
     mat = cvEncodeImage("."EXT_JPG, image->image, 0);
     d = cvDecodeImage(mat, color);
 
-    /* Create a temporary cimage_t */
-    i = cimage_create();
+    /* Create a temporary cl_image_t */
+    i = cl_image_create();
 
     if (NULL == i)
         return NULL;
 
-    cimage_cv_import(i, d, CIMAGE_JPG);
+    cl_image_cv_import(i, d, CL_IMAGE_JPG);
 
     /* Then we convert to RAW */
     b = jpg_to_raw(i, bsize);
-    cimage_destroy(i);
+    cl_image_destroy(i);
 
     return b;
 }
 
-static unsigned char *convert_image_to_raw(cimage_s *image, unsigned int *bsize)
+static unsigned char *convert_image_to_raw(cl_image_s *image,
+    unsigned int *bsize)
 {
     unsigned char *b = NULL;
 
     switch (image->type) {
-        case CIMAGE_JPG:
+        case CL_IMAGE_JPG:
             b = jpg_to_raw(image, bsize);
             break;
 
-        case CIMAGE_BMP:
-        case CIMAGE_PNG:
-        case CIMAGE_JPG2K:
-        case CIMAGE_TIFF:
-        case CIMAGE_PPM:
+        case CL_IMAGE_BMP:
+        case CL_IMAGE_PNG:
+        case CL_IMAGE_JPG2K:
+        case CL_IMAGE_TIFF:
+        case CL_IMAGE_PPM:
             b = other_to_raw(image, bsize);
             break;
 
@@ -274,16 +276,17 @@ static unsigned char *convert_image_to_raw(cimage_s *image, unsigned int *bsize)
     return b;
 }
 
-IplImage *convert_image_to_cv_image(cimage_s *image)
+IplImage *convert_image_to_cv_image(cl_image_s *image)
 {
-    if (image->type != CIMAGE_RAW)
+    if (image->type != CL_IMAGE_RAW)
         return image->image;
 
     return NULL;
 }
 
-unsigned char *convert_image_formats(cimage_s *image, enum cl_image_type type,
-    enum cl_image_color_format format __attribute__((unused)), unsigned int *bsize)
+unsigned char *convert_image_formats(cl_image_s *image, enum cl_image_type type,
+    enum cl_image_color_format format __attribute__((unused)),
+    unsigned int *bsize)
 {
     unsigned char *buffer = NULL;
     char *ext, *cv_ext = NULL;
@@ -300,18 +303,18 @@ unsigned char *convert_image_formats(cimage_s *image, enum cl_image_type type,
      * If we're holding a RAW image is a special case, and we need to manually
      * convert to the required format.
      */
-    if (image->type == CIMAGE_RAW) {
+    if (image->type == CL_IMAGE_RAW) {
         buffer = convert_raw_image(image, type, bsize);
     } else {
         /*
          * If the desired output is a RAW image and we're holding another type
          * we're going to need to "manually" convert it.
          */
-        if (type == CIMAGE_RAW)
+        if (type == CL_IMAGE_RAW)
             buffer = convert_image_to_raw(image, bsize);
         else {
             /* Otherwise we just use OpenCv */
-            ext = cimage_type_to_extension(type);
+            ext = cl_image_type_to_extension(type);
             asprintf(&cv_ext, ".%s", ext);
             buffer = cv_cvt_image_type(image, cv_ext, bsize);
             free(cv_ext);
@@ -322,19 +325,19 @@ unsigned char *convert_image_formats(cimage_s *image, enum cl_image_type type,
     return buffer;
 }
 
-unsigned char *convert_raw_formats(cimage_s *image,
+unsigned char *convert_raw_formats(cl_image_s *image,
     enum cl_image_color_format format, unsigned int *bsize)
 {
     /* With these choices we don't need to convert the image */
     if ((format == image->format) ||
-        image->format == CIMAGE_FMT_GRAY)
+        image->format == CL_IMAGE_FMT_GRAY)
     {
         *bsize = image->raw.hdr.size;
         return (unsigned char *)image->raw.headless;
     }
 
-    return craw_cvt_format((const unsigned char *)image->raw.headless,
-                           image->format, image->raw.hdr.width,
-                           image->raw.hdr.height, format, bsize);
+    return cl_raw_cvt_format((const unsigned char *)image->raw.headless,
+                             image->format, image->raw.hdr.width,
+                             image->raw.hdr.height, format, bsize);
 }
 

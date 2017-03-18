@@ -39,7 +39,6 @@ struct elf_info {
 };
 
 /* Exported function prototypes */
-typedef void (*elf_exported_function)(uint32_t, cplugin_t *, cplugin_arg_t *);
 typedef int (*elf_startup_function)(void);
 typedef void (*elf_shutdown_function)(void);
 typedef const char *(*elf_plugin_info)(void);
@@ -145,7 +144,7 @@ typedef bool (*elf_b)(void);
  * inside the plugin ELF. If they're not found, they become NULL and we
  * ignore them later.
  */
-static void set_custom_plugin_info(cplugin_info_t *info, void *handle)
+static void set_custom_plugin_info(cl_plugin_info_t *info, void *handle)
 {
     struct elf_info *p = NULL;
 
@@ -211,10 +210,10 @@ void elf_library_uninit(void *data __attribute__((unused)))
     /* noop */
 }
 
-cplugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
+cl_plugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
 {
     elf_plugin_info foo;
-    cplugin_info_t *info = NULL;
+    cl_plugin_info_t *info = NULL;
     int i, t;
     struct plugin_internal_function functions[] = {
         { "plugin_name",        NULL },
@@ -254,7 +253,7 @@ cplugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
 int elf_load_functions(void *data __attribute__((unused)),
      struct cplugin_function_s *flist, void *handle)
 {
-    if (cdll_map(flist, elf_load_function, handle) != NULL)
+    if (cl_dll_map(flist, elf_load_function, handle) != NULL)
         return -1;
 
     return 0;
@@ -289,18 +288,18 @@ static void elf_call_v(struct cplugin_function_s *foo, const char *jarg,
     elf_v_j fj;
     elf_v_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         fptr(ptr_arg);
@@ -319,18 +318,18 @@ static char elf_call_c(struct cplugin_function_s *foo, const char *jarg,
     elf_c_j fj;
     elf_c_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         c = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         c = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         c = fptr(ptr_arg);
@@ -351,18 +350,18 @@ static unsigned char elf_call_uc(struct cplugin_function_s *foo, const char *jar
     elf_uc_j fj;
     elf_uc_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         c = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         c = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         c = fptr(ptr_arg);
@@ -383,18 +382,18 @@ static int elf_call_i(struct cplugin_function_s *foo, const char *jarg,
     elf_i_j fj;
     elf_i_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         i = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         i = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         i = fptr(ptr_arg);
@@ -415,18 +414,18 @@ static unsigned int elf_call_ui(struct cplugin_function_s *foo, const char *jarg
     elf_ui_j fj;
     elf_ui_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         i = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         i = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         i = fptr(ptr_arg);
@@ -447,18 +446,18 @@ static short int elf_call_si(struct cplugin_function_s *foo, const char *jarg,
     elf_si_j fj;
     elf_si_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         i = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         i = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         i = fptr(ptr_arg);
@@ -479,18 +478,18 @@ static unsigned short int elf_call_usi(struct cplugin_function_s *foo,
     elf_usi_j fj;
     elf_usi_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         i = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         i = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         i = fptr(ptr_arg);
@@ -511,18 +510,18 @@ static long elf_call_l(struct cplugin_function_s *foo, const char *jarg,
     elf_l_j fj;
     elf_l_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         l = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         l = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         l = fptr(ptr_arg);
@@ -543,18 +542,18 @@ static unsigned long elf_call_ul(struct cplugin_function_s *foo, const char *jar
     elf_ul_j fj;
     elf_ul_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         l = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         l = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         l = fptr(ptr_arg);
@@ -575,18 +574,18 @@ static long long elf_call_ll(struct cplugin_function_s *foo, const char *jarg,
     elf_ll_j fj;
     elf_ll_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         l = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         l = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         l = fptr(ptr_arg);
@@ -607,18 +606,18 @@ static unsigned long long elf_call_ull(struct cplugin_function_s *foo,
     elf_ull_j fj;
     elf_ull_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         l = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         l = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         l = fptr(ptr_arg);
@@ -639,18 +638,18 @@ static float elf_call_f(struct cplugin_function_s *foo, const char *jarg,
     elf_f_j fj;
     elf_f_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         d = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         d = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         d = fptr(ptr_arg);
@@ -671,18 +670,18 @@ static double elf_call_d(struct cplugin_function_s *foo, const char *jarg,
     elf_d_j fj;
     elf_d_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         d = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         d = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         d = fptr(ptr_arg);
@@ -703,18 +702,18 @@ static bool elf_call_b(struct cplugin_function_s *foo, const char *jarg,
     elf_b_j fj;
     elf_b_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         b = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         b = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         b = fptr(ptr_arg);
@@ -735,18 +734,18 @@ static char *elf_call_cp(struct cplugin_function_s *foo, const char *jarg,
     elf_cp_j fj;
     elf_cp_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         ptr = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         ptr = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         ptr = fptr(ptr_arg);
@@ -767,18 +766,18 @@ static void *elf_call_p(struct cplugin_function_s *foo, const char *jarg,
     elf_p_j fj;
     elf_p_jptr fjptr;
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fjptr = foo->symbol;
         ptr = fjptr(jarg, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fj = foo->symbol;
         ptr = fj(jarg);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         fptr = foo->symbol;
         ptr = fptr(ptr_arg);
@@ -790,11 +789,11 @@ static void *elf_call_p(struct cplugin_function_s *foo, const char *jarg,
     return ptr;
 }
 
-cobject_t *elf_call(void *data __attribute__((unused)),
-    struct cplugin_function_s *foo, cplugin_t *cpl __attribute__((unused)),
+cl_object_t *elf_call(void *data __attribute__((unused)),
+    struct cplugin_function_s *foo, cl_plugin_t *cpl __attribute__((unused)),
     struct function_argument *args)
 {
-    cobject_t *ret = NULL;
+    cl_object_t *ret = NULL;
     char *tmp;
     void *ptr;
 
@@ -802,7 +801,7 @@ cobject_t *elf_call(void *data __attribute__((unused)),
         /* do nothing */
         return NULL;
 
-    ret = cobject_create_empty(foo->return_value);
+    ret = cl_object_create_empty(foo->return_value);
 
     switch (foo->return_value) {
         case CL_VOID:
@@ -810,74 +809,74 @@ cobject_t *elf_call(void *data __attribute__((unused)),
             break;
 
         case CL_CHAR:
-            cobject_set_char(ret, elf_call_c(foo, args->jargs, args->ptr));
+            cl_object_set_char(ret, elf_call_c(foo, args->jargs, args->ptr));
             break;
 
         case CL_UCHAR:
-            cobject_set_uchar(ret, elf_call_uc(foo, args->jargs, args->ptr));
+            cl_object_set_uchar(ret, elf_call_uc(foo, args->jargs, args->ptr));
             break;
 
         case CL_INT:
-            cobject_set_int(ret, elf_call_i(foo, args->jargs, args->ptr));
+            cl_object_set_int(ret, elf_call_i(foo, args->jargs, args->ptr));
             break;
 
         case CL_UINT:
-            cobject_set_uint(ret, elf_call_ui(foo, args->jargs, args->ptr));
+            cl_object_set_uint(ret, elf_call_ui(foo, args->jargs, args->ptr));
             break;
 
         case CL_SINT:
-            cobject_set_sint(ret, elf_call_si(foo, args->jargs, args->ptr));
+            cl_object_set_sint(ret, elf_call_si(foo, args->jargs, args->ptr));
             break;
 
         case CL_USINT:
-            cobject_set_usint(ret, elf_call_usi(foo, args->jargs, args->ptr));
+            cl_object_set_usint(ret, elf_call_usi(foo, args->jargs, args->ptr));
             break;
 
         case CL_FLOAT:
-            cobject_set_float(ret, elf_call_f(foo, args->jargs, args->ptr));
+            cl_object_set_float(ret, elf_call_f(foo, args->jargs, args->ptr));
             break;
 
         case CL_DOUBLE:
-            cobject_set_double(ret, elf_call_d(foo, args->jargs, args->ptr));
+            cl_object_set_double(ret, elf_call_d(foo, args->jargs, args->ptr));
             break;
 
         case CL_LONG:
-            cobject_set_long(ret, elf_call_l(foo, args->jargs, args->ptr));
+            cl_object_set_long(ret, elf_call_l(foo, args->jargs, args->ptr));
             break;
 
         case CL_ULONG:
-            cobject_set_ulong(ret, elf_call_ul(foo, args->jargs, args->ptr));
+            cl_object_set_ulong(ret, elf_call_ul(foo, args->jargs, args->ptr));
             break;
 
         case CL_LLONG:
-            cobject_set_llong(ret, elf_call_ll(foo, args->jargs, args->ptr));
+            cl_object_set_llong(ret, elf_call_ll(foo, args->jargs, args->ptr));
             break;
 
         case CL_ULLONG:
-            cobject_set_ullong(ret, elf_call_ull(foo, args->jargs, args->ptr));
+            cl_object_set_ullong(ret, elf_call_ull(foo, args->jargs, args->ptr));
             break;
 
         case CL_POINTER:
             ptr = elf_call_p(foo, args->jargs, args->ptr);
-            cobject_set(ret, false, ptr, -1);
+            cl_object_set(ret, false, ptr, -1);
             break;
 
         case CL_STRING:
             tmp = elf_call_cp(foo, args->jargs, args->ptr);
 
             if (tmp != NULL) {
-                cobject_set_string(ret, tmp);
+                cl_object_set_string(ret, tmp);
                 free(tmp);
             } else {
                 /* We must destroy the object and return NULL to the caller */
-                cobject_destroy(ret);
+                cl_object_destroy(ret);
                 ret = NULL;
             }
 
             break;
 
         case CL_BOOLEAN:
-            cobject_set_boolean(ret, elf_call_b(foo, args->jargs, args->ptr));
+            cl_object_set_boolean(ret, elf_call_b(foo, args->jargs, args->ptr));
             break;
 
         default:
@@ -888,7 +887,7 @@ cobject_t *elf_call(void *data __attribute__((unused)),
 }
 
 int elf_plugin_startup(void *data __attribute__((unused)),
-    void *handle __attribute__((unused)), cplugin_info_t *info)
+    void *handle __attribute__((unused)), cl_plugin_info_t *info)
 {
     elf_startup_function f;
     struct elf_info *plinfo = NULL;
@@ -908,7 +907,7 @@ int elf_plugin_startup(void *data __attribute__((unused)),
 }
 
 int elf_plugin_shutdown(void *data __attribute__((unused)),
-    void *handle __attribute__((unused)), cplugin_info_t *info)
+    void *handle __attribute__((unused)), cl_plugin_info_t *info)
 {
     elf_shutdown_function f;
     struct elf_info *plinfo = NULL;
@@ -929,17 +928,17 @@ int elf_plugin_shutdown(void *data __attribute__((unused)),
     return 0;
 }
 
-bool elf_plugin_test(const cstring_t *mime)
+bool elf_plugin_test(const cl_string_t *mime)
 {
-    cstring_t *p = NULL;
+    cl_string_t *p = NULL;
     bool ret = false;
 
-    p = cstring_create("application/x-sharedlib");
+    p = cl_string_create("application/x-sharedlib");
 
-    if (cstring_cmp(mime, p) == 0)
+    if (cl_string_cmp(mime, p) == 0)
         ret = true;
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return ret;
 }

@@ -35,16 +35,18 @@
 
 void *elf_library_init(void);
 void elf_library_uninit(void *data);
-cplugin_info_t *elf_load_info(void *data, void *handle);
-int elf_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
+cl_plugin_info_t *elf_load_info(void *data, void *handle);
+int elf_load_functions(void *data, struct cplugin_function_s *flist,
+                       void *handle);
+
 void *elf_open(void *data, const char *pathname);
 int elf_close(void *data, void *handle);
-cobject_t* elf_call(void *data, struct cplugin_function_s *foo,
-                    cplugin_t *cpl, struct function_argument *args);
+cl_object_t* elf_call(void *data, struct cplugin_function_s *foo,
+                      cl_plugin_t *cpl, struct function_argument *args);
 
-int elf_plugin_startup(void *data, void *handle, cplugin_info_t *info);
-int elf_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
-bool elf_plugin_test(const cstring_t *mime);
+int elf_plugin_startup(void *data, void *handle, cl_plugin_info_t *info);
+int elf_plugin_shutdown(void *data, void *handle, cl_plugin_info_t *info);
+bool elf_plugin_test(const cl_string_t *mime);
 
 #endif
 

@@ -27,19 +27,19 @@
 #include "collections.h"
 #include "image.h"
 
-__PUB_API__ int cimage_size(const cimage_t *image)
+__PUB_API__ int cl_image_size(const cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
     int s = -1;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (has_internal_image(i) == false) {
         cset_errno(CL_NULL_DATA);
         return -1;
     }
 
-    if (i->type == CIMAGE_RAW)
+    if (i->type == CL_IMAGE_RAW)
         s = i->raw.hdr.size;
     else
         s = i->image->imageSize;
@@ -47,19 +47,19 @@ __PUB_API__ int cimage_size(const cimage_t *image)
     return s;
 }
 
-__PUB_API__ int cimage_width(const cimage_t *image)
+__PUB_API__ int cl_image_width(const cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
     int w = -1;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (has_internal_image(i) == false) {
         cset_errno(CL_NULL_DATA);
         return -1;
     }
 
-    if (i->type == CIMAGE_RAW)
+    if (i->type == CL_IMAGE_RAW)
         w = i->raw.hdr.width;
     else
         w = i->image->width;
@@ -67,19 +67,19 @@ __PUB_API__ int cimage_width(const cimage_t *image)
     return w;
 }
 
-__PUB_API__ int cimage_height(const cimage_t *image)
+__PUB_API__ int cl_image_height(const cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
     int h = -1;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (has_internal_image(i) == false) {
         cset_errno(CL_NULL_DATA);
         return -1;
     }
 
-    if (i->type == CIMAGE_RAW)
+    if (i->type == CL_IMAGE_RAW)
         h = i->raw.hdr.height;
     else
         h = i->image->height;
@@ -87,11 +87,11 @@ __PUB_API__ int cimage_height(const cimage_t *image)
     return h;
 }
 
-__PUB_API__ enum cl_image_type cimage_type(const cimage_t *image)
+__PUB_API__ enum cl_image_type cl_image_type(const cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (has_internal_image(i) == false) {
         cset_errno(CL_NULL_DATA);
@@ -101,11 +101,11 @@ __PUB_API__ enum cl_image_type cimage_type(const cimage_t *image)
     return i->type;
 }
 
-__PUB_API__ enum cl_image_color_format cimage_color_format(const cimage_t *image)
+__PUB_API__ enum cl_image_color_format cl_image_color_format(const cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (has_internal_image(i) == false) {
         cset_errno(CL_NULL_DATA);
@@ -115,11 +115,11 @@ __PUB_API__ enum cl_image_color_format cimage_color_format(const cimage_t *image
     return i->format;
 }
 
-__PUB_API__ int cimage_channels(const cimage_t *image)
+__PUB_API__ int cl_image_channels(const cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (has_internal_image(i) == false) {
         cset_errno(CL_NULL_DATA);

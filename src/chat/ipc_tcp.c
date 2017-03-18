@@ -105,7 +105,7 @@ int tcp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
     struct sockaddr_in sc_in;
 
-    if (mode == CHAT_SERVER) {
+    if (mode == CL_CHAT_SERVER) {
         /* Receives server mode parameters */
         d->port = va_arg(ap, int);
 
@@ -187,7 +187,7 @@ ipc_data_t *tcp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout)
     return client_d;
 }
 
-int tcp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send)
+int tcp_send(ipc_data_t *ipc_data, struct cl_chat_data_s *dt_send)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
 
@@ -197,10 +197,10 @@ int tcp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send)
     return send(d->fd, dt_send->data, dt_send->data_size, 0);
 }
 
-struct chat_data_s *tcp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
+struct cl_chat_data_s *tcp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
-    struct chat_data_s *cd = NULL;
+    struct cl_chat_data_s *cd = NULL;
     int ret;
 
     /* Awaits the data becomes available */

@@ -43,4 +43,4 @@
 *.tar
 *.json
 rust/rcollections/Cargo.lock
-
+bin/

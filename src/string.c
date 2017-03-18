@@ -1,6 +1,6 @@
 
 /*
- * Description: API to handle strings using a cstring_t object.
+ * Description: API to handle strings using a cl_string_t object.
  *
  * Author: Rodrigo Freitas
  * Created at: Sat Nov  7 21:46:43 2015
@@ -35,18 +35,18 @@
 
 #include "collections.h"
 
-#define cstring_members                 \
-    cl_struct_member(uint32_t, size)    \
-    cl_struct_member(char *, str)       \
-    cl_struct_member(struct cref_s, ref)
+#define cl_string_members                   \
+    cl_struct_member(uint32_t, size)        \
+    cl_struct_member(char *, str)           \
+    cl_struct_member(struct cl_ref_s, ref)
 
-cl_struct_declare(cstring_s, cstring_members);
+cl_struct_declare(cl_string_s, cl_string_members);
 
-#define cstring_s           cl_struct(cstring_s)
+#define cl_string_s           cl_struct(cl_string_s)
 
-static void destroy_string(const struct cref_s *ref)
+static void destroy_string(const struct cl_ref_s *ref)
 {
-    cstring_s *string = cl_container_of(ref, cstring_s, ref);
+    cl_string_s *string = cl_container_of(ref, cl_string_s, ref);
 
     if (NULL == string)
         return;
@@ -58,11 +58,11 @@ static void destroy_string(const struct cref_s *ref)
     string = NULL;
 }
 
-static cstring_s *new_cstring(void)
+static cl_string_s *new_cstring(void)
 {
-    cstring_s *p = NULL;
+    cl_string_s *p = NULL;
 
-    p = calloc(1, sizeof(cstring_s));
+    p = calloc(1, sizeof(cl_string_s));
 
     if (NULL == p) {
         cset_errno(CL_NO_MEM);
@@ -70,7 +70,7 @@ static cstring_s *new_cstring(void)
     }
 
     p->str = NULL;
-    set_typeof(CSTRING, p);
+    set_typeof(CL_OBJ_STRING, p);
 
     /* reference count initialization */
     p->ref.free = destroy_string;
@@ -79,40 +79,40 @@ static cstring_s *new_cstring(void)
     return p;
 }
 
-__PUB_API__ cstring_t *cstring_ref(cstring_t *string)
+__PUB_API__ cl_string_t *cl_string_ref(cl_string_t *string)
 {
-    cstring_s *p = (cstring_s *)string;
+    cl_string_s *p = (cl_string_s *)string;
 
-    __clib_function_init__(true, string, CSTRING, NULL);
-    cref_inc(&p->ref);
+    __clib_function_init__(true, string, CL_OBJ_STRING, NULL);
+    cl_ref_inc(&p->ref);
 
     return string;
 }
 
-__PUB_API__ int cstring_unref(cstring_t *string)
+__PUB_API__ int cl_string_unref(cl_string_t *string)
 {
-    cstring_s *p = (cstring_s *)string;
+    cl_string_s *p = (cl_string_s *)string;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    cref_dec(&p->ref);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    cl_ref_dec(&p->ref);
 
     return 0;
 }
 
 /*
- * Frees a cstring_t object from memory.
+ * Frees a cl_string_t object from memory.
  */
-__PUB_API__ int cstring_destroy(cstring_t *string)
+__PUB_API__ int cl_string_destroy(cl_string_t *string)
 {
-    return cstring_unref(string);
+    return cl_string_unref(string);
 }
 
 /*
- * Creates a new cstring_t object.
+ * Creates a new cl_string_t object.
  */
-__PUB_API__ cstring_t *cstring_create(const char *fmt, ...)
+__PUB_API__ cl_string_t *cl_string_create(const char *fmt, ...)
 {
-    cstring_s *string = NULL;
+    cl_string_s *string = NULL;
     va_list ap;
 
     __clib_function_init__(false, NULL, -1, NULL);
@@ -131,9 +131,9 @@ __PUB_API__ cstring_t *cstring_create(const char *fmt, ...)
     return string;
 }
 
-__PUB_API__ cstring_t *cstring_create_empty(unsigned int size)
+__PUB_API__ cl_string_t *cl_string_create_empty(unsigned int size)
 {
-    cstring_s *string = NULL;
+    cl_string_s *string = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
     string = new_cstring();
@@ -148,7 +148,7 @@ __PUB_API__ cstring_t *cstring_create_empty(unsigned int size)
 
     if (NULL == string->str) {
         cset_errno(CL_NO_MEM);
-        cstring_destroy(string);
+        cl_string_destroy(string);
         return NULL;
     }
 
@@ -156,11 +156,11 @@ __PUB_API__ cstring_t *cstring_create_empty(unsigned int size)
 }
 
 /*
- * Creates a cstring_t object containing random letters.
+ * Creates a cl_string_t object containing random letters.
  */
-__PUB_API__ cstring_t *cstring_create_random(unsigned int size)
+__PUB_API__ cl_string_t *cl_string_create_random(unsigned int size)
 {
-    cstring_s *p = NULL;
+    cl_string_s *p = NULL;
     unsigned int i;
     int n;
 
@@ -171,43 +171,43 @@ __PUB_API__ cstring_t *cstring_create_random(unsigned int size)
         return NULL;
 
     for (i = 0; i < size; i++) {
-        n = 'a' + crand('z' - 'a');
-        cstring_cat(p, "%c", (char)n);
+        n = 'a' + cl_rand('z' - 'a');
+        cl_string_cat(p, "%c", (char)n);
     }
 
     return p;
 }
 
 /*
- * Gets the length of a cstring_t object.
+ * Gets the length of a cl_string_t object.
  */
-__PUB_API__ int cstring_length(const cstring_t *string)
+__PUB_API__ int cl_string_length(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     int l = -1;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     l = p->size;
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return l;
 }
 
 /*
- * Gets the value of a cstring_t object.
+ * Gets the value of a cl_string_t object.
  */
-__PUB_API__ const char *cstring_valueof(const cstring_t *string)
+__PUB_API__ const char *cl_string_valueof(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     char *ptr = NULL;
 
-    __clib_function_init__(true, string, CSTRING, NULL);
+    __clib_function_init__(true, string, CL_OBJ_STRING, NULL);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     ptr = p->str;
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return ptr;
 }
@@ -215,22 +215,22 @@ __PUB_API__ const char *cstring_valueof(const cstring_t *string)
 /*
  * Returns the char value at the specified index.
  */
-__PUB_API__ char cstring_at(const cstring_t *string, unsigned int index)
+__PUB_API__ char cl_string_at(const cl_string_t *string, unsigned int index)
 {
-    cstring_s *p;
+    cl_string_s *p;
     char cnt = -1;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref((cstring_t *)string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref((cl_string_t *)string);
 
-    if (index >= (unsigned int)cstring_length(p)) {
-        cstring_unref(p);
+    if (index >= (unsigned int)cl_string_length(p)) {
+        cl_string_unref(p);
         cset_errno(CL_WRONG_STRING_INDEX);
         return -1;
     }
 
     cnt = p->str[index];
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return cnt;
 }
@@ -238,21 +238,21 @@ __PUB_API__ char cstring_at(const cstring_t *string, unsigned int index)
 /*
  * Changes the value of a specified index to a new value.
  */
-__PUB_API__ int cstring_set(cstring_t *string, char c, unsigned int index)
+__PUB_API__ int cl_string_set(cl_string_t *string, char c, unsigned int index)
 {
-    cstring_s *p;
+    cl_string_s *p;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref((cstring_t *)string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref((cl_string_t *)string);
 
-    if (index >= (unsigned int)cstring_length(p)) {
-        cstring_unref(p);
+    if (index >= (unsigned int)cl_string_length(p)) {
+        cl_string_unref(p);
         cset_errno(CL_WRONG_STRING_INDEX);
         return -1;
     }
 
     p->str[index] = c;
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
@@ -260,16 +260,16 @@ __PUB_API__ int cstring_set(cstring_t *string, char c, unsigned int index)
 /*
  * Concatenate two strings.
  */
-__PUB_API__ int cstring_cat(cstring_t *string, const char *fmt, ...)
+__PUB_API__ int cl_string_cat(cl_string_t *string, const char *fmt, ...)
 {
-    cstring_s *p;
+    cl_string_s *p;
     va_list ap;
     char *buff = NULL;
     int l=0;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     va_start(ap, fmt);
     l = vasprintf(&buff, fmt, ap);
     va_end(ap);
@@ -289,189 +289,190 @@ __PUB_API__ int cstring_cat(cstring_t *string, const char *fmt, ...)
         free(buff);
 
 end_block:
-    cstring_unref(p);
+    cl_string_unref(p);
     return 0;
 }
 
 /*
- * Compare two cstring_t objects.
+ * Compare two cl_string_t objects.
  */
-__PUB_API__ int cstring_cmp(const cstring_t *s1, const cstring_t *s2)
+__PUB_API__ int cl_string_cmp(const cl_string_t *s1, const cl_string_t *s2)
 {
-    cstring_s *p1, *p2;
+    cl_string_s *p1, *p2;
     int ret = -1;
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(s1, CSTRING) == false) ||
-        (validate_object(s2, CSTRING) == false))
+    if ((validate_object(s1, CL_OBJ_STRING) == false) ||
+        (validate_object(s2, CL_OBJ_STRING) == false))
     {
         return -1;
     }
 
-    p1 = cstring_ref((cstring_t *)s1);
-    p2 = cstring_ref((cstring_t *)s2);
+    p1 = cl_string_ref((cl_string_t *)s1);
+    p2 = cl_string_ref((cl_string_t *)s2);
 
     ret = strcmp(p1->str, p2->str);
 
-    cstring_unref(p2);
-    cstring_unref(p1);
+    cl_string_unref(p2);
+    cl_string_unref(p1);
 
     return ret;
 }
 
 /*
- * Compare two cstring_t objects.
+ * Compare two cl_string_t objects.
  */
-__PUB_API__ int cstring_ncmp(const cstring_t *s1, const cstring_t *s2, size_t n)
+__PUB_API__ int cl_string_ncmp(const cl_string_t *s1, const cl_string_t *s2,
+    size_t n)
 {
-    cstring_s *p1, *p2;
+    cl_string_s *p1, *p2;
     int ret = -1;
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(s1, CSTRING) == false) ||
-        (validate_object(s2, CSTRING) == false))
+    if ((validate_object(s1, CL_OBJ_STRING) == false) ||
+        (validate_object(s2, CL_OBJ_STRING) == false))
     {
         return -1;
     }
 
-    p1 = cstring_ref((cstring_t *)s1);
-    p2 = cstring_ref((cstring_t *)s2);
+    p1 = cl_string_ref((cl_string_t *)s1);
+    p2 = cl_string_ref((cl_string_t *)s2);
 
     ret = strncmp(p1->str, p2->str, n);
 
-    cstring_unref(p2);
-    cstring_unref(p1);
+    cl_string_unref(p2);
+    cl_string_unref(p1);
 
     return ret;
 }
 
-__PUB_API__ cstring_t *cstring_dup(const cstring_t *string)
+__PUB_API__ cl_string_t *cl_string_dup(const cl_string_t *string)
 {
-    cstring_s *p;
-    cstring_t *d = NULL;
+    cl_string_s *p;
+    cl_string_t *d = NULL;
 
-    __clib_function_init__(true, string, CSTRING, NULL);
+    __clib_function_init__(true, string, CL_OBJ_STRING, NULL);
 
-    p = cstring_ref((cstring_t *)string);
-    d = cstring_create("%s", p->str);
-    cstring_unref(p);
+    p = cl_string_ref((cl_string_t *)string);
+    d = cl_string_create("%s", p->str);
+    cl_string_unref(p);
 
     return d;
 }
 
-__PUB_API__ int cstring_upper(cstring_t *string)
+__PUB_API__ int cl_string_upper(cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     unsigned int i;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref(string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref(string);
 
     for (i = 0; i < p->size; i++)
         if (isascii(p->str[i]))
             p->str[i] = toupper(p->str[i]);
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int cstring_lower(cstring_t *string)
+__PUB_API__ int cl_string_lower(cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     unsigned int i;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref(string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref(string);
 
     for (i = 0; i < p->size; i++)
         if (isascii(p->str[i]))
             p->str[i] = tolower(p->str[i]);
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int cstring_capitalize(cstring_t *string)
+__PUB_API__ int cl_string_capitalize(cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref(string);
+    p = cl_string_ref(string);
     p->str[0] = toupper(p->str[0]);
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int cstring_find(const cstring_t *string, char c)
+__PUB_API__ int cl_string_find(const cl_string_t *string, char c)
 {
-    cstring_s *p;
+    cl_string_s *p;
     int i, idx = -1 /* character not found */;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref((cstring_t *)string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref((cl_string_t *)string);
 
-    for (i = 0; i < cstring_length(p); i++)
+    for (i = 0; i < cl_string_length(p); i++)
         if (p->str[i] == c) {
             idx = i;
             break;
         }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return idx;
 }
 
-__PUB_API__ int cstring_rfind(const cstring_t *string, char c)
+__PUB_API__ int cl_string_rfind(const cl_string_t *string, char c)
 {
-    cstring_s *p;
+    cl_string_s *p;
     int i, idx = 1 /* character not found */;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref((cstring_t *)string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref((cl_string_t *)string);
 
-    for (i = cstring_length(p) - 1; i >= 0; i--)
+    for (i = cl_string_length(p) - 1; i >= 0; i--)
         if (p->str[i] == c) {
             idx = i;
             break;
         }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return idx;
 }
 
-__PUB_API__ int cstring_cchr(const cstring_t *string, char c)
+__PUB_API__ int cl_string_cchr(const cl_string_t *string, char c)
 {
-    cstring_s *p;
+    cl_string_s *p;
     int i, match = 0;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref((cstring_t *)string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref((cl_string_t *)string);
 
-    for (i = 0; i < cstring_length(p); i++)
+    for (i = 0; i < cl_string_length(p); i++)
         if (p->str[i] == c)
             match++;
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return match;
 }
 
-__PUB_API__ int cstring_ltrim(cstring_t *string)
+__PUB_API__ int cl_string_ltrim(cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     int size, i;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref(string);
-    size = cstring_length(p);
+    p = cl_string_ref(string);
+    size = cl_string_length(p);
 
     while (p->str[0] == ' ') {
         for (i = 0; i < size; i++)
@@ -482,20 +483,20 @@ __PUB_API__ int cstring_ltrim(cstring_t *string)
     }
 
     p->size = size;
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int cstring_rtrim(cstring_t *string)
+__PUB_API__ int cl_string_rtrim(cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     int size, i;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref(string);
-    size = cstring_length(p);
+    p = cl_string_ref(string);
+    size = cl_string_length(p);
     i = size - 1;
 
     while ((i >= 0) && (p->str[i] == ' ')) {
@@ -505,43 +506,44 @@ __PUB_API__ int cstring_rtrim(cstring_t *string)
     }
 
     p->size = size;
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int cstring_alltrim(cstring_t *string)
+__PUB_API__ int cl_string_alltrim(cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref(string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref(string);
 
-    cstring_ltrim(p);
-    cstring_rtrim(p);
+    cl_string_ltrim(p);
+    cl_string_rtrim(p);
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
 
-__PUB_API__ cstring_t *cstring_substr(const cstring_t *string, const char *needle)
+__PUB_API__ cl_string_t *cl_string_substr(const cl_string_t *string,
+    const char *needle)
 {
-    cstring_s *p, *o;
+    cl_string_s *p, *o;
     char *ptr = NULL;
 
-    __clib_function_init__(true, string, CSTRING, NULL);
+    __clib_function_init__(true, string, CL_OBJ_STRING, NULL);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     ptr = strstr(p->str, needle);
 
     if (NULL == ptr) {
-        cstring_unref(p);
+        cl_string_unref(p);
         return NULL;
     }
 
-    o = cstring_create("%s", ptr + strlen(needle));
-    cstring_unref(p);
+    o = cl_string_create("%s", ptr + strlen(needle));
+    cl_string_unref(p);
 
     if (NULL == o)
         return NULL;
@@ -549,52 +551,52 @@ __PUB_API__ cstring_t *cstring_substr(const cstring_t *string, const char *needl
     return o;
 }
 
-__PUB_API__ int cstring_rplchr(cstring_t *string, char c1, char c2)
+__PUB_API__ int cl_string_rplchr(cl_string_t *string, char c1, char c2)
 {
-    cstring_s *p;
+    cl_string_s *p;
     int i, c = 0, index, substitutions = 0;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
-    c = cstring_cchr(p, c1);
+    p = cl_string_ref((cl_string_t *)string);
+    c = cl_string_cchr(p, c1);
 
     if (c <= 0) {
-        cstring_unref(p);
+        cl_string_unref(p);
         return 0;
     }
 
     for (i = 0; i < c; i++) {
-        index = cstring_find(p, c1);
+        index = cl_string_find(p, c1);
 
         if (index < 0)
             break;
 
-        cstring_set(p, c2, index);
+        cl_string_set(p, c2, index);
         substitutions++;
     }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return substitutions;
 }
 
-__PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
+__PUB_API__ int cl_string_rplsubstr(cl_string_t *string, const char *old,
     const char *new_)
 {
-    cstring_s *p;
+    cl_string_s *p;
     size_t l_old, l_new, l;
     char *s_in1, *s_in2, *s_out, *n;
     int n_old = 0, substitutions = 0;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
     if ((NULL == old) || (NULL == new_)) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    p = cstring_ref(string);
+    p = cl_string_ref(string);
     l_old = strlen(old);
     l_new = strlen(new_);
     s_in1 = p->str;
@@ -611,7 +613,7 @@ __PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
     n = calloc(l, sizeof(char));
 
     if (NULL == n) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NO_MEM);
         return -1;
     }
@@ -636,41 +638,41 @@ __PUB_API__ int cstring_rplsubstr(cstring_t *string, const char *old,
 
     strcat(s_out, s_in2);
 
-    /* Replace on cstring_t object */
+    /* Replace on cl_string_t object */
     free(p->str);
     p->str = n;
     p->size = l;
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return substitutions;
 }
 
 /*
- * Checks if a cstring_t object has any valid data.
+ * Checks if a cl_string_t object has any valid data.
  */
-__PUB_API__ bool cstring_isempty(const cstring_t *string)
+__PUB_API__ bool cl_string_isempty(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     bool b;
 
-    __clib_function_init__(true, string, CSTRING, false);
+    __clib_function_init__(true, string, CL_OBJ_STRING, false);
 
-    p = cstring_ref((cstring_t *)string);
-    b = (cstring_length(p) > 0) ? true : false;
-    cstring_unref(p);
+    p = cl_string_ref((cl_string_t *)string);
+    b = (cl_string_length(p) > 0) ? true : false;
+    cl_string_unref(p);
 
     return b;
 }
 
 /*
- * Clears the content of a cstring_t object.
+ * Clears the content of a cl_string_t object.
  */
-__PUB_API__ int cstring_clear(cstring_t *string)
+__PUB_API__ int cl_string_clear(cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
 
-    __clib_function_init__(true, string, CSTRING, -1);
-    p = cstring_ref((cstring_t *)string);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
+    p = cl_string_ref((cl_string_t *)string);
 
     if (p->str != NULL) {
         free(p->str);
@@ -678,7 +680,7 @@ __PUB_API__ int cstring_clear(cstring_t *string)
     }
 
     p->size = 0;
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }
@@ -775,375 +777,376 @@ static char *__strtok(const char *string, const char *delim, char **next_s)
 }
 
 /*
- * Splits the cstring_t object around matches of the given tokens.
+ * Splits the cl_string_t object around matches of the given tokens.
  */
-__PUB_API__ cstring_list_t *cstring_split(const cstring_t *string,
+__PUB_API__ cl_string_list_t *cl_string_split(const cl_string_t *string,
     const char *delim)
 {
-    cstring_s *p;
-    cstring_list_t *l = NULL;
+    cl_string_s *p;
+    cl_string_list_t *l = NULL;
     char *t = NULL, *tmp = NULL;
-    cstring_t *data;
+    cl_string_t *data;
 
-    __clib_function_init__(true, string, CSTRING, NULL);
+    __clib_function_init__(true, string, CL_OBJ_STRING, NULL);
 
     if (NULL == delim) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    p = cstring_ref((cstring_t *)string);
-    l = cstring_list_create();
+    p = cl_string_ref((cl_string_t *)string);
+    l = cl_string_list_create();
 
     if (NULL == l) {
-        cstring_unref(p);
+        cl_string_unref(p);
         return NULL;
     }
 
     t = __strtok(p->str, delim, &tmp);
 
     if (NULL == t) {
-        cstring_unref(p);
+        cl_string_unref(p);
         return l;
     }
 
-    data = cstring_create("%s", t);
-    cstring_list_add(l, data);
-    cstring_unref(data);
+    data = cl_string_create("%s", t);
+    cl_string_list_add(l, data);
+    cl_string_unref(data);
     free(t);
 
     while ((t = __strtok(NULL, delim, &tmp)) != NULL) {
-        data = cstring_create("%s", t);
-        cstring_list_add(l, data);
-        cstring_unref(data);
+        data = cl_string_create("%s", t);
+        cl_string_list_add(l, data);
+        cl_string_unref(data);
         free(t);
     }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return l;
 }
 
-__PUB_API__ int cstring_to_int(const cstring_t *string)
+__PUB_API__ int cl_string_to_int(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     char *endptr = NULL;
     int v;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     errno = 0;
     v = strtol(p->str, &endptr, 10);
 
     if ((errno == ERANGE) && ((v == INT_MAX) || (v == INT_MIN))) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NUMBER_RANGE);
         return -1;
     }
 
     if (endptr == p->str) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NOT_A_NUMBER);
         return -1;
     }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return v;
 }
 
-__PUB_API__ long cstring_to_long(const cstring_t *string)
+__PUB_API__ long cl_string_to_long(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     char *endptr = NULL;
     long v;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     errno = 0;
     v = strtol(p->str, &endptr, 10);
 
     if ((errno == ERANGE) && ((v == LONG_MAX) || (v == LONG_MIN))) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NUMBER_RANGE);
         return -1;
     }
 
     if (endptr == p->str) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NOT_A_NUMBER);
         return -1;
     }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return v;
 }
 
-__PUB_API__ long long cstring_to_long_long(const cstring_t *string)
+__PUB_API__ long long cl_string_to_long_long(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     char *endptr = NULL;
     long long v;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     errno = 0;
     v = strtoll(p->str, &endptr, 10);
 
     if ((errno == ERANGE) && ((v == LLONG_MAX) || (v == LLONG_MIN))) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NUMBER_RANGE);
         return -1;
     }
 
     if (endptr == p->str) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NOT_A_NUMBER);
         return -1;
     }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return v;
 }
 
-__PUB_API__ float cstring_to_float(const cstring_t *string)
+__PUB_API__ float cl_string_to_float(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     char *endptr = NULL;
     float v;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     errno = 0;
     v = strtof(p->str, &endptr);
 
     if (errno == ERANGE) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NUMBER_RANGE);
         return -1;
     }
 
     if (endptr == p->str) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NOT_A_NUMBER);
         return -1;
     }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return v;
 }
 
-__PUB_API__ double cstring_to_double(const cstring_t *string)
+__PUB_API__ double cl_string_to_double(const cl_string_t *string)
 {
-    cstring_s *p;
+    cl_string_s *p;
     char *endptr = NULL;
     double v;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    p = cstring_ref((cstring_t *)string);
+    p = cl_string_ref((cl_string_t *)string);
     errno = 0;
     v = strtod(p->str, &endptr);
 
     if (errno == ERANGE) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NUMBER_RANGE);
         return -1;
     }
 
     if (endptr == p->str) {
-        cstring_unref(p);
+        cl_string_unref(p);
         cset_errno(CL_NOT_A_NUMBER);
         return -1;
     }
 
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return v;
 }
 
-__PUB_API__ bool cstring_is_number(const cstring_t *string)
+__PUB_API__ bool cl_string_is_number(const cl_string_t *string)
 {
-    cstring_t *value;
+    cl_string_t *value;
     int i, l;
     bool ret = true;
 
-    __clib_function_init__(true, string, CSTRING, false);
+    __clib_function_init__(true, string, CL_OBJ_STRING, false);
 
-    value = cstring_ref((cstring_t *)string);
-    l = cstring_length(value);
+    value = cl_string_ref((cl_string_t *)string);
+    l = cl_string_length(value);
 
     for (i = 0; i < l; i++)
-        if (isdigit(cstring_at(value, i)) == 0) {
+        if (isdigit(cl_string_at(value, i)) == 0) {
             ret = false;
             break;
         }
 
-    cstring_unref(value);
+    cl_string_unref(value);
 
     return ret;
 }
 
-__PUB_API__ bool cstring_is_float_number(const cstring_t *string)
+__PUB_API__ bool cl_string_is_float_number(const cl_string_t *string)
 {
-    cstring_t *value;
+    cl_string_t *value;
     int i, l;
     bool ret = true;
 
-    __clib_function_init__(true, string, CSTRING, false);
+    __clib_function_init__(true, string, CL_OBJ_STRING, false);
 
-    value = cstring_ref((cstring_t *)string);
-    l = cstring_length(value);
+    value = cl_string_ref((cl_string_t *)string);
+    l = cl_string_length(value);
 
     for (i = 0; i < l; i++) {
-        if ((isdigit(cstring_at(value, i)) == 0) ||
-            (cstring_at(value, i) != '.'))
+        if ((isdigit(cl_string_at(value, i)) == 0) ||
+            (cl_string_at(value, i) != '.'))
         {
             ret = false;
             break;
         }
     }
 
-    cstring_unref(value);
+    cl_string_unref(value);
 
     return ret;
 }
 
-__PUB_API__ bool cstring_is_alphanumeric(const cstring_t *string)
+__PUB_API__ bool cl_string_is_alphanumeric(const cl_string_t *string)
 {
-    cstring_t *value;
+    cl_string_t *value;
     int i, l;
     bool ret = true;
 
-    __clib_function_init__(true, string, CSTRING, false);
+    __clib_function_init__(true, string, CL_OBJ_STRING, false);
 
-    value = cstring_ref((cstring_t *)string);
-    l = cstring_length(value);
+    value = cl_string_ref((cl_string_t *)string);
+    l = cl_string_length(value);
 
     for (i = 0; i < l; i++)
-        if (isalnum(cstring_at(value, i)) == 0) {
+        if (isalnum(cl_string_at(value, i)) == 0) {
             ret = false;
             break;
         }
 
-    cstring_unref(value);
+    cl_string_unref(value);
 
     return ret;
 }
 
-__PUB_API__ int cstring_idchr(cstring_t *string, unsigned int p)
+__PUB_API__ int cl_string_idchr(cl_string_t *string, unsigned int p)
 {
-    cstring_s *s;
+    cl_string_s *s;
     int size;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    s = cstring_ref(string);
-    size = cstring_length(s);
+    s = cl_string_ref(string);
+    size = cl_string_length(s);
 
     if (p > (unsigned int)size) {
-        cstring_unref(s);
+        cl_string_unref(s);
         cset_errno(CL_WRONG_STRING_INDEX);
         return -1;
     }
 
     memmove(&s->str[p], &s->str[p + 1], size - p);
-    cstring_unref(s);
+    cl_string_unref(s);
 
     return 0;
 }
 
-__PUB_API__ int cstring_dchr(cstring_t *string, char c)
+__PUB_API__ int cl_string_dchr(cl_string_t *string, char c)
 {
-    cstring_t *value;
+    cl_string_t *value;
     int t, p;
 
-    __clib_function_init__(true, string, CSTRING, -1);
+    __clib_function_init__(true, string, CL_OBJ_STRING, -1);
 
-    value = cstring_ref(string);
-    t = cstring_cchr(value, c);
+    value = cl_string_ref(string);
+    t = cl_string_cchr(value, c);
 
     if (t == 0)
         goto end_block;
 
     do {
-        p = cstring_find(value, c);
-        cstring_idchr(value, p);
+        p = cl_string_find(value, c);
+        cl_string_idchr(value, p);
         t--;
     } while (t);
 
 end_block:
-    cstring_unref(value);
+    cl_string_unref(value);
     return 0;
 }
 
-__PUB_API__ int cstring_cpy(cstring_t *dest, const cstring_t *src)
+__PUB_API__ int cl_string_cpy(cl_string_t *dest, const cl_string_t *src)
 {
-    cstring_t *p, *q;
+    cl_string_t *p, *q;
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(dest, CSTRING) == false) ||
-        (validate_object(src, CSTRING) == false))
+    if ((validate_object(dest, CL_OBJ_STRING) == false) ||
+        (validate_object(src, CL_OBJ_STRING) == false))
     {
         return -1;
     }
 
-    p = cstring_ref(dest);
-    q = cstring_ref((cstring_t *)src);
+    p = cl_string_ref(dest);
+    q = cl_string_ref((cl_string_t *)src);
 
-    cstring_clear(p);
-    cstring_cat(p, "%s", cstring_valueof(q));
+    cl_string_clear(p);
+    cl_string_cat(p, "%s", cl_string_valueof(q));
 
-    cstring_unref(q);
-    cstring_unref(p);
+    cl_string_unref(q);
+    cl_string_unref(p);
 
     return 0;
 }
 
-__PUB_API__ bool cstring_contains(const cstring_t *string, const char *needle)
+__PUB_API__ bool cl_string_contains(const cl_string_t *string,
+    const char *needle)
 {
     bool contains = false;
-    cstring_t *p, *sub = NULL;
+    cl_string_t *p, *sub = NULL;
 
-    __clib_function_init__(true, string, CSTRING, false);
+    __clib_function_init__(true, string, CL_OBJ_STRING, false);
 
     if (NULL == needle)
         return false;
 
-    p = cstring_ref((cstring_t *)string);
-    sub = cstring_substr(p, needle);
-    cstring_unref(p);
+    p = cl_string_ref((cl_string_t *)string);
+    sub = cl_string_substr(p, needle);
+    cl_string_unref(p);
 
     if (sub != NULL) {
-        cstring_unref(sub);
+        cl_string_unref(sub);
         contains = true;
     }
 
     return contains;
 }
 
-__PUB_API__ int cstring_count_matches(const cstring_t *string,
+__PUB_API__ int cl_string_count_matches(const cl_string_t *string,
     const char *needle)
 {
-    cstring_t *sub = NULL, *haystack = cstring_ref((cstring_t *)string);;
+    cl_string_t *sub = NULL, *haystack = cl_string_ref((cl_string_t *)string);;
     unsigned int count = 0;
 
-    __clib_function_init__(true, string, CSTRING, false);
+    __clib_function_init__(true, string, CL_OBJ_STRING, false);
 
     if (NULL == needle)
         return -1;
 
     do {
-        sub = cstring_substr(haystack, needle);
-        cstring_unref(haystack);
+        sub = cl_string_substr(haystack, needle);
+        cl_string_unref(haystack);
 
         if (NULL == sub)
             break;
@@ -1157,23 +1160,23 @@ __PUB_API__ int cstring_count_matches(const cstring_t *string,
     return count;
 }
 
-__PUB_API__ int cstring_set_content(cstring_t *s, const char *content)
+__PUB_API__ int cl_string_set_content(cl_string_t *s, const char *content)
 {
-    cstring_s *p = NULL;
+    cl_string_s *p = NULL;
 
-    __clib_function_init__(true, s, CSTRING, -1);
+    __clib_function_init__(true, s, CL_OBJ_STRING, -1);
 
     if (NULL == content) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    cstring_clear(s);
+    cl_string_clear(s);
 
-    p = cstring_ref(s);
+    p = cl_string_ref(s);
     p->str = (char *)content;
     p->size = strlen(content);
-    cstring_unref(p);
+    cl_string_unref(p);
 
     return 0;
 }

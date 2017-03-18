@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name cmkdir
+ * @name cl_mkdir
  * @brief Creates a directory.
  *
  * The function creates the \a dname directory. It also creates any needed
@@ -44,7 +44,7 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cmkdir(const char *dname);
+int cl_mkdir(const char *dname);
 
 #endif
 

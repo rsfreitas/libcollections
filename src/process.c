@@ -64,7 +64,7 @@ static void close_all_opened_files(void)
         close(fd);
 }
 
-__PUB_API__ void cprcs_daemon_start(void)
+__PUB_API__ void cl_daemon_start(void)
 {
     __clib_function_init_ex2__(false, NULL, -1);
 
@@ -87,25 +87,25 @@ __PUB_API__ void cprcs_daemon_start(void)
 
 static char **cvt_cmd(const char *cmd)
 {
-    cstring_t *s = NULL, *ref;
-    cstring_list_t *l = NULL;
+    cl_string_t *s = NULL, *ref;
+    cl_string_list_t *l = NULL;
     char **app_argv;
     unsigned int size, i;
 
-    s = cstring_create("%s", cmd);
-    l = cstring_split(s, " ");
-    cstring_destroy(s);
-    size = cstring_list_size(l);
+    s = cl_string_create("%s", cmd);
+    l = cl_string_split(s, " ");
+    cl_string_destroy(s);
+    size = cl_string_list_size(l);
     app_argv = calloc(size + 1, sizeof(char *));
 
     for (i = 0; i < size; i++) {
-        ref = cstring_list_get(l, i);
-        app_argv[i] = strdup(cstring_valueof(ref));
-        cstring_unref(ref);
+        ref = cl_string_list_get(l, i);
+        app_argv[i] = strdup(cl_string_valueof(ref));
+        cl_string_unref(ref);
     }
 
     app_argv[size] = NULL;
-    cstring_list_destroy(l);
+    cl_string_list_destroy(l);
 
     return app_argv;
 }
@@ -113,7 +113,7 @@ static char **cvt_cmd(const char *cmd)
 /*
  * TODO: Needs to handle a pipe between commands.
  */
-__PUB_API__ int csystem(bool close_parent_files, const char *fmt, ...)
+__PUB_API__ int cl_system(bool close_parent_files, const char *fmt, ...)
 {
     pid_t p;
     int child_status, i;
@@ -152,7 +152,7 @@ __PUB_API__ int csystem(bool close_parent_files, const char *fmt, ...)
     return 0;
 }
 
-__PUB_API__ void cmsleep(long mseconds)
+__PUB_API__ void cl_msleep(long mseconds)
 {
     struct timespec tv;
 
@@ -164,7 +164,7 @@ __PUB_API__ void cmsleep(long mseconds)
     nanosleep(&tv,&tv);
 }
 
-__PUB_API__ int ctrap(int signum, void (*f)(int))
+__PUB_API__ int cl_trap(int signum, void (*f)(int))
 {
     struct sigaction s;
 
@@ -291,7 +291,7 @@ static char *instance_name(pid_t pid)
     return app_name;
 }
 
-__PUB_API__ bool cinstance_active(const char *name)
+__PUB_API__ bool cl_instance_active(const char *name)
 {
     pid_t pid;
     char *we = NULL;
@@ -320,7 +320,7 @@ __PUB_API__ bool cinstance_active(const char *name)
     return b;
 }
 
-__PUB_API__ int cset_instance_as_active(void)
+__PUB_API__ int cl_set_instance_as_active(void)
 {
     __clib_function_init__(false, NULL, -1, -1);
 

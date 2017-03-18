@@ -34,19 +34,19 @@
 
 void *py_library_init(void);
 void py_library_uninit(void *data);
-cplugin_info_t *py_load_info(void *data, void *ptr);
+cl_plugin_info_t *py_load_info(void *data, void *ptr);
 int py_load_functions(void *data, struct cplugin_function_s *flist, void *handle);
 void py_unload_functions(void *data, struct cplugin_function_s *flist,
                          void *handle);
 
 void *py_open(void *data, const char *pathname);
 int py_close(void *data, void *ptr);
-cobject_t *py_call(void *data, struct cplugin_function_s *foo,
-                   cplugin_t *cpl, struct function_argument *args);
+cl_object_t *py_call(void *data, struct cplugin_function_s *foo,
+                   cl_plugin_t *cpl, struct function_argument *args);
 
-int py_plugin_startup(void *data, void *handle, cplugin_info_t *info);
-int py_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
-bool py_plugin_test(const cstring_t *mime);
+int py_plugin_startup(void *data, void *handle, cl_plugin_info_t *info);
+int py_plugin_shutdown(void *data, void *handle, cl_plugin_info_t *info);
+bool py_plugin_test(const cl_string_t *mime);
 
 #endif
 

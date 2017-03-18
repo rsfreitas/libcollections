@@ -35,16 +35,16 @@
 #define DEFAULT_CL_TIMER_FINISH_TIMEOUT                200 /* milliseconds */
 
 /* Structure to constant informations about a timer for the user */
-#define ctimer_info_members         \
+#define cl_timer_info_members       \
     cl_struct_member(char **, info) \
     cl_struct_member(void *, data)
 
-cl_struct_declare(ctimer_info_s, ctimer_info_members);
+cl_struct_declare(cl_timer_info_s, cl_timer_info_members);
 
-#define ctimer_info_s       cl_struct(ctimer_info_s)
+#define cl_timer_info_s       cl_struct(cl_timer_info_s)
 
 /* Internal timer information */
-struct ctimer_internal_data_s {
+struct cl_timer_internal_data_s {
     char            *name;
     void            *data;
     unsigned int    finish_timeout;
@@ -54,13 +54,13 @@ struct ctimer_internal_data_s {
 };
 
 /* Timer */
-struct ctimer_s {
-    clist_entry_t                   *prev;
-    clist_entry_t                   *next;
-    struct cobject_hdr              hdr;
-    struct ctimer_internal_data_s   tid;
-    enum cl_timer_state               state;
-    enum cl_timer_interval_mode       imode;
+struct cl_timer_s {
+    cl_list_entry_t                 *prev;
+    cl_list_entry_t                 *next;
+    struct cl_object_hdr            hdr;
+    struct cl_timer_internal_data_s tid;
+    enum cl_timer_state             state;
+    enum cl_timer_interval_mode     imode;
     struct sigevent                 evp;
     union sigval                    sigval;
     pthread_attr_t                  attr;
@@ -77,11 +77,11 @@ struct ctimer_s {
 };
 
 #define CL_TIMER_OBJECT_OFFSET            \
-    (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
+    (sizeof(cl_list_entry_t *) + sizeof(cl_list_entry_t *))
 
 static int __search_timer(void *a, void *b)
 {
-    struct ctimer_s *timer = (struct ctimer_s *)a;
+    struct cl_timer_s *timer = (struct cl_timer_s *)a;
     char *name = (char *)b;
 
     if (strcmp(timer->tid.name, name) == 0)
@@ -94,10 +94,10 @@ static int __search_timer(void *a, void *b)
  * Search for a specific timer inside the registered timers list using its
  * as key.
  */
-static struct ctimer_s *search_timer(struct ctimer_s *timer,
+static struct cl_timer_s *search_timer(struct cl_timer_s *timer,
     const char *timer_name)
 {
-    return cdll_map(timer, __search_timer, (void *)timer_name);
+    return cl_dll_map(timer, __search_timer, (void *)timer_name);
 }
 
 static void gettime(struct timespec *ts)
@@ -108,7 +108,7 @@ static void gettime(struct timespec *ts)
 /*
  * Function to set actual state of a timer inside the library environment.
  */
-static int set_state(struct ctimer_s *timer, enum cl_timer_state state)
+static int set_state(struct cl_timer_s *timer, enum cl_timer_state state)
 {
     if (state >= CL_TIMER_MAX_STATE) {
         cset_errno(CL_INVALID_STATE);
@@ -123,10 +123,10 @@ static int set_state(struct ctimer_s *timer, enum cl_timer_state state)
      */
 
     if (state == CL_TIMER_ST_RUNNING) {
-        if (ctimer_disarm(timer) < 0)
+        if (cl_timer_disarm(timer) < 0)
             return -1;
     } else if (state == CL_TIMER_ST_WAITING) {
-        if (ctimer_arm(timer) < 0)
+        if (cl_timer_arm(timer) < 0)
             return -1;
     }
 
@@ -135,11 +135,11 @@ static int set_state(struct ctimer_s *timer, enum cl_timer_state state)
     return 0;
 }
 
-__PUB_API__ int ctimer_set_state(ctimer_arg_t arg, enum cl_timer_state state)
+__PUB_API__ int cl_timer_set_state(cl_timer_arg_t arg, enum cl_timer_state state)
 {
-    struct ctimer_s *t = NULL, *tlist = NULL;
+    struct cl_timer_s *t = NULL, *tlist = NULL;
     char *timer_name = NULL;
-    struct ctimer_internal_data_s *tid;
+    struct cl_timer_internal_data_s *tid;
 
     __clib_function_init__(false, NULL, -1, -1);
     tid = arg.sival_ptr;
@@ -167,14 +167,14 @@ __PUB_API__ int ctimer_set_state(ctimer_arg_t arg, enum cl_timer_state state)
     return set_state(t, state);
 }
 
-__PUB_API__ ctimer_t *ctimer_get_timer(const ctimer_t *timers_list,
+__PUB_API__ cl_timer_t *cl_timer_get_timer(const cl_timer_t *timers_list,
     const char *timer_name)
 {
-    struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
-    struct ctimer_s *t = NULL;
+    struct cl_timer_s *tlist = (struct cl_timer_s *)timers_list;
+    struct cl_timer_s *t = NULL;
 
-    __clib_function_init_ex__(true, timers_list, CTIMER, CL_TIMER_OBJECT_OFFSET,
-                              NULL);
+    __clib_function_init_ex__(true, timers_list, CL_OBJ_TIMER,
+                              CL_TIMER_OBJECT_OFFSET, NULL);
 
     if (timer_name == NULL) {
         cset_errno(CL_NULL_ARG);
@@ -218,30 +218,31 @@ static const char *translate_imode(enum cl_timer_interval_mode imode)
     return "unknown";
 }
 
-__PUB_API__ int ctimer_update_interval(ctimer_t *timer, unsigned int interval)
+__PUB_API__ int cl_timer_update_interval(cl_timer_t *timer, unsigned int interval)
 {
-    struct ctimer_s *t = (struct ctimer_s *)timer;
+    struct cl_timer_s *t = (struct cl_timer_s *)timer;
 
-    __clib_function_init_ex__(true, timer, CTIMER, CL_TIMER_OBJECT_OFFSET, -1);
+    __clib_function_init_ex__(true, timer, CL_OBJ_TIMER,
+                              CL_TIMER_OBJECT_OFFSET, -1);
 
     /* Disables timer */
-    ctimer_disarm(t);
+    cl_timer_disarm(t);
 
     /* Update its new execution interval */
     t->its.it_interval.tv_sec = interval;
     t->its.it_interval.tv_nsec = 0;
 
     /* Enables the timer again */
-    ctimer_arm(t);
+    cl_timer_arm(t);
 
     return 0;
 }
 
-static ctimer_info_s *new_timer_info(struct ctimer_s *timer)
+static cl_timer_info_s *new_timer_info(struct cl_timer_s *timer)
 {
-    ctimer_info_s *i;
+    cl_timer_info_s *i;
 
-    i = calloc(1, sizeof(ctimer_info_s));
+    i = calloc(1, sizeof(cl_timer_info_s));
 
     if (NULL == i) {
         cset_errno(CL_NO_MEM);
@@ -273,12 +274,12 @@ static ctimer_info_s *new_timer_info(struct ctimer_s *timer)
              translate_imode(timer->imode));
 
     i->data = timer->tid.data;
-    set_typeof(CTIMER_INFO, i);
+    set_typeof(CL_OBJ_TIMER_INFO, i);
 
     return i;
 }
 
-static void destroy_timer_info(ctimer_info_s *info)
+static void destroy_timer_info(cl_timer_info_s *info)
 {
     int i;
 
@@ -293,9 +294,9 @@ static void destroy_timer_info(ctimer_info_s *info)
     free(info);
 }
 
-static ctimer_info_s *get_timer_info(struct ctimer_s *timer)
+static cl_timer_info_s *get_timer_info(struct cl_timer_s *timer)
 {
-    ctimer_info_s *inode;
+    cl_timer_info_s *inode;
 
     inode = new_timer_info(timer);
 
@@ -305,30 +306,31 @@ static ctimer_info_s *get_timer_info(struct ctimer_s *timer)
     return inode;
 }
 
-__PUB_API__ int ctimer_unload_info(ctimer_info_t *timer_info)
+__PUB_API__ int cl_timer_unload_info(cl_timer_info_t *timer_info)
 {
-    ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
+    cl_timer_info_s *tinfo = (cl_timer_info_s *)timer_info;
 
-    __clib_function_init__(true, timer_info, CTIMER_INFO, -1);
+    __clib_function_init__(true, timer_info, CL_OBJ_TIMER_INFO, -1);
     destroy_timer_info(tinfo);
 
     return 0;
 }
 
-__PUB_API__ ctimer_info_t *ctimer_load_info(const ctimer_t *timer)
+__PUB_API__ cl_timer_info_t *cl_timer_load_info(const cl_timer_t *timer)
 {
-    struct ctimer_s *t = (struct ctimer_s *)timer;
+    struct cl_timer_s *t = (struct cl_timer_s *)timer;
 
-    __clib_function_init_ex__(true, timer, CTIMER, CL_TIMER_OBJECT_OFFSET, NULL);
+    __clib_function_init_ex__(true, timer, CL_OBJ_TIMER, CL_TIMER_OBJECT_OFFSET,
+                              NULL);
 
     return get_timer_info(t);
 }
 
-__PUB_API__ ctimer_info_t *ctimer_load_info_within_timer(ctimer_arg_t arg)
+__PUB_API__ cl_timer_info_t *cl_timer_load_info_within_timer(cl_timer_arg_t arg)
 {
-    struct ctimer_s *t = NULL, *tlist;
+    struct cl_timer_s *t = NULL, *tlist;
     char *timer_name;
-    struct ctimer_internal_data_s *tid;
+    struct cl_timer_internal_data_s *tid;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -358,12 +360,12 @@ __PUB_API__ ctimer_info_t *ctimer_load_info_within_timer(ctimer_arg_t arg)
     return get_timer_info(t);
 }
 
-__PUB_API__ void *ctimer_get_info_data(const ctimer_info_t *timer_info,
+__PUB_API__ void *cl_timer_get_info_data(const cl_timer_info_t *timer_info,
     enum cl_timer_info_field info)
 {
-    ctimer_info_s *tinfo = (ctimer_info_s *)timer_info;
+    cl_timer_info_s *tinfo = (cl_timer_info_s *)timer_info;
 
-    __clib_function_init__(true, timer_info, CTIMER_INFO, NULL);
+    __clib_function_init__(true, timer_info, CL_OBJ_TIMER_INFO, NULL);
 
     if (info >= CL_TIMER_MAX_INFO) {
         cset_errno(CL_UNSUPPORTED_TYPE);
@@ -380,11 +382,11 @@ __PUB_API__ void *ctimer_get_info_data(const ctimer_info_t *timer_info,
     return (void *)tinfo->info[info];
 }
 
-static struct ctimer_s *new_timer(const char *timer_name)
+static struct cl_timer_s *new_timer(const char *timer_name)
 {
-    struct ctimer_s *t;
+    struct cl_timer_s *t;
 
-    t = calloc(1, sizeof(struct ctimer_s));
+    t = calloc(1, sizeof(struct cl_timer_s));
 
     if (NULL == t) {
         cset_errno(CL_NO_MEM);
@@ -392,13 +394,13 @@ static struct ctimer_s *new_timer(const char *timer_name)
     }
 
     t->tid.name = strdup(timer_name);
-    set_typeof_with_offset(CTIMER, t, CL_TIMER_OBJECT_OFFSET);
+    set_typeof_with_offset(CL_OBJ_TIMER, t, CL_TIMER_OBJECT_OFFSET);
     set_state(t, CL_TIMER_ST_CREATED);
 
     return t;
 }
 
-static void destroy_timer(struct ctimer_s *timer)
+static void destroy_timer(struct cl_timer_s *timer)
 {
     free(timer->tid.name);
     free(timer);
@@ -408,7 +410,7 @@ static void destroy_timer(struct ctimer_s *timer)
  * Sets a few internal timer informations, such as thread attributes, thread
  * arguments and execution interval.
  */
-static void set_timer_info(struct ctimer_s *timer, unsigned int exec_interval,
+static void set_timer_info(struct cl_timer_s *timer, unsigned int exec_interval,
     enum cl_timer_interval_mode imode, unsigned int finish_timeout,
     void *timer_function, void *arg)
 {
@@ -442,18 +444,19 @@ static void set_timer_info(struct ctimer_s *timer, unsigned int exec_interval,
     set_state(timer, CL_TIMER_ST_REGISTERED);
 }
 
-__PUB_API__ int ctimer_register(ctimer_t *timers_list, unsigned int exec_interval,
-    enum cl_timer_interval_mode imode, unsigned int finish_timeout,
-    const char *timer_name, void (*timer_function)(ctimer_arg_t), void *arg,
+__PUB_API__ int cl_timer_register(cl_timer_t *timers_list,
+    unsigned int exec_interval, enum cl_timer_interval_mode imode,
+    unsigned int finish_timeout, const char *timer_name,
+    void (*timer_function)(cl_timer_arg_t), void *arg,
     int (*init_function)(void *), int (*uninit_function)(void *))
 {
-    struct ctimer_s **tlist = timers_list;
-    struct ctimer_s *t;
+    struct cl_timer_s **tlist = timers_list;
+    struct cl_timer_s *t;
 
     if (*tlist == NULL) {
         __clib_function_init__(false, NULL, -1, -1);
     } else {
-        __clib_function_init_ex__(true, *tlist, CTIMER,
+        __clib_function_init_ex__(true, *tlist, CL_OBJ_TIMER,
                                   CL_TIMER_OBJECT_OFFSET, -1);
     }
 
@@ -487,7 +490,7 @@ __PUB_API__ int ctimer_register(ctimer_t *timers_list, unsigned int exec_interva
     set_timer_info(t, exec_interval, imode, finish_timeout, timer_function,
                    arg);
 
-    *tlist = cdll_unshift(*tlist, t);
+    *tlist = cl_dll_unshift(*tlist, t);
 
     return 0;
 }
@@ -496,12 +499,12 @@ __PUB_API__ int ctimer_register(ctimer_t *timers_list, unsigned int exec_interva
  * Wait for a timer to end. Returns which was the ending format, 0 to normal
  * 1 for timeout expiration.
  */
-static int wait_for_timer_to_end(struct ctimer_s *timer)
+static int wait_for_timer_to_end(struct cl_timer_s *timer)
 {
-    ctimeout_t *t;
+    cl_timeout_t *t;
     int ret = 0;
 
-    t = ctimeout_create(timer->tid.finish_timeout, CL_TM_MSECONDS);
+    t = cl_timeout_create(timer->tid.finish_timeout, CL_TM_MSECONDS);
 
     while (1) {
         if (timer->state == CL_TIMER_ST_WAITING) {
@@ -509,27 +512,27 @@ static int wait_for_timer_to_end(struct ctimer_s *timer)
             break;
         }
 
-        if (ctimeout_expired(t) == true) {
+        if (cl_timeout_expired(t) == true) {
             ret = 1;
             break;
         }
     }
 
-    ctimeout_destroy(t);
+    cl_timeout_destroy(t);
 
     return ret;
 }
 
 static int unregister_timer(void *a)
 {
-    struct ctimer_s *timer = (struct ctimer_s *)a;
+    struct cl_timer_s *timer = (struct cl_timer_s *)a;
 
     /*
      * Disables the timer preventing it from running while in process of
      * closing.
      */
     if (timer->state != CL_TIMER_ST_REGISTERED) {
-        ctimer_disarm(timer);
+        cl_timer_disarm(timer);
 
         /* Wait for timer completion. */
         if (wait_for_timer_to_end(timer) == 1) {
@@ -561,14 +564,15 @@ static int unregister_timer(void *a)
     return 0;
 }
 
-__PUB_API__ int ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
+__PUB_API__ int cl_timer_unregister(cl_timer_t *timers_list,
+    const char *timer_name)
 {
-    struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
-    struct ctimer_s *t;
+    struct cl_timer_s *tlist = (struct cl_timer_s *)timers_list;
+    struct cl_timer_s *t;
     int ret = 0;
 
-    __clib_function_init_ex__(true, timers_list, CTIMER, CL_TIMER_OBJECT_OFFSET,
-                              -1);
+    __clib_function_init_ex__(true, timers_list, CL_OBJ_TIMER,
+                              CL_TIMER_OBJECT_OFFSET, -1);
 
     if (NULL == timer_name) {
         cset_errno(CL_NULL_ARG);
@@ -584,7 +588,7 @@ __PUB_API__ int ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
 
     ret = unregister_timer(t);
 
-    if ((ret < 0) || (cget_last_error() != 0))
+    if ((ret < 0) || (cl_get_last_error() != 0))
         return -1;
 
     return 0;
@@ -595,7 +599,7 @@ __PUB_API__ int ctimer_unregister(ctimer_t *timers_list, const char *timer_name)
  * CLOCK_REALTIME, using the value defined as the interval timer execution
  * as the waiting time for this first execution.
  */
-static void adjust_timer_start_time(struct ctimer_s *timer)
+static void adjust_timer_start_time(struct cl_timer_s *timer)
 {
     struct timespec ts;
 
@@ -607,8 +611,8 @@ static void adjust_timer_start_time(struct ctimer_s *timer)
 
 static int install_timer(void *a, void *b __attribute__((unused)))
 {
-    struct ctimer_s *timer = (struct ctimer_s *)a;
-    struct ctimer_s *tlist = (struct ctimer_s *)b;
+    struct cl_timer_s *timer = (struct cl_timer_s *)a;
+    struct cl_timer_s *tlist = (struct cl_timer_s *)b;
 
     if (timer_create(CLOCK_REALTIME, &timer->evp, &timer->timerid) == -1) {
         cset_errno(CL_CREATE_FAILED);
@@ -634,15 +638,15 @@ static int install_timer(void *a, void *b __attribute__((unused)))
     return 0;
 }
 
-__PUB_API__ int ctimer_install(ctimer_t *timers_list)
+__PUB_API__ int cl_timer_install(cl_timer_t *timers_list)
 {
-    struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
-    struct ctimer_s *t = NULL;
+    struct cl_timer_s *tlist = (struct cl_timer_s *)timers_list;
+    struct cl_timer_s *t = NULL;
 
-    __clib_function_init_ex__(true, timers_list, CTIMER, CL_TIMER_OBJECT_OFFSET,
-                              -1);
+    __clib_function_init_ex__(true, timers_list, CL_OBJ_TIMER,
+                              CL_TIMER_OBJECT_OFFSET, -1);
 
-    t = cdll_map(tlist, install_timer, tlist);
+    t = cl_dll_map(tlist, install_timer, tlist);
 
     if (t != NULL)
         return -1;
@@ -651,7 +655,7 @@ __PUB_API__ int ctimer_install(ctimer_t *timers_list)
 }
 
 /*
- * Just a way to avoid warning while calling this function from 'cdll_free' and
+ * Just a way to avoid warning while calling this function from 'cl_dll_free' and
  * continue to use just one function to release a timer.
  */
 static void __unregister_timer(void *a)
@@ -659,26 +663,27 @@ static void __unregister_timer(void *a)
     unregister_timer(a);
 }
 
-__PUB_API__ int ctimer_uninstall(ctimer_t *timers_list)
+__PUB_API__ int cl_timer_uninstall(cl_timer_t *timers_list)
 {
-    struct ctimer_s *tlist = (struct ctimer_s *)timers_list;
+    struct cl_timer_s *tlist = (struct cl_timer_s *)timers_list;
 
-    __clib_function_init_ex__(true, timers_list, CTIMER, CL_TIMER_OBJECT_OFFSET,
-                              -1);
+    __clib_function_init_ex__(true, timers_list, CL_OBJ_TIMER,
+                              CL_TIMER_OBJECT_OFFSET, -1);
 
-    cdll_free(tlist, __unregister_timer);
+    cl_dll_free(tlist, __unregister_timer);
 
-    if (cget_last_error() != 0)
+    if (cl_get_last_error() != 0)
         return -1;
 
     return 0;
 }
 
-__PUB_API__ int ctimer_disarm(ctimer_t *timer)
+__PUB_API__ int cl_timer_disarm(cl_timer_t *timer)
 {
-    struct ctimer_s *t = (struct ctimer_s *)timer;
+    struct cl_timer_s *t = (struct cl_timer_s *)timer;
 
-    __clib_function_init_ex__(true, timer, CTIMER, CL_TIMER_OBJECT_OFFSET, -1);
+    __clib_function_init_ex__(true, timer, CL_OBJ_TIMER,
+                              CL_TIMER_OBJECT_OFFSET, -1);
 
     /*
      * Saves the current time to put the timer in execution again in the
@@ -698,14 +703,15 @@ __PUB_API__ int ctimer_disarm(ctimer_t *timer)
     return 0;
 }
 
-__PUB_API__ int ctimer_arm(ctimer_t *timer)
+__PUB_API__ int cl_timer_arm(cl_timer_t *timer)
 {
-    struct ctimer_s *t = (struct ctimer_s *)timer;
+    struct cl_timer_s *t = (struct cl_timer_s *)timer;
     struct timespec ts;
     time_t sec = 0;
     long nsec = 0;
 
-    __clib_function_init_ex__(true, timer, CTIMER, CL_TIMER_OBJECT_OFFSET, -1);
+    __clib_function_init_ex__(true, timer, CL_OBJ_TIMER,
+                              CL_TIMER_OBJECT_OFFSET, -1);
 
     if (t->imode == CL_TIMER_IMODE_DEFAULT)
         adjust_timer_start_time(timer);

@@ -35,8 +35,8 @@ int main(int argc, char **argv)
     const char *opt = "hf:\0";
     int option;
     char *filename = NULL;
-    cimage_t *in, *out;
-    caption_t *cap;
+    cl_image_t *in, *out;
+    cl_caption_t *cap;
 
     do {
         option = getopt(argc, argv, opt);
@@ -54,30 +54,30 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init(NULL);
-    in = cimage_load_from_file(filename);
+    cl_init(NULL);
+    in = cl_image_load_from_file(filename);
 
     if (NULL == in) {
-        printf("Error: %s\n", cstrerror(cget_last_error()));
+        printf("Error: %s\n", cl_strerror(cl_get_last_error()));
         return -1;
     }
 
-    cap = caption_configure("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf",
-                            15, CIMAGE_COLOR_BLACK, CIMAGE_COLOR_WHITE);
-                           // 15, CIMAGE_COLOR_WHITE, CIMAGE_COLOR_BLACK);
+    cap = cl_caption_configure("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSans.ttf",
+                            15, CL_IMAGE_COLOR_BLACK, CL_IMAGE_COLOR_WHITE);
+                           // 15, CL_IMAGE_COLOR_WHITE, CL_IMAGE_COLOR_BLACK);
 
-    caption_add(cap, in, true, "Only a minor test");
-    caption_add(cap, in, true, "Only a minor test 2");
-    caption_add(cap, in, false, "Only a minor test 3");
-    caption_add(cap, in, false, "Only a minor test 4: special chars éáçíúãõêàó");
-    caption_destroy(cap);
-    cimage_save_to_file(in, "teste.jpg", CIMAGE_JPG);
-    cimage_destroy(in);
+    cl_caption_add(cap, in, true, "Only a minor test");
+    cl_caption_add(cap, in, true, "Only a minor test 2");
+    cl_caption_add(cap, in, false, "Only a minor test 3");
+    cl_caption_add(cap, in, false, "Only a minor test 4: special chars éáçíúãõêàó");
+    cl_caption_destroy(cap);
+    cl_image_save_to_file(in, "teste.jpg", CL_IMAGE_JPG);
+    cl_image_destroy(in);
 
     if (filename != NULL)
         free(filename);
 
-    collections_uninit();
+    cl_uninit();
 
     return 0;
 }

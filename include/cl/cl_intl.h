@@ -38,7 +38,7 @@
 #endif
 
 /**
- * @name tr
+ * @name cl_tr
  * @brief Macro to shorten the gettext term inside a source file.
  *
  * This macro should be used in strings that will be translated to other
@@ -46,10 +46,10 @@
  *
  * @param [in] string: The string.
  */
-#define tr(string)                  gettext(string)
+#define cl_tr(string)                   gettext(string)
 
 /**
- * @name tr_noop
+ * @name cl_tr_noop
  * @brief Macro to be used in special cases of translatable strings.
  *
  * For more details consult:
@@ -57,7 +57,7 @@
  *
  * @param [in] string: The string.
  */
-#define tr_noop(string)             string
+#define cl_tr_noop(string)              string
 
 #endif
 

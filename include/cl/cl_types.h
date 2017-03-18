@@ -97,106 +97,105 @@ enum cl_type {
 };
 
 /** cobject token types */
-#define COBJECT_CHAR         "b"
-#define COBJECT_UCHAR        "B"
-#define COBJECT_INT          "i"
-#define COBJECT_UINT         "I"
-#define COBJECT_SINT         "h"
-#define COBJECT_USINT        "H"
-#define COBJECT_FLOAT        "f"
-#define COBJECT_DOUBLE       "d"
-#define COBJECT_LONG         "l"
-#define COBJECT_ULONG        "k"
-#define COBJECT_LLONG        "L"
-#define COBJECT_ULLONG       "K"
-#define COBJECT_BOOLEAN      "Z"
-#define COBJECT_CSTRING      "z"
-#define COBJECT_STRING       "s"
-#define COBJECT_POINTER      "P"
+#define CL_OBJECT_CHAR          "b"
+#define CL_OBJECT_UCHAR         "B"
+#define CL_OBJECT_INT           "i"
+#define CL_OBJECT_UINT          "I"
+#define CL_OBJECT_SINT          "h"
+#define CL_OBJECT_USINT         "H"
+#define CL_OBJECT_FLOAT         "f"
+#define CL_OBJECT_DOUBLE        "d"
+#define CL_OBJECT_LONG          "l"
+#define CL_OBJECT_ULONG         "k"
+#define CL_OBJECT_LLONG         "L"
+#define CL_OBJECT_ULLONG        "K"
+#define CL_OBJECT_BOOLEAN       "Z"
+#define CL_OBJECT_CSTRING       "z"
+#define CL_OBJECT_STRING        "s"
+#define CL_OBJECT_POINTER       "P"
 
 /** cobject sizeof */
-#define COBJECT_SIZEOF      \
+#define CL_OBJECT_SIZEOF        \
     sizeof(unsigned long long) + sizeof(unsigned long long)
 
 /** error type */
-typedef int                 cerrno;
+typedef int                     cl_errno;
 
 /** config types */
-typedef void                cfg_file_t;     /** config file */
-typedef void                cfg_section_t;  /** config section */
-typedef void                cfg_key_t;      /** config key */
+typedef void                    cl_cfg_file_t;     /** config file */
+typedef void                    cl_cfg_section_t;  /** config section */
+typedef void                    cl_cfg_key_t;      /** config key */
 
 /** doubly linded list entry type */
-typedef void                clist_entry_t;
+typedef void                    cl_list_entry_t;
 
 /** string types */
-typedef void                cstring_t;      /** string */
-typedef void                cstring_list_t; /** list of strings */
+typedef void                    cl_string_t;      /** string */
+typedef void                    cl_string_list_t; /** list of strings */
 
 /** JSON type */
-typedef void                cjson_t;
+typedef void                    cl_json_t;
 
 /** datetime types */
-typedef void                cdatetime_t;
-typedef void                ctimeout_t;
+typedef void                    cl_datetime_t;
+typedef void                    cl_timeout_t;
 
 /** thread type */
-typedef void                cthread_t;
+typedef void                    cl_thread_t;
 
-/** event types */
-typedef void                cevent_t;
+/** event type */
+typedef void                    cl_event_t;
 
 /** timer types */
-typedef void                ctimer_t;
-typedef void                ctimer_info_t;
-typedef union sigval        ctimer_arg_t;
+typedef void                    cl_timer_t;
+typedef void                    cl_timer_info_t;
+typedef union sigval            cl_timer_arg_t;
 
 /** chat type */
-typedef void                chat_t;
+typedef void                    cl_chat_t;
 
 /** value type */
-typedef void                cobject_t;
+typedef void                    cl_object_t;
 
 /** generic parameters specifications */
-typedef void                cspec_t;
+typedef void                    cl_spec_t;
 
 /** counter type */
-typedef void                counter_t;
+typedef void                    cl_counter_t;
 
 /** plugin types */
-typedef void                cplugin_t;
-typedef void                cplugin_arg_t;
-typedef void                cplugin_info_t;
+typedef void                    cl_plugin_t;
+typedef void                    cl_plugin_info_t;
 
 /** log type */
-typedef void                clog_t;
+typedef void                    cl_log_t;
 
 /** list type */
-typedef void                clist_t;
-typedef void                clist_node_t;
+typedef void                    cl_list_t;
+typedef void                    cl_list_node_t;
 
 /** image type */
-typedef void                cimage_t;
+typedef void                    cl_image_t;
 
 /** stack type */
-typedef void                cstack_t;
-typedef void                cstack_node_t;
+typedef void                    cl_stack_t;
+typedef void                    cl_stack_node_t;
 
 /** queue type */
-typedef void                cqueue_t;
-typedef void                cqueue_node_t;
+typedef void                    cl_queue_t;
+typedef void                    cl_queue_node_t;
 
 /** image text */
-typedef void                caption_t;
+typedef void                    cl_caption_t;
 
 /** hashtable type */
-typedef void                chashtable_t;
+typedef void                    cl_hashtable_t;
 
 /** circular queue type */
-typedef void                circular_queue_t;
+typedef void                    cl_cqueue_t;
 
 /** circular stack type */
-typedef void                circular_stack_t;
+typedef void                    cl_cstack_t;
 
 #endif
 

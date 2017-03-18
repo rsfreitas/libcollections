@@ -34,18 +34,18 @@
 #endif
 
 /**
- * @name cbool_to_cstring
- * @brief Converts a bool type to a cstring_t text object.
+ * @name cl_bool_to_cstring
+ * @brief Converts a bool type to a cl_string_t text object.
  *
  * @param [in] flag: The bool value.
  *
- * @return On success returns a cstring_t object containing a string with 'true'
+ * @return On success returns a cl_string_t object containing a string with 'true'
  *         or 'false' according to \a flag value or NULL otherwise.
  */
-cstring_t *cbool_to_cstring(bool flag);
+cl_string_t *cl_bool_to_cstring(bool flag);
 
 /**
- * @name cbool_to_string
+ * @name cl_bool_to_string
  * @brief Converts a bool type to a C string type (char *).
  *
  * @param [in] flag: The bool value.
@@ -53,27 +53,27 @@ cstring_t *cbool_to_cstring(bool flag);
  * @return On success returns a char * containing a string with 'true' or 'false'
  *         according to \a flag value or NULL otherwise.
  */
-char *cbool_to_string(bool flag);
+char *cl_bool_to_string(bool flag);
 
 /**
- * @name collections_version
+ * @name cl_version
  * @brief Gets a string with the library version.
  *
  * @return On success returns a char * containing the library version or NULL
  *         otherwise.
  */
-char *collections_version(void);
+char *cl_version(void);
 
 /**
  * @name cl_type_to_cstring
- * @brief Converts an enum cl_type value into a cstring_t object.
+ * @brief Converts an enum cl_type value into a cl_string_t object.
  *
  * @param [in] value: The enum cl_type value.
  *
- * @return On success returns a cstring_t object with the value as a text or
+ * @return On success returns a cl_string_t object with the value as a text or
  *         NULL otherwise.
  */
-cstring_t *cl_type_to_cstring(enum cl_type value);
+cl_string_t *cl_type_to_cstring(enum cl_type value);
 
 #endif
 

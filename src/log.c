@@ -34,38 +34,38 @@
 
 #include "collections.h"
 
-#define CLOG_SEPARATOR              ';'
-#define CLOG_COUNTER_MSG            "Last message repeated %d times\n"
+#define CL_LOG_SEPARATOR        ';'
+#define CL_LOG_COUNTER_MSG      cl_tr_noop("Last message repeated %d times\n")
 
 /* Structure used to store the last message written in the log file */
 struct last_msg {
-    cstring_t       *msg;
+    cl_string_t     *msg;
     unsigned int    count;
 };
 
-#define clog_members                                    \
-    cl_struct_member(FILE *, f)                         \
-    cl_struct_member(char *, pathname)                  \
-    cl_struct_member(enum cl_log_mode, mode)              \
-    cl_struct_member(enum cl_log_level, level)            \
-    cl_struct_member(enum cl_log_prefix_field, prefixes)  \
-    cl_struct_member(unsigned int, max_repeat)          \
-    cl_struct_member(char, separator)                   \
-    cl_struct_member(struct last_msg, lmsg)             \
-    cl_struct_member(pthread_mutex_t, lock)             \
-    cl_struct_member(struct cref_s, ref)
+#define cl_log_members                                      \
+    cl_struct_member(FILE *, f)                             \
+    cl_struct_member(char *, pathname)                      \
+    cl_struct_member(enum cl_log_mode, mode)                \
+    cl_struct_member(enum cl_log_level, level)              \
+    cl_struct_member(enum cl_log_prefix_field, prefixes)    \
+    cl_struct_member(unsigned int, max_repeat)              \
+    cl_struct_member(char, separator)                       \
+    cl_struct_member(struct last_msg, lmsg)                 \
+    cl_struct_member(pthread_mutex_t, lock)                 \
+    cl_struct_member(struct cl_ref_s, ref)
 
-cl_struct_declare(clog_s, clog_members);
+cl_struct_declare(cl_log_s, cl_log_members);
 
-#define clog_s          cl_struct(clog_s)
+#define cl_log_s          cl_struct(cl_log_s)
 
-static void close_log_file(clog_s *log);
+static void close_log_file(cl_log_s *log);
 
 static bool is_mode_valid(enum cl_log_mode mode)
 {
     switch (mode) {
-        case CLOG_SYNC_ALL_MSGS:
-        case CLOG_KEEP_FILE_OPEN:
+        case CL_LOG_SYNC_ALL_MSGS:
+        case CL_LOG_KEEP_FILE_OPEN:
             return true;
 
         default:
@@ -78,15 +78,15 @@ static bool is_mode_valid(enum cl_log_mode mode)
 static bool is_level_valid(enum cl_log_level level)
 {
     switch (level) {
-        case CLOG_OFF:
-        case CLOG_EMERG:
-        case CLOG_ALERT:
-        case CLOG_CRITI:
-        case CLOG_ERROR:
-        case CLOG_WARNG:
-        case CLOG_NOTICE:
-        case CLOG_INFO:
-        case CLOG_DEBUG:
+        case CL_LOG_OFF:
+        case CL_LOG_EMERG:
+        case CL_LOG_ALERT:
+        case CL_LOG_CRITI:
+        case CL_LOG_ERROR:
+        case CL_LOG_WARNG:
+        case CL_LOG_NOTICE:
+        case CL_LOG_INFO:
+        case CL_LOG_DEBUG:
             return true;
     }
 
@@ -96,31 +96,31 @@ static bool is_level_valid(enum cl_log_level level)
 static const char *level_to_string(enum cl_log_level level)
 {
     switch (level) {
-        case CLOG_OFF:
+        case CL_LOG_OFF:
             return NULL;
 
-        case CLOG_EMERG:
+        case CL_LOG_EMERG:
             return "EMERG";
 
-        case CLOG_ALERT:
+        case CL_LOG_ALERT:
             return "ALERT";
 
-        case CLOG_CRITI:
+        case CL_LOG_CRITI:
             return "CRITI";
 
-        case CLOG_ERROR:
+        case CL_LOG_ERROR:
             return "ERROR";
 
-        case CLOG_WARNG:
+        case CL_LOG_WARNG:
             return "WARNG";
 
-        case CLOG_NOTICE:
+        case CL_LOG_NOTICE:
             return "NOTIC";
 
-        case CLOG_INFO:
+        case CL_LOG_INFO:
             return "INFOM";
 
-        case CLOG_DEBUG:
+        case CL_LOG_DEBUG:
             return "DEBUG";
     }
 
@@ -146,7 +146,7 @@ static bool compare_message(const char *m1, const char *m2)
     return false;
 }
 
-static bool may_write_message(clog_s *log, enum cl_log_level level)
+static bool may_write_message(cl_log_s *log, enum cl_log_level level)
 {
     if (level <= log->level)
         return true;
@@ -154,26 +154,26 @@ static bool may_write_message(clog_s *log, enum cl_log_level level)
     return false;
 }
 
-static void save_written_message(clog_s *log, const char *msg)
+static void save_written_message(cl_log_s *log, const char *msg)
 {
-    if (compare_message(cstring_valueof(log->lmsg.msg), msg) == true)
+    if (compare_message(cl_string_valueof(log->lmsg.msg), msg) == true)
         log->lmsg.count++;
     else {
         if (log->lmsg.msg != NULL)
-            cstring_destroy(log->lmsg.msg);
+            cl_string_destroy(log->lmsg.msg);
 
-        log->lmsg.msg = cstring_create("%s", msg);
+        log->lmsg.msg = cl_string_create("%s", msg);
         log->lmsg.count = 1;
     }
 }
 
 /*
- * Releases a 'clog_s' from memory. Function to be called when its
+ * Releases a 'cl_log_s' from memory. Function to be called when its
  * reference count drops to 0.
  */
-static void __destroy_clog_s(const struct cref_s *ref)
+static void __destroy_cl_log_s(const struct cl_ref_s *ref)
 {
-    clog_s *l = cl_container_of(ref, clog_s, ref);
+    cl_log_s *l = cl_container_of(ref, cl_log_s, ref);
 
     if (NULL == l)
         return;
@@ -181,24 +181,24 @@ static void __destroy_clog_s(const struct cref_s *ref)
     if (l->pathname != NULL)
         free(l->pathname);
 
-    if (l->mode == CLOG_KEEP_FILE_OPEN)
+    if (l->mode == CL_LOG_KEEP_FILE_OPEN)
         close_log_file(l);
 
     if (l->lmsg.msg != NULL)
-        cstring_destroy(l->lmsg.msg);
+        cl_string_destroy(l->lmsg.msg);
 
     free(l);
     l = NULL;
 }
 
 /*
- * Creates a new 'clog_s'.
+ * Creates a new 'cl_log_s'.
  */
-static clog_s *new_clog_s(void)
+static cl_log_s *new_cl_log_s(void)
 {
-    clog_s *l = NULL;
+    cl_log_s *l = NULL;
 
-    l = calloc(1, sizeof(clog_s));
+    l = calloc(1, sizeof(cl_log_s));
 
     if (NULL == l) {
         cset_errno(CL_NO_MEM);
@@ -206,15 +206,15 @@ static clog_s *new_clog_s(void)
     }
 
     l->ref.count = 1;
-    l->ref.free = __destroy_clog_s;
+    l->ref.free = __destroy_cl_log_s;
     pthread_mutex_init(&l->lock, NULL);
 
-    set_typeof(CLOG, l);
+    set_typeof(CL_OBJ_LOG, l);
 
     return l;
 }
 
-static int open_log_file(clog_s *log)
+static int open_log_file(cl_log_s *log)
 {
     log->f = fopen(log->pathname, "a");
 
@@ -226,24 +226,24 @@ static int open_log_file(clog_s *log)
     return 0;
 }
 
-static void close_log_file(clog_s *log)
+static void close_log_file(cl_log_s *log)
 {
     if (log->f != NULL)
         fclose(log->f);
 }
 
-static void sync_log_data(clog_s *log)
+static void sync_log_data(cl_log_s *log)
 {
     if (log->f != NULL)
         fflush(log->f);
 }
 
-static void lock_log_file(clog_s *log)
+static void lock_log_file(cl_log_s *log)
 {
     pthread_mutex_lock(&log->lock);
 }
 
-static void unlock_log_file(clog_s *log)
+static void unlock_log_file(cl_log_s *log)
 {
     pthread_mutex_unlock(&log->lock);
 }
@@ -251,61 +251,61 @@ static void unlock_log_file(clog_s *log)
 /*
  * Sets the way the log file will be handled.
  *
- * - CLOG_SYNC_ALL_MSGS: every message will cause the log file to be opened,
- *                       the message will be written and then the file closed.
+ * - CL_LOG_SYNC_ALL_MSGS: every message will cause the log file to be opened,
+ *                         the message will be written and then the file closed.
  *
- * - CLOG_KEEP_FILE_OPEN: the file will be opened as long as the @log is active
- *                        inside the application.
+ * - CL_LOG_KEEP_FILE_OPEN: the file will be opened as long as the @log is active
+ *                          inside the application.
  */
-static int set_logfile_handle_mode(clog_s *log, enum cl_log_mode mode,
+static int set_logfile_handle_mode(cl_log_s *log, enum cl_log_mode mode,
     const char *pathname)
 {
     log->f = NULL;
     log->pathname = strdup(pathname);
     log->mode = mode;
 
-    if (mode == CLOG_KEEP_FILE_OPEN)
+    if (mode == CL_LOG_KEEP_FILE_OPEN)
         return open_log_file(log);
 
     return 0;
 }
 
-static cstring_t *message_prefix(clog_s *log, enum cl_log_level level)
+static cl_string_t *message_prefix(cl_log_s *log, enum cl_log_level level)
 {
-    cstring_t *p = NULL, *tmp = NULL;
-    cdatetime_t *dt = NULL;
+    cl_string_t *p = NULL, *tmp = NULL;
+    cl_datetime_t *dt = NULL;
 
     if (log->prefixes == 0)
         return NULL;
 
-    dt = cdt_localtime();
-    p = cstring_create_empty(0);
+    dt = cl_dt_localtime();
+    p = cl_string_create_empty(0);
 
-    if (log->prefixes & CLOG_FIELD_DATE) {
-        tmp = cdt_to_cstring(dt, "%F");
-        cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
-        cstring_destroy(tmp);
+    if (log->prefixes & CL_LOG_FIELD_DATE) {
+        tmp = cl_dt_to_cstring(dt, "%F");
+        cl_string_cat(p, "%s%c", cl_string_valueof(tmp), log->separator);
+        cl_string_destroy(tmp);
     }
 
-    if (log->prefixes & CLOG_FIELD_TIME) {
-        tmp = cdt_to_cstring(dt, "%T.%1");
-        cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
-        cstring_destroy(tmp);
+    if (log->prefixes & CL_LOG_FIELD_TIME) {
+        tmp = cl_dt_to_cstring(dt, "%T.%1");
+        cl_string_cat(p, "%s%c", cl_string_valueof(tmp), log->separator);
+        cl_string_destroy(tmp);
     }
 
-    if (log->prefixes & CLOG_FIELD_TIMEZONE) {
-        tmp = cdt_to_cstring(dt, "%Z");
-        cstring_cat(p, "%s%c", cstring_valueof(tmp), log->separator);
-        cstring_destroy(tmp);
+    if (log->prefixes & CL_LOG_FIELD_TIMEZONE) {
+        tmp = cl_dt_to_cstring(dt, "%Z");
+        cl_string_cat(p, "%s%c", cl_string_valueof(tmp), log->separator);
+        cl_string_destroy(tmp);
     }
 
-    cdt_destroy(dt);
+    cl_dt_destroy(dt);
 
-    if (log->prefixes & CLOG_FIELD_PID)
-        cstring_cat(p, "%d%c", getpid(), log->separator);
+    if (log->prefixes & CL_LOG_FIELD_PID)
+        cl_string_cat(p, "%d%c", getpid(), log->separator);
 
-    if (log->prefixes & CLOG_FIELD_LEVEL)
-        cstring_cat(p, "%s%c", level_to_string(level), log->separator);
+    if (log->prefixes & CL_LOG_FIELD_LEVEL)
+        cl_string_cat(p, "%s%c", level_to_string(level), log->separator);
 
     return p;
 }
@@ -313,7 +313,7 @@ static cstring_t *message_prefix(clog_s *log, enum cl_log_level level)
 /*
  * Check if we have a last message saved that may be written to the log file.
  */
-static bool has_last_message_to_write(clog_s *log)
+static bool has_last_message_to_write(cl_log_s *log)
 {
     if (log->max_repeat == 0)
         return false;
@@ -327,7 +327,7 @@ static bool has_last_message_to_write(clog_s *log)
 /*
  * Check if we can write the last message counter to the log file.
  */
-static bool needs_to_write_last_message(clog_s *log)
+static bool needs_to_write_last_message(cl_log_s *log)
 {
     if (log->max_repeat == 0)
         return false;
@@ -338,29 +338,29 @@ static bool needs_to_write_last_message(clog_s *log)
     return false;
 }
 
-static void write_last_message_counter(clog_s *log, enum cl_log_level level)
+static void write_last_message_counter(cl_log_s *log, enum cl_log_level level)
 {
-    cstring_t *p = message_prefix(log, level);
+    cl_string_t *p = message_prefix(log, level);
 
     if (p != NULL) {
-        fprintf(log->f, "%s", cstring_valueof(p));
-        cstring_destroy(p);
+        fprintf(log->f, "%s", cl_string_valueof(p));
+        cl_string_destroy(p);
     }
 
     /* TODO: Allow the user change this message */
-    fprintf(log->f, CLOG_COUNTER_MSG, log->lmsg.count);
+    fprintf(log->f, CL_LOG_COUNTER_MSG, log->lmsg.count);
 }
 
-static void write_message(clog_s *log, enum cl_log_level level,
+static void write_message(cl_log_s *log, enum cl_log_level level,
     const char *msg)
 {
-    cstring_t *p = message_prefix(log, level);
+    cl_string_t *p = message_prefix(log, level);
     bool write = false;
 
     if (log->max_repeat == 0)
         write = true;
     else {
-        if (compare_message(cstring_valueof(log->lmsg.msg), msg) == true) {
+        if (compare_message(cl_string_valueof(log->lmsg.msg), msg) == true) {
             if (needs_to_write_last_message(log)) {
                 write_last_message_counter(log, level);
                 return;
@@ -376,27 +376,27 @@ static void write_message(clog_s *log, enum cl_log_level level,
 
         /* Write the current message */
         if (p != NULL) {
-            fprintf(log->f, "%s%s\n", cstring_valueof(p), msg);
-            cstring_destroy(p);
+            fprintf(log->f, "%s%s\n", cl_string_valueof(p), msg);
+            cl_string_destroy(p);
         } else
             fprintf(log->f, "%s\n", msg);
     }
 }
 
-static void write_hex_message(clog_s *log, enum cl_log_level level,
+static void write_hex_message(cl_log_s *log, enum cl_log_level level,
     const void *data, unsigned int dsize)
 {
     unsigned int i;
     char *ptr = (char *)data;
-    cstring_t *p = message_prefix(log, level);
+    cl_string_t *p = message_prefix(log, level);
 
     /*
      * TODO: break lines in 80 columns
      */
 
     if (p != NULL) {
-        fprintf(log->f, "%s%c", cstring_valueof(p), log->separator);
-        cstring_destroy(p);
+        fprintf(log->f, "%s%c", cl_string_valueof(p), log->separator);
+        cl_string_destroy(p);
     }
 
     for (i = 0; i < dsize; i++)
@@ -405,7 +405,7 @@ static void write_hex_message(clog_s *log, enum cl_log_level level,
     fprintf(log->f, "\n");
 }
 
-static bool check_log_mode(clog_s *log, enum cl_log_mode mode)
+static bool check_log_mode(cl_log_s *log, enum cl_log_mode mode)
 {
     if (log->mode == mode)
         return true;
@@ -419,11 +419,11 @@ static bool check_log_mode(clog_s *log, enum cl_log_mode mode)
  *
  */
 
-__PUB_API__ clog_t *clog_open_ex(const char *pathname, enum cl_log_mode mode,
+__PUB_API__ cl_log_t *cl_log_open_ex(const char *pathname, enum cl_log_mode mode,
     enum cl_log_level start_level, unsigned int max_repeat, char separator,
     enum cl_log_prefix_field prefixes)
 {
-    clog_s *log = NULL;
+    cl_log_s *log = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -440,7 +440,7 @@ __PUB_API__ clog_t *clog_open_ex(const char *pathname, enum cl_log_mode mode,
         return NULL;
     }
 
-    log = new_clog_s();
+    log = new_cl_log_s();
 
     if (NULL == log)
         return NULL;
@@ -456,35 +456,36 @@ __PUB_API__ clog_t *clog_open_ex(const char *pathname, enum cl_log_mode mode,
     return log;
 
 error_block:
-    cref_dec(&log->ref);
+    cl_ref_dec(&log->ref);
     return NULL;
 }
 
-__PUB_API__ clog_t *clog_open(const char *pathname, enum cl_log_mode mode,
+__PUB_API__ cl_log_t *cl_log_open(const char *pathname, enum cl_log_mode mode,
     enum cl_log_level start_level, unsigned int max_repeat)
 {
     /* Creates the default log format: DATE; TIME; PID; LEVEL; msg */
-    return clog_open_ex(pathname, mode, start_level, max_repeat, CLOG_SEPARATOR,
-                        CLOG_FIELD_DATE | CLOG_FIELD_TIME | CLOG_FIELD_PID |
-                        CLOG_FIELD_LEVEL);
+    return cl_log_open_ex(pathname, mode, start_level, max_repeat,
+                          CL_LOG_SEPARATOR,
+                          CL_LOG_FIELD_DATE | CL_LOG_FIELD_TIME |
+                          CL_LOG_FIELD_PID | CL_LOG_FIELD_LEVEL);
 }
 
-__PUB_API__ int clog_close(clog_t *log)
+__PUB_API__ int cl_log_close(cl_log_t *log)
 {
-    clog_s *l = (clog_s *)log;
+    cl_log_s *l = (cl_log_s *)log;
 
-    __clib_function_init__(true, log, CLOG, -1);
-    cref_dec(&l->ref);
+    __clib_function_init__(true, log, CL_OBJ_LOG, -1);
+    cl_ref_dec(&l->ref);
 
     return 0;
 }
 
-__PUB_API__ int clog_vprintf(clog_t *log, enum cl_log_level level, const char *fmt,
-    va_list args)
+__PUB_API__ int cl_log_vprintf(cl_log_t *log, enum cl_log_level level,
+    const char *fmt, va_list args)
 {
     char *msg = NULL;
 
-    __clib_function_init__(true, log, CLOG, -1);
+    __clib_function_init__(true, log, CL_OBJ_LOG, -1);
 
     if (is_level_valid(level) == false) {
         cset_errno(CL_INVALID_VALUE);
@@ -497,7 +498,7 @@ __PUB_API__ int clog_vprintf(clog_t *log, enum cl_log_level level, const char *f
 
     lock_log_file(log);
 
-    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS))
+    if (check_log_mode(log, CL_LOG_SYNC_ALL_MSGS))
         if (open_log_file(log) < 0) {
             unlock_log_file(log);
             return -1;
@@ -508,7 +509,7 @@ __PUB_API__ int clog_vprintf(clog_t *log, enum cl_log_level level, const char *f
     save_written_message(log, msg);
     free(msg);
 
-    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS)) {
+    if (check_log_mode(log, CL_LOG_SYNC_ALL_MSGS)) {
         sync_log_data(log);
         close_log_file(log);
     }
@@ -518,25 +519,25 @@ __PUB_API__ int clog_vprintf(clog_t *log, enum cl_log_level level, const char *f
     return 0;
 }
 
-__PUB_API__ int clog_printf(clog_t *log, enum cl_log_level level,
+__PUB_API__ int cl_log_printf(cl_log_t *log, enum cl_log_level level,
     const char *fmt, ...)
 {
     va_list ap;
     int ret = -1;
 
-    __clib_function_init__(true, log, CLOG, -1);
+    __clib_function_init__(true, log, CL_OBJ_LOG, -1);
 
     va_start(ap, fmt);
-    ret = clog_vprintf(log, level, fmt, ap);
+    ret = cl_log_vprintf(log, level, fmt, ap);
     va_end(ap);
 
     return ret;
 }
 
-__PUB_API__ int clog_bprint(clog_t *log, enum cl_log_level level, const void *data,
-    unsigned int dsize)
+__PUB_API__ int cl_log_bprint(cl_log_t *log, enum cl_log_level level,
+    const void *data, unsigned int dsize)
 {
-    __clib_function_init__(true, log, CLOG, -1);
+    __clib_function_init__(true, log, CL_OBJ_LOG, -1);
 
     if ((NULL == data) || (dsize == 0)) {
         cset_errno(CL_NULL_DATA);
@@ -554,7 +555,7 @@ __PUB_API__ int clog_bprint(clog_t *log, enum cl_log_level level, const void *da
 
     lock_log_file(log);
 
-    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS))
+    if (check_log_mode(log, CL_LOG_SYNC_ALL_MSGS))
         if (open_log_file(log) < 0) {
             unlock_log_file(log);
             return -1;
@@ -562,7 +563,7 @@ __PUB_API__ int clog_bprint(clog_t *log, enum cl_log_level level, const void *da
 
     write_hex_message(log, level, data, dsize);
 
-    if (check_log_mode(log, CLOG_SYNC_ALL_MSGS)) {
+    if (check_log_mode(log, CL_LOG_SYNC_ALL_MSGS)) {
         sync_log_data(log);
         close_log_file(log);
     }
@@ -573,15 +574,15 @@ __PUB_API__ int clog_bprint(clog_t *log, enum cl_log_level level, const void *da
 }
 
 /* XXX: rprint? */
-void clog_rprint(void)
+void cl_log_rprint(void)
 {
 }
 
-__PUB_API__ int clog_set_log_level(clog_t *log, enum cl_log_level level)
+__PUB_API__ int cl_log_set_log_level(cl_log_t *log, enum cl_log_level level)
 {
-    clog_s *l = (clog_s *)log;
+    cl_log_s *l = (cl_log_s *)log;
 
-    __clib_function_init__(true, log, CLOG, -1);
+    __clib_function_init__(true, log, CL_OBJ_LOG, -1);
 
     if (is_level_valid(level) == false) {
         cset_errno(CL_INVALID_VALUE);
@@ -593,11 +594,11 @@ __PUB_API__ int clog_set_log_level(clog_t *log, enum cl_log_level level)
     return 0;
 }
 
-__PUB_API__ int clog_set_separator(clog_t *log, char separator)
+__PUB_API__ int cl_log_set_separator(cl_log_t *log, char separator)
 {
-    clog_s *l = (clog_s *)log;
+    cl_log_s *l = (cl_log_s *)log;
 
-    __clib_function_init__(true, log, CLOG, -1);
+    __clib_function_init__(true, log, CL_OBJ_LOG, -1);
 
     if (is_separator_valid(separator) == false) {
         cset_errno(CL_INVALID_VALUE);

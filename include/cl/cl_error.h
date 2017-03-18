@@ -97,39 +97,39 @@ enum cl_error_code {
 };
 
 /**
- * @name cerrno_storage
+ * @name cl_errno_storage
  * @brief Gets a pointer to the global thread specific error variable.
  *
  * @return Returns a pointer to the global error variable.
  */
-cerrno *cerrno_storage(void);
+cl_errno *cl_errno_storage(void);
 
 /**
- * @name cexit
+ * @name cl_exit
  * @brief Terminate calling thread.
  *
  * This function be must called at the end of main function if the user wants no
  * memory leak errors reported by the valgrind tool.
  */
-void cexit(void);
+void cl_exit(void);
 
 /**
- * @name cget_last_error
+ * @name cl_get_last_error
  * @brief Gets the last error code internally occurred.
  *
  * @return Returns the last error code.
  */
-enum cl_error_code cget_last_error(void);
+enum cl_error_code cl_get_last_error(void);
 
 /**
- * @name cstrerror
+ * @name cl_strerror
  * @brief Converts a numeric error code in a text message.
  *
  * @param [in] error_code: Numeric error code.
  *
  * @return Returns the text corresponding the error code.
  */
-const char *cstrerror(enum cl_error_code error_code);
+const char *cl_strerror(enum cl_error_code error_code);
 
 #endif
 

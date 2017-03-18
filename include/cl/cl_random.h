@@ -34,26 +34,26 @@
 #endif
 
 /**
- * @name cseed
+ * @name cl_seed
  * @brief Creates a random seed to use in a pseudo-random generated number.
  *
  * This function uses the Linux random kernel file to create this seed.
  *
  * @return Returns a random seed on success or 0 otherwise.
  */
-unsigned int cseed(void);
+unsigned int cl_seed(void);
 
 /**
- * @name crand
+ * @name cl_rand
  * @brief Generates a random number between 0 and \a random_max.
  *
- * One may generate numbers in a range using MIN + crand(MAX - MIN).
+ * One may generate numbers in a range using MIN + cl_rand(MAX - MIN).
  *
  * @param [in] random_max: The maximum value of the random number.
  *
  * @return Returns the random number.
  */
-unsigned int crand(unsigned int random_max);
+unsigned int cl_rand(unsigned int random_max);
 
 #endif
 

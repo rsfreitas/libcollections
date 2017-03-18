@@ -30,25 +30,25 @@
 
 #include "collections.h"
 
-void timer_1(ctimer_arg_t arg)
+void timer_1(cl_timer_arg_t arg)
 {
-    ctimer_set_state(arg, CL_TIMER_ST_RUNNING);
+    cl_timer_set_state(arg, CL_TIMER_ST_RUNNING);
     printf("%s\n", __FUNCTION__);
-    ctimer_set_state(arg, CL_TIMER_ST_WAITING);
+    cl_timer_set_state(arg, CL_TIMER_ST_WAITING);
 }
 
-void timer_2(ctimer_arg_t arg)
+void timer_2(cl_timer_arg_t arg)
 {
-    ctimer_set_state(arg, CL_TIMER_ST_RUNNING);
+    cl_timer_set_state(arg, CL_TIMER_ST_RUNNING);
     printf("%s\n", __FUNCTION__);
-    ctimer_set_state(arg, CL_TIMER_ST_WAITING);
+    cl_timer_set_state(arg, CL_TIMER_ST_WAITING);
 }
 
 int main(int argc, char **argv)
 {
     const char *opt = "hf:\0";
     int option;
-    ctimer_t *timers = NULL;
+    cl_timer_t *timers = NULL;
 
     do {
         option = getopt(argc, argv, opt);
@@ -62,27 +62,27 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init(NULL);
+    cl_init(NULL);
 
-    if (ctimer_register(&timers, 1, CL_TIMER_IMODE_DISCOUNT_RUNTIME, 100,
+    if (cl_timer_register(&timers, 1, CL_TIMER_IMODE_DISCOUNT_RUNTIME, 100,
                         "timer_1", timer_1, NULL, NULL, NULL) < 0)
     {
-        printf("Error 1: %s\n", cstrerror(cget_last_error()));
+        printf("Error 1: %s\n", cl_strerror(cl_get_last_error()));
         return -1;
     }
 
-    if (ctimer_register(&timers, 2, CL_TIMER_IMODE_DISCOUNT_RUNTIME, 100,
+    if (cl_timer_register(&timers, 2, CL_TIMER_IMODE_DISCOUNT_RUNTIME, 100,
                         "timer_2", timer_2, NULL, NULL, NULL) < 0)
     {
-        printf("Error 2: %s\n", cstrerror(cget_last_error()));
+        printf("Error 2: %s\n", cl_strerror(cl_get_last_error()));
         return -1;
     }
 
-    ctimer_install(timers);
+    cl_timer_install(timers);
     sleep(10);
-    ctimer_uninstall(timers);
+    cl_timer_uninstall(timers);
 
-    collections_uninit();
+    cl_uninit();
 
     return 0;
 }

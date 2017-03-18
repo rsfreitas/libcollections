@@ -45,7 +45,7 @@ struct font_color {
     cl_struct_member(FT_GlyphSlot, slot)                        \
     cl_struct_member(struct font_color, gray_font)              \
     cl_struct_member(struct font_color, rgb_font)               \
-    cl_struct_member(struct cref_s, ref)
+    cl_struct_member(struct cl_ref_s, ref)
 
 cl_struct_declare(caption_s, caption_members);
 
@@ -121,25 +121,25 @@ library_error_block:
 unsigned int to_hex_color(enum cl_image_color color)
 {
     switch (color) {
-        case CIMAGE_COLOR_BLACK:
+        case CL_IMAGE_COLOR_BLACK:
             return 0x000000;
 
-        case CIMAGE_COLOR_WHITE:
+        case CL_IMAGE_COLOR_WHITE:
             return 0xFFFFFF;
 
-        case CIMAGE_COLOR_GREY:
+        case CL_IMAGE_COLOR_GREY:
             return 0x7F7F7F;
 
-        case CIMAGE_COLOR_BLUE:
+        case CL_IMAGE_COLOR_BLUE:
             return 0x00007F;
 
-        case CIMAGE_COLOR_RED:
+        case CL_IMAGE_COLOR_RED:
             return 0x7F0000;
 
-        case CIMAGE_COLOR_GREEN:
+        case CL_IMAGE_COLOR_GREEN:
             return 0x007F00;
 
-        case CIMAGE_COLOR_YELLOW:
+        case CL_IMAGE_COLOR_YELLOW:
             return 0xFFFF00;
 
         default:
@@ -164,11 +164,11 @@ static CvScalar caption_color_to_CvScalar(enum cl_image_color color,
     b = c & 0xFF;
 
     switch (format) {
-        case CIMAGE_FMT_GRAY:
+        case CL_IMAGE_FMT_GRAY:
             return cvScalar(r * 0.299f + g * 0.587f + b * 0.114f,
                             0.0f, 0.0f, 0.0f);
 
-        case CIMAGE_FMT_RGB:
+        case CL_IMAGE_FMT_RGB:
             return cvScalar(r, g, b, 0.0f);
 
         default:
@@ -203,7 +203,7 @@ static FT_ULong utf8_to_unicode(const char *text, int *index)
  * Does the character drawing into the image.
  */
 static void draw_onto_the_image(FT_Bitmap *bitmap, CvScalar color,
-    cimage_s *image, unsigned int x, unsigned int y, unsigned int max_width,
+    cl_image_s *image, unsigned int x, unsigned int y, unsigned int max_width,
     unsigned int max_height)
 {
     char *dest_image;
@@ -245,13 +245,13 @@ static void draw_onto_the_image(FT_Bitmap *bitmap, CvScalar color,
  * Prepares the character image limits and call the function to draw it.
  */
 static void draw_char(caption_s *caption, unsigned int x, unsigned int y,
-    CvScalar color, cimage_s *image)
+    CvScalar color, cl_image_s *image)
 {
     FT_Bitmap *bitmap = &caption->slot->bitmap;
     int max_width, max_height;
 
-    if ((x >= (unsigned int)cimage_width(image)) ||
-        (y >= (unsigned int)cimage_height(image)))
+    if ((x >= (unsigned int)cl_image_width(image)) ||
+        (y >= (unsigned int)cl_image_height(image)))
     {
         return;
     }
@@ -272,7 +272,7 @@ static void draw_char(caption_s *caption, unsigned int x, unsigned int y,
 /*
  * Adds a text caption into an image.
  */
-static int add_caption(caption_s *caption, cimage_s *image, unsigned int x,
+static int add_caption(caption_s *caption, cl_image_s *image, unsigned int x,
     unsigned int y, CvScalar color, const char *text)
 {
     FT_ULong c;
@@ -295,7 +295,7 @@ static int add_caption(caption_s *caption, cimage_s *image, unsigned int x,
     return -1;
 }
 
-static void destroy_caption(const struct cref_s *ref)
+static void destroy_caption(const struct cl_ref_s *ref)
 {
     caption_s *caption = cl_container_of(ref, caption_s, ref);
 
@@ -322,36 +322,36 @@ static caption_s *new_caption(void)
     c->ref.free = destroy_caption;
     c->ref.count = 1;
 
-    set_typeof(CIMAGE_CAPTION, c);
+    set_typeof(CL_OBJ_CAPTION, c);
 
     return c;
 }
 
-static cimage_t *create_background_caption(cimage_s *image,
+static cl_image_t *create_background_caption(cl_image_s *image,
     struct font_color *font, caption_s *caption)
 {
-    cimage_t *img;
+    cl_image_t *img;
     IplImage *background = NULL;
     int w = 0, h = 0;
 
-    w = cimage_width(image);
+    w = cl_image_width(image);
     h = caption->size + CAPTION_HEIGHT_BORDER;
-    img = cimage_create();
+    img = cl_image_create();
     background = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,
-                               cimage_channels(image));
+                               cl_image_channels(image));
 
     cvSet(background, font->background, NULL);
-    cimage_cv_import(img, background, CIMAGE_JPG);
+    cl_image_cv_import(img, background, CL_IMAGE_JPG);
 
     return img;
 }
 
-static void join_images(cimage_s *image, cimage_s *caption, bool append)
+static void join_images(cl_image_s *image, cl_image_s *caption, bool append)
 {
     IplImage *ipl_image, *ipl_caption, *final;
 
-    ipl_image = cimage_to_ocv(image);
-    ipl_caption = cimage_cv_export(caption);
+    ipl_image = cl_image_to_ocv(image);
+    ipl_caption = cl_image_cv_export(caption);
 
     cvResetImageROI(ipl_image);
     final = cvCreateImage(cvSize(ipl_image->width,
@@ -381,7 +381,7 @@ static void join_images(cimage_s *image, cimage_s *caption, bool append)
     }
 
     cvResetImageROI(final);
-    cimage_cv_import(image, final, CIMAGE_JPG);
+    cl_image_cv_import(image, final, CL_IMAGE_JPG);
 }
 
 /*
@@ -390,27 +390,27 @@ static void join_images(cimage_s *image, cimage_s *caption, bool append)
  *
  */
 
-__PUB_API__ caption_t *caption_ref(caption_t *caption)
+__PUB_API__ cl_caption_t *cl_caption_ref(cl_caption_t *caption)
 {
     caption_s *c = (caption_s *)caption;
 
-    __clib_function_init__(true, caption, CIMAGE_CAPTION, NULL);
-    cref_inc(&c->ref);
+    __clib_function_init__(true, caption, CL_OBJ_CAPTION, NULL);
+    cl_ref_inc(&c->ref);
 
     return caption;
 }
 
-__PUB_API__ int caption_unref(caption_t *caption)
+__PUB_API__ int cl_caption_unref(cl_caption_t *caption)
 {
     caption_s *c = (caption_s *)caption;
 
-    __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
-    cref_dec(&c->ref);
+    __clib_function_init__(true, caption, CL_OBJ_CAPTION, -1);
+    cl_ref_dec(&c->ref);
 
     return 0;
 }
 
-__PUB_API__ caption_t *caption_configure(const char *ttf_pathname,
+__PUB_API__ cl_caption_t *cl_caption_configure(const char *ttf_pathname,
     unsigned int font_size, enum cl_image_color foreground,
     enum cl_image_color background)
 {
@@ -423,49 +423,49 @@ __PUB_API__ caption_t *caption_configure(const char *ttf_pathname,
         return NULL;
 
     if (ft_init(c, ttf_pathname, font_size) < 0) {
-        caption_unref(c);
+        cl_caption_unref(c);
         return NULL;
     }
 
     /* Caption colors */
     c->gray_font.foreground = caption_color_to_CvScalar(foreground,
-                                                         CIMAGE_FMT_GRAY);
+                                                        CL_IMAGE_FMT_GRAY);
 
     c->gray_font.background = caption_color_to_CvScalar(background,
-                                                         CIMAGE_FMT_GRAY);
+                                                        CL_IMAGE_FMT_GRAY);
 
     c->rgb_font.foreground = caption_color_to_CvScalar(foreground,
-                                                        CIMAGE_FMT_RGB);
+                                                       CL_IMAGE_FMT_RGB);
 
     c->rgb_font.background = caption_color_to_CvScalar(background,
-                                                        CIMAGE_FMT_RGB);
+                                                       CL_IMAGE_FMT_RGB);
 
     return c;
 }
 
-__PUB_API__ int caption_destroy(caption_t *caption)
+__PUB_API__ int cl_caption_destroy(cl_caption_t *caption)
 {
-    return caption_unref(caption);
+    return cl_caption_unref(caption);
 }
 
-__PUB_API__ int caption_addvf(caption_t *caption, cimage_t *image,
+__PUB_API__ int cl_caption_addvf(cl_caption_t *caption, cl_image_t *image,
     bool append, const char *fmt, va_list ap)
 {
     caption_s *c = (caption_s *)caption;
     char *text = NULL;
     int ret;
-    cimage_t *caption_image;
+    cl_image_t *caption_image;
     struct font_color *font;
 
-    __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, caption, CL_OBJ_CAPTION, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (NULL == fmt) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    if (cimage_color_format(image) == CIMAGE_FMT_GRAY)
+    if (cl_image_color_format(image) == CL_IMAGE_FMT_GRAY)
         font = &c->gray_font;
     else
         font = &c->rgb_font;
@@ -482,19 +482,19 @@ __PUB_API__ int caption_addvf(caption_t *caption, cimage_t *image,
         free(text);
 
     join_images(image, caption_image, append);
-    cimage_unref(caption_image);
+    cl_image_unref(caption_image);
 
     return ret;
 }
 
-__PUB_API__ int caption_addf(caption_t *caption, cimage_t *image,
+__PUB_API__ int cl_caption_addf(cl_caption_t *caption, cl_image_t *image,
     bool append, const char *fmt, ...)
 {
     va_list ap;
     int ret;
 
-    __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, caption, CL_OBJ_CAPTION, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (NULL == fmt) {
         cset_errno(CL_NULL_ARG);
@@ -502,23 +502,23 @@ __PUB_API__ int caption_addf(caption_t *caption, cimage_t *image,
     }
 
     va_start(ap, fmt);
-    ret = caption_addvf(caption, image, append, fmt, ap);
+    ret = cl_caption_addvf(caption, image, append, fmt, ap);
     va_end(ap);
 
     return ret;
 }
 
-__PUB_API__ int caption_add(caption_t *caption, cimage_t *image,
+__PUB_API__ int cl_caption_add(cl_caption_t *caption, cl_image_t *image,
     bool append, const char *text)
 {
-    __clib_function_init__(true, caption, CIMAGE_CAPTION, -1);
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, caption, CL_OBJ_CAPTION, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (NULL == text) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    return caption_addf(caption, image, append, "%s", text);
+    return cl_caption_addf(caption, image, append, "%s", text);
 }
 

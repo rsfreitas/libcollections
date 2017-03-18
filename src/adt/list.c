@@ -26,173 +26,182 @@
 
 #include "collections.h"
 
-__PUB_API__ void *clist_node_content(clist_node_t *node)
+__PUB_API__ void *cl_list_node_content(cl_list_node_t *node)
 {
-    return cglist_node_content(node, CLIST_NODE);
+    return cglist_node_content(node, CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ clist_node_t *clist_node_ref(clist_node_t *node)
+__PUB_API__ cl_list_node_t *cl_list_node_ref(cl_list_node_t *node)
 {
-    return (clist_node_t *)cglist_node_ref(node, CLIST_NODE);
+    return (cl_list_node_t *)cglist_node_ref(node, CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ int clist_node_unref(clist_node_t *node)
+__PUB_API__ int cl_list_node_unref(cl_list_node_t *node)
 {
-    return cglist_node_unref(node, CLIST_NODE);
+    return cglist_node_unref(node, CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ clist_t *clist_ref(clist_t *list)
+__PUB_API__ cl_list_t *cl_list_ref(cl_list_t *list)
 {
-    return (clist_t *)cglist_ref((clist_t *)list, CLIST);
+    return (cl_list_t *)cglist_ref((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int clist_unref(clist_t *list)
+__PUB_API__ int cl_list_unref(cl_list_t *list)
 {
-    return cglist_unref((clist_t *)list, CLIST);
+    return cglist_unref((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ clist_t *clist_create(void (*free_data)(void *),
-    int (*compare_to)(clist_node_t *, clist_node_t *),
-    int (*filter)(clist_node_t *, void *),
-    int (*equals)(clist_node_t *, clist_node_t *))
+__PUB_API__ cl_list_t *cl_list_create(void (*free_data)(void *),
+    int (*compare_to)(cl_list_node_t *, cl_list_node_t *),
+    int (*filter)(cl_list_node_t *, void *),
+    int (*equals)(cl_list_node_t *, cl_list_node_t *))
 {
-    return (clist_t *)cglist_create(CLIST, free_data, compare_to, filter,
-                                    equals);
+    return (cl_list_t *)cglist_create(CL_OBJ_LIST, free_data, compare_to,
+                                      filter, equals);
 }
 
-__PUB_API__ int clist_destroy(clist_t *list)
+__PUB_API__ int cl_list_destroy(cl_list_t *list)
 {
-    return cglist_destroy((clist_t *)list, CLIST);
+    return cglist_destroy((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int clist_size(const clist_t *list)
+__PUB_API__ int cl_list_size(const cl_list_t *list)
 {
-    return cglist_size((clist_t *)list, CLIST);
+    return cglist_size((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int clist_push(clist_t *list, const void *node_content,
+__PUB_API__ int cl_list_push(cl_list_t *list, const void *node_content,
     unsigned int size)
 {
-    return cglist_push((clist_t *)list, CLIST, node_content, size, CLIST_NODE);
+    return cglist_push((cl_list_t *)list, CL_OBJ_LIST, node_content, size,
+                       CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ clist_node_t *clist_pop(clist_t *list)
+__PUB_API__ cl_list_node_t *cl_list_pop(cl_list_t *list)
 {
-    return (clist_node_t *)cglist_pop((clist_t *)list, CLIST);
+    return (cl_list_node_t *)cglist_pop((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ clist_node_t *clist_shift(clist_t *list)
+__PUB_API__ cl_list_node_t *cl_list_shift(cl_list_t *list)
 {
-    return (clist_node_t *)cglist_shift((clist_t *)list, CLIST);
+    return (cl_list_node_t *)cglist_shift((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int clist_unshift(clist_t *list, const void *node_content,
+__PUB_API__ int cl_list_unshift(cl_list_t *list, const void *node_content,
     unsigned int size)
 {
-    return cglist_unshift((clist_t *)list, CLIST, node_content, size, CLIST_NODE);
+    return cglist_unshift((cl_list_t *)list, CL_OBJ_LIST, node_content, size,
+                          CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ clist_node_t *clist_map(const clist_t *list,
-    int (*foo)(clist_node_t *, void *), void *data)
+__PUB_API__ cl_list_node_t *cl_list_map(const cl_list_t *list,
+    int (*foo)(cl_list_node_t *, void *), void *data)
 {
-    return (clist_node_t *)cglist_map((clist_t *)list, CLIST, CLIST_NODE, foo,
-                                      data);
+    return (cl_list_node_t *)cglist_map((cl_list_t *)list, CL_OBJ_LIST,
+                                        CL_OBJ_LIST_NODE, foo, data);
 }
 
-__PUB_API__ clist_node_t *clist_map_indexed(const clist_t *list,
-    int (*foo)(unsigned int, clist_node_t *, void *), void *data)
+__PUB_API__ cl_list_node_t *cl_list_map_indexed(const cl_list_t *list,
+    int (*foo)(unsigned int, cl_list_node_t *, void *), void *data)
 {
-    return (clist_node_t *)cglist_map_indexed((clist_t *)list, CLIST,
-                                              CLIST_NODE, foo, data);
+    return (cl_list_node_t *)cglist_map_indexed((cl_list_t *)list, CL_OBJ_LIST,
+                                                CL_OBJ_LIST_NODE, foo, data);
 }
 
-__PUB_API__ clist_node_t *clist_map_reverse(const clist_t *list,
-    int (*foo)(clist_node_t *, void *), void *data)
+__PUB_API__ cl_list_node_t *cl_list_map_reverse(const cl_list_t *list,
+    int (*foo)(cl_list_node_t *, void *), void *data)
 {
-    return (clist_node_t *)cglist_map_reverse((clist_t *)list, CLIST,
-                                              CLIST_NODE, foo, data);
+    return (cl_list_node_t *)cglist_map_reverse((cl_list_t *)list, CL_OBJ_LIST,
+                                                CL_OBJ_LIST_NODE, foo, data);
 }
 
-__PUB_API__ clist_node_t *clist_map_reverse_indexed(const clist_t *list,
-    int (*foo)(unsigned int, clist_node_t *, void *), void *data)
+__PUB_API__ cl_list_node_t *cl_list_map_reverse_indexed(const cl_list_t *list,
+    int (*foo)(unsigned int, cl_list_node_t *, void *), void *data)
 {
-    return (clist_node_t *)cglist_map_reverse_indexed((clist_t *)list, CLIST,
-                                                      CLIST_NODE, foo, data);
+    return (cl_list_node_t *)cglist_map_reverse_indexed((cl_list_t *)list,
+                                                        CL_OBJ_LIST,
+                                                        CL_OBJ_LIST_NODE, foo,
+                                                        data);
 }
 
-__PUB_API__ clist_node_t *clist_at(const clist_t *list, unsigned int index)
+__PUB_API__ cl_list_node_t *cl_list_at(const cl_list_t *list, unsigned int index)
 {
-    return (clist_node_t *)cglist_at((clist_t *)list, CLIST, CLIST_NODE, index);
+    return (cl_list_node_t *)cglist_at((cl_list_t *)list, CL_OBJ_LIST,
+                                       CL_OBJ_LIST_NODE, index);
 }
 
-__PUB_API__ int clist_delete(clist_t *list, void *data)
+__PUB_API__ int cl_list_delete(cl_list_t *list, void *data)
 {
-    return cglist_delete((clist_t *)list, CLIST, data);
+    return cglist_delete((cl_list_t *)list, CL_OBJ_LIST, data);
 }
 
-__PUB_API__ int clist_delete_indexed(clist_t *list, unsigned int index)
+__PUB_API__ int cl_list_delete_indexed(cl_list_t *list, unsigned int index)
 {
-    return cglist_delete_indexed((clist_t *)list, CLIST, index);
+    return cglist_delete_indexed((cl_list_t *)list, CL_OBJ_LIST, index);
 }
 
-__PUB_API__ clist_t *clist_move(clist_t *list)
+__PUB_API__ cl_list_t *cl_list_move(cl_list_t *list)
 {
-    return (clist_t *)cglist_move((clist_t *)list, CLIST);
+    return (cl_list_t *)cglist_move((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ clist_t *clist_filter(clist_t *list, void *data)
+__PUB_API__ cl_list_t *cl_list_filter(cl_list_t *list, void *data)
 {
-    return (clist_t *)cglist_filter((clist_t *)list, CLIST, data);
+    return (cl_list_t *)cglist_filter((cl_list_t *)list, CL_OBJ_LIST, data);
 }
 
-__PUB_API__ int clist_sort(clist_t *list)
+__PUB_API__ int cl_list_sort(cl_list_t *list)
 {
-    return cglist_sort((clist_t *)list, CLIST);
+    return cglist_sort((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int clist_indexof(const clist_t *list, void *element,
+__PUB_API__ int cl_list_indexof(const cl_list_t *list, void *element,
     unsigned int size)
 {
-    return cglist_indexof((clist_t *)list, CLIST, element, size, CLIST_NODE);
+    return cglist_indexof((cl_list_t *)list, CL_OBJ_LIST, element, size,
+                          CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ int clist_last_indexof(const clist_t *list, void *element,
+__PUB_API__ int cl_list_last_indexof(const cl_list_t *list, void *element,
     unsigned int size)
 {
-    return cglist_last_indexof((clist_t *)list, CLIST, element, size, CLIST_NODE);
+    return cglist_last_indexof((cl_list_t *)list, CL_OBJ_LIST, element, size,
+                               CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ bool clist_contains(const clist_t *list, void *element,
+__PUB_API__ bool cl_list_contains(const cl_list_t *list, void *element,
     unsigned int size)
 {
-    return cglist_contains((clist_t *)list, CLIST, element, size, CLIST_NODE);
+    return cglist_contains((cl_list_t *)list, CL_OBJ_LIST, element, size,
+                           CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ clist_node_t *clist_peek(const clist_t *list)
+__PUB_API__ cl_list_node_t *cl_list_peek(const cl_list_t *list)
 {
-    return (clist_node_t *)cglist_peek((clist_t *)list, CLIST, CLIST_NODE);
+    return (cl_list_node_t *)cglist_peek((cl_list_t *)list, CL_OBJ_LIST,
+                                         CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ bool clist_is_empty(const clist_t *list)
+__PUB_API__ bool cl_list_is_empty(const cl_list_t *list)
 {
-    return cglist_is_empty((clist_t *)list, CLIST);
+    return cglist_is_empty((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int clist_set_compare_to(const clist_t *list,
-    int (*compare_to)(clist_node_t *, clist_node_t *))
+__PUB_API__ int cl_list_set_compare_to(const cl_list_t *list,
+    int (*compare_to)(cl_list_node_t *, cl_list_node_t *))
 {
-    return cglist_set_compare_to((clist_t *)list, CLIST, compare_to);
+    return cglist_set_compare_to((cl_list_t *)list, CL_OBJ_LIST, compare_to);
 }
 
-__PUB_API__ int clist_set_filter(const clist_t *list,
-    int (*filter)(clist_node_t *, void *))
+__PUB_API__ int cl_list_set_filter(const cl_list_t *list,
+    int (*filter)(cl_list_node_t *, void *))
 {
-    return cglist_set_filter((clist_t *)list, CLIST, filter);
+    return cglist_set_filter((cl_list_t *)list, CL_OBJ_LIST, filter);
 }
 
-__PUB_API__ int clist_set_equals(const clist_t *list,
-    int (*equals)(clist_node_t *, clist_node_t *))
+__PUB_API__ int cl_list_set_equals(const cl_list_t *list,
+    int (*equals)(cl_list_node_t *, cl_list_node_t *))
 {
-    return cglist_set_equals((clist_t *)list, CLIST, equals);
+    return cglist_set_equals((cl_list_t *)list, CL_OBJ_LIST, equals);
 }
 

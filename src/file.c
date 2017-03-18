@@ -31,7 +31,7 @@
 
 #include "collections.h"
 
-__PUB_API__ unsigned char *cfload(const char *filename, unsigned int *bsize)
+__PUB_API__ unsigned char *cl_fload(const char *filename, unsigned int *bsize)
 {
     FILE *f;
     struct stat info;
@@ -67,7 +67,7 @@ __PUB_API__ unsigned char *cfload(const char *filename, unsigned int *bsize)
     return b;
 }
 
-__PUB_API__ int cfunload(unsigned char *buffer)
+__PUB_API__ int cl_funload(unsigned char *buffer)
 {
     __clib_function_init__(false, NULL, -1, -1);
 
@@ -82,7 +82,7 @@ __PUB_API__ int cfunload(unsigned char *buffer)
     return 0;
 }
 
-__PUB_API__ int cfsave(const char *filename, const unsigned char *buffer,
+__PUB_API__ int cl_fsave(const char *filename, const unsigned char *buffer,
     unsigned int bsize)
 {
     FILE *f;
@@ -107,7 +107,7 @@ __PUB_API__ int cfsave(const char *filename, const unsigned char *buffer,
     return 0;
 }
 
-__PUB_API__ char *cfreadline(FILE *infile)
+__PUB_API__ char *cl_freadline(FILE *infile)
 {
     char *line = NULL;
     size_t size = 0;
@@ -133,7 +133,7 @@ __PUB_API__ char *cfreadline(FILE *infile)
     return line;
 }
 
-__PUB_API__ char *cfile_mime_type(const char *pathname)
+__PUB_API__ char *cl_file_mime_type(const char *pathname)
 {
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -145,7 +145,7 @@ __PUB_API__ char *cfile_mime_type(const char *pathname)
     return library_file_mime_type(pathname);
 }
 
-__PUB_API__ char *cbuffer_mime_type(const unsigned char *buffer,
+__PUB_API__ char *cl_buffer_mime_type(const unsigned char *buffer,
     unsigned int size)
 {
     __clib_function_init__(false, NULL, -1, NULL);

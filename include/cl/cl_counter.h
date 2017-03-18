@@ -35,14 +35,14 @@
 
 /** Counter precisions */
 enum cl_counter_precision {
-    CNT_8BIT,
-    CNT_16BIT,
-    CNT_32BIT,
-    CNT_64BIT
+    CL_8BIT_COUNTER,
+    CL_16BIT_COUNTER,
+    CL_32BIT_COUNTER,
+    CL_64BIT_COUNTER
 };
 
 /**
- * @name counter_create
+ * @name cl_counter_create
  * @brief Creates a new counter.
  *
  * The counter created is for simple statistics counter. If an application
@@ -58,58 +58,58 @@ enum cl_counter_precision {
  * @param [in] circular: Boolean flag to indicate an automatic reset when
  *                       the limits are reached it.
  *
- * @return On success returns a counter_t object or NULL otherwise.
+ * @return On success returns a cl_counter_t object or NULL otherwise.
  */
-counter_t *counter_create(enum cl_counter_precision precision, long long min,
-                          long long max, long long start_value,
-                          bool circular);
+cl_counter_t *cl_counter_create(enum cl_counter_precision precision,
+                                long long min, long long max,
+                                long long start_value, bool circular);
 
 /**
- * @name counter_destroy
+ * @name cl_counter_destroy
  * @brief Destroy a counter.
  *
  * @param [in] c: The counter which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_destroy(counter_t *c);
+int cl_counter_destroy(cl_counter_t *c);
 
 /**
- * @name counter_ref
- * @brief Increases the reference count for a counter_t item.
+ * @name cl_counter_ref
+ * @brief Increases the reference count for a cl_counter_t item.
  *
- * @param [in,out] c: The counter_t item.
+ * @param [in,out] c: The cl_counter_t item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-counter_t *counter_ref(counter_t *c);
+cl_counter_t *cl_counter_ref(cl_counter_t *c);
 
 /**
- * @name counter_unref
- * @brief Decreases the reference count for a counter_t item.
+ * @name cl_counter_unref
+ * @brief Decreases the reference count for a cl_counter_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] c: The counter_t item.
+ * @param [in,out] c: The cl_counter_t item.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_unref(counter_t *c);
+int cl_counter_unref(cl_counter_t *c);
 
 /**
- * @name counter_increase
+ * @name cl_counter_increase
  * @brief Increases the counter value by 1.
  *
  * @param [in,out] c: The counter.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_increase(counter_t *c);
+int cl_counter_increase(cl_counter_t *c);
 
 /**
- * @name counter_increase_by
+ * @name cl_counter_increase_by
  * @brief Increases the counter value by the specified value.
  *
  * @param [in,out] c: The counter.
@@ -117,20 +117,20 @@ int counter_increase(counter_t *c);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_increase_by(counter_t *c, long long gap);
+int cl_counter_increase_by(cl_counter_t *c, long long gap);
 
 /**
- * @name counter_decrease
+ * @name cl_counter_decrease
  * @brief Decreases the counter value by 1.
  *
  * @param [in,out] c: The counter.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_decrease(counter_t *c);
+int cl_counter_decrease(cl_counter_t *c);
 
 /**
- * @name counter_decrease_by
+ * @name cl_counter_decrease_by
  * @brief Decreases the counter value by the specified value.
  *
  * @param [in,out] c: The counter.
@@ -138,30 +138,30 @@ int counter_decrease(counter_t *c);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_decrease_by(counter_t *c, long long gap);
+int cl_counter_decrease_by(cl_counter_t *c, long long gap);
 
 /**
- * @name counter_reset
+ * @name cl_counter_reset
  * @brief Returns the counter value to its the start value.
  *
  * @param [in,out] c: The counter.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_reset(counter_t *c);
+int cl_counter_reset(cl_counter_t *c);
 
 /**
- * @name counter_get
+ * @name cl_counter_get
  * @brief Gets the actual value from the counter.
  *
  * @param [in,out] c: The counter.
  *
  * @return On success returns the current counter value or -1 otherwise.
  */
-long long counter_get(counter_t *c);
+long long cl_counter_get(cl_counter_t *c);
 
 /**
- * @name counter_set_min
+ * @name cl_counter_set_min
  * @brief Updates the counter minimum value.
  *
  * @param [in,out] c: The counter.
@@ -169,10 +169,10 @@ long long counter_get(counter_t *c);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_set_min(counter_t *c, long long min);
+int cl_counter_set_min(cl_counter_t *c, long long min);
 
 /**
- * @name counter_set_max
+ * @name cl_counter_set_max
  * @brief Updates the counter maximum value.
  *
  * @param [in,out] c: The counter.
@@ -180,10 +180,10 @@ int counter_set_min(counter_t *c, long long min);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_set_max(counter_t *c, long long max);
+int cl_counter_set_max(cl_counter_t *c, long long max);
 
 /**
- * @name counter_set_range
+ * @name cl_counter_set_range
  * @brief Updates the counter minimum and maximum values.
  *
  * @param [in,out] c: The counter.
@@ -192,10 +192,10 @@ int counter_set_max(counter_t *c, long long max);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_set_range(counter_t *c, long long min, long long max);
+int cl_counter_set_range(cl_counter_t *c, long long min, long long max);
 
 /**
- * @name counter_lt
+ * @name cl_counter_lt
  * @brief Compares if a counter value is less than other value.
  *
  * @param [in] c: The counter.
@@ -204,10 +204,10 @@ int counter_set_range(counter_t *c, long long min, long long max);
  * @return If the counter value is less than value returns true otherwise
  *         returns false.
  */
-bool counter_lt(const counter_t *c, long long value);
+bool cl_counter_lt(const cl_counter_t *c, long long value);
 
 /**
- * @name counter_le
+ * @name cl_counter_le
  * @brief Compares if a counter value is less than or equal other value.
  *
  * @param [in] c: The counter.
@@ -216,10 +216,10 @@ bool counter_lt(const counter_t *c, long long value);
  * @return If the counter value is less than or equal the value returns true
  *         otherwise returns false.
  */
-bool counter_le(const counter_t *c, long long value);
+bool cl_counter_le(const cl_counter_t *c, long long value);
 
 /**
- * @name counter_lt
+ * @name cl_counter_lt
  * @brief Compares if a counter value is greater than other value.
  *
  * @param [in] c: The counter.
@@ -228,10 +228,10 @@ bool counter_le(const counter_t *c, long long value);
  * @return If the counter value is greater than value returns true otherwise
  *         returns false.
  */
-bool counter_gt(const counter_t *c, long long value);
+bool cl_counter_gt(const cl_counter_t *c, long long value);
 
 /**
- * @name counter_le
+ * @name cl_counter_le
  * @brief Compares if a counter value is greater than or equal other value.
  *
  * @param [in] c: The counter.
@@ -240,10 +240,10 @@ bool counter_gt(const counter_t *c, long long value);
  * @return If the counter value is greater than or equal the value returns true
  *         otherwise returns false.
  */
-bool counter_ge(const counter_t *c, long long value);
+bool cl_counter_ge(const cl_counter_t *c, long long value);
 
 /**
- * @name counter_eq
+ * @name cl_counter_eq
  * @brief Compares if a counter value is equal other value.
  *
  * @param [in] c: The counter.
@@ -252,10 +252,10 @@ bool counter_ge(const counter_t *c, long long value);
  * @return If the counter value is equal value returns true otherwise
  *         returns false.
  */
-bool counter_eq(const counter_t *c, long long value);
+bool cl_counter_eq(const cl_counter_t *c, long long value);
 
 /**
- * @name counter_ne
+ * @name cl_counter_ne
  * @brief Compares if a counter value is not equal other value.
  *
  * @param [in] c: The counter.
@@ -264,10 +264,10 @@ bool counter_eq(const counter_t *c, long long value);
  * @return If the counter value is not equal value returns true otherwise
  *         returns false.
  */
-bool counter_ne(const counter_t *c, long long value);
+bool cl_counter_ne(const cl_counter_t *c, long long value);
 
 /**
- * @name counter_get_and_set
+ * @name cl_counter_get_and_set
  * @brief Gets the current value of a counter and update its value.
  *
  * @param [in,out] c: The counter.
@@ -275,10 +275,10 @@ bool counter_ne(const counter_t *c, long long value);
  *
  * @return On success returns the counter value before updating or -1 otherwise.
  */
-long long counter_get_and_set(counter_t *c, long long new_value);
+long long cl_counter_get_and_set(cl_counter_t *c, long long new_value);
 
 /**
- * @name counter_set
+ * @name cl_counter_set
  * @brief Updates the counter value to a specified value.
  *
  * @param [in,out] c: The counter.
@@ -286,7 +286,7 @@ long long counter_get_and_set(counter_t *c, long long new_value);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int counter_set(counter_t *c, long long new_value);
+int cl_counter_set(cl_counter_t *c, long long new_value);
 
 #endif
 

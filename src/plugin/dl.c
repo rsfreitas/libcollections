@@ -38,7 +38,7 @@
 #include "dl_java.h"
 
 struct dl_plugin {
-    struct cref_s    ref;
+    struct cl_ref_s     ref;
 };
 
 static struct dl_plugin __dl = {
@@ -47,13 +47,13 @@ static struct dl_plugin __dl = {
 
 static struct dl_plugin_driver __dl_driver[] = {
     {
-        .type               = CPLUGIN_UNKNOWN,
+        .type               = CL_PLUGIN_UNKNOWN,
         .enabled            = false,
     },
 
 #ifdef PLUGIN_ELF
     {
-        .type               = CPLUGIN_ELF,
+        .type               = CL_PLUGIN_ELF,
         .enabled            = true,
         .plugin_test        = elf_plugin_test,
         .library_init       = elf_library_init,
@@ -72,7 +72,7 @@ static struct dl_plugin_driver __dl_driver[] = {
 
 #ifdef PLUGIN_PYTHON
     {
-        .type               = CPLUGIN_PYTHON,
+        .type               = CL_PLUGIN_PYTHON,
         .enabled            = true,
         .plugin_test        = py_plugin_test,
         .library_init       = py_library_init,
@@ -95,7 +95,7 @@ static struct dl_plugin_driver __dl_driver[] = {
  */
 #ifdef PLUGIN_JAVA
     {
-        .type               = CPLUGIN_JAVA,
+        .type               = CL_PLUGIN_JAVA,
         .enabled            = true,
         .plugin_test        = jni_plugin_test,
         .library_init       = jni_library_init,
@@ -153,7 +153,7 @@ static struct dl_plugin_driver *get_plugin_driver(enum cl_plugin_type type)
     return NULL;
 }
 
-static void __dl_library_uninit(const struct cref_s *ref __attribute__((unused)))
+static void __dl_library_uninit(const struct cl_ref_s *ref __attribute__((unused)))
 {
     int i = 0;
 
@@ -168,7 +168,7 @@ void dl_library_init(void)
     int old = 0, new = 1;
     unsigned int i = 0;
 
-    if (cref_bool_compare(&__dl.ref, old, new) == true) {
+    if (cl_ref_bool_compare(&__dl.ref, old, new) == true) {
         __dl.ref.free = __dl_library_uninit;
 
         /* call all drivers init function */
@@ -176,29 +176,29 @@ void dl_library_init(void)
             if (__dl_driver[i].enabled == true)
                 __dl_driver[i].data = (__dl_driver[i].library_init)();
     } else
-        cref_inc(&__dl.ref);
+        cl_ref_inc(&__dl.ref);
 }
 
 void dl_library_uninit(void)
 {
-    cref_dec(&__dl.ref);
+    cl_ref_dec(&__dl.ref);
 }
 
-static cstring_t *get_file_info(const char *filename)
+static cl_string_t *get_file_info(const char *filename)
 {
     char *mime;
-    cstring_t *s = NULL;
+    cl_string_t *s = NULL;
 
     mime = library_file_mime_type(filename);
-    s = cstring_create("%s", mime);
+    s = cl_string_create("%s", mime);
     free(mime);
 
     return s;
 }
 
-static enum cl_plugin_type parse_plugin_type(cstring_t *s)
+static enum cl_plugin_type parse_plugin_type(cl_string_t *s)
 {
-    enum cl_plugin_type t = CPLUGIN_UNKNOWN;
+    enum cl_plugin_type t = CL_PLUGIN_UNKNOWN;
     unsigned int i;
 
     for (i = 1; i < NDRIVERS; i++)
@@ -212,7 +212,7 @@ static enum cl_plugin_type parse_plugin_type(cstring_t *s)
 
 struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
 {
-    cstring_t *info = NULL;
+    cl_string_t *info = NULL;
     enum cl_plugin_type type;
 
     info = get_file_info(pathname);
@@ -222,7 +222,7 @@ struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
 
     /* DEBUG */
     type = parse_plugin_type(info);
-    cstring_unref(info);
+    cl_string_unref(info);
 
     return get_plugin_driver(type);
 }
@@ -298,9 +298,9 @@ void dl_unload_functions(cplugin_s *cpl)
 /*
  * Load informations from a plugin.
  */
-cplugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle)
+cl_plugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle)
 {
-    cplugin_info_t *info = NULL;
+    cl_plugin_info_t *info = NULL;
 
     if (NULL == drv)
         goto end_block;
@@ -319,7 +319,7 @@ end_block:
  * different otherwise.
  */
 int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
-    cplugin_info_t *info)
+    cl_plugin_info_t *info)
 {
     int ret = -1;
 
@@ -357,7 +357,7 @@ end_block:
     return ret;
 }
 
-cobject_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
+cl_object_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
     struct function_argument *args)
 {
     struct dl_plugin_driver *drv = NULL;

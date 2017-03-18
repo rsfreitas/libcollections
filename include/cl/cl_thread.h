@@ -49,7 +49,7 @@ enum cl_thread_state {
 };
 
 /**
- * @name cthread_spawn
+ * @name cl_thread_spawn
  * @brief Creates a new thread.
  *
  * This function creates a new thread to execute the \a start_routine function.
@@ -59,56 +59,56 @@ enum cl_thread_state {
  * @param [in] start_routine: The function which will be executed.
  * @param [in] user_data: Some custom data for thread function.
  *
- * @return On success returns a cthread_t object or NULL otherwise.
+ * @return On success returns a cl_thread_t object or NULL otherwise.
  */
-cthread_t *cthread_spawn(enum cl_thread_type type,
-                         void *(*start_routine)(cthread_t *), void *user_data);
+cl_thread_t *cl_thread_spawn(enum cl_thread_type type,
+                         void *(*start_routine)(cl_thread_t *), void *user_data);
 
 /**
- * @name cthread_destroy
+ * @name cl_thread_destroy
  * @brief Shutdown a thread.
  *
  * Besides shutdown the thread this function will release all memory allocated
  * for it.
  *
- * @param [in] t: The cthread_t object.
+ * @param [in] t: The cl_thread_t object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cthread_destroy(cthread_t *t);
+int cl_thread_destroy(cl_thread_t *t);
 
 /**
- * @name cthread_wait_startup
+ * @name cl_thread_wait_startup
  * @brief Awaits a thread creation.
  *
- * @param [in] t: The cthread_t object.
+ * @param [in] t: The cl_thread_t object.
  *
  * @return Returns 0 if the thread has been successfully initialized, 1 if it
  *         has been initialized with errors or -1 otherwise.
  */
-int cthread_wait_startup(const cthread_t *t);
+int cl_thread_wait_startup(const cl_thread_t *t);
 
 /**
  * @name cthred_set_state
  * @brief Sets the internal state of a thread.
  *
- * @param [in] t: The cthread_t object.
+ * @param [in] t: The cl_thread_t object.
  * @param [in] state: The new state of a thread.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cthread_set_state(cthread_t *t, enum cl_thread_state state);
+int cl_thread_set_state(cl_thread_t *t, enum cl_thread_state state);
 
 /**
- * @name cthread_get_user_data
+ * @name cl_thread_get_user_data
  * @brief Gets the user data passed to a thread.
  *
- * @param [in] arg: The cthread_t object passed as argument to a thread.
+ * @param [in] arg: The cl_thread_t object passed as argument to a thread.
  *
  * @return Returns the original user data argument of the thread function or
  *         NULL otherwise.
  */
-void *cthread_get_user_data(cthread_t *arg);
+void *cl_thread_get_user_data(cl_thread_t *arg);
 
 #endif
 

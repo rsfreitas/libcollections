@@ -29,30 +29,30 @@
 
 #include "collections.h"
 
-#define ctimeout_members                            \
-    cl_struct_member(cdatetime_t *, dt)             \
+#define cl_timeout_members                          \
+    cl_struct_member(cl_datetime_t *, dt)           \
     cl_struct_member(enum cl_timeout, precision)    \
     cl_struct_member(unsigned int, interval)
 
-cl_struct_declare(ctimeout_s, ctimeout_members);
+cl_struct_declare(cl_timeout_s, cl_timeout_members);
 
-#define ctimeout_s          cl_struct(ctimeout_s)
+#define cl_timeout_s          cl_struct(cl_timeout_s)
 
-static ctimeout_s *new_ctimeout_s(unsigned int interval,
+static cl_timeout_s *new_cl_timeout_s(unsigned int interval,
     enum cl_timeout precision)
 {
-    cdatetime_t *dt = NULL;
-    ctimeout_s *t = NULL;
+    cl_datetime_t *dt = NULL;
+    cl_timeout_s *t = NULL;
 
-    dt = cdt_localtime();
+    dt = cl_dt_localtime();
 
     if (NULL == dt)
         return NULL;
 
-    t = calloc(1, sizeof(ctimeout_s));
+    t = calloc(1, sizeof(cl_timeout_s));
 
     if (NULL == t) {
-        cdt_destroy(dt);
+        cl_dt_destroy(dt);
         cset_errno(CL_NO_MEM);
         return NULL;
     }
@@ -60,29 +60,29 @@ static ctimeout_s *new_ctimeout_s(unsigned int interval,
     t->dt = dt;
     t->precision = precision;
     t->interval = interval;
-    set_typeof(CTIMEOUT, t);
+    set_typeof(CL_OBJ_TIMEOUT, t);
 
     return t;
 }
 
-static void destroy_ctimeout_s(ctimeout_s *t)
+static void destroy_cl_timeout_s(cl_timeout_s *t)
 {
     if (NULL == t)
         return;
 
     if (t->dt != NULL)
-        cdt_destroy(t->dt);
+        cl_dt_destroy(t->dt);
 
     free(t);
 }
 
-__PUB_API__ ctimeout_t *ctimeout_create(unsigned int interval,
+__PUB_API__ cl_timeout_t *cl_timeout_create(unsigned int interval,
    enum cl_timeout precision)
 {
-    ctimeout_s *t;
+    cl_timeout_s *t;
 
     __clib_function_init__(false, NULL, -1, NULL);
-    t = new_ctimeout_s(interval, precision);
+    t = new_cl_timeout_s(interval, precision);
 
     if (NULL == t)
         return NULL;
@@ -90,27 +90,27 @@ __PUB_API__ ctimeout_t *ctimeout_create(unsigned int interval,
     return t;
 }
 
-__PUB_API__ int ctimeout_destroy(ctimeout_t *t)
+__PUB_API__ int cl_timeout_destroy(cl_timeout_t *t)
 {
-    ctimeout_s *ct = (ctimeout_s *)t;
+    cl_timeout_s *ct = (cl_timeout_s *)t;
 
-    __clib_function_init__(true, t, CTIMEOUT, -1);
-    destroy_ctimeout_s(ct);
+    __clib_function_init__(true, t, CL_OBJ_TIMEOUT, -1);
+    destroy_cl_timeout_s(ct);
 
     return 0;
 }
 
-__PUB_API__ int ctimeout_reset(ctimeout_t *t, unsigned int interval,
+__PUB_API__ int cl_timeout_reset(cl_timeout_t *t, unsigned int interval,
     enum cl_timeout precision)
 {
-    ctimeout_s *ct = (ctimeout_s *)t;
+    cl_timeout_s *ct = (cl_timeout_s *)t;
 
-    __clib_function_init__(true, t, CTIMEOUT, -1);
+    __clib_function_init__(true, t, CL_OBJ_TIMEOUT, -1);
 
     if (ct->dt != NULL)
-        cdt_destroy(ct->dt);
+        cl_dt_destroy(ct->dt);
 
-    ct->dt = cdt_localtime();
+    ct->dt = cl_dt_localtime();
 
     if (NULL == ct->dt)
         return -1;
@@ -121,19 +121,19 @@ __PUB_API__ int ctimeout_reset(ctimeout_t *t, unsigned int interval,
     return 0;
 }
 
-__PUB_API__ bool ctimeout_expired(const ctimeout_t *t)
+__PUB_API__ bool cl_timeout_expired(const cl_timeout_t *t)
 {
-    ctimeout_s *ct = (ctimeout_s *)t;
+    cl_timeout_s *ct = (cl_timeout_s *)t;
     struct timeval tv;
     unsigned int i;
     unsigned long long l;
 
-    __clib_function_init__(true, t, CTIMEOUT, -1);
+    __clib_function_init__(true, t, CL_OBJ_TIMEOUT, -1);
     gettimeofday(&tv, NULL);
 
     switch (ct->precision) {
         case CL_TM_SECONDS:
-            i = cdt_get_seconds(ct->dt) + ct->interval;
+            i = cl_dt_get_seconds(ct->dt) + ct->interval;
 
             if (tv.tv_sec > (time_t)i)
                 return true;
@@ -141,7 +141,7 @@ __PUB_API__ bool ctimeout_expired(const ctimeout_t *t)
             break;
 
         case CL_TM_MSECONDS:
-            i = cdt_get_mseconds(ct->dt) + ct->interval;
+            i = cl_dt_get_mseconds(ct->dt) + ct->interval;
 
             if ((unsigned int)((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) > i)
                 return true;
@@ -149,7 +149,7 @@ __PUB_API__ bool ctimeout_expired(const ctimeout_t *t)
             break;
 
         case CL_TM_USECONDS:
-            l = cdt_get_useconds(ct->dt) + ct->interval;
+            l = cl_dt_get_useconds(ct->dt) + ct->interval;
 
             if ((unsigned long long)((tv.tv_sec * 1000000) + tv.tv_usec) > l)
                 return true;

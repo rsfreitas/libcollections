@@ -163,26 +163,26 @@ static bool header_from_JPG(union file_header hdr)
 /*
  * Uses libmagic to return the image type from a image buffer.
  */
-enum cl_image_type cimage_detect_type(const unsigned char *buffer,
+enum cl_image_type cl_image_detect_type(const unsigned char *buffer,
     unsigned int bsize __attribute__((unused)))
 {
-    enum cl_image_type type = CIMAGE_RAW;
+    enum cl_image_type type = CL_IMAGE_RAW;
     union file_header hdr;
 
     memcpy(&hdr.data, buffer, sizeof(union file_header));
 
     if (header_from_BMP(hdr))
-        type = CIMAGE_BMP;
+        type = CL_IMAGE_BMP;
     else if (header_from_TIFF(hdr))
-        type = CIMAGE_TIFF;
+        type = CL_IMAGE_TIFF;
     else if (header_from_PPM(hdr))
-        type = CIMAGE_PPM;
+        type = CL_IMAGE_PPM;
     else if (header_from_JPG2K(hdr))
-        type = CIMAGE_JPG2K;
+        type = CL_IMAGE_JPG2K;
     else if (header_from_JPG(hdr))
-        type = CIMAGE_JPG;
+        type = CL_IMAGE_JPG;
     else if (header_from_PNG(hdr))
-        type = CIMAGE_PNG;
+        type = CL_IMAGE_PNG;
 
     return type;
 }
@@ -190,9 +190,9 @@ enum cl_image_type cimage_detect_type(const unsigned char *buffer,
 /*
  * This function tries to detect the image file type from the file itself.
  */
-enum cl_image_type cimage_detect_type_from_file(const char *filename)
+enum cl_image_type cl_image_detect_type_from_file(const char *filename)
 {
-    enum cl_image_type type = CIMAGE_RAW;
+    enum cl_image_type type = CL_IMAGE_RAW;
     FILE *f;
     union file_header hdr;
 
@@ -205,48 +205,48 @@ enum cl_image_type cimage_detect_type_from_file(const char *filename)
     fclose(f);
 
     if (header_from_BMP(hdr))
-        type = CIMAGE_BMP;
+        type = CL_IMAGE_BMP;
     else if (header_from_TIFF(hdr))
-        type = CIMAGE_TIFF;
+        type = CL_IMAGE_TIFF;
     else if (header_from_PPM(hdr))
-        type = CIMAGE_PPM;
+        type = CL_IMAGE_PPM;
     else if (header_from_JPG2K(hdr))
-        type = CIMAGE_JPG2K;
+        type = CL_IMAGE_JPG2K;
     else if (header_from_JPG(hdr))
-        type = CIMAGE_JPG;
+        type = CL_IMAGE_JPG;
     else if (header_from_PNG(hdr))
-        type = CIMAGE_PNG;
+        type = CL_IMAGE_PNG;
 
 end_block:
     return type;
 }
 
-enum PixelFormat cimage_format_to_PixelFormat(enum cl_image_color_format fmt)
+enum PixelFormat cl_image_format_to_PixelFormat(enum cl_image_color_format fmt)
 {
     enum PixelFormat px_fmt = PIX_FMT_GRAY8;
 
     switch (fmt) {
-        case CIMAGE_FMT_BGR:
+        case CL_IMAGE_FMT_BGR:
             px_fmt = PIX_FMT_BGR24;
             break;
 
-        case CIMAGE_FMT_RGB:
+        case CL_IMAGE_FMT_RGB:
             px_fmt = PIX_FMT_RGB24;
             break;
 
-        case CIMAGE_FMT_YUV422:
+        case CL_IMAGE_FMT_YUV422:
             px_fmt = PIX_FMT_YUV422P;
             break;
 
-        case CIMAGE_FMT_YUV420:
+        case CL_IMAGE_FMT_YUV420:
             px_fmt = PIX_FMT_YUV420P;
             break;
 
-        case CIMAGE_FMT_YUYV:
+        case CL_IMAGE_FMT_YUYV:
             px_fmt = PIX_FMT_YUYV422;
             break;
 
-        case CIMAGE_FMT_GRAY:
+        case CL_IMAGE_FMT_GRAY:
         default:
             break;
     }
@@ -254,10 +254,10 @@ enum PixelFormat cimage_format_to_PixelFormat(enum cl_image_color_format fmt)
     return px_fmt;
 }
 
-bool has_internal_image(cimage_s *image)
+bool has_internal_image(cl_image_s *image)
 {
-    if (((image->type == CIMAGE_RAW) && (image->raw.original != NULL)) ||
-        ((image->type != CIMAGE_RAW) && (image->image != NULL)))
+    if (((image->type == CL_IMAGE_RAW) && (image->raw.original != NULL)) ||
+        ((image->type != CL_IMAGE_RAW) && (image->image != NULL)))
     {
         return true;
     }
@@ -270,19 +270,19 @@ int get_channels_by_format(enum cl_image_color_format format)
     int channels = 0;
 
     switch (format) {
-        case CIMAGE_FMT_UNKNOWN:
-        case CIMAGE_FMT_GRAY:
+        case CL_IMAGE_FMT_UNKNOWN:
+        case CL_IMAGE_FMT_GRAY:
             channels = 1;
             break;
 
-        case CIMAGE_FMT_BGR:
-        case CIMAGE_FMT_RGB:
+        case CL_IMAGE_FMT_BGR:
+        case CL_IMAGE_FMT_RGB:
             channels = 3;
             break;
 
-        case CIMAGE_FMT_YUV422:
-        case CIMAGE_FMT_YUV420:
-        case CIMAGE_FMT_YUYV:
+        case CL_IMAGE_FMT_YUV422:
+        case CL_IMAGE_FMT_YUV420:
+        case CL_IMAGE_FMT_YUYV:
             channels = 2;
             break;
     }
@@ -290,28 +290,28 @@ int get_channels_by_format(enum cl_image_color_format format)
     return channels;
 }
 
-char *cimage_type_to_extension(enum cl_image_type type)
+char *cl_image_type_to_extension(enum cl_image_type type)
 {
     switch (type) {
-        case CIMAGE_JPG:
+        case CL_IMAGE_JPG:
             return strdup(EXT_JPG);
 
-        case CIMAGE_BMP:
+        case CL_IMAGE_BMP:
             return strdup(EXT_BMP);
 
-        case CIMAGE_PNG:
+        case CL_IMAGE_PNG:
             return strdup(EXT_PNG);
 
-        case CIMAGE_JPG2K:
+        case CL_IMAGE_JPG2K:
             return strdup(EXT_JPG2K);
 
-        case CIMAGE_TIFF:
+        case CL_IMAGE_TIFF:
             return strdup(EXT_TIFF);
 
-        case CIMAGE_PPM:
+        case CL_IMAGE_PPM:
             return strdup(EXT_PPM);
 
-        case CIMAGE_RAW:
+        case CL_IMAGE_RAW:
             return strdup(EXT_RAW);
 
         default:
@@ -351,13 +351,13 @@ bool is_known_extension(const char *filename)
 bool is_supported_image_type(enum cl_image_type type)
 {
     switch (type) {
-        case CIMAGE_RAW:
-        case CIMAGE_JPG:
-        case CIMAGE_BMP:
-        case CIMAGE_PNG:
-        case CIMAGE_JPG2K:
-        case CIMAGE_TIFF:
-        case CIMAGE_PPM:
+        case CL_IMAGE_RAW:
+        case CL_IMAGE_JPG:
+        case CL_IMAGE_BMP:
+        case CL_IMAGE_PNG:
+        case CL_IMAGE_JPG2K:
+        case CL_IMAGE_TIFF:
+        case CL_IMAGE_PPM:
             return true;
 
         default:
@@ -370,12 +370,12 @@ bool is_supported_image_type(enum cl_image_type type)
 bool is_supported_color_format(enum cl_image_color_format fmt)
 {
     switch (fmt) {
-        case CIMAGE_FMT_GRAY:
-        case CIMAGE_FMT_BGR:
-        case CIMAGE_FMT_RGB:
-        case CIMAGE_FMT_YUV422:
-        case CIMAGE_FMT_YUV420:
-        case CIMAGE_FMT_YUYV:
+        case CL_IMAGE_FMT_GRAY:
+        case CL_IMAGE_FMT_BGR:
+        case CL_IMAGE_FMT_RGB:
+        case CL_IMAGE_FMT_YUV422:
+        case CL_IMAGE_FMT_YUV420:
+        case CL_IMAGE_FMT_YUYV:
             return true;
 
         default:
@@ -388,9 +388,9 @@ bool is_supported_color_format(enum cl_image_color_format fmt)
 bool is_supported_fill_format(enum cl_image_fill_format fmt)
 {
     switch (fmt) {
-        case CIMAGE_FILL_REFERENCE:
-        case CIMAGE_FILL_OWNER:
-        case CIMAGE_FILL_COPY:
+        case CL_IMAGE_FILL_REFERENCE:
+        case CL_IMAGE_FILL_OWNER:
+        case CL_IMAGE_FILL_COPY:
             return true;
 
         default:

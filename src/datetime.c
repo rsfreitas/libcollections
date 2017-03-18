@@ -37,21 +37,21 @@
 #define DAY_IN_SECS             86400
 #define HOUR_IN_SECS            3600
 
-#define cdatetime_members                       \
+#define cl_datetime_members                     \
     cl_struct_member(unsigned int, day)         \
     cl_struct_member(unsigned int, month)       \
     cl_struct_member(unsigned int, year)        \
     cl_struct_member(unsigned int, hour)        \
     cl_struct_member(unsigned int, minute)      \
     cl_struct_member(unsigned int, second)      \
-    cl_struct_member(enum cl_weekday, weekday)    \
+    cl_struct_member(enum cl_weekday, weekday)  \
     cl_struct_member(bool, isdst)               \
     cl_struct_member(struct timeval, tv)        \
-    cl_struct_member(cstring_t *, tzone)
+    cl_struct_member(cl_string_t *, tzone)
 
-cl_struct_declare(cdatetime_s, cdatetime_members);
+cl_struct_declare(cl_datetime_s, cl_datetime_members);
 
-#define cdatetime_s         cl_struct(cdatetime_s)
+#define cl_datetime_s         cl_struct(cl_datetime_s)
 
 static const char *__dow_abbrv[] = {
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
@@ -73,11 +73,11 @@ static const char *__moy_full[] = {
 
 static bool is_leap_year(unsigned int year);
 
-static cdatetime_s *new_cdatetime_s(void)
+static cl_datetime_s *new_cdatetime_s(void)
 {
-    cdatetime_s *d = NULL;
+    cl_datetime_s *d = NULL;
 
-    d = calloc(1, sizeof(cdatetime_s));
+    d = calloc(1, sizeof(cl_datetime_s));
 
     if (NULL == d) {
         cset_errno(CL_NO_MEM);
@@ -85,38 +85,38 @@ static cdatetime_s *new_cdatetime_s(void)
     }
 
     d->tzone = NULL;
-    set_typeof(CDATETIME, d);
+    set_typeof(CL_OBJ_DATETIME, d);
 
     return d;
 }
 
-static void destroy_cdatetime_s(cdatetime_s *dt)
+static void destroy_cdatetime_s(cl_datetime_s *dt)
 {
     if (NULL == dt)
         return;
 
     if (dt->tzone != NULL)
-        cstring_destroy(dt->tzone);
+        cl_string_destroy(dt->tzone);
 
     free(dt);
 }
 
-static bool is_GMT(cdatetime_s *dt)
+static bool is_GMT(cl_datetime_s *dt)
 {
-    cstring_t *s;
+    cl_string_t *s;
     bool ret = false;
 
-    s = cstring_create("GMT");
+    s = cl_string_create("GMT");
 
-    if (cstring_cmp(dt->tzone, s) == 0)
+    if (cl_string_cmp(dt->tzone, s) == 0)
         ret = true;
 
-    cstring_destroy(s);
+    cl_string_destroy(s);
 
     return ret;
 }
 
-static void cvt_time(cdatetime_s *dt, bool UTC)
+static void cvt_time(cl_datetime_s *dt, bool UTC)
 {
     struct tm tm;
 
@@ -137,24 +137,24 @@ static void cvt_time(cdatetime_s *dt, bool UTC)
     dt->weekday = tm.tm_wday;
 
     if (dt->tzone != NULL)
-        cstring_destroy(dt->tzone);
+        cl_string_destroy(dt->tzone);
 
-    dt->tzone = cstring_create("%s", tm.tm_zone);
+    dt->tzone = cl_string_create("%s", tm.tm_zone);
 }
 
-__PUB_API__ int cdt_destroy(cdatetime_t *dt)
+__PUB_API__ int cl_dt_destroy(cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
     destroy_cdatetime_s(t);
 
     return 0;
 }
 
-__PUB_API__ cdatetime_t *cdt_localtime(void)
+__PUB_API__ cl_datetime_t *cl_dt_localtime(void)
 {
-    cdatetime_s *dt = NULL;
+    cl_datetime_s *dt = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
     dt = new_cdatetime_s();
@@ -171,136 +171,136 @@ __PUB_API__ cdatetime_t *cdt_localtime(void)
     return dt;
 }
 
-__PUB_API__ int cdt_day(const cdatetime_t *dt)
+__PUB_API__ int cl_dt_day(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
 
     return t->day;
 }
 
-__PUB_API__ int cdt_month(const cdatetime_t *dt)
+__PUB_API__ int cl_dt_month(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
 
     return t->month;
 }
 
-__PUB_API__ int cdt_year(const cdatetime_t *dt)
+__PUB_API__ int cl_dt_year(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
 
     return t->year;
 }
 
-__PUB_API__ int cdt_hour(const cdatetime_t *dt)
+__PUB_API__ int cl_dt_hour(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
 
     return t->hour;
 }
 
-__PUB_API__ int cdt_minute(const cdatetime_t *dt)
+__PUB_API__ int cl_dt_minute(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
 
     return t->minute;
 }
 
-__PUB_API__ int cdt_second(const cdatetime_t *dt)
+__PUB_API__ int cl_dt_second(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
 
     return t->second;
 }
 
-__PUB_API__ bool cdt_isdst(const cdatetime_t *dt)
+__PUB_API__ bool cl_dt_isdst(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, false);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, false);
 
     return t->isdst;
 }
 
-__PUB_API__ bool cdt_leap_year(const cdatetime_t *dt)
+__PUB_API__ bool cl_dt_leap_year(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, false);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, false);
 
     return is_leap_year(t->year);
 }
 
-__PUB_API__ enum cl_weekday cdt_weekday(const cdatetime_t *dt)
+__PUB_API__ enum cl_weekday cl_dt_weekday(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, -1);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, -1);
 
     return t->weekday;
 }
 
-__PUB_API__ unsigned int cdt_get_seconds(const cdatetime_t *dt)
+__PUB_API__ unsigned int cl_dt_get_seconds(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, 0);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, 0);
 
     return t->tv.tv_sec;
 }
 
-__PUB_API__ unsigned long long cdt_get_mseconds(const cdatetime_t *dt)
+__PUB_API__ unsigned long long cl_dt_get_mseconds(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, 0);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, 0);
 
     return ((unsigned long long)t->tv.tv_sec * 1000) + (t->tv.tv_usec / 1000);
 }
 
-__PUB_API__ unsigned long long cdt_get_useconds(const cdatetime_t *dt)
+__PUB_API__ unsigned long long cl_dt_get_useconds(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
 
-    __clib_function_init__(true, dt, CDATETIME, 0);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, 0);
 
     return ((unsigned long long)t->tv.tv_sec * 1000000) + t->tv.tv_usec;
 }
 
-__PUB_API__ cstring_t *cdt_month_of_year(const cdatetime_t *dt, bool full)
+__PUB_API__ cl_string_t *cl_dt_month_of_year(const cl_datetime_t *dt, bool full)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
     int moy;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
     moy = t->month;
 
-    return cstring_create("%s", (full == true) ? __moy_full[moy]
-                                               : __moy_abbrv[moy]);
+    return cl_string_create("%s", (full == true) ? __moy_full[moy]
+                                                 : __moy_abbrv[moy]);
 }
 
-__PUB_API__ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full)
+__PUB_API__ cl_string_t *cl_dt_day_of_week(const cl_datetime_t *dt, bool full)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
     int dow;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
     dow = t->weekday;
 
-    return cstring_create("%s", (full == true) ? __dow_full[dow]
-                                               : __dow_abbrv[dow]);
+    return cl_string_create("%s", (full == true) ? __dow_full[dow]
+                                                 : __dow_abbrv[dow]);
 }
 
 /*
@@ -334,20 +334,20 @@ __PUB_API__ cstring_t *cdt_day_of_week(const cdatetime_t *dt, bool full)
  *
  * %1 - milliseconds
  */
-__PUB_API__ cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
+__PUB_API__ cl_string_t *cl_dt_to_cstring(const cl_datetime_t *dt, const char *fmt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt;
-    cstring_t *d = NULL;
+    cl_datetime_s *t = (cl_datetime_s *)dt;
+    cl_string_t *d = NULL;
     int i;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
 
     if (NULL == fmt) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    d = cstring_create_empty(0);
+    d = cl_string_create_empty(0);
 
     do {
         if (*fmt == '%') {
@@ -355,51 +355,51 @@ __PUB_API__ cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
 
             switch (*fmt) {
                 case 'a':
-                    cstring_cat(d, "%s", __dow_abbrv[t->weekday]);
+                    cl_string_cat(d, "%s", __dow_abbrv[t->weekday]);
                     break;
 
                 case 'A':
-                    cstring_cat(d, "%s", __dow_full[t->weekday]);
+                    cl_string_cat(d, "%s", __dow_full[t->weekday]);
                     break;
 
                 case 'b':
-                    cstring_cat(d, "%s", __moy_abbrv[t->month]);
+                    cl_string_cat(d, "%s", __moy_abbrv[t->month]);
                     break;
 
                 case 'B':
-                    cstring_cat(d, "%s", __moy_full[t->month]);
+                    cl_string_cat(d, "%s", __moy_full[t->month]);
                     break;
 
                 case 'd':
-                    cstring_cat(d, "%02d", t->day);
+                    cl_string_cat(d, "%02d", t->day);
                     break;
 
                 case 'm':
-                    cstring_cat(d, "%02d", t->month + 1);
+                    cl_string_cat(d, "%02d", t->month + 1);
                     break;
 
                 case 'y':
-                    cstring_cat(d, "%02d", t->year % 100);
+                    cl_string_cat(d, "%02d", t->year % 100);
                     break;
 
                 case 'Y':
-                    cstring_cat(d, "%d", t->year);
+                    cl_string_cat(d, "%d", t->year);
                     break;
 
                 case 'D':
-                    cstring_cat(d, "%02d/%02d/%02d", t->day, t->month + 1,
-                                t->year % 100);
+                    cl_string_cat(d, "%02d/%02d/%02d", t->day, t->month + 1,
+                                  t->year % 100);
 
                     break;
 
                 case 'F':
-                    cstring_cat(d, "%d-%02d-%02d", t->year, t->month + 1,
-                                t->day);
+                    cl_string_cat(d, "%d-%02d-%02d", t->year, t->month + 1,
+                                  t->day);
 
                     break;
 
                 case 'H':
-                    cstring_cat(d, "%02d", t->hour);
+                    cl_string_cat(d, "%02d", t->hour);
                     break;
 
                 case 'I':
@@ -408,29 +408,29 @@ __PUB_API__ cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
                     else
                         i = t->hour;
 
-                    cstring_cat(d, "%02d", i);
+                    cl_string_cat(d, "%02d", i);
                     break;
 
                 case 'M':
-                    cstring_cat(d, "%02d", t->minute);
+                    cl_string_cat(d, "%02d", t->minute);
                     break;
 
                 case 'S':
-                    cstring_cat(d, "%02d", t->second);
+                    cl_string_cat(d, "%02d", t->second);
                     break;
 
                 case 'p':
                 case 'P':
                     if ((t->hour >= 12) && (t->hour <= 23))
-                        cstring_cat(d, (*fmt == 'p') ? "PM" : "pm");
+                        cl_string_cat(d, (*fmt == 'p') ? "PM" : "pm");
                     else
-                        cstring_cat(d, (*fmt == 'p') ? "AM" : "am");
+                        cl_string_cat(d, (*fmt == 'p') ? "AM" : "am");
 
                     break;
 
                 case 'T':
-                    cstring_cat(d, "%02d:%02d:%02d", t->hour, t->minute,
-                                t->second);
+                    cl_string_cat(d, "%02d:%02d:%02d", t->hour, t->minute,
+                                  t->second);
 
                     break;
 
@@ -440,37 +440,37 @@ __PUB_API__ cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
                     else
                         i = t->hour;
 
-                    cstring_cat(d, "%02d:%02d:%02d ", i, t->minute, t->second);
+                    cl_string_cat(d, "%02d:%02d:%02d ", i, t->minute, t->second);
 
                     if ((t->hour >= 12) && (t->hour <= 23))
-                        cstring_cat(d, "PM");
+                        cl_string_cat(d, "PM");
                     else
-                        cstring_cat(d, "AM");
+                        cl_string_cat(d, "AM");
 
                     break;
 
                 case 'u':
-                    cstring_cat(d, "%d", (t->weekday == CL_SUNDAY)
+                    cl_string_cat(d, "%d", (t->weekday == CL_SUNDAY)
                                                 ? 7
                                                 : t->weekday);
 
                     break;
 
                 case 'w':
-                    cstring_cat(d, "%d", t->weekday);
+                    cl_string_cat(d, "%d", t->weekday);
                     break;
 
                 case 'Z':
-                    cstring_cat(d, "%s", cstring_valueof(t->tzone));
+                    cl_string_cat(d, "%s", cl_string_valueof(t->tzone));
                     break;
 
                 case '1':
-                    cstring_cat(d, "%03ld", t->tv.tv_usec / 1000);
+                    cl_string_cat(d, "%03ld", t->tv.tv_usec / 1000);
                     break;
             }
         } else
             if (isprint(*fmt))
-                cstring_cat(d, "%c", *fmt);
+                cl_string_cat(d, "%c", *fmt);
     } while (*fmt++);
 
     return d;
@@ -480,20 +480,20 @@ __PUB_API__ cstring_t *cdt_to_cstring(const cdatetime_t *dt, const char *fmt)
  * All comparisons are made using seconds precision.
  */
 
-__PUB_API__ int cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2)
+__PUB_API__ int cl_dt_cmp(const cl_datetime_t *t1, const cl_datetime_t *t2)
 {
     unsigned int s1, s2;
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(t1, CDATETIME) == false) ||
-        (validate_object(t2, CDATETIME) == false))
+    if ((validate_object(t1, CL_OBJ_DATETIME) == false) ||
+        (validate_object(t2, CL_OBJ_DATETIME) == false))
     {
         return -1;
     }
 
-    s1 = cdt_get_seconds(t1);
-    s2 = cdt_get_seconds(t2);
+    s1 = cl_dt_get_seconds(t1);
+    s2 = cl_dt_get_seconds(t2);
 
     if (s1 > s2)
         return 1;
@@ -503,20 +503,20 @@ __PUB_API__ int cdt_cmp(const cdatetime_t *t1, const cdatetime_t *t2)
     return 0;
 }
 
-__PUB_API__ bool cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
+__PUB_API__ bool cl_dt_isafter(const cl_datetime_t *dt, const cl_datetime_t *other)
 {
     unsigned int s1, s2;
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(dt, CDATETIME) == false) ||
-        (validate_object(other, CDATETIME) == false))
+    if ((validate_object(dt, CL_OBJ_DATETIME) == false) ||
+        (validate_object(other, CL_OBJ_DATETIME) == false))
     {
         return false;
     }
 
-    s1 = cdt_get_seconds(dt);
-    s2 = cdt_get_seconds(other);
+    s1 = cl_dt_get_seconds(dt);
+    s2 = cl_dt_get_seconds(other);
 
     if (s1 > s2)
         return true;
@@ -524,20 +524,20 @@ __PUB_API__ bool cdt_isafter(const cdatetime_t *dt, const cdatetime_t *other)
     return false;
 }
 
-__PUB_API__ bool cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
+__PUB_API__ bool cl_dt_isbefore(const cl_datetime_t *dt, const cl_datetime_t *other)
 {
     unsigned int s1, s2;
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(dt, CDATETIME) == false) ||
-        (validate_object(other, CDATETIME) == false))
+    if ((validate_object(dt, CL_OBJ_DATETIME) == false) ||
+        (validate_object(other, CL_OBJ_DATETIME) == false))
     {
         return false;
     }
 
-    s1 = cdt_get_seconds(dt);
-    s2 = cdt_get_seconds(other);
+    s1 = cl_dt_get_seconds(dt);
+    s2 = cl_dt_get_seconds(other);
 
     if (s1 < s2)
         return true;
@@ -545,20 +545,20 @@ __PUB_API__ bool cdt_isbefore(const cdatetime_t *dt, const cdatetime_t *other)
     return false;
 }
 
-__PUB_API__ bool cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
+__PUB_API__ bool cl_dt_isequal(const cl_datetime_t *dt, const cl_datetime_t *other)
 {
     unsigned int s1, s2;
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(dt, CDATETIME) == false) ||
-        (validate_object(other, CDATETIME) == false))
+    if ((validate_object(dt, CL_OBJ_DATETIME) == false) ||
+        (validate_object(other, CL_OBJ_DATETIME) == false))
     {
         return false;
     }
 
-    s1 = cdt_get_seconds(dt);
-    s2 = cdt_get_seconds(other);
+    s1 = cl_dt_get_seconds(dt);
+    s2 = cl_dt_get_seconds(other);
 
     if (s1 == s2)
         return true;
@@ -566,12 +566,12 @@ __PUB_API__ bool cdt_isequal(const cdatetime_t *dt, const cdatetime_t *other)
     return false;
 }
 
-__PUB_API__ cdatetime_t *cdt_dup(const cdatetime_t *dt)
+__PUB_API__ cl_datetime_t *cl_dt_dup(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = NULL, *tt = (cdatetime_s *)dt;
+    cl_datetime_s *t = NULL, *tt = (cl_datetime_s *)dt;
     bool UTC = false;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
     t = new_cdatetime_s();
 
     if (NULL == t)
@@ -589,9 +589,9 @@ __PUB_API__ cdatetime_t *cdt_dup(const cdatetime_t *dt)
     return t;
 }
 
-__PUB_API__ cdatetime_t *cdt_gmtime(void)
+__PUB_API__ cl_datetime_t *cl_dt_gmtime(void)
 {
-    cdatetime_s *dt = NULL;
+    cl_datetime_s *dt = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
     dt = new_cdatetime_s();
@@ -608,12 +608,12 @@ __PUB_API__ cdatetime_t *cdt_gmtime(void)
     return dt;
 }
 
-__PUB_API__ cdatetime_t *cdt_to_localtime(const cdatetime_t *dt)
+__PUB_API__ cl_datetime_t *cl_dt_to_localtime(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt, *ddt = NULL;
+    cl_datetime_s *t = (cl_datetime_s *)dt, *ddt = NULL;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(t);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(t);
 
     /* Already localtime, returns a copy */
     if (is_GMT(t) == false)
@@ -625,12 +625,12 @@ __PUB_API__ cdatetime_t *cdt_to_localtime(const cdatetime_t *dt)
     return ddt;
 }
 
-__PUB_API__ cdatetime_t *cdt_to_gmtime(const cdatetime_t *dt)
+__PUB_API__ cl_datetime_t *cl_dt_to_gmtime(const cl_datetime_t *dt)
 {
-    cdatetime_s *t = (cdatetime_s *)dt, *ddt = NULL;
+    cl_datetime_s *t = (cl_datetime_s *)dt, *ddt = NULL;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(t);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(t);
 
     /* Already GMT, returns a copy */
     if (is_GMT(t) == true)
@@ -674,11 +674,11 @@ static bool is_minute_or_second(unsigned int value)
     return true;
 }
 
-__PUB_API__ cdatetime_t *cdt_mktime(unsigned int year, unsigned int month,
+__PUB_API__ cl_datetime_t *cl_dt_mktime(unsigned int year, unsigned int month,
     unsigned int day, unsigned int hour, unsigned int minute,
     unsigned int second)
 {
-    cdatetime_s *dt = NULL;
+    cl_datetime_s *dt = NULL;
     struct tm tm;
 
     __clib_function_init__(false, NULL, -1, NULL);
@@ -711,41 +711,41 @@ __PUB_API__ cdatetime_t *cdt_mktime(unsigned int year, unsigned int month,
     return dt;
 }
 
-__PUB_API__ cdatetime_t *cdt_mktime_from_cstring(const cstring_t *datetime)
+__PUB_API__ cl_datetime_t *cl_dt_mktime_from_cstring(const cl_string_t *datetime)
 {
-    cstring_t *p, *s;
-    cstring_list_t *l, *ld, *lt;
+    cl_string_t *p, *s;
+    cl_string_list_t *l, *ld, *lt;
     int day, month, year, hour, min, sec;
 
-    __clib_function_init__(true, datetime, CSTRING, NULL);
-    s = cstring_dup(datetime);
-    cstring_alltrim(s);
+    __clib_function_init__(true, datetime, CL_OBJ_STRING, NULL);
+    s = cl_string_dup(datetime);
+    cl_string_alltrim(s);
 
-    l = cstring_split(s, " ");
-    ld = cstring_split(cstring_list_get(l, 0), "/-");
-    lt = cstring_split(cstring_list_get(l, 1), ":");
+    l = cl_string_split(s, " ");
+    ld = cl_string_split(cl_string_list_get(l, 0), "/-");
+    lt = cl_string_split(cl_string_list_get(l, 1), ":");
 
-    hour = cstring_to_int(cstring_list_get(lt, 0));
-    min = cstring_to_int(cstring_list_get(lt, 1));
-    sec = cstring_to_int(cstring_list_get(lt, 2));
+    hour = cl_string_to_int(cl_string_list_get(lt, 0));
+    min = cl_string_to_int(cl_string_list_get(lt, 1));
+    sec = cl_string_to_int(cl_string_list_get(lt, 2));
 
-    p = cstring_list_get(ld, 0);
-    month = cstring_to_int(cstring_list_get(ld, 1));
+    p = cl_string_list_get(ld, 0);
+    month = cl_string_to_int(cl_string_list_get(ld, 1));
 
-    if (cstring_length(p) == 2) {
-        day = cstring_to_int(p);
-        year = cstring_to_int(cstring_list_get(ld, 2));
+    if (cl_string_length(p) == 2) {
+        day = cl_string_to_int(p);
+        year = cl_string_to_int(cl_string_list_get(ld, 2));
     } else {
-        year = cstring_to_int(p);
-        day = cstring_to_int(cstring_list_get(ld, 2));
+        year = cl_string_to_int(p);
+        day = cl_string_to_int(cl_string_list_get(ld, 2));
     }
 
-    cstring_list_destroy(lt);
-    cstring_list_destroy(ld);
-    cstring_list_destroy(l);
-    cstring_unref(s);
+    cl_string_list_destroy(lt);
+    cl_string_list_destroy(ld);
+    cl_string_list_destroy(l);
+    cl_string_unref(s);
 
-    return cdt_mktime(year, month, day, hour, min, sec);
+    return cl_dt_mktime(year, month, day, hour, min, sec);
 }
 
 static bool is_leap_year(unsigned int year)
@@ -768,15 +768,16 @@ static int get_number_of_leap_years(unsigned int year1, unsigned int year2)
     return n;
 }
 
-__PUB_API__ cdatetime_t *cdt_minus_years(const cdatetime_t *dt, unsigned int years)
+__PUB_API__ cl_datetime_t *cl_dt_minus_years(const cl_datetime_t *dt,
+    unsigned int years)
 {
-    cdatetime_s *ddt = NULL;
+    cl_datetime_s *ddt = NULL;
     unsigned int n;
     int leap_years=0;
     bool UTC = false;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(dt);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(dt);
 
     if (NULL == ddt)
         return NULL;
@@ -793,14 +794,15 @@ __PUB_API__ cdatetime_t *cdt_minus_years(const cdatetime_t *dt, unsigned int yea
     return ddt;
 }
 
-__PUB_API__ cdatetime_t *cdt_minus_days(const cdatetime_t *dt, unsigned int days)
+__PUB_API__ cl_datetime_t *cl_dt_minus_days(const cl_datetime_t *dt,
+    unsigned int days)
 {
-    cdatetime_s *ddt = NULL;
+    cl_datetime_s *ddt = NULL;
     unsigned int n;
     bool UTC = false;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(dt);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(dt);
 
     if (NULL == ddt)
         return NULL;
@@ -815,13 +817,13 @@ __PUB_API__ cdatetime_t *cdt_minus_days(const cdatetime_t *dt, unsigned int days
     return ddt;
 }
 
-__PUB_API__ cdatetime_t *cdt_minus_seconds(const cdatetime_t *dt,
+__PUB_API__ cl_datetime_t *cl_dt_minus_seconds(const cl_datetime_t *dt,
     unsigned int seconds)
 {
-    cdatetime_s *ddt = NULL;
+    cl_datetime_s *ddt = NULL;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(dt);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(dt);
 
     if (NULL == ddt)
         return NULL;
@@ -832,25 +834,27 @@ __PUB_API__ cdatetime_t *cdt_minus_seconds(const cdatetime_t *dt,
     return ddt;
 }
 
-__PUB_API__ cdatetime_t *cdt_minus_minutes(const cdatetime_t *dt,
+__PUB_API__ cl_datetime_t *cl_dt_minus_minutes(const cl_datetime_t *dt,
     unsigned int minutes)
 {
-    return cdt_minus_seconds(dt, minutes * 60);
+    return cl_dt_minus_seconds(dt, minutes * 60);
 }
 
-__PUB_API__ cdatetime_t *cdt_minus_hours(const cdatetime_t *dt, unsigned int hours)
+__PUB_API__ cl_datetime_t *cl_dt_minus_hours(const cl_datetime_t *dt,
+    unsigned int hours)
 {
-    return cdt_minus_seconds(dt, hours * 3600);
+    return cl_dt_minus_seconds(dt, hours * 3600);
 }
 
-__PUB_API__ cdatetime_t *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
+__PUB_API__ cl_datetime_t *cl_dt_plus_days(const cl_datetime_t *dt,
+    unsigned int days)
 {
-    cdatetime_s *ddt = NULL;
+    cl_datetime_s *ddt = NULL;
     unsigned int n;
     bool UTC = false;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(dt);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(dt);
 
     if (NULL == ddt)
         return NULL;
@@ -865,15 +869,16 @@ __PUB_API__ cdatetime_t *cdt_plus_days(const cdatetime_t *dt, unsigned int days)
     return ddt;
 }
 
-__PUB_API__ cdatetime_t *cdt_plus_years(const cdatetime_t *dt, unsigned int years)
+__PUB_API__ cl_datetime_t *cl_dt_plus_years(const cl_datetime_t *dt,
+    unsigned int years)
 {
-    cdatetime_s *ddt = NULL;
+    cl_datetime_s *ddt = NULL;
     unsigned int n;
     int leap_years=0;
     bool UTC = false;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(dt);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(dt);
 
     if (NULL == ddt)
         return NULL;
@@ -890,13 +895,13 @@ __PUB_API__ cdatetime_t *cdt_plus_years(const cdatetime_t *dt, unsigned int year
     return ddt;
 }
 
-__PUB_API__ cdatetime_t *cdt_plus_seconds(const cdatetime_t *dt,
+__PUB_API__ cl_datetime_t *cl_dt_plus_seconds(const cl_datetime_t *dt,
     unsigned int seconds)
 {
-    cdatetime_s *ddt = NULL;
+    cl_datetime_s *ddt = NULL;
 
-    __clib_function_init__(true, dt, CDATETIME, NULL);
-    ddt = cdt_dup(dt);
+    __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
+    ddt = cl_dt_dup(dt);
 
     if (NULL == ddt)
         return NULL;
@@ -907,52 +912,53 @@ __PUB_API__ cdatetime_t *cdt_plus_seconds(const cdatetime_t *dt,
     return ddt;
 }
 
-__PUB_API__ cdatetime_t *cdt_plus_minutes(const cdatetime_t *dt,
+__PUB_API__ cl_datetime_t *cl_dt_plus_minutes(const cl_datetime_t *dt,
     unsigned int minutes)
 {
-    return cdt_plus_seconds(dt, minutes * 60);
+    return cl_dt_plus_seconds(dt, minutes * 60);
 }
 
-__PUB_API__ cdatetime_t *cdt_plus_hours(const cdatetime_t *dt, unsigned int hours)
+__PUB_API__ cl_datetime_t *cl_dt_plus_hours(const cl_datetime_t *dt,
+    unsigned int hours)
 {
-    return cdt_plus_seconds(dt, hours * 3600);
+    return cl_dt_plus_seconds(dt, hours * 3600);
 }
 
-__PUB_API__ enum cl_weekday cdt_current_weekday(void)
+__PUB_API__ enum cl_weekday cl_dt_current_weekday(void)
 {
-    cdatetime_t *dt = NULL;
+    cl_datetime_t *dt = NULL;
     enum cl_weekday w;
 
     __clib_function_init__(false, NULL, -1, -1);
-    dt = cdt_localtime();
+    dt = cl_dt_localtime();
 
     if (NULL == dt)
         return -1;
 
-    w = cdt_weekday(dt);
-    cdt_destroy(dt);
+    w = cl_dt_weekday(dt);
+    cl_dt_destroy(dt);
 
     return w;
 }
 
-__PUB_API__ enum cl_month cdt_current_month(void)
+__PUB_API__ enum cl_month cl_dt_current_month(void)
 {
-    cdatetime_t *dt = NULL;
+    cl_datetime_t *dt = NULL;
     enum cl_month m;
 
     __clib_function_init__(false, NULL, -1, -1);
-    dt = cdt_localtime();
+    dt = cl_dt_localtime();
 
     if (NULL == dt)
         return -1;
 
-    m = cdt_month(dt);
-    cdt_destroy(dt);
+    m = cl_dt_month(dt);
+    cl_dt_destroy(dt);
 
     return m;
 }
 
-__PUB_API__ bool cdt_is_local_dst(void)
+__PUB_API__ bool cl_dt_is_local_dst(void)
 {
     time_t t;
     struct tm tm;
@@ -967,7 +973,7 @@ __PUB_API__ bool cdt_is_local_dst(void)
     return false;
 }
 
-__PUB_API__ bool cdt_is_leap_year(void)
+__PUB_API__ bool cl_dt_is_leap_year(void)
 {
     time_t t;
     struct tm tm;

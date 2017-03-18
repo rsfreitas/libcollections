@@ -54,7 +54,7 @@ static bool is_header_from_raw_image(const unsigned char *buffer)
     return false;
 }
 
-static int raw_load_from_mem(const unsigned char *buffer, cimage_s *image)
+static int raw_load_from_mem(const unsigned char *buffer, cl_image_s *image)
 {
     /* Are we receiving a RAW image with header? */
     if (is_header_from_raw_image(buffer))
@@ -73,20 +73,20 @@ static int raw_load_from_mem(const unsigned char *buffer, cimage_s *image)
      */
     image->raw.original = (unsigned char *)buffer;
     image->raw.headless = (unsigned char *)buffer + sizeof(struct raw_header);
-    image->type = CIMAGE_RAW;
+    image->type = CL_IMAGE_RAW;
     image->format = image->raw.hdr.format;
-    image->fill_format = CIMAGE_FILL_OWNER;
+    image->fill_format = CL_IMAGE_FILL_OWNER;
 
     return 0;
 }
 
-int raw_load(const char *filename, cimage_s *image)
+int raw_load(const char *filename, cl_image_s *image)
 {
     unsigned char *buffer = NULL;
     unsigned int bsize = 0;
     int ret;
 
-    buffer = cfload(filename, &bsize);
+    buffer = cl_fload(filename, &bsize);
 
     if (NULL == buffer)
         return -1;
@@ -100,7 +100,7 @@ int raw_load(const char *filename, cimage_s *image)
     return ret;
 }
 
-int raw_save_to_mem(const cimage_s *image, unsigned char **buffer,
+int raw_save_to_mem(const cl_image_s *image, unsigned char **buffer,
     unsigned int *bsize)
 {
     struct raw_header hdr;
@@ -130,7 +130,7 @@ int raw_save_to_mem(const cimage_s *image, unsigned char **buffer,
     return 0;
 }
 
-int raw_save(const cimage_s *image, const char *filename)
+int raw_save(const cl_image_s *image, const char *filename)
 {
     unsigned char *buffer = NULL;
     unsigned int bsize = 0;
@@ -138,7 +138,7 @@ int raw_save(const cimage_s *image, const char *filename)
     if (raw_save_to_mem(image, &buffer, &bsize) < 0)
         return -1;
 
-    cfsave(filename, buffer, bsize);
+    cl_fsave(filename, buffer, bsize);
     free(buffer);
 
     return 0;
@@ -354,18 +354,18 @@ static int get_raw_size(enum cl_image_color_format format, unsigned int width,
     int size = -1;
 
     switch (format) {
-        case CIMAGE_FMT_BGR:
-        case CIMAGE_FMT_RGB:
+        case CL_IMAGE_FMT_BGR:
+        case CL_IMAGE_FMT_RGB:
             size = width * height * 3;
             break;
 
-        case CIMAGE_FMT_YUV422:
-        case CIMAGE_FMT_YUV420:
-        case CIMAGE_FMT_YUYV:
+        case CL_IMAGE_FMT_YUV422:
+        case CL_IMAGE_FMT_YUV420:
+        case CL_IMAGE_FMT_YUYV:
             size = width * height * 2;
             break;
 
-        case CIMAGE_FMT_GRAY:
+        case CL_IMAGE_FMT_GRAY:
             size = width * height;
             break;
 
@@ -377,9 +377,9 @@ static int get_raw_size(enum cl_image_color_format format, unsigned int width,
 }
 
 /*
- * Fills the cimage_t object with a raw image buffer.
+ * Fills the cl_image_t object with a raw image buffer.
  */
-int fill_raw_image(cimage_s *image, const unsigned char *buffer,
+int fill_raw_image(cl_image_s *image, const unsigned char *buffer,
     enum cl_image_color_format format, unsigned int width, unsigned int height,
     enum cl_image_fill_format fill_format)
 {
@@ -403,14 +403,14 @@ int fill_raw_image(cimage_s *image, const unsigned char *buffer,
      * saved RAW header.
      */
     switch (fill_format) {
-        case CIMAGE_FILL_REFERENCE:
-        case CIMAGE_FILL_OWNER:
+        case CL_IMAGE_FILL_REFERENCE:
+        case CL_IMAGE_FILL_OWNER:
             image->raw.original = (unsigned char *)buffer;
             break;
 
-        case CIMAGE_FILL_COPY:
-            image->raw.original = cmemdup((unsigned char *)buffer,
-                                          image->raw.hdr.size);
+        case CL_IMAGE_FILL_COPY:
+            image->raw.original = cl_memdup((unsigned char *)buffer,
+                                            image->raw.hdr.size);
 
             break;
     }
@@ -421,7 +421,7 @@ int fill_raw_image(cimage_s *image, const unsigned char *buffer,
     return 0;
 }
 
-int raw_resize(cimage_s *out, cimage_s *in, unsigned int new_width,
+int raw_resize(cl_image_s *out, cl_image_s *in, unsigned int new_width,
     unsigned int new_height)
 {
     enum PixelFormat sws_fmt_in, sws_fmt_out;
@@ -432,8 +432,8 @@ int raw_resize(cimage_s *out, cimage_s *in, unsigned int new_width,
     unsigned int bsize = 0;
 
     /* Resize the image */
-    sws_fmt_in = cimage_format_to_PixelFormat(in->format);
-    sws_fmt_out = cimage_format_to_PixelFormat(in->format);
+    sws_fmt_in = cl_image_format_to_PixelFormat(in->format);
+    sws_fmt_out = cl_image_format_to_PixelFormat(in->format);
     bsize = get_raw_size(in->format, new_width, new_height);
     b = calloc(bsize, sizeof(unsigned char));
 
@@ -458,9 +458,9 @@ int raw_resize(cimage_s *out, cimage_s *in, unsigned int new_width,
 
     sws_freeContext(ctx);
 
-    /* And fill the cimage_t with its new content */
+    /* And fill the cl_image_t with its new content */
     if (fill_raw_image(out, b, in->raw.hdr.format, new_width, new_height,
-                       CIMAGE_FILL_OWNER) < 0)
+                       CL_IMAGE_FILL_OWNER) < 0)
     {
         return -1;
     }
@@ -468,16 +468,16 @@ int raw_resize(cimage_s *out, cimage_s *in, unsigned int new_width,
     return 0;
 }
 
-int raw_extract(cimage_s *out, cimage_s *in, int x, int y, int w, int h)
+int raw_extract(cl_image_s *out, cl_image_s *in, int x, int y, int w, int h)
 {
     unsigned char *b = NULL;
     unsigned int bsize = 0;
 
     /* Extract the RAW image area */
 
-    /* And fill the cimage_t with its new content */
+    /* And fill the cl_image_t with its new content */
     if (fill_raw_image(out, b, in->raw.hdr.format, w, h,
-                       CIMAGE_FILL_OWNER) < 0)
+                       CL_IMAGE_FILL_OWNER) < 0)
     {
         return -1;
     }
@@ -494,7 +494,7 @@ int raw_extract(cimage_s *out, cimage_s *in, int x, int y, int w, int h)
 /*
  * Our "real" image format conversion routine. ;-)
  */
-__PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
+__PUB_API__ unsigned char *cl_raw_cvt_format(const unsigned char *buffer,
     enum cl_image_color_format fmt_in, unsigned int width, unsigned int height,
     enum cl_image_color_format fmt_out, unsigned int *bsize)
 {
@@ -504,8 +504,8 @@ __PUB_API__ unsigned char *craw_cvt_format(const unsigned char *buffer,
     uint8_t *data_in[4], *data_out[4];
     int linesize[4], out_linesize[4];
 
-    sws_fmt_in = cimage_format_to_PixelFormat(fmt_in);
-    sws_fmt_out = cimage_format_to_PixelFormat(fmt_out);
+    sws_fmt_in = cl_image_format_to_PixelFormat(fmt_in);
+    sws_fmt_out = cl_image_format_to_PixelFormat(fmt_out);
     *bsize = get_raw_size(fmt_out, width, height);
     b = calloc(*bsize, sizeof(unsigned char));
 

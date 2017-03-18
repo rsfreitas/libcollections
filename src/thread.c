@@ -35,21 +35,21 @@ struct sync_data_s {
     enum cl_thread_state  state;
 };
 
-#define cthread_members                         \
-    cl_struct_member(struct sync_data_s, sdata) \
-    cl_struct_member(pthread_t, thread_id)      \
-    cl_struct_member(pthread_attr_t, attr)      \
+#define cl_thread_members                           \
+    cl_struct_member(struct sync_data_s, sdata)     \
+    cl_struct_member(pthread_t, thread_id)          \
+    cl_struct_member(pthread_attr_t, attr)          \
     cl_struct_member(void *, user_data)
 
-cl_struct_declare(cthread_s, cthread_members);
+cl_struct_declare(cl_thread_s, cl_thread_members);
 
-#define cthread_s               cl_struct(cthread_s)
+#define cl_thread_s               cl_struct(cl_thread_s)
 
-static cthread_s *new_thread_data(void *user_data)
+static cl_thread_s *new_thread_data(void *user_data)
 {
-    cthread_s *td = NULL;
+    cl_thread_s *td = NULL;
 
-    td = calloc(1, sizeof(cthread_s));
+    td = calloc(1, sizeof(cl_thread_s));
 
     if (NULL == td) {
         cset_errno(CL_NO_MEM);
@@ -57,12 +57,12 @@ static cthread_s *new_thread_data(void *user_data)
     }
 
     td->user_data = user_data;
-    set_typeof(CTHREAD, td);
+    set_typeof(CL_OBJ_THREAD, td);
 
     return td;
 }
 
-static void destroy_thread_data(cthread_s *td)
+static void destroy_thread_data(cl_thread_s *td)
 {
     if (NULL == td)
         return;
@@ -78,21 +78,21 @@ static bool validate_thread_state(enum cl_thread_state state)
     return true;
 }
 
-__PUB_API__ void *cthread_get_user_data(cthread_t *arg)
+__PUB_API__ void *cl_thread_get_user_data(cl_thread_t *arg)
 {
-    cthread_s *td;
+    cl_thread_s *td;
 
-    __clib_function_init__(true, arg, CTHREAD, NULL);
-    td = (cthread_s *)arg;
+    __clib_function_init__(true, arg, CL_OBJ_THREAD, NULL);
+    td = (cl_thread_s *)arg;
 
     return td->user_data;
 }
 
-__PUB_API__ int cthread_set_state(cthread_t *t, enum cl_thread_state state)
+__PUB_API__ int cl_thread_set_state(cl_thread_t *t, enum cl_thread_state state)
 {
-    cthread_s *td = (cthread_s *)t;
+    cl_thread_s *td = (cl_thread_s *)t;
 
-    __clib_function_init__(true, t, CTHREAD, -1);
+    __clib_function_init__(true, t, CL_OBJ_THREAD, -1);
 
     if (validate_thread_state(state) == false) {
         cset_errno(CL_INVALID_STATE);
@@ -104,14 +104,14 @@ __PUB_API__ int cthread_set_state(cthread_t *t, enum cl_thread_state state)
     return 0;
 }
 
-__PUB_API__ int cthread_wait_startup(const cthread_t *t)
+__PUB_API__ int cl_thread_wait_startup(const cl_thread_t *t)
 {
-    cthread_s *td = (cthread_s *)t;
+    cl_thread_s *td = (cl_thread_s *)t;
 
-    __clib_function_init__(true, t, CTHREAD, -1);
+    __clib_function_init__(true, t, CL_OBJ_THREAD, -1);
 
     while (td->sdata.state == CL_THREAD_ST_CREATED)
-        cmsleep(10);
+        cl_msleep(10);
 
     if (td->sdata.state == CL_THREAD_ST_INIT_ERROR)
         return 1;
@@ -119,11 +119,11 @@ __PUB_API__ int cthread_wait_startup(const cthread_t *t)
     return 0;
 }
 
-__PUB_API__ int cthread_destroy(cthread_t *t)
+__PUB_API__ int cl_thread_destroy(cl_thread_t *t)
 {
-    cthread_s *td = (cthread_s *)t;
+    cl_thread_s *td = (cl_thread_s *)t;
 
-    __clib_function_init__(true, t, CTHREAD, -1);
+    __clib_function_init__(true, t, CL_OBJ_THREAD, -1);
 
     if (td->sdata.type == CL_THREAD_JOINABLE)
         pthread_join(td->thread_id, NULL);
@@ -133,10 +133,10 @@ __PUB_API__ int cthread_destroy(cthread_t *t)
     return 0;
 }
 
-__PUB_API__ cthread_t *cthread_spawn(enum cl_thread_type type,
-    void *(*start_routine)(cthread_t *), void *user_data)
+__PUB_API__ cl_thread_t *cl_thread_spawn(enum cl_thread_type type,
+    void *(*start_routine)(cl_thread_t *), void *user_data)
 {
-    cthread_s *td = NULL;
+    cl_thread_s *td = NULL;
     int detachstate = PTHREAD_CREATE_JOINABLE;
 
     __clib_function_init__(false, NULL, -1, NULL);
@@ -150,7 +150,7 @@ __PUB_API__ cthread_t *cthread_spawn(enum cl_thread_type type,
 
     pthread_attr_init(&td->attr);
     pthread_attr_setdetachstate(&td->attr, detachstate);
-    cthread_set_state(td, CL_THREAD_ST_CREATED);
+    cl_thread_set_state(td, CL_THREAD_ST_CREATED);
 
     if (pthread_create(&td->thread_id, &td->attr, start_routine, td) < 0) {
         destroy_thread_data(td);

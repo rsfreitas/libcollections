@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     const char *opt = "htup:\0";
     int option, port = 0;
     bool tcp = true;
-    chat_t *c = NULL, *n = NULL;
+    cl_chat_t *c = NULL, *n = NULL;
     char *ptr = NULL;
     unsigned int length = 0;
     struct sigaction sa_int;
@@ -97,39 +97,39 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init(NULL);
+    cl_init(NULL);
     memset(&sa_int, 0, sizeof(struct sigaction));
     sa_int.sa_handler = signal_handler;
     sigaction(SIGINT, &sa_int, NULL);
 
-    c = chat_create((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
-                    CHAT_SERVER, true);
+    c = cl_chat_create((tcp == true) ? CL_CHAT_DRV_RAW_TCP : CL_CHAT_DRV_RAW_UDP,
+                    CL_CHAT_SERVER, true);
 
     if (NULL == c) {
-        fprintf(stderr, "Error (1): %s.\n", cstrerror(cget_last_error()));
+        fprintf(stderr, "Error (1): %s.\n", cl_strerror(cl_get_last_error()));
         return -1;
     }
 
-    if (chat_set_info(c, port, NULL) < 0) {
-        fprintf(stderr, "Error (2): %s.\n", cstrerror(cget_last_error()));
+    if (cl_chat_set_info(c, port, NULL) < 0) {
+        fprintf(stderr, "Error (2): %s.\n", cl_strerror(cl_get_last_error()));
         goto end_block;
     }
 
     if (tcp == true)
-        n = chat_server_start(c, 0);
+        n = cl_chat_server_start(c, 0);
     else
         n = c;
 
     if (NULL == n) {
-        fprintf(stderr, "Error (3): %s.\n", cstrerror(cget_last_error()));
+        fprintf(stderr, "Error (3): %s.\n", cl_strerror(cl_get_last_error()));
         goto end_block;
     }
 
     fprintf(stdout, "Client connected.\n");
 
     while (__finish == false) {
-        cmsleep(1);
-        ptr = (char *)chat_recv(n, 0, &length);
+        cl_msleep(1);
+        ptr = (char *)cl_chat_recv(n, 0, &length);
 
         if (ptr != NULL) {
             fprintf(stdout, "Recv: '%s' - %d\n", ptr, length);
@@ -139,11 +139,11 @@ int main(int argc, char **argv)
 
 end_block:
     if ((n != NULL) && (tcp == true))
-        chat_destroy(n);
+        cl_chat_destroy(n);
 
-    chat_destroy(c);
-    collections_uninit();
-    cexit();
+    cl_chat_destroy(c);
+    cl_uninit();
+    cl_exit();
 
     return 0;
 }

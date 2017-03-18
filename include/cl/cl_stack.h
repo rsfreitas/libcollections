@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name cstack_node_content
+ * @name cl_stack_node_content
  * @brief A function to retrieve the content of a stack node.
  *
  * This function must be used by the user to get a reference to its own object
@@ -45,22 +45,22 @@
  *
  * @return On success returns the content of the node or NULL otherwise.
  */
-void *cstack_node_content(cstack_node_t *node);
+void *cl_stack_node_content(cl_stack_node_t *node);
 
 /**
- * @name cstack_node_ref
- * @brief Increases the reference count for a cstack_node_t item.
+ * @name cl_stack_node_ref
+ * @brief Increases the reference count for a cl_stack_node_t item.
  *
  * @param [in,out] node: The node item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cstack_node_t *cstack_node_ref(cstack_node_t *node);
+cl_stack_node_t *cl_stack_node_ref(cl_stack_node_t *node);
 
 /**
- * @name cstack_node_unref
- * @brief Decreases the reference count for a cstack_node_t item.
+ * @name cl_stack_node_unref
+ * @brief Decreases the reference count for a cl_stack_node_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -69,22 +69,22 @@ cstack_node_t *cstack_node_ref(cstack_node_t *node);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_node_unref(cstack_node_t *node);
+int cl_stack_node_unref(cl_stack_node_t *node);
 
 /**
- * @name cstack_ref
- * @brief Increases the reference count for a cstack_t item.
+ * @name cl_stack_ref
+ * @brief Increases the reference count for a cl_stack_t item.
  *
  * @param [in,out] stack: The stack item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cstack_t *cstack_ref(cstack_t *stack);
+cl_stack_t *cl_stack_ref(cl_stack_t *stack);
 
 /**
- * @name cstack_unref
- * @brief Decreases the reference count for a cstack_t item.
+ * @name cl_stack_unref
+ * @brief Decreases the reference count for a cl_stack_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -93,10 +93,10 @@ cstack_t *cstack_ref(cstack_t *stack);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_unref(cstack_t *stack);
+int cl_stack_unref(cl_stack_t *stack);
 
 /**
- * @name cstack_create
+ * @name cl_stack_create
  * @brief Creates a new stack object.
  *
  * This function creates a new stack object to manipulate all kind of data.
@@ -113,9 +113,9 @@ int cstack_unref(cstack_t *stack);
  * Their prototypes are the following:
  *
  * void free_data(void *);
- * int compare_to(cstack_node_t *, cstack_node_t *);
- * int filter(cstack_node_t *, void *);
- * int equals(cstack_node_t *, cstack_node_t *);
+ * int compare_to(cl_stack_node_t *, cl_stack_node_t *);
+ * int filter(cl_stack_node_t *, void *);
+ * int equals(cl_stack_node_t *, cl_stack_node_t *);
  *
  * If the type of a node content if of a cobject_t kind it is not necessary to
  * pass the arguments \a free_data, \a compare_to and \a equals, since them can
@@ -128,13 +128,15 @@ int cstack_unref(cstack_t *stack);
  *
  * @return On success a void object will be returned or NULL otherwise.
  */
-cstack_t *cstack_create(void (*free_data)(void *),
-                        int (*compare_to)(cstack_node_t *, cstack_node_t *),
-                        int (*filter)(cstack_node_t *, void *),
-                        int (*equals)(cstack_node_t *, cstack_node_t *));
+cl_stack_t *cl_stack_create(void (*free_data)(void *),
+                            int (*compare_to)(cl_stack_node_t *,
+                                              cl_stack_node_t *),
+                            int (*filter)(cl_stack_node_t *, void *),
+                            int (*equals)(cl_stack_node_t *,
+                                          cl_stack_node_t *));
 
 /**
- * @name cstack_destroy
+ * @name cl_stack_destroy
  * @brief Releases a void from memory.
  *
  * When releasing a node from the stack, the \a free_data function passed while
@@ -144,20 +146,20 @@ cstack_t *cstack_create(void (*free_data)(void *),
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_destroy(cstack_t *stack);
+int cl_stack_destroy(cl_stack_t *stack);
 
 /**
- * @name cstack_size
+ * @name cl_stack_size
  * @brief Gets the stack size.
  *
  * @param [in] stack: The stack object.
  *
  * @return On success returns the size of the stack or -1 otherwise.
  */
-int cstack_size(const cstack_t *stack);
+int cl_stack_size(const cl_stack_t *stack);
 
 /**
- * @name cstack_push
+ * @name cl_stack_push
  * @brief Pushes a new node onto the stack.
  *
  * @param [in,out] stack: The stack object.
@@ -166,10 +168,10 @@ int cstack_size(const cstack_t *stack);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_push(cstack_t *stack, const void *node_content, unsigned int size);
+int cl_stack_push(cl_stack_t *stack, const void *node_content, unsigned int size);
 
 /**
- * @name cstack_pop
+ * @name cl_stack_pop
  * @brief Pop a node from a stack.
  *
  * @param [in,out] stack: The stack object.
@@ -177,15 +179,15 @@ int cstack_push(cstack_t *stack, const void *node_content, unsigned int size);
  * @return On success returns the pop'ed node, and the user is responsible
  *         for releasing it, or NULL otherwise.
  */
-cstack_node_t *cstack_pop(cstack_t *stack);
+cl_stack_node_t *cl_stack_pop(cl_stack_t *stack);
 
 /**
- * @name cstack_map
+ * @name cl_stack_map
  * @brief Maps a function to every node on a stack.
  *
  * The \a foo function receives as arguments a node from the stack and some
  * \a data. Its prototype must be something of this type:
- * int foo(cstack_node_t *, void *);
+ * int foo(cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -196,16 +198,16 @@ cstack_node_t *cstack_pop(cstack_t *stack);
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *cstack_map(const cstack_t *stack,
-                          int (*foo)(cstack_node_t *, void *), void *data);
+cl_stack_node_t *cl_stack_map(const cl_stack_t *stack,
+                              int (*foo)(cl_stack_node_t *, void *), void *data);
 
 /**
- * @name cstack_map_indexed
+ * @name cl_stack_map_indexed
  * @brief Maps a function to every node on a stack.
  *
  * The \a foo function receives as arguments the current node index inside the
  * stack, a node from the stack and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cstack_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -216,18 +218,18 @@ cstack_node_t *cstack_map(const cstack_t *stack,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *cstack_map_indexed(const cstack_t *stack,
-                                  int (*foo)(unsigned int, cstack_node_t *,
-                                             void *),
-                                  void *data);
+cl_stack_node_t *cl_stack_map_indexed(const cl_stack_t *stack,
+                                      int (*foo)(unsigned int, cl_stack_node_t *,
+                                                 void *),
+                                      void *data);
 
 /**
- * @name cstack_map_reverse
+ * @name cl_stack_map_reverse
  * @brief Maps a functions to every onde on a stack from the end to the top.
  *
  * The \a foo function receives as arguments a node from the stack and some
  * \a data. Its prototype must be something of this type:
- * int foo(cstack_node_t *, void *);
+ * int foo(cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -238,17 +240,17 @@ cstack_node_t *cstack_map_indexed(const cstack_t *stack,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *cstack_map_reverse(const cstack_t *stack,
-                                  int (*foo)(cstack_node_t *, void *),
-                                  void *data);
+cl_stack_node_t *cl_stack_map_reverse(const cl_stack_t *stack,
+                                      int (*foo)(cl_stack_node_t *, void *),
+                                      void *data);
 
 /**
- * @name cstack_map_reverse_indexed
+ * @name cl_stack_map_reverse_indexed
  * @brief Maps a function to every node on a stack from the end to the top.
  *
  * The \a foo function receives as arguments the current node index inside the
  * stack, a node from the stack and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cstack_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -259,13 +261,14 @@ cstack_node_t *cstack_map_reverse(const cstack_t *stack,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *cstack_map_reverse_indexed(const cstack_t *stack,
-                                          int (*foo)(unsigned int,
-                                                     cstack_node_t *, void *),
-                                          void *data);
+cl_stack_node_t *cl_stack_map_reverse_indexed(const cl_stack_t *stack,
+                                              int (*foo)(unsigned int,
+                                                         cl_stack_node_t *,
+                                                         void *),
+                                              void *data);
 
 /**
- * @name cstack_at
+ * @name cl_stack_at
  * @brief Gets a pointer to a specific node inside a stack.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -275,10 +278,10 @@ cstack_node_t *cstack_map_reverse_indexed(const cstack_t *stack,
  *
  * @return On success returns a reference to the node or NULL otherwise.
  */
-cstack_node_t *cstack_at(const cstack_t *stack, unsigned int index);
+cl_stack_node_t *cl_stack_at(const cl_stack_t *stack, unsigned int index);
 
 /**
- * @name cstack_delete
+ * @name cl_stack_delete
  * @brief Deletes elements from a stacka according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
@@ -290,10 +293,10 @@ cstack_node_t *cstack_at(const cstack_t *stack, unsigned int index);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_delete(cstack_t *stack, void *data);
+int cl_stack_delete(cl_stack_t *stack, void *data);
 
 /**
- * @name cstack_delete_indexed
+ * @name cl_stack_delete_indexed
  * @brief Deletes an element from a stack at a specific position.
  *
  * @param [in,out] stack: The stack object.
@@ -301,20 +304,20 @@ int cstack_delete(cstack_t *stack, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_delete_indexed(cstack_t *stack, unsigned int index);
+int cl_stack_delete_indexed(cl_stack_t *stack, unsigned int index);
 
 /**
- * @name cstack_move
+ * @name cl_stack_move
  * @brief Moves all elements from a stack to another.
  *
  * @param [in] stack: The original void object.
  *
  * @return Returns the new stack.
  */
-cstack_t *cstack_move(cstack_t *stack);
+cl_stack_t *cl_stack_move(cl_stack_t *stack);
 
 /**
- * @name cstack_filter
+ * @name cl_stack_filter
  * @brief Extracts elements from a stack according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
@@ -327,10 +330,10 @@ cstack_t *cstack_move(cstack_t *stack);
  * @return Returns a stack containing all extracted elements from the original
  *         stack.
  */
-cstack_t *cstack_filter(cstack_t *stack, void *data);
+cl_stack_t *cl_stack_filter(cl_stack_t *stack, void *data);
 
 /**
- * @name cstack_sort
+ * @name cl_stack_sort
  * @brief Sort all elements from a stack.
  *
  * This function uses the \a compare_to function to compare two elements from
@@ -340,10 +343,10 @@ cstack_t *cstack_filter(cstack_t *stack, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_sort(cstack_t *stack);
+int cl_stack_sort(cl_stack_t *stack);
 
 /**
- * @name cstack_indexof
+ * @name cl_stack_indexof
  * @brief Gets the index of the first occurrence of an element inside the stack.
  *
  * This function uses the \a equals function to compare objects from the stack.
@@ -354,10 +357,10 @@ int cstack_sort(cstack_t *stack);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cstack_indexof(const cstack_t *stack, void *element, unsigned int size);
+int cl_stack_indexof(const cl_stack_t *stack, void *element, unsigned int size);
 
 /**
- * @name cstack_last_indexof
+ * @name cl_stack_last_indexof
  * @brief Gets the index of the last occurrence of an element inside the stack.
  *
  * This function uses the \a equals function to compare objects from the stack.
@@ -368,10 +371,11 @@ int cstack_indexof(const cstack_t *stack, void *element, unsigned int size);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cstack_last_indexof(const cstack_t *stack, void *element, unsigned int size);
+int cl_stack_last_indexof(const cl_stack_t *stack, void *element,
+                          unsigned int size);
 
 /**
- * @name cstack_contains
+ * @name cl_stack_contains
  * @brief Checks if a stack contains a specific element.
  *
  * This function uses the \a equals function to compare objects from the stack.
@@ -382,10 +386,10 @@ int cstack_last_indexof(const cstack_t *stack, void *element, unsigned int size)
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool cstack_contains(const cstack_t *stack, void *element, unsigned int size);
+bool cl_stack_contains(const cl_stack_t *stack, void *element, unsigned int size);
 
 /**
- * @name cstack_peek
+ * @name cl_stack_peek
  * @brief Retrieves, but does not remove, the head of the stack.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -395,20 +399,20 @@ bool cstack_contains(const cstack_t *stack, void *element, unsigned int size);
  * @return Returns NULL if the stack is empty or a new reference to the head
  *         of it.
  */
-cstack_node_t *cstack_peek(const cstack_t *stack);
+cl_stack_node_t *cl_stack_peek(const cl_stack_t *stack);
 
 /**
- * @name cstack_is_empty
+ * @name cl_stack_is_empty
  * @brief Tests to see if the stack is empty or not.
  *
  * @param [in] stack: The stack object.
  *
  * @return Returns true if the stack is empty or false otherwise.
  */
-bool cstack_is_empty(const cstack_t *stack);
+bool cl_stack_is_empty(const cl_stack_t *stack);
 
 /**
- * @name cstack_set_compare_to
+ * @name cl_stack_set_compare_to
  * @brief Updates the internal object compare function.
  *
  * @param [in] stack: The stack object.
@@ -416,11 +420,12 @@ bool cstack_is_empty(const cstack_t *stack);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_set_compare_to(const cstack_t *stack,
-                          int (*compare_to)(cstack_node_t *, cstack_node_t *));
+int cl_stack_set_compare_to(const cl_stack_t *stack,
+                            int (*compare_to)(cl_stack_node_t *,
+                                              cl_stack_node_t *));
 
 /**
- * @name cstack_set_filter
+ * @name cl_stack_set_filter
  * @brief Updates the internal filter function.
  *
  * @param [in] stack: The stack object.
@@ -428,11 +433,11 @@ int cstack_set_compare_to(const cstack_t *stack,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_set_filter(const cstack_t *stack,
-                      int (*filter)(cstack_node_t *, void *));
+int cl_stack_set_filter(const cl_stack_t *stack,
+                        int (*filter)(cl_stack_node_t *, void *));
 
 /**
- * @name cstack_set_equals
+ * @name cl_stack_set_equals
  * @brief Updates the internal equals function.
  *
  * @param [in] stack: The stack object.
@@ -440,8 +445,8 @@ int cstack_set_filter(const cstack_t *stack,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstack_set_equals(const cstack_t *stack,
-                      int (*equals)(cstack_node_t *, cstack_node_t *));
+int cl_stack_set_equals(const cl_stack_t *stack,
+                        int (*equals)(cl_stack_node_t *, cl_stack_node_t *));
 
 #endif
 

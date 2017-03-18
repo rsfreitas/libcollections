@@ -43,7 +43,7 @@ static void help(void)
     fprintf(stdout, "\n");
 }
 
-static void write_binary_data(clog_t *log)
+static void write_binary_data(cl_log_t *log)
 {
     void *p;
     int psize = 255;
@@ -53,8 +53,8 @@ static void write_binary_data(clog_t *log)
     if (NULL == p)
         return;
 
-    clog_set_log_level(log, CLOG_DEBUG);
-    clog_bprint(log, CLOG_DEBUG, p, psize);
+    cl_log_set_log_level(log, CL_LOG_DEBUG);
+    cl_log_bprint(log, CL_LOG_DEBUG, p, psize);
     free(p);
 }
 
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     const char *opt = "f:h";
     char *filename = NULL;
     int option, ret;
-    clog_t *log;
+    cl_log_t *log;
 
     do {
         option = getopt(argc, argv, opt);
@@ -87,29 +87,29 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init(NULL);
-    log = clog_open(filename, CLOG_SYNC_ALL_MSGS, CLOG_INFO, 30);
+    cl_init(NULL);
+    log = cl_log_open(filename, CL_LOG_SYNC_ALL_MSGS, CL_LOG_INFO, 30);
 
     if (NULL == log) {
-        printf("%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        printf("%s: %s\n", __FUNCTION__, cl_strerror(cl_get_last_error()));
         return -1;
     }
 
-    ret = clog_printf(log, CLOG_ERROR, "An error message");
+    ret = cl_log_printf(log, CL_LOG_ERROR, "An error message");
 
     if (ret < 0)
-        printf("%s: %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+        printf("%s: %s\n", __FUNCTION__, cl_strerror(cl_get_last_error()));
 
-    clog_printf(log, CLOG_INFO, "An information message");
+    cl_log_printf(log, CL_LOG_INFO, "An information message");
     write_binary_data(log);
 
-    clog_close(log);
+    cl_log_close(log);
 
     if (filename != NULL)
         free(filename);
 
-    collections_uninit();
-    cexit();
+    cl_uninit();
+    cl_exit();
 
     return 0;
 }

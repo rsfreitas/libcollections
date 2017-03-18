@@ -102,7 +102,7 @@ int udp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
     sc_in.sin_family = AF_INET;
     sc_in.sin_port = htons(d->port);
 
-    if (mode == CHAT_SERVER) {
+    if (mode == CL_CHAT_SERVER) {
         sc_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
         /* bind */
@@ -116,7 +116,7 @@ int udp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
     return 0;
 }
 
-int udp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send)
+int udp_send(ipc_data_t *ipc_data, struct cl_chat_data_s *dt_send)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
 
@@ -127,10 +127,10 @@ int udp_send(ipc_data_t *ipc_data, struct chat_data_s *dt_send)
                   (struct sockaddr *)&d->sc_in, sizeof(d->sc_in));
 }
 
-struct chat_data_s *udp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
+struct cl_chat_data_s *udp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
-    struct chat_data_s *cd = NULL;
+    struct cl_chat_data_s *cd = NULL;
     socklen_t size = sizeof(struct sockaddr_in);
     int ret;
 

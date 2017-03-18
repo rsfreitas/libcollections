@@ -33,18 +33,18 @@
 #include "image.h"
 
 /*
- * Destroy a cimage_t object.
+ * Destroy a cl_image_t object.
  */
-static void destroy_cimage(const struct cref_s *ref)
+static void destroy_cimage(const struct cl_ref_s *ref)
 {
-    cimage_s *image = cl_container_of(ref, cimage_s, ref);
+    cl_image_s *image = cl_container_of(ref, cl_image_s, ref);
 
     if (NULL == image)
         return;
 
-    if (image->type == CIMAGE_RAW) {
-        if ((image->fill_format == CIMAGE_FILL_COPY) ||
-            (image->fill_format == CIMAGE_FILL_OWNER))
+    if (image->type == CL_IMAGE_RAW) {
+        if ((image->fill_format == CL_IMAGE_FILL_COPY) ||
+            (image->fill_format == CL_IMAGE_FILL_OWNER))
         {
             free(image->raw.original);
         }
@@ -58,13 +58,13 @@ static void destroy_cimage(const struct cref_s *ref)
 }
 
 /*
- * Creates an empty cimage_t object.
+ * Creates an empty cl_image_t object.
  */
-static cimage_s *new_cimage(void)
+static cl_image_s *new_cimage(void)
 {
-    cimage_s *i = NULL;
+    cl_image_s *i = NULL;
 
-    i = calloc(1, sizeof(cimage_s));
+    i = calloc(1, sizeof(cl_image_s));
 
     if (NULL == i) {
         cset_errno(CL_NO_MEM);
@@ -79,7 +79,7 @@ static cimage_s *new_cimage(void)
     i->ref.free = destroy_cimage;
     i->ref.count = 1;
 
-    set_typeof(CIMAGE, i);
+    set_typeof(CL_OBJ_IMAGE, i);
 
     return i;
 }
@@ -88,32 +88,32 @@ static char *build_disc_filename(enum cl_image_type file_type,
     const char *original_filename)
 {
     char *output_ext = NULL, *p = NULL, *dirc, *dname;
-    cstring_t *filename = NULL, *rnd = NULL;
+    cl_string_t *filename = NULL, *rnd = NULL;
 
     dirc = strdup(original_filename);
     dname = dirname(dirc);
 
     if (strlen(dname) > 1)
-        filename = cstring_create("%s/", dname);
+        filename = cl_string_create("%s/", dname);
     else
-        filename = cstring_create_empty(0);
+        filename = cl_string_create_empty(0);
 
     free(dirc);
-    rnd = cstring_create_random(16);
+    rnd = cl_string_create_random(16);
 
     if (NULL == filename)
         return NULL;
 
-    cstring_cat(filename, "%s", cstring_valueof(rnd));
-    cstring_unref(rnd);
-    output_ext = cimage_type_to_extension(file_type);
+    cl_string_cat(filename, "%s", cl_string_valueof(rnd));
+    cl_string_unref(rnd);
+    output_ext = cl_image_type_to_extension(file_type);
 
     if (output_ext != NULL) {
-        cstring_cat(filename, ".%s", output_ext);
+        cl_string_cat(filename, ".%s", output_ext);
         free(output_ext);
 
-        p = strdup(cstring_valueof(filename));
-        cstring_unref(filename);
+        p = strdup(cl_string_valueof(filename));
+        cl_string_unref(filename);
     } else
         cset_errno(CL_UNSUPPORTED_TYPE);
 
@@ -126,9 +126,9 @@ static void rename_image(const char *old, const char *new)
 }
 
 /*
- * Sets all internal cimage_t object information.
+ * Sets all internal cl_image_t object information.
  */
-static void cimage_set_info(cimage_s *image, enum cl_image_type type,
+static void cl_image_set_info(cl_image_s *image, enum cl_image_type type,
     enum cl_image_color_format format)
 {
     image->type = type;
@@ -138,7 +138,7 @@ static void cimage_set_info(cimage_s *image, enum cl_image_type type,
 /*
  * Releases the old OpenCv image.
  */
-static void release_old_image(cimage_s *image)
+static void release_old_image(cl_image_s *image)
 {
     if (NULL == image)
         return;
@@ -148,9 +148,9 @@ static void release_old_image(cimage_s *image)
 }
 
 /*
- * Fills a cimage_t object with a previously loaded image buffer.
+ * Fills a cl_image_t object with a previously loaded image buffer.
  */
-static int fill_buffer_to_cimage(cimage_s *image, const unsigned char *buffer,
+static int fill_buffer_to_cimage(cl_image_s *image, const unsigned char *buffer,
     unsigned int bsize, enum cl_image_color_format format, unsigned int width,
     unsigned int height, enum cl_image_fill_format fill_format)
 {
@@ -162,26 +162,26 @@ static int fill_buffer_to_cimage(cimage_s *image, const unsigned char *buffer,
 
     /*
      * We try to detect which kind of image buffer was passed to the function.
-     * If we don't know its type, it is a CIMAGE_RAW. ;-)
+     * If we don't know its type, it is a CL_IMAGE_RAW. ;-)
      */
-    type = cimage_detect_type(buffer, bsize);
+    type = cl_image_detect_type(buffer, bsize);
 
-    if (type == CIMAGE_RAW) {
+    if (type == CL_IMAGE_RAW) {
         if (fill_raw_image(image, buffer, format, width, height,
                            fill_format) < 0)
         {
             return -1;
         }
     } else {
-        if (format != CIMAGE_FMT_GRAY)
+        if (format != CL_IMAGE_FMT_GRAY)
             color = 1;
 
         mat = cvMat(width, height, CV_8UC1, (void *)buffer);
         image->image = cvDecodeImage(&mat, color);
-        image->fill_format = CIMAGE_FILL_COPY;
+        image->fill_format = CL_IMAGE_FILL_COPY;
     }
 
-    cimage_set_info(image, type, format);
+    cl_image_set_info(image, type, format);
 
     return 0;
 }
@@ -191,25 +191,25 @@ static int fill_buffer_to_cimage(cimage_s *image, const unsigned char *buffer,
  * we're using the number of channels to make this guess, we're not able to
  * differentiate a RGB from a BGR or a YUV422 from a YUV420.
  */
-static enum cl_image_color_format cimage_detect_format_by_image(IplImage *image)
+static enum cl_image_color_format cl_image_detect_format_by_image(IplImage *image)
 {
     switch (image->nChannels) {
         case 1:
-            return CIMAGE_FMT_GRAY;
+            return CL_IMAGE_FMT_GRAY;
 
         case 2:
-            return CIMAGE_FMT_YUV422;
+            return CL_IMAGE_FMT_YUV422;
 
         case 3:
-            return CIMAGE_FMT_RGB;
+            return CL_IMAGE_FMT_RGB;
     }
 
-    return CIMAGE_FMT_UNKNOWN;
+    return CL_IMAGE_FMT_UNKNOWN;
 }
 
-static cimage_t *duplicate_image(cimage_s *image)
+static cl_image_t *duplicate_image(cl_image_s *image)
 {
-    cimage_s *i = NULL;
+    cl_image_s *i = NULL;
 
     if (NULL == image->image) {
         cset_errno(CL_NULL_DATA);
@@ -221,10 +221,10 @@ static cimage_t *duplicate_image(cimage_s *image)
     if (NULL == i)
         return NULL;
 
-    if (image->type == CIMAGE_RAW) {
+    if (image->type == CL_IMAGE_RAW) {
         if (fill_raw_image(i, image->raw.original, image->raw.hdr.format,
                            image->raw.hdr.width, image->raw.hdr.height,
-                           CIMAGE_FILL_COPY) < 0)
+                           CL_IMAGE_FILL_COPY) < 0)
         {
             return NULL;
         }
@@ -236,28 +236,28 @@ static cimage_t *duplicate_image(cimage_s *image)
 
     /*
      * Independently of the original buffer reference type, since we're
-     * returning a duplicated image, we fix fill_format as CIMAGE_FILL_COPY.
+     * returning a duplicated image, we fix fill_format as CL_IMAGE_FILL_COPY.
      */
-    i->fill_format = CIMAGE_FILL_COPY;
+    i->fill_format = CL_IMAGE_FILL_COPY;
 
     return i;
 }
 
-static void save_image_to_file(const char *filename, cimage_s *image,
+static void save_image_to_file(const char *filename, cl_image_s *image,
     enum cl_image_type type)
 {
     unsigned char *ptr;
     unsigned int bsize;
 
     /* If we're not holding a RAW image, just use openCv to convert */
-    if (image->type != CIMAGE_RAW) {
+    if (image->type != CL_IMAGE_RAW) {
         cvSaveImage(filename, image->image, 0);
         return;
     }
 
     /* We have a RAW image inside, maybe we need to convert it */
     ptr = convert_image_formats(image, type, 0, &bsize);
-    cfsave(filename, ptr, bsize);
+    cl_fsave(filename, ptr, bsize);
     free(ptr);
 }
 
@@ -267,34 +267,34 @@ static void save_image_to_file(const char *filename, cimage_s *image,
  *
  */
 
-__PUB_API__ cimage_t *cimage_ref(cimage_t *image)
+__PUB_API__ cl_image_t *cl_image_ref(cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, NULL);
-    cref_inc(&i->ref);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
+    cl_ref_inc(&i->ref);
 
     return image;
 }
 
-__PUB_API__ int cimage_unref(cimage_t *image)
+__PUB_API__ int cl_image_unref(cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
-    cref_dec(&i->ref);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
+    cl_ref_dec(&i->ref);
 
     return 0;
 }
 
-__PUB_API__ int cimage_destroy(cimage_t *image)
+__PUB_API__ int cl_image_destroy(cl_image_t *image)
 {
-    return cimage_unref(image);
+    return cl_image_unref(image);
 }
 
-__PUB_API__ cimage_t *cimage_create(void)
+__PUB_API__ cl_image_t *cl_image_create(void)
 {
-    cimage_s *i = NULL;
+    cl_image_s *i = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
     i = new_cimage();
@@ -305,13 +305,13 @@ __PUB_API__ cimage_t *cimage_create(void)
     return i;
 }
 
-__PUB_API__ int cimage_fill(cimage_t *image, const unsigned char *buffer,
+__PUB_API__ int cl_image_fill(cl_image_t *image, const unsigned char *buffer,
     unsigned int bsize, enum cl_image_color_format format, unsigned int width,
     unsigned int height, enum cl_image_fill_format fill_format)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if ((NULL == buffer) || (bsize == 0)) {
         cset_errno(CL_NULL_ARG);
@@ -329,11 +329,11 @@ __PUB_API__ int cimage_fill(cimage_t *image, const unsigned char *buffer,
                                  fill_format);
 }
 
-__PUB_API__ cimage_t *cimage_load(const unsigned char *buffer,
+__PUB_API__ cl_image_t *cl_image_load(const unsigned char *buffer,
     unsigned int bsize, enum cl_image_color_format format, unsigned int width,
     unsigned int height, enum cl_image_fill_format fill_format)
 {
-    cimage_s *i = NULL;
+    cl_image_s *i = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -357,16 +357,16 @@ __PUB_API__ cimage_t *cimage_load(const unsigned char *buffer,
     if (fill_buffer_to_cimage(i, buffer, bsize, format, width,
                               height, fill_format) < 0)
     {
-        cimage_unref(i);
+        cl_image_unref(i);
         return NULL;
     }
 
     return i;
 }
 
-__PUB_API__ cimage_t *cimage_load_from_file(const char *filename)
+__PUB_API__ cl_image_t *cl_image_load_from_file(const char *filename)
 {
-    cimage_s *i = NULL;
+    cl_image_s *i = NULL;
     enum cl_image_type type;
     enum cl_image_color_format format;
     char *tmp = NULL, *ext = NULL;
@@ -385,11 +385,11 @@ __PUB_API__ cimage_t *cimage_load_from_file(const char *filename)
     if (NULL == i)
         return NULL;
 
-    type = cimage_detect_type_from_file(filename);
+    type = cl_image_detect_type_from_file(filename);
 
     /* Do we need to rename the image so the OpenCv can handle it? */
     if (is_known_extension(filename) == false) {
-        ext = cimage_type_to_extension(type);
+        ext = cl_image_type_to_extension(type);
         asprintf(&tmp, "%s.%s", filename, ext);
         rename_image(filename, tmp);
         was_renamed = true;
@@ -397,7 +397,7 @@ __PUB_API__ cimage_t *cimage_load_from_file(const char *filename)
     } else
         tmp = strdup(filename);
 
-    if (type == CIMAGE_RAW) {
+    if (type == CL_IMAGE_RAW) {
         if (raw_load(tmp, i) < 0)
             goto error_block;
 
@@ -411,11 +411,11 @@ __PUB_API__ cimage_t *cimage_load_from_file(const char *filename)
             goto error_block;
         }
 
-        format = cimage_detect_format_by_image(i->image);
+        format = cl_image_detect_format_by_image(i->image);
     }
 
-    cimage_set_info(i, type, format);
-    i->fill_format = CIMAGE_FILL_COPY;
+    cl_image_set_info(i, type, format);
+    i->fill_format = CL_IMAGE_FILL_COPY;
 
     if (was_renamed == true)
         rename_image(tmp, filename);
@@ -426,8 +426,8 @@ __PUB_API__ cimage_t *cimage_load_from_file(const char *filename)
     return i;
 
 error_block:
-    error = cget_last_error();
-    cimage_unref(i);
+    error = cl_get_last_error();
+    cl_image_unref(i);
     cset_errno(error);
 
     if (tmp != NULL)
@@ -436,31 +436,31 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ int cimage_save(const cimage_t *image, unsigned char **buffer,
+__PUB_API__ int cl_image_save(const cl_image_t *image, unsigned char **buffer,
     unsigned int *bsize)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
-    if (i->type == CIMAGE_RAW) {
+    if (i->type == CL_IMAGE_RAW) {
         if (raw_save_to_mem(image, buffer, bsize) < 0)
             return -1;
     } else {
-        *buffer = cmemdup(i->image->imageData, i->image->imageSize);
+        *buffer = cl_memdup(i->image->imageData, i->image->imageSize);
         *bsize = i->image->imageSize;
     }
 
     return 0;
 }
 
-__PUB_API__ int cimage_save_to_file(const cimage_t *image, const char *filename,
-    enum cl_image_type file_type)
+__PUB_API__ int cl_image_save_to_file(const cl_image_t *image,
+    const char *filename, enum cl_image_type file_type)
 {
     char *disc_filename = NULL;
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (has_internal_image(i) == false) {
         cset_errno(CL_NULL_DATA);
@@ -477,7 +477,7 @@ __PUB_API__ int cimage_save_to_file(const cimage_t *image, const char *filename,
     if (NULL == disc_filename)
         return -1;
 
-    if (file_type != CIMAGE_RAW)
+    if (file_type != CL_IMAGE_RAW)
         save_image_to_file(disc_filename, i, file_type);
     else {
         /* Handle the raw image special case */
@@ -496,19 +496,19 @@ __PUB_API__ int cimage_save_to_file(const cimage_t *image, const char *filename,
     return 0;
 }
 
-__PUB_API__ cimage_t *cimage_dup(const cimage_t *image)
+__PUB_API__ cl_image_t *cl_image_dup(const cl_image_t *image)
 {
-    __clib_function_init__(true, image, CIMAGE, NULL);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
 
-    return duplicate_image((cimage_s *)image);
+    return duplicate_image((cl_image_s *)image);
 }
 
-__PUB_API__ cimage_t *cimage_resize(const cimage_t *image, unsigned int width,
-    unsigned int height)
+__PUB_API__ cl_image_t *cl_image_resize(const cl_image_t *image,
+    unsigned int width, unsigned int height)
 {
-    cimage_s *i = (cimage_s *)image, *p = NULL;
+    cl_image_s *i = (cl_image_s *)image, *p = NULL;
 
-    __clib_function_init__(true, image, CIMAGE, NULL);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
 
     if ((width == 0) || (height == 0) ||
         (width >= UINT_MAX) || (height >= UINT_MAX))
@@ -522,7 +522,7 @@ __PUB_API__ cimage_t *cimage_resize(const cimage_t *image, unsigned int width,
     if (NULL == p)
         return NULL;
 
-    if (i->type == CIMAGE_RAW) {
+    if (i->type == CL_IMAGE_RAW) {
         if (raw_resize(p, i, width, height) < 0)
             return NULL;
     } else {
@@ -535,20 +535,20 @@ __PUB_API__ cimage_t *cimage_resize(const cimage_t *image, unsigned int width,
         }
 
         cvResize(i->image, p->image, CV_INTER_LINEAR);
-        p->fill_format = CIMAGE_FILL_COPY;
+        p->fill_format = CL_IMAGE_FILL_COPY;
     }
 
-    cimage_set_info(p, i->type, i->format);
+    cl_image_set_info(p, i->type, i->format);
 
     return p;
 }
 
-__PUB_API__ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
-    unsigned int y, unsigned int w, unsigned int h)
+__PUB_API__ cl_image_t *cl_image_extract(const cl_image_t *image,
+    unsigned int x, unsigned int y, unsigned int w, unsigned int h)
 {
-    cimage_s *i = (cimage_s *)image, *p;
+    cl_image_s *i = (cl_image_s *)image, *p;
 
-    __clib_function_init__(true, image, CIMAGE, NULL);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
 
     if ((w == 0) || (h == 0)) {
         cset_errno(CL_NUMBER_RANGE);
@@ -560,7 +560,7 @@ __PUB_API__ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
     if (NULL == p)
         return NULL;
 
-    if (i->type == CIMAGE_RAW) {
+    if (i->type == CL_IMAGE_RAW) {
         if (raw_extract(p, i, x, y, w, h) < 0)
             return NULL;
     } else {
@@ -580,19 +580,19 @@ __PUB_API__ cimage_t *cimage_extract(const cimage_t *image, unsigned int x,
     return p;
 }
 
-void cimage_cat(void)
+void cl_image_cat(void)
 {
     /* TODO */
 }
 
-__PUB_API__ unsigned char *cimage_bin_export(const cimage_t *image,
-    enum cl_image_type type, enum cl_image_color_format format, unsigned int *bsize,
-    unsigned int *width, unsigned int *height)
+__PUB_API__ unsigned char *cl_image_bin_export(const cl_image_t *image,
+    enum cl_image_type type, enum cl_image_color_format format,
+    unsigned int *bsize, unsigned int *width, unsigned int *height)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
     unsigned char *buffer = NULL;
 
-    __clib_function_init__(true, image, CIMAGE, NULL);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
 
     if ((is_supported_image_type(type) == false) ||
         (is_supported_color_format(format) == false))
@@ -602,7 +602,7 @@ __PUB_API__ unsigned char *cimage_bin_export(const cimage_t *image,
     }
 
     /* If is not a RAW image we'll need to convert between image formats */
-    if (type != CIMAGE_RAW) {
+    if (type != CL_IMAGE_RAW) {
         buffer = convert_image_formats(i, type, format, bsize);
         *width = i->image->width;
         *height = i->image->height;
@@ -619,16 +619,16 @@ __PUB_API__ unsigned char *cimage_bin_export(const cimage_t *image,
     return buffer;
 }
 
-__PUB_API__ const unsigned char *cimage_bin_content(const cimage_t *image,
+__PUB_API__ const unsigned char *cl_image_bin_content(const cl_image_t *image,
     unsigned int *bsize, unsigned int *width, unsigned int *height,
     enum cl_image_color_format *format)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
     unsigned char *ptr = NULL;
 
-    __clib_function_init__(true, image, CIMAGE, NULL);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
 
-    if (i->type == CIMAGE_RAW) {
+    if (i->type == CL_IMAGE_RAW) {
         *width = i->raw.hdr.width;
         *height = i->raw.hdr.height;
         *bsize = *width * *height * get_channels_by_format(i->format);
@@ -638,24 +638,26 @@ __PUB_API__ const unsigned char *cimage_bin_content(const cimage_t *image,
         *width = i->image->width;
         *height = i->image->height;
         *bsize = i->image->imageSize;
-        *format = (i->image->nChannels == 1) ? CIMAGE_FMT_GRAY : CIMAGE_FMT_RGB;
+        *format = (i->image->nChannels == 1) ? CL_IMAGE_FMT_GRAY
+                                             : CL_IMAGE_FMT_RGB;
+
         ptr = (unsigned char *)i->image->imageData;
     }
 
     /*
-     * For this to work, the user must keep a reference to the cimage_t
+     * For this to work, the user must keep a reference to the cl_image_t
      * object for as long as this pointer lives.
      */
     return ptr;
 }
 
-__PUB_API__ IplImage *cimage_cv_export(const cimage_t *image)
+__PUB_API__ IplImage *cl_image_cv_export(const cl_image_t *image)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, NULL);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
 
-    if (i->type == CIMAGE_RAW) {
+    if (i->type == CL_IMAGE_RAW) {
         cset_errno(CL_UNSUPPORTED_TYPE);
         return NULL;
     }
@@ -672,12 +674,12 @@ __PUB_API__ IplImage *cimage_cv_export(const cimage_t *image)
     return i->image;
 }
 
-__PUB_API__ int cimage_cv_import(cimage_t *image, IplImage *cv_image,
+__PUB_API__ int cl_image_cv_import(cl_image_t *image, IplImage *cv_image,
     enum cl_image_type type)
 {
-    cimage_s *i = (cimage_s *)image;
+    cl_image_s *i = (cl_image_s *)image;
 
-    __clib_function_init__(true, image, CIMAGE, -1);
+    __clib_function_init__(true, image, CL_OBJ_IMAGE, -1);
 
     if (NULL == cv_image) {
         cset_errno(CL_NULL_ARG);

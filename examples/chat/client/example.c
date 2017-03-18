@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     int option, port = 0, text_length;
     bool tcp = true;
     char *ip = NULL, *text = NULL, i = 0;
-    chat_t *c = NULL;
+    cl_chat_t *c = NULL;
     struct sigaction sa_int;
 
     do {
@@ -103,36 +103,36 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init(NULL);
+    cl_init(NULL);
     memset(&sa_int, 0, sizeof(struct sigaction));
     sa_int.sa_handler = signal_handler;
     sigaction(SIGINT, &sa_int, NULL);
 
-    c = chat_create((tcp == true) ? CHAT_DRV_RAW_TCP : CHAT_DRV_RAW_UDP,
-                    CHAT_CLIENT, true);
+    c = cl_chat_create((tcp == true) ? CL_CHAT_DRV_RAW_TCP : CL_CHAT_DRV_RAW_UDP,
+                    CL_CHAT_CLIENT, true);
 
     if (NULL == c) {
-        fprintf(stderr, "Error (1): %s.\n", cstrerror(cget_last_error()));
+        fprintf(stderr, "Error (1): %s.\n", cl_strerror(cl_get_last_error()));
         return -1;
     }
 
-    if (chat_set_info(c, port, ip, NULL) < 0) {
-        fprintf(stderr, "Error (2): %s.\n", cstrerror(cget_last_error()));
+    if (cl_chat_set_info(c, port, ip, NULL) < 0) {
+        fprintf(stderr, "Error (2): %s.\n", cl_strerror(cl_get_last_error()));
         goto end_block;
     }
 
-    if (chat_client_start(c) < 0) {
-        fprintf(stderr, "Error (3): %s.\n", cstrerror(cget_last_error()));
+    if (cl_chat_client_start(c) < 0) {
+        fprintf(stderr, "Error (3): %s.\n", cl_strerror(cl_get_last_error()));
         goto end_block;
     }
 
     while (__finish == false) {
-        cmsleep(1000);
+        cl_msleep(1000);
         text_length = asprintf(&text, "An example... simple... just to test %03d", i);
         i++;
 
-        if (chat_send(c, text, text_length + 1) < 0)
-            fprintf(stderr, "Error (4): %s.\n", cstrerror(cget_last_error()));
+        if (cl_chat_send(c, text, text_length + 1) < 0)
+            fprintf(stderr, "Error (4): %s.\n", cl_strerror(cl_get_last_error()));
         else
             fprintf(stdout, "sent...\n");
 
@@ -143,13 +143,13 @@ int main(int argc, char **argv)
     }
 
 end_block:
-    chat_destroy(c);
+    cl_chat_destroy(c);
 
     if (ip != NULL)
         free(ip);
 
-    collections_uninit();
-    cexit();
+    cl_uninit();
+    cl_exit();
 
     return 0;
 }

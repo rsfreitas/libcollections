@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 {
     const char *opt = "v:c:i:a:\0";
     int option;
-    counter_t *c;
+    cl_counter_t *c;
     char *tmp;
     long long v = 0, cv = 0, min = 0, max = 0;
 
@@ -63,16 +63,16 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init(NULL);
-    c = counter_create(CNT_8BIT, -10, 110, cv, true);
-    tmp = cbool_to_string(counter_lt(c, v));
-    printf("%s: %lld < %lld: %s\n", __FUNCTION__, counter_get(c),
+    cl_init(NULL);
+    c = cl_counter_create(CL_8BIT_COUNTER, -10, 110, cv, true);
+    tmp = cl_bool_to_string(cl_counter_lt(c, v));
+    printf("%s: %lld < %lld: %s\n", __FUNCTION__, cl_counter_get(c),
             v, tmp);
 
-    printf("%s: error = %s\n", __FUNCTION__, cstrerror(cget_last_error()));
+    printf("%s: error = %s\n", __FUNCTION__, cl_strerror(cl_get_last_error()));
     free(tmp);
-    counter_destroy(c);
-    collections_uninit();
+    cl_counter_destroy(c);
+    cl_uninit();
 
     return 0;
 }

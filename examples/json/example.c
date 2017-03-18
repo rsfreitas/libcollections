@@ -47,8 +47,8 @@ int main(int argc, char **argv)
     const char *opt = "f:h";
     int option;
     char *filename = NULL;
-    cjson_t *j = NULL;
-    cstring_t *s = NULL;
+    cl_json_t *j = NULL;
+    cl_string_t *s = NULL;
 
     do {
         option = getopt(argc, argv, opt);
@@ -72,30 +72,30 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init(NULL);
-    j = cjson_read_file(filename);
+    cl_init(NULL);
+    j = cl_json_read_file(filename);
 
     if (NULL == j) {
-        fprintf(stderr, "Error: %s\n", cstrerror(cget_last_error()));
+        fprintf(stderr, "Error: %s\n", cl_strerror(cl_get_last_error()));
         return -1;
     }
 
-    s = cjson_to_cstring(j, true);
+    s = cl_json_to_cstring(j, true);
 
     if (s != NULL) {
-        fprintf(stdout, "%s\n", cstring_valueof(s));
-        cstring_destroy(s);
+        fprintf(stdout, "%s\n", cl_string_valueof(s));
+        cl_string_destroy(s);
     }
 
-    cjson_delete(j);
+    cl_json_delete(j);
 
     if (filename != NULL)
         free(filename);
 
-    collections_uninit();
+    cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    cexit();
+    cl_exit();
 
     return 0;
 }

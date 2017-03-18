@@ -1,6 +1,6 @@
 
 /*
- * Description: Example showing the use of the cobject_t object from
+ * Description: Example showing the use of the cl_object_t object from
  *              libcollections.
  *
  * Author: Rodrigo Freitas
@@ -34,7 +34,7 @@ static void help(void)
 {
     fprintf(stdout, "Usage: value [OPTIONS]\n");
     fprintf(stdout, "An example showing how to use the libcollections "
-                    "cobject_t API.\n");
+                    "cl_object_t API.\n");
 
     fprintf(stdout, "\nOptions:\n");
     fprintf(stdout, "  -h\tShow this help screen.\n");
@@ -57,213 +57,213 @@ static void help(void)
     fprintf(stdout, "\n");
 }
 
-static void print_cobject_as_cvalue(cobject_t *v)
+static void print_cl_object_as_cvalue(cl_object_t *v)
 {
-    cstring_t *s;
+    cl_string_t *s;
 
-    s = cobject_to_cstring(v);
-    printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(s));
-    cstring_unref(s);
+    s = cl_object_to_cstring(v);
+    printf("%s: '%s'\n", __FUNCTION__, cl_string_valueof(s));
+    cl_string_unref(s);
 }
 
 static void do_test_char(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     char c = 0;
 
-    v = cobject_create(CL_CHAR, 'z', NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_CHAR, 'z', NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_CHAR, &c, NULL);
+    cl_object_get(v, CL_OBJECT_CHAR, &c, NULL);
     printf("%s: '%c'\n", __FUNCTION__, c);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_uchar(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     unsigned char c = 0;
 
-    v = cobject_create(CL_UCHAR, 186, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_UCHAR, 186, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_UCHAR, &c, NULL);
+    cl_object_get(v, CL_OBJECT_UCHAR, &c, NULL);
     printf("%s: '%d'\n", __FUNCTION__, c);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_int(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     int i = 0;
 
-    v = cobject_create(CL_INT, 42, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_INT, 42, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_INT, &i, NULL);
+    cl_object_get(v, CL_OBJECT_INT, &i, NULL);
     printf("%s: '%d'\n", __FUNCTION__, i);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_uint(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     unsigned int i = 0;
 
-    v = cobject_create(CL_UINT, 420000, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_UINT, 420000, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_UINT, &i, NULL);
+    cl_object_get(v, CL_OBJECT_UINT, &i, NULL);
     printf("%s: '%d'\n", __FUNCTION__, i);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_sint(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     short int i = 0;
 
-    v = cobject_create(CL_SINT, 3210, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_SINT, 3210, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_SINT, &i, NULL);
+    cl_object_get(v, CL_OBJECT_SINT, &i, NULL);
     printf("%s: '%hd'\n", __FUNCTION__, i);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_usint(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     unsigned short int i = 0;
 
-    v = cobject_create(CL_USINT, 63210, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_USINT, 63210, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_USINT, &i, NULL);
+    cl_object_get(v, CL_OBJECT_USINT, &i, NULL);
     printf("%s: '%hu'\n", __FUNCTION__, i);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_float(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     float f = 0.0f;
 
-    v = cobject_create(CL_FLOAT, 3.1415f, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_FLOAT, 3.1415f, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_FLOAT, &f, NULL);
+    cl_object_get(v, CL_OBJECT_FLOAT, &f, NULL);
     printf("%s: '%f'\n", __FUNCTION__, f);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_double(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     double f = 0.0f;
 
-    v = cobject_create(CL_DOUBLE, 3.14159265f, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_DOUBLE, 3.14159265f, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_DOUBLE, &f, NULL);
+    cl_object_get(v, CL_OBJECT_DOUBLE, &f, NULL);
     printf("%s: '%e'\n", __FUNCTION__, f);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_string(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     char *p = NULL;
 
-    v = cobject_create(CL_STRING, "This is only a test", NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_STRING, "This is only a test", NULL);
+    print_cl_object_as_cvalue(v);
 
-    p = COBJECT_AS_STRING(v);
+    p = CL_OBJECT_AS_STRING(v);
     printf("%s: '%s'\n", __FUNCTION__, p);
     free(p);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_cstring(void)
 {
-    cobject_t *v;
-    cstring_t *o = NULL, *p = NULL;
+    cl_object_t *v;
+    cl_string_t *o = NULL, *p = NULL;
 
-    o = cstring_create("%s", "This is another test string");
-    v = cobject_create(CL_CSTRING, o, NULL);
-    cstring_unref(o);
-    print_cobject_as_cvalue(v);
+    o = cl_string_create("%s", "This is another test string");
+    v = cl_object_create(CL_CSTRING, o, NULL);
+    cl_string_unref(o);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_CSTRING, &p, NULL);
-    printf("%s: '%s'\n", __FUNCTION__, cstring_valueof(p));
-    cstring_unref(p);
+    cl_object_get(v, CL_OBJECT_CSTRING, &p, NULL);
+    printf("%s: '%s'\n", __FUNCTION__, cl_string_valueof(p));
+    cl_string_unref(p);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_long(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     long l = 0;
 
-    v = cobject_create(CL_LONG, 2147483647, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_LONG, 2147483647, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_LONG, &l, NULL);
+    cl_object_get(v, CL_OBJECT_LONG, &l, NULL);
     printf("%s: '%ld'\n", __FUNCTION__, l);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_ulong(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     unsigned long l = 0;
 
-    v = cobject_create(CL_ULONG, -2147483647 - 1, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_ULONG, -2147483647 - 1, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_ULONG, &l, NULL);
+    cl_object_get(v, CL_OBJECT_ULONG, &l, NULL);
     printf("%s: '%lu'\n", __FUNCTION__, l);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_llong(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     long long l = 0;
 
-    v = cobject_create(CL_LLONG, 1.12589990684e+15, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_LLONG, 1.12589990684e+15, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_LLONG, &l, NULL);
+    cl_object_get(v, CL_OBJECT_LLONG, &l, NULL);
     printf("%s: '%lld'\n", __FUNCTION__, l);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 static void do_test_ullong(void)
 {
-    cobject_t *v;
+    cl_object_t *v;
     unsigned long long l = 0;
 
-    v = cobject_create(CL_ULLONG, 9.22337203685e+18, NULL);
-    print_cobject_as_cvalue(v);
+    v = cl_object_create(CL_ULLONG, 9.22337203685e+18, NULL);
+    print_cl_object_as_cvalue(v);
 
-    cobject_get(v, COBJECT_ULLONG, &l, NULL);
+    cl_object_get(v, CL_OBJECT_ULLONG, &l, NULL);
     printf("%s: '%llu'\n", __FUNCTION__, l);
 
-    cobject_unref(v);
+    cl_object_unref(v);
 }
 
 int main(int argc, char **argv)
@@ -349,7 +349,7 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init(NULL);
+    cl_init(NULL);
 
     if (test_all || test_char)
         do_test_char();
@@ -393,10 +393,10 @@ int main(int argc, char **argv)
     if (test_all || test_usint)
         do_test_usint();
 
-    collections_uninit();
+    cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    cexit();
+    cl_exit();
 
     return 0;
 }
