@@ -985,3 +985,19 @@ __PUB_API__ bool cl_dt_is_leap_year(void)
     return is_leap_year(tm.tm_year + 1900);
 }
 
+__PUB_API__ cl_datetime_t *cl_dt_from_time_t(time_t now)
+{
+    cl_datetime_s *dt = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    dt = new_cdatetime_s();
+
+    if (NULL == dt)
+        return NULL;
+
+    dt->tv.tv_sec = now;
+    cvt_time(dt, false);
+
+    return dt;
+}
+

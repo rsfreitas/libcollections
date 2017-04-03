@@ -87,6 +87,7 @@ LIBCOLLECTIONS_0.1 {
         cl_dt_current_month;
         cl_dt_is_local_dst;
         cl_dt_is_leap_year;
+        cl_dt_from_time_t;
         cl_timeout_create;
         cl_timeout_destroy;
         cl_timeout_expired;
@@ -146,6 +147,7 @@ LIBCOLLECTIONS_0.1 {
         cl_json_add_item_reference_to_array;
         cl_json_add_item_reference_to_object;
         cl_json_delete_item_from_array;
+        cl_json_delete_item_from_array_by_name;
         cl_json_delete_item_from_object;
         cl_json_replace_item_in_array;
         cl_json_replace_item_in_object;

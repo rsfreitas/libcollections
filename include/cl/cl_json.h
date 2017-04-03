@@ -417,5 +417,17 @@ cl_string_t *cl_json_to_cstring(const cl_json_t *j, bool friendly_output);
  */
 char *cl_json_to_string(const cl_json_t *j, bool friendly_output);
 
+/**
+ * @name cl_json_delete_item_from_array_by_name
+ * @brief Deletes an item from an array.
+ *
+ * @param [in] array: The cl_json_t array.
+ * @param [in] name: The name of the item which will be deleted.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_json_delete_item_from_array_by_name(const cl_json_t *array,
+                                           const char *name);
+
 #endif
 

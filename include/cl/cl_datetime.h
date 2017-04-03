@@ -548,5 +548,16 @@ bool cl_dt_is_local_dst(void);
  */
 bool cl_dt_is_leap_year(void);
 
+/**
+ * @name cl_dt_from_time_t
+ * @brief Gets the current date and time from a time_t value.
+ *
+ * @param [in] now: The timestam used to create the new object.
+ *
+ * @return On success returns a cl_datetime_t object with the localtime or NULL
+ *         otherwise.
+ */
+cl_datetime_t *cl_dt_from_time_t(time_t now);
+
 #endif
 

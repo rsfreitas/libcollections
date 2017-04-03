@@ -1160,6 +1160,30 @@ __PUB_API__ int cl_json_delete_item_from_array(cl_json_t *array,
     return 0;
 }
 
+__PUB_API__ int cl_json_delete_item_from_array_by_name(const cl_json_t *array,
+    const char *name)
+{
+    cl_json_s *p = (cl_json_s *)array, *n;
+    int size;
+
+    __clib_function_init_ex__(true, array, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              -1);
+
+    size = cl_json_get_array_size(array);
+
+    if (size <= 0)
+        return -1;
+
+    n = cl_dll_filter(p->child, find_object, (char *)name);
+
+    if (n != NULL) {
+        cl_json_delete(n);
+        return 0;
+    }
+
+    return -1;
+}
+
 __PUB_API__ int cl_json_delete_item_from_object(cl_json_t *json,
     const char *name)
 {
