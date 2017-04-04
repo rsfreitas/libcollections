@@ -33,6 +33,10 @@
 # endif
 #endif
 
+#ifndef _TIME_H
+# include <time.h>
+#endif
+
 /** Weekdays */
 enum cl_weekday {
     CL_SUNDAY,
