@@ -33,6 +33,10 @@
 # endif
 #endif
 
+#ifndef _SIGNAL_H
+# include <signal.h>
+#endif
+
 /**
  * @name cl_daemon_start
  * @brief Makes the actual process run in daemon mode (background).
