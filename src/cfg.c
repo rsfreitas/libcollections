@@ -31,7 +31,7 @@
 
 #include "collections.h"
 
-enum cl_cfg_line_type {
+enum cfg_line_type {
     CFG_LINE_SECTION = 1,
     CFG_LINE_KEY = 2,
     CFG_LINE_EMPTY = 4,
@@ -39,29 +39,162 @@ enum cl_cfg_line_type {
 };
 
 /** INI line structure */
-struct cl_cfg_line_s {
-    cl_list_entry_t         *prev;
-    cl_list_entry_t         *next;
-    struct cl_object_hdr    hdr;
-    struct line_s           *child;
-    cl_string_t             *name;
-    cl_object_t             *value;
-    cl_string_t             *comment;
-    enum cl_cfg_line_type   line_type;
-    char                    delim;
-};
+#define cfg_line_members                            \
+    cl_struct_member(cl_list_t *, child)            \
+    cl_struct_member(cl_string_t *, name)           \
+    cl_struct_member(cl_object_t *, value)          \
+    cl_struct_member(cl_string_t *, comment)        \
+    cl_struct_member(enum cfg_line_type, line_type) \
+    cl_struct_member(char, delim)                   \
+    cl_struct_member(struct cl_ref_s, ref)
 
-#define CFG_LINE_OFFSET         \
-    (sizeof(cl_list_entry_t *) + sizeof(cl_list_entry_t *))
+cl_struct_declare(cfg_line_s, cfg_line_members);
+#define cfg_line_s              cl_struct(cfg_line_s)
 
 /** INI file structure */
-#define cl_cfg_file_members                             \
-    cl_struct_member(cl_string_t *, filename)           \
-    cl_struct_member(struct cl_cfg_line_s *, section)
+#define cl_cfg_file_members                         \
+    cl_struct_member(cl_string_t *, filename)       \
+    cl_struct_member(cl_list_t *, section)          \
+    cl_struct_member(struct cl_ref_s, ref)
 
-cl_struct_declare(cl_cfg_file_s, cl_cfg_file_members);
+cl_struct_declare(cfg_file_s, cl_cfg_file_members);
+#define cfg_file_s              cl_struct(cfg_file_s)
 
-#define cl_cfg_file_s          cl_struct(cl_cfg_file_s)
+/*
+ *
+ * Objects creation/destruction
+ *
+ */
+
+static cfg_line_s *cl_cfg_line_ref(cfg_line_s *line)
+{
+    cl_ref_inc(&line->ref);
+
+    return line;
+}
+
+static void cl_cfg_line_unref(void *l)
+{
+    cfg_line_s *line = (cfg_line_s *)l;
+
+    cl_ref_dec(&line->ref);
+}
+
+static void destroy_cfg_line_s(void *a)
+{
+    cfg_line_s *l = (cfg_line_s *)a;
+
+    if (l->comment != NULL)
+        cl_string_unref(l->comment);
+
+    if (l->value != NULL)
+        cl_object_destroy(l->value);
+
+    if (l->name != NULL)
+        cl_string_unref(l->name);
+
+    if (l->child != NULL)
+        cl_list_destroy(l->child);
+
+    free(l);
+}
+
+static void __destroy_cfg_line(const struct cl_ref_s *ref)
+{
+    cfg_line_s *l = cl_container_of(ref, cfg_line_s, ref);
+
+    if (NULL == l)
+        return;
+
+    destroy_cfg_line_s(l);
+}
+
+static cfg_line_s *new_cfg_line_s(cl_string_t *name,
+    const char *value, cl_string_t *comment, char delim,
+    enum cfg_line_type type)
+{
+    cfg_line_s *l = NULL;
+    cl_string_t *tmp;
+    enum cl_object object;
+
+    l = calloc(1, sizeof(cfg_line_s));
+
+    if (NULL == l)
+        return NULL;
+
+    if (name != NULL)
+        l->name = cl_string_ref(name);
+
+    if (value != NULL) {
+        tmp = cl_string_create("%s", value);
+        l->value = cl_object_from_cstring(tmp);
+        cl_string_destroy(tmp);
+    }
+
+    if (comment != NULL)
+        l->comment = cl_string_ref(comment);
+
+    l->delim = delim;
+    l->line_type = type;
+    l->child = cl_list_create(cl_cfg_line_unref, NULL, NULL, NULL);
+
+    if (type == CFG_LINE_SECTION)
+        object = CL_OBJ_CFG_SECTION;
+    else
+        object = CL_OBJ_CFG_KEY;
+
+    /* Reference count */
+    l->ref.count = 1;
+    l->ref.free = __destroy_cfg_line;
+
+    set_typeof(object, l);
+
+    return l;
+}
+
+static void destroy_cfg_file_s(const struct cl_ref_s *ref)
+{
+    cfg_file_s *file = cl_container_of(ref, cfg_file_s, ref);
+
+    if (NULL == file)
+        return;
+
+    if (file->filename != NULL)
+        cl_string_destroy(file->filename);
+
+    if (file->section != NULL)
+        cl_list_destroy(file->section);
+
+    free(file);
+}
+
+static cfg_file_s *new_cfg_file_s(const char *filename)
+{
+    cfg_file_s *p = NULL;
+
+    p = calloc(1, sizeof(cfg_file_s));
+
+    if (NULL == p) {
+        cset_errno(CL_NO_MEM);
+        return NULL;
+    }
+
+    set_typeof(CL_OBJ_CFG_FILE, p);
+    p->filename = cl_string_create("%s", filename);
+    p->section = cl_list_create(cl_cfg_line_unref, NULL, NULL, NULL);
+
+    /* Reference count */
+    p->ref.count = 1;
+    p->ref.free = destroy_cfg_file_s;
+
+    return p;
+}
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static bool is_section(const char *line)
 {
@@ -82,96 +215,6 @@ static bool is_section(const char *line)
     cl_string_destroy(p);
 
     return ret;
-}
-
-static struct cl_cfg_line_s *new_cfg_line_s(cl_string_t *name,
-    const char *value, cl_string_t *comment, char delim,
-    enum cl_cfg_line_type type)
-{
-    struct cl_cfg_line_s *l = NULL;
-    cl_string_t *tmp;
-    enum cl_object object;
-
-    l = calloc(1, sizeof(struct cl_cfg_line_s));
-
-    if (NULL == l)
-        return NULL;
-
-    if (name != NULL)
-        l->name = cl_string_ref(name);
-
-    if (value != NULL) {
-        tmp = cl_string_create("%s", value);
-        l->value = cl_object_from_cstring(tmp);
-        cl_string_destroy(tmp);
-    }
-
-    if (comment != NULL)
-        l->comment = cl_string_ref(comment);
-
-    l->delim = delim;
-    l->line_type = type;
-    l->child = NULL;
-
-    if (type == CFG_LINE_SECTION)
-        object = CL_OBJ_CFG_SECTION;
-    else
-        object = CL_OBJ_CFG_KEY;
-
-    set_typeof_with_offset(object, l, CFG_LINE_OFFSET);
-
-    return l;
-}
-
-static void destroy_cfg_line_s(void *a)
-{
-    struct cl_cfg_line_s *l = (struct cl_cfg_line_s *)a;
-
-    if (l->comment != NULL)
-        cl_string_unref(l->comment);
-
-    if (l->value != NULL)
-        cl_object_destroy(l->value);
-
-    if (l->name != NULL)
-        cl_string_unref(l->name);
-
-    if (l->child != NULL)
-        cl_dll_free(l->child, destroy_cfg_line_s);
-
-    free(l);
-}
-
-static cl_cfg_file_s *new_cfg_file_s(const char *filename)
-{
-    cl_cfg_file_s *p = NULL;
-
-    p = calloc(1, sizeof(cl_cfg_file_s));
-
-    if (NULL == p) {
-        cset_errno(CL_NO_MEM);
-        return NULL;
-    }
-
-    set_typeof(CL_OBJ_CFG_FILE, p);
-    p->filename = cl_string_create("%s", filename);
-    p->section = NULL;
-
-    return p;
-}
-
-static void destroy_cfg_file_s(cl_cfg_file_s *file)
-{
-    if (NULL == file)
-        return;
-
-    if (file->filename != NULL)
-        cl_string_destroy(file->filename);
-
-    if (file->section != NULL)
-        cl_dll_free(file->section, destroy_cfg_line_s);
-
-    free(file);
 }
 
 static char get_comment_delim_char(const cl_string_t *s)
@@ -271,14 +314,14 @@ static cl_string_t *get_value(const cl_string_t *s)
     return get_data(s, 1);
 }
 
-static struct cl_cfg_line_s *cvt_line_to_cfg_line(const char *line)
+static cfg_line_s *cvt_line_to_cfg_line(const char *line)
 {
-    enum cl_cfg_line_type line_type = 0;
+    enum cfg_line_type line_type = 0;
     char cdelim = 0;
     cl_string_t *s = NULL, *comment = NULL, *data = NULL, *name = NULL,
         *value = NULL;
     cl_string_list_t *list = NULL;
-    struct cl_cfg_line_s *cline = NULL;
+    cfg_line_s *cline = NULL;
 
     if (!strlen(line)) {
         line_type |= CFG_LINE_EMPTY;
@@ -333,12 +376,12 @@ end_block:
     return cline;
 }
 
-static cl_cfg_file_s *__cfg_load(const char *filename)
+static cfg_file_s *__cfg_load(const char *filename)
 {
     FILE *fp = NULL;
     char *line = NULL;
-    cl_cfg_file_s *file = NULL;
-    struct cl_cfg_line_s *cline = NULL, *section = NULL;
+    cfg_file_s *file = NULL;
+    cfg_line_s *cline = NULL, *section = NULL;
 
     file = new_cfg_file_s(filename);
 
@@ -370,11 +413,11 @@ static cl_cfg_file_s *__cfg_load(const char *filename)
              ((cline->line_type & CFG_LINE_EMPTY) ||
               (cline->line_type & CFG_LINE_COMMENT))))
         {
-            file->section = cl_dll_unshift(file->section, cline);
+            cl_list_unshift(file->section, cline, -1);
             section = cline;
         } else {
             if (section != NULL)
-                section->child = cl_dll_unshift(section->child, cline);
+                cl_list_unshift(section->child, cline, -1);
         }
 
         free(line);
@@ -390,9 +433,9 @@ end_block:
     return file;
 }
 
-static int search_section(void *a, void *b)
+static int search_section(cl_list_node_t *a, void *b)
 {
-    struct cl_cfg_line_s *s = (struct cl_cfg_line_s *)a;
+    cfg_line_s *s = (cfg_line_s *)cl_list_node_content(a);
     char *n = (char *)b;
     cl_string_t *p;
     int ret;
@@ -411,9 +454,9 @@ static int search_section(void *a, void *b)
     return (ret == 0) ? 1 : 0;
 }
 
-static int search_key(void *a, void *b)
+static int search_key(cl_list_node_t *a, void *b)
 {
-    struct cl_cfg_line_s *k = (struct cl_cfg_line_s *)a;
+    cfg_line_s *k = (cfg_line_s *)cl_list_node_content(a);
     char *n = (char *)b;
     cl_string_t *p;
     int ret;
@@ -428,11 +471,11 @@ static int search_key(void *a, void *b)
     return (ret == 0) ? 1 : 0;
 }
 
-static int write_line_to_file(void *a, void *b)
+static int write_line_to_file(cl_list_node_t *a, void *b)
 {
-    struct cl_cfg_line_s *l = (struct cl_cfg_line_s *)a;
+    cfg_line_s *l = (cfg_line_s *)cl_list_node_content(a);
     cl_string_t *s = (cl_string_t *)b;
-    enum cl_cfg_line_type type;
+    enum cfg_line_type type;
     cl_string_t *v = NULL;
 
     type = (l->line_type != CFG_LINE_COMMENT) 
@@ -477,12 +520,12 @@ static int write_line_to_file(void *a, void *b)
     }
 
     if (l->child != NULL)
-        cl_dll_map(l->child, write_line_to_file, s);
+        cl_list_map(l->child, write_line_to_file, s);
 
     return 0;
 }
 
-static cl_string_t *print_cfg(const cl_cfg_file_s *file)
+static cl_string_t *print_cfg(const cfg_file_s *file)
 {
     cl_string_t *s = NULL;
 
@@ -490,7 +533,7 @@ static cl_string_t *print_cfg(const cl_cfg_file_s *file)
         return cl_string_create_empty(0);
 
     s = cl_string_create_empty(0);
-    cl_dll_map(file->section, write_line_to_file, s);
+    cl_list_map(file->section, write_line_to_file, s);
 
     return s;
 }
@@ -500,7 +543,7 @@ static cl_string_t *print_cfg(const cl_cfg_file_s *file)
  */
 __PUB_API__ cl_cfg_file_t *cl_cfg_load(const char *filename)
 {
-    cl_cfg_file_s *file = NULL;
+    cfg_file_s *file = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -525,10 +568,7 @@ __PUB_API__ cl_cfg_file_t *cl_cfg_create(void)
  */
 __PUB_API__ int cl_cfg_unload(cl_cfg_file_t *file)
 {
-    __clib_function_init__(true, file, CL_OBJ_CFG_FILE, -1);
-    destroy_cfg_file_s(file);
-
-    return 0;
+    return cl_cfg_file_unref(file);
 }
 
 /*
@@ -537,7 +577,7 @@ __PUB_API__ int cl_cfg_unload(cl_cfg_file_t *file)
  */
 __PUB_API__ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename)
 {
-    cl_cfg_file_s *f = (cl_cfg_file_s *)file;
+    cfg_file_s *f = (cfg_file_s *)file;
     FILE *fp;
     const char *p;
     cl_string_t *s;
@@ -571,11 +611,12 @@ __PUB_API__ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename)
 __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
     const char *key, const char *fmt, ...)
 {
-    cl_cfg_file_s *f = (cl_cfg_file_s *)file;
-    struct cl_cfg_line_s *s = NULL, *k = NULL;
+    cfg_file_s *f = (cfg_file_s *)file;
+    cfg_line_s *s = NULL, *k = NULL;
     va_list ap;
     char *b = NULL;
     cl_string_t *t;
+    cl_list_node_t *node = NULL;
 
     __clib_function_init__(true, file, CL_OBJ_CFG_FILE, -1);
 
@@ -588,9 +629,9 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
     vasprintf(&b, fmt, ap);
     va_end(ap);
 
-    s = cl_dll_map(f->section, search_section, (void *)section);
+    node = cl_list_map(f->section, search_section, (void *)section);
 
-    if (NULL == s) {
+    if (NULL == node) {
         t = cl_string_create("%s", section);
         s = new_cfg_line_s(t, NULL, NULL, 0, CFG_LINE_SECTION);
         cl_string_unref(t);
@@ -607,15 +648,18 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
             return -1;
         }
 
-        s->child = cl_dll_unshift(s->child, k);
-        f->section = cl_dll_unshift(f->section, s);
+        cl_list_unshift(s->child, k, -1);
+        cl_list_unshift(f->section, s, -1);
 
         goto end_block;
     }
 
-    k = cl_dll_map(s->child, search_key, (void *)key);
+    s = cl_list_node_content(node);
+    cl_list_node_unref(node);
 
-    if (NULL == k) {
+    node = cl_list_map(s->child, search_key, (void *)key);
+
+    if (NULL == node) {
         t = cl_string_create("%s", key);
         k = new_cfg_line_s(t, b, NULL, 0, CFG_LINE_KEY);
         cl_string_unref(t);
@@ -623,8 +667,10 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
         if (NULL == k)
             return -1;
 
-        s->child = cl_dll_push(s->child, k);
+        cl_list_push(s->child, k, -1);
     } else {
+        k = cl_list_node_content(node);
+        cl_list_node_unref(node);
         t = cl_string_create("%s", b);
 
         if (k->value != NULL)
@@ -647,8 +693,9 @@ end_block:
 __PUB_API__ cl_cfg_section_t *cl_cfg_get_section(const cl_cfg_file_t *file,
     const char *section)
 {
-    cl_cfg_file_s *f = (cl_cfg_file_s *)file;
-    struct cl_cfg_line_s *l = NULL;
+    cfg_file_s *f = (cfg_file_s *)file;
+    cfg_line_s *l = NULL;
+    cl_list_node_t *node = NULL;
 
     __clib_function_init__(true, file, CL_OBJ_CFG_FILE, NULL);
 
@@ -657,12 +704,15 @@ __PUB_API__ cl_cfg_section_t *cl_cfg_get_section(const cl_cfg_file_t *file,
         return NULL;
     }
 
-    l = cl_dll_map(f->section, search_section, (void *)section);
+    node = cl_list_map(f->section, search_section, (void *)section);
 
-    if (NULL == l) {
+    if (NULL == node) {
         cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
+
+    l = cl_list_node_content(node);
+    cl_list_node_unref(node);
 
     return l;
 }
@@ -686,23 +736,26 @@ __PUB_API__ cl_cfg_key_t *cl_cfg_get_key(const cl_cfg_file_t *file,
 __PUB_API__ cl_cfg_key_t *cl_cfg_get_key_from_section(const cl_cfg_section_t *section,
     const char *key)
 {
-    struct cl_cfg_line_s *s = (struct cl_cfg_line_s *)section;
-    struct cl_cfg_line_s *l = NULL;
+    cfg_line_s *s = (cfg_line_s *)section;
+    cfg_line_s *l = NULL;
+    cl_list_node_t *node = NULL;
 
-    __clib_function_init_ex__(true, section, CL_OBJ_CFG_SECTION, CFG_LINE_OFFSET,
-                              NULL);
+    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
 
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    l = cl_dll_map(s->child, search_key, (void *)key);
+    node = cl_list_map(s->child, search_key, (void *)key);
 
-    if (NULL == l) {
+    if (NULL == node) {
         cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
+
+    l = cl_list_node_content(node);
+    cl_list_node_unref(node);
 
     return l;
 }
@@ -712,10 +765,9 @@ __PUB_API__ cl_cfg_key_t *cl_cfg_get_key_from_section(const cl_cfg_section_t *se
  */
 __PUB_API__ cl_string_t *cl_cfg_section_name(const cl_cfg_section_t *section)
 {
-    struct cl_cfg_line_s *s = (struct cl_cfg_line_s *)section;
+    cfg_line_s *s = (cfg_line_s *)section;
 
-    __clib_function_init_ex__(true, section, CL_OBJ_CFG_SECTION, CFG_LINE_OFFSET,
-                              NULL);
+    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
 
     return s->name;
 }
@@ -725,9 +777,9 @@ __PUB_API__ cl_string_t *cl_cfg_section_name(const cl_cfg_section_t *section)
  */
 __PUB_API__ cl_string_t *cl_cfg_key_name(const cl_cfg_key_t *key)
 {
-    struct cl_cfg_line_s *k = (struct cl_cfg_line_s *)key;
+    cfg_line_s *k = (cfg_line_s *)key;
 
-    __clib_function_init_ex__(true, key, CL_OBJ_CFG_KEY, CFG_LINE_OFFSET, NULL);
+    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
 
     return k->name;
 }
@@ -737,11 +789,20 @@ __PUB_API__ cl_string_t *cl_cfg_key_name(const cl_cfg_key_t *key)
  */
 __PUB_API__ cl_object_t *cl_cfg_key_value(const cl_cfg_key_t *key)
 {
-    struct cl_cfg_line_s *k = (struct cl_cfg_line_s *)key;
+    cfg_line_s *k = (cfg_line_s *)key;
 
-    __clib_function_init_ex__(true, key, CL_OBJ_CFG_KEY, CFG_LINE_OFFSET, NULL);
+    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
 
     return cl_object_ref(k->value);
+}
+
+__PUB_API__ cl_string_t *cl_cfg_key_comment(const cl_cfg_key_t *key)
+{
+    cfg_line_s *k = (cfg_line_s *)key;
+
+    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
+
+    return k->comment;
 }
 
 __PUB_API__ cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file)
@@ -754,9 +815,9 @@ __PUB_API__ cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file)
     return s;
 }
 
-static int add_key(void *a, void *b)
+static int add_key(cl_list_node_t *a, void *b)
 {
-    struct cl_cfg_line_s *key = (struct cl_cfg_line_s *)a;
+    cfg_line_s *key = (cfg_line_s *)cl_list_node_content(a);
     cl_string_list_t *keys = (cl_string_list_t *)b;
 
     cl_string_list_add(keys, key->name);
@@ -767,7 +828,7 @@ static int add_key(void *a, void *b)
 __PUB_API__ cl_string_list_t *cl_cfg_get_key_names(const cl_cfg_file_t *file,
     const char *section)
 {
-    struct cl_cfg_line_s *s;
+    cfg_line_s *s;
     cl_string_list_t *keys;
 
     s = cl_cfg_get_section(file, section);
@@ -776,22 +837,97 @@ __PUB_API__ cl_string_list_t *cl_cfg_get_key_names(const cl_cfg_file_t *file,
         return NULL;
 
     keys = cl_string_list_create();
-    cl_dll_map(s->child, add_key, keys);
+    cl_list_map(s->child, add_key, keys);
 
     return keys;
 }
 
 __PUB_API__ cl_string_list_t *cl_cfg_get_key_names_from_section(const cl_cfg_section_t *section)
 {
-    struct cl_cfg_line_s *s = (struct cl_cfg_line_s *)section;
+    cfg_line_s *s = (cfg_line_s *)section;
     cl_string_list_t *keys;
 
-    __clib_function_init_ex__(true, section, CL_OBJ_CFG_SECTION, CFG_LINE_OFFSET,
-                              NULL);
-
+    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
     keys = cl_string_list_create();
-    cl_dll_map(s->child, add_key, keys);
+    cl_list_map(s->child, add_key, keys);
 
     return keys;
+}
+
+static int add_section(cl_list_node_t *a, void *b)
+{
+    cfg_line_s *section = (cfg_line_s *)cl_list_node_content(a);
+    cl_string_list_t *sections = (cl_string_list_t *)b;
+    cl_string_t *s = cl_string_dup(section->name);
+
+    /* Remove brackets */
+    cl_string_dchr(s, '[');
+    cl_string_dchr(s, ']');
+
+    cl_string_list_add(sections, s);
+
+    return 0;
+}
+
+__PUB_API__ cl_string_list_t *cl_cfg_get_sections(const cl_cfg_file_t *file)
+{
+    cfg_file_s *f = (cfg_file_s *)file;
+    cl_string_list_t *sections = NULL;
+
+    __clib_function_init__(true, file, CL_OBJ_CFG_FILE, NULL);
+    sections = cl_string_list_create();
+    cl_list_map(f->section, add_section, sections);
+
+    return sections;
+}
+
+__PUB_API__ cl_cfg_key_t *cl_cfg_key_ref(cl_cfg_key_t *key)
+{
+    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
+
+    return cl_cfg_line_ref(key);
+}
+
+__PUB_API__ int cl_cfg_key_unref(cl_cfg_key_t *key)
+{
+    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, -1);
+    cl_cfg_line_unref(key);
+
+    return 0;
+}
+
+__PUB_API__ cl_cfg_section_t *cl_cfg_section_ref(cl_cfg_section_t *section)
+{
+    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
+
+    return cl_cfg_line_ref(section);
+}
+
+__PUB_API__ int cl_cfg_section_unref(cl_cfg_section_t *section)
+{
+    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, -1);
+    cl_cfg_line_unref(section);
+
+    return 0;
+}
+
+__PUB_API__ cl_cfg_file_t *cl_cfg_file_ref(cl_cfg_file_t *file)
+{
+    cfg_file_s *f = (cfg_file_s *)file;
+
+    __clib_function_init__(true, file, CL_OBJ_CFG_FILE, NULL);
+    cl_ref_inc(&f->ref);
+
+    return file;
+}
+
+__PUB_API__ int cl_cfg_file_unref(cl_cfg_file_t *file)
+{
+    cfg_file_s *f = (cfg_file_s *)file;
+
+    __clib_function_init__(true, file, CL_OBJ_CFG_FILE, -1);
+    cl_ref_dec(&f->ref);
+
+    return 0;
 }
 

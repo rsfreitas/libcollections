@@ -10,10 +10,18 @@ LIBCOLLECTIONS_0.1 {
         cl_cfg_get_key_names;
         cl_cfg_get_key_from_section;
         cl_cfg_get_key_names_from_section;
+        cl_cfg_get_sections;
         cl_cfg_section_name;
         cl_cfg_key_name;
         cl_cfg_key_value;
+        cl_cfg_key_comment;
         cl_cfg_to_cstring;
+        cl_cfg_key_ref;
+        cl_cfg_key_unref;
+        cl_cfg_section_ref;
+        cl_cfg_section_unref;
+        cl_cfg_file_ref;
+        cl_cfg_file_unref;
         cl_chat_client_start;
         cl_chat_create;
         cl_chat_destroy;

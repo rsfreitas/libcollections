@@ -205,5 +205,99 @@ cl_string_list_t *cl_cfg_get_key_names(const cl_cfg_file_t *file,
  */
 cl_string_list_t *cl_cfg_get_key_names_from_section(const cl_cfg_section_t *section);
 
+/**
+ * @name cl_cfg_get_sections
+ * @brief Get all section names from a configuration file.
+ *
+ * @param [in] file: The cl_cfg_file_t object.
+ *
+ * @return On success returns a cl_string_list_t object with all section names
+ *         or NULL otherwise.
+ */
+cl_string_list_t *cl_cfg_get_sections(const cl_cfg_file_t *file);
+
+/**
+ * @name cl_cfg_key_comment
+ * @brief Gets the comment value from a cl_cfg_key_t object.
+ *
+ * @param [in] key: cl_cfg_key_t object.
+ *
+ * @return On success returns a cl_string_t object containing the key
+ *         comment. Returns NULL otherwise.
+ */
+cl_string_t *cl_cfg_key_comment(const cl_cfg_key_t *key);
+
+/**
+ * @name cl_cfg_key_ref
+ * @brief Increases the reference count for a cl_cfg_key_t item.
+ *
+ * @param [in,out] key: The key item.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+cl_cfg_key_t *cl_cfg_key_ref(cl_cfg_key_t *key);
+
+/**
+ * @name cl_cfg_key_unref
+ * @brief Decreases the reference count for a cl_cfg_key_t item.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] key: The key item.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_cfg_key_unref(cl_cfg_key_t *key);
+
+/**
+ * @name cl_cfg_section_ref
+ * @brief Increases the reference count for a cl_cfg_section_t item.
+ *
+ * @param [in,out] section: The section item.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+cl_cfg_section_t *cl_cfg_section_ref(cl_cfg_section_t *section);
+
+/**
+ * @name cl_cfg_section_unref
+ * @brief Decreases the reference count for a cl_cfg_section_titem.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] section: The section item.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_cfg_section_unref(cl_cfg_section_t *section);
+
+/**
+ * @name cl_cfg_file_ref
+ * @brief Increases the reference count for a cl_cfg_file_t item.
+ *
+ * @param [in,out] file: The file item.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+cl_cfg_file_t *cl_cfg_file_ref(cl_cfg_file_t *file);
+
+/**
+ * @name cl_cfg_file_unref
+ * @brief Decreases the reference count for a cl_cfg_file_t item.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] file: The file item.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_cfg_file_unref(cl_cfg_file_t *file);
+
 #endif
 

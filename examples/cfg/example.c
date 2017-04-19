@@ -194,6 +194,8 @@ int main(int argc, char **argv)
         v = cl_cfg_key_value(k);
         p = CL_OBJECT_AS_STRING(v);
         printf("%s: '%s'\n", __FUNCTION__, p);
+        free(p);
+        cl_object_unref(v);
     }
 
 end_block:
