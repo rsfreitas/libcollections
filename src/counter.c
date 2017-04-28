@@ -31,112 +31,112 @@
 
 #include "collections.h"
 
-#define counter_members                                 \
-    cl_struct_member(enum counter_precision, precision) \
-    cl_struct_member(bool, circular_counter)            \
-    cl_struct_member(bool, negative_min)                \
-    cl_struct_member(cobject_t *, cnt)                  \
-    cl_struct_member(cobject_t *, min)                  \
-    cl_struct_member(cobject_t *, max)                  \
-    cl_struct_member(long long, start_value)            \
-    cl_struct_member(pthread_mutex_t, lock)             \
-    cl_struct_member(struct cref_s, ref)
+#define cl_counter_members                                  \
+    cl_struct_member(enum cl_counter_precision, precision)  \
+    cl_struct_member(bool, circular_counter)                \
+    cl_struct_member(bool, negative_min)                    \
+    cl_struct_member(cl_object_t *, cnt)                    \
+    cl_struct_member(cl_object_t *, min)                    \
+    cl_struct_member(cl_object_t *, max)                    \
+    cl_struct_member(long long, start_value)                \
+    cl_struct_member(pthread_mutex_t, lock)                 \
+    cl_struct_member(struct cl_ref_s, ref)
 
-cl_struct_declare(counter_s, counter_members);
+cl_struct_declare(cl_counter_s, cl_counter_members);
 
-#define counter_s           cl_struct(counter_s)
+#define cl_counter_s           cl_struct(cl_counter_s)
 
-static void adjust_8bit_counter(counter_s *c, long long max)
+static void adjust_8bit_counter(cl_counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cobject_create(CL_LLONG, UCHAR_MAX, NULL);
+        c->max = cl_object_create(CL_LLONG, UCHAR_MAX, NULL);
     else
-        c->max = cobject_create(CL_LLONG, max, NULL);
+        c->max = cl_object_create(CL_LLONG, max, NULL);
 }
 
-static void adjust_16bit_counter(counter_s *c, long long max)
+static void adjust_16bit_counter(cl_counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cobject_create(CL_LLONG, USHRT_MAX, NULL);
+        c->max = cl_object_create(CL_LLONG, USHRT_MAX, NULL);
     else
-        c->max = cobject_create(CL_LLONG, max, NULL);
+        c->max = cl_object_create(CL_LLONG, max, NULL);
 }
 
-static void adjust_32bit_counter(counter_s *c, long long max)
+static void adjust_32bit_counter(cl_counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cobject_create(CL_LLONG, UINT_MAX, NULL);
+        c->max = cl_object_create(CL_LLONG, UINT_MAX, NULL);
     else
-        c->max = cobject_create(CL_LLONG, max, NULL);
+        c->max = cl_object_create(CL_LLONG, max, NULL);
 }
 
-static void adjust_64bit_counter(counter_s *c, long long max)
+static void adjust_64bit_counter(cl_counter_s *c, long long max)
 {
     if (max <= 0)
-        c->max = cobject_create(CL_LLONG, ULLONG_MAX, NULL);
+        c->max = cl_object_create(CL_LLONG, ULLONG_MAX, NULL);
     else
-        c->max = cobject_create(CL_LLONG, max, NULL);
+        c->max = cl_object_create(CL_LLONG, max, NULL);
 }
 
-static void adjust_counter_limits(counter_s *c, long long min,
+static void adjust_counter_limits(cl_counter_s *c, long long min,
     long long max)
 {
     switch (c->precision) {
-        case CNT_8BIT:
+        case CL_8BIT_COUNTER:
             adjust_8bit_counter(c, max);
             break;
 
-        case CNT_16BIT:
+        case CL_16BIT_COUNTER:
             adjust_16bit_counter(c, max);
             break;
 
-        case CNT_32BIT:
+        case CL_32BIT_COUNTER:
             adjust_32bit_counter(c, max);
             break;
 
-        case CNT_64BIT:
+        case CL_64BIT_COUNTER:
             adjust_64bit_counter(c, max);
             break;
     }
 
     if (min == 0)
-        c->min = cobject_create(CL_LLONG, 0, NULL);
+        c->min = cl_object_create(CL_LLONG, 0, NULL);
     else {
         if (min < 0)
             c->negative_min = true;
 
-        c->min = cobject_create(CL_LLONG, min, NULL);
+        c->min = cl_object_create(CL_LLONG, min, NULL);
     }
 }
 
-static void destroy_counter_s(const struct cref_s *ref)
+static void destroy_counter_s(const struct cl_ref_s *ref)
 {
-    counter_s *c = cl_container_of(ref, counter_s, ref);
+    cl_counter_s *c = cl_container_of(ref, cl_counter_s, ref);
 
     if (NULL == c)
         return;
 
     if (c->cnt != NULL)
-        cobject_destroy(c->cnt);
+        cl_object_destroy(c->cnt);
 
     if (c->min != NULL)
-        cobject_destroy(c->min);
+        cl_object_destroy(c->min);
 
     if (c->max != NULL)
-        cobject_destroy(c->max);
+        cl_object_destroy(c->max);
 
     pthread_mutex_destroy(&c->lock);
     free(c);
     c = NULL;
 }
 
-static counter_s *new_counter_s(enum counter_precision precision,
+static cl_counter_s *new_counter_s(enum cl_counter_precision precision,
     long long min, long long max, long long start_value, bool circular)
 {
-    counter_s *c = NULL;
+    cl_counter_s *c = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
-    c = calloc(1, sizeof(counter_s));
+    c = calloc(1, sizeof(cl_counter_s));
 
     if (NULL == c) {
         cset_errno(CL_NO_MEM);
@@ -146,12 +146,12 @@ static counter_s *new_counter_s(enum counter_precision precision,
     c->precision = precision;
     c->circular_counter = circular;
     c->negative_min = false;
-    c->cnt = cobject_create(CL_LLONG, start_value, NULL);
+    c->cnt = cl_object_create(CL_LLONG, start_value, NULL);
     c->start_value = start_value;
     c->ref.free = destroy_counter_s;
     c->ref.count = 1;
 
-    set_typeof(COUNTER, c);
+    set_typeof(CL_OBJ_COUNTER, c);
     pthread_mutex_init(&c->lock, NULL);
 
     /* Adjust counter limits */
@@ -160,187 +160,188 @@ static counter_s *new_counter_s(enum counter_precision precision,
     return c;
 }
 
-__PUB_API__ counter_t *counter_ref(counter_t *c)
+__PUB_API__ cl_counter_t *cl_counter_ref(cl_counter_t *c)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
 
-    __clib_function_init__(true, c, COUNTER, NULL);
-    cref_inc(&p->ref);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, NULL);
+    cl_ref_inc(&p->ref);
 
     return c;
 }
 
-__PUB_API__ int counter_unref(counter_t *c)
+__PUB_API__ int cl_counter_unref(cl_counter_t *c)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
 
-    __clib_function_init__(true, c, COUNTER, -1);
-    cref_dec(&p->ref);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
+    cl_ref_dec(&p->ref);
 
     return 0;
 }
 
-__PUB_API__ counter_t *counter_create(enum counter_precision precision,
+__PUB_API__ cl_counter_t *cl_counter_create(enum cl_counter_precision precision,
     long long min, long long max, long long start_value, bool circular)
 {
     return new_counter_s(precision, min, max, start_value, circular);
 }
 
-__PUB_API__ int counter_destroy(counter_t *c)
+__PUB_API__ int cl_counter_destroy(cl_counter_t *c)
 {
-    return counter_unref(c);
+    return cl_counter_unref(c);
 }
 
-static int __counter_increase(counter_t *c, long long gap)
+static int __counter_increase(cl_counter_t *c, long long gap)
 {
-    counter_s *p;
+    cl_counter_s *p;
     long long v, max;
 
-    __clib_function_init__(true, c, COUNTER, -1);
-    p = counter_ref(c);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
+    p = cl_counter_ref(c);
     pthread_mutex_lock(&p->lock);
-    v = COBJECT_AS_LLONG(p->cnt) + gap;
-    max = COBJECT_AS_LLONG(p->max);
+    v = CL_OBJECT_AS_LLONG(p->cnt) + gap;
+    max = CL_OBJECT_AS_LLONG(p->max);
 
     if (v > max) {
         if (p->circular_counter == false)
             v = max;
         else
-            v = COBJECT_AS_LLONG(p->min);
+            v = CL_OBJECT_AS_LLONG(p->min);
     }
 
-    cobject_set(p->cnt, v, NULL);
+    cl_object_set(p->cnt, v, NULL);
     pthread_mutex_unlock(&p->lock);
-    counter_unref(p);
+    cl_counter_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int counter_increase(counter_t *c)
+__PUB_API__ int cl_counter_increase(cl_counter_t *c)
 {
     return __counter_increase(c, 1);
 }
 
-__PUB_API__ int counter_increase_by(counter_t *c, long long gap)
+__PUB_API__ int cl_counter_increase_by(cl_counter_t *c, long long gap)
 {
     return __counter_increase(c, gap);
 }
 
-static int __counter_decrease(counter_t *c, long long gap)
+static int __counter_decrease(cl_counter_t *c, long long gap)
 {
-    counter_s *p;
+    cl_counter_s *p;
     long long v, min;
 
-    __clib_function_init__(true, c, COUNTER, -1);
-    p = counter_ref(c);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
+    p = cl_counter_ref(c);
     pthread_mutex_lock(&p->lock);
-    v = COBJECT_AS_LLONG(p->cnt) - gap;
-    min = COBJECT_AS_LLONG(p->min);
+    v = CL_OBJECT_AS_LLONG(p->cnt) - gap;
+    min = CL_OBJECT_AS_LLONG(p->min);
 
     if (v < min) {
         if (p->circular_counter == false)
             v = min;
         else
-            v = COBJECT_AS_LLONG(p->max);
+            v = CL_OBJECT_AS_LLONG(p->max);
     }
 
-    cobject_set(p->cnt, v, NULL);
+    cl_object_set(p->cnt, v, NULL);
     pthread_mutex_unlock(&p->lock);
-    counter_unref(p);
+    cl_counter_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int counter_decrease(counter_t *c)
+__PUB_API__ int cl_counter_decrease(cl_counter_t *c)
 {
     return __counter_decrease(c, 1);
 }
 
-__PUB_API__ int counter_decrease_by(counter_t *c, long long gap)
+__PUB_API__ int cl_counter_decrease_by(cl_counter_t *c, long long gap)
 {
     return __counter_decrease(c, gap);
 }
 
-__PUB_API__ int counter_reset(counter_t *c)
+__PUB_API__ int cl_counter_reset(cl_counter_t *c)
 {
-    counter_s *p;
+    cl_counter_s *p;
 
-    __clib_function_init__(true, c, COUNTER, -1);
-    p = counter_ref(c);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
+    p = cl_counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
-    cobject_set(p->cnt, p->start_value, NULL);
+    cl_object_set(p->cnt, p->start_value, NULL);
 
     pthread_mutex_unlock(&p->lock);
-    counter_unref(p);
+    cl_counter_unref(p);
 
     return 0;
 }
 
-__PUB_API__ long long counter_get(counter_t *c)
+__PUB_API__ long long cl_counter_get(cl_counter_t *c)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
 
-    __clib_function_init__(true, c, COUNTER, -1);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
 
-    return COBJECT_AS_LLONG(p->cnt);
+    return CL_OBJECT_AS_LLONG(p->cnt);
 }
 
-__PUB_API__ int counter_set_min(counter_t *c, long long min)
+__PUB_API__ int cl_counter_set_min(cl_counter_t *c, long long min)
 {
-    counter_s *p;
+    cl_counter_s *p;
 
-    __clib_function_init__(true, c, COUNTER, -1);
-    p = counter_ref(c);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
+    p = cl_counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
     if (NULL == p->min)
-        p->min = cobject_create(CL_LLONG, min, NULL);
+        p->min = cl_object_create(CL_LLONG, min, NULL);
     else
-        cobject_set(p->min, min, NULL);
+        cl_object_set(p->min, min, NULL);
 
     pthread_mutex_unlock(&p->lock);
-    counter_unref(p);
+    cl_counter_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int counter_set_max(counter_t *c, long long max)
+__PUB_API__ int cl_counter_set_max(cl_counter_t *c, long long max)
 {
-    counter_s *p;
+    cl_counter_s *p;
 
-    __clib_function_init__(true, c, COUNTER, -1);
-    p = counter_ref(c);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
+    p = cl_counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
     if (NULL == p->max)
-        p->max = cobject_create(CL_LLONG, max, NULL);
+        p->max = cl_object_create(CL_LLONG, max, NULL);
     else
-        cobject_set(p->max, max, NULL);
+        cl_object_set(p->max, max, NULL);
 
     pthread_mutex_unlock(&p->lock);
-    counter_unref(p);
+    cl_counter_unref(p);
 
     return 0;
 }
 
-__PUB_API__ int counter_set_range(counter_t *c, long long min, long long max)
+__PUB_API__ int cl_counter_set_range(cl_counter_t *c, long long min,
+    long long max)
 {
-    __clib_function_init__(true, c, COUNTER, -1);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
 
-    counter_set_min(c, min);
-    counter_set_max(c, max);
+    cl_counter_set_min(c, min);
+    cl_counter_set_max(c, max);
 
     return 0;
 }
 
-__PUB_API__ bool counter_lt(const counter_t *c, long long value)
+__PUB_API__ bool cl_counter_lt(const cl_counter_t *c, long long value)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
     long long v;
 
-    __clib_function_init__(true, c, COUNTER, false);
-    v = COBJECT_AS_LLONG(p->cnt);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, false);
+    v = CL_OBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v < value)
@@ -352,13 +353,13 @@ __PUB_API__ bool counter_lt(const counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool counter_le(const counter_t *c, long long value)
+__PUB_API__ bool cl_counter_le(const cl_counter_t *c, long long value)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
     long long v;
 
-    __clib_function_init__(true, c, COUNTER, false);
-    v = COBJECT_AS_LLONG(p->cnt);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, false);
+    v = CL_OBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v <= value)
@@ -370,13 +371,13 @@ __PUB_API__ bool counter_le(const counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool counter_gt(const counter_t *c, long long value)
+__PUB_API__ bool cl_counter_gt(const cl_counter_t *c, long long value)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
     long long v;
 
-    __clib_function_init__(true, c, COUNTER, false);
-    v = COBJECT_AS_LLONG(p->cnt);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, false);
+    v = CL_OBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v > value)
@@ -388,13 +389,13 @@ __PUB_API__ bool counter_gt(const counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool counter_ge(const counter_t *c, long long value)
+__PUB_API__ bool cl_counter_ge(const cl_counter_t *c, long long value)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
     long long v;
 
-    __clib_function_init__(true, c, COUNTER, false);
-    v = COBJECT_AS_LLONG(p->cnt);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, false);
+    v = CL_OBJECT_AS_LLONG(p->cnt);
 
     if (p->negative_min == true) {
         if (v >= value)
@@ -406,34 +407,34 @@ __PUB_API__ bool counter_ge(const counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool counter_eq(const counter_t *c, long long value)
+__PUB_API__ bool cl_counter_eq(const cl_counter_t *c, long long value)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
 
-    __clib_function_init__(true, c, COUNTER, false);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, false);
 
-    if (COBJECT_AS_LLONG(p->cnt) == value)
+    if (CL_OBJECT_AS_LLONG(p->cnt) == value)
         return true;
 
     return false;
 }
 
-__PUB_API__ bool counter_ne(const counter_t *c, long long value)
+__PUB_API__ bool cl_counter_ne(const cl_counter_t *c, long long value)
 {
-    counter_s *p = (counter_s *)c;
+    cl_counter_s *p = (cl_counter_s *)c;
 
-    __clib_function_init__(true, c, COUNTER, false);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, false);
 
-    if (COBJECT_AS_LLONG(p->cnt) != value)
+    if (CL_OBJECT_AS_LLONG(p->cnt) != value)
         return true;
 
     return false;
 }
 
-static bool is_between_limits(long long value, const counter_s *c)
+static bool is_between_limits(long long value, const cl_counter_s *c)
 {
-    if ((value >= COBJECT_AS_LLONG(c->min)) &&
-        (value <= COBJECT_AS_LLONG(c->max)))
+    if ((value >= CL_OBJECT_AS_LLONG(c->min)) &&
+        (value <= CL_OBJECT_AS_LLONG(c->max)))
     {
         return true;
     }
@@ -441,48 +442,49 @@ static bool is_between_limits(long long value, const counter_s *c)
     return false;
 }
 
-__PUB_API__ long long counter_get_and_set(counter_t *c, long long new_value)
+__PUB_API__ long long cl_counter_get_and_set(cl_counter_t *c,
+    long long new_value)
 {
-    counter_s *p;
+    cl_counter_s *p;
     long long v = -1;
 
-    __clib_function_init__(true, c, COUNTER, -1);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
 
-    if (is_between_limits(new_value, (counter_s *)c) == false) {
+    if (is_between_limits(new_value, (cl_counter_s *)c) == false) {
         cset_errno(CL_INVALID_VALUE);
         return -1;
     }
 
-    p = counter_ref(c);
+    p = cl_counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
-    v = COBJECT_AS_LLONG(p->cnt);
-    cobject_set(p->cnt, new_value, NULL);
+    v = CL_OBJECT_AS_LLONG(p->cnt);
+    cl_object_set(p->cnt, new_value, NULL);
 
     pthread_mutex_unlock(&p->lock);
-    counter_unref(p);
+    cl_counter_unref(p);
 
     return v;
 }
 
-__PUB_API__ int counter_set(counter_t *c, long long new_value)
+__PUB_API__ int cl_counter_set(cl_counter_t *c, long long new_value)
 {
-    counter_s *p;
+    cl_counter_s *p;
 
-    __clib_function_init__(true, c, COUNTER, -1);
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
 
-    if (is_between_limits(new_value, (counter_s *)c) == false) {
+    if (is_between_limits(new_value, (cl_counter_s *)c) == false) {
         cset_errno(CL_INVALID_VALUE);
         return -1;
     }
 
-    p = counter_ref(c);
+    p = cl_counter_ref(c);
     pthread_mutex_lock(&p->lock);
 
-    cobject_set(p->cnt, new_value, NULL);
+    cl_object_set(p->cnt, new_value, NULL);
 
     pthread_mutex_unlock(&p->lock);
-    counter_unref(p);
+    cl_counter_unref(p);
 
     return 0;
 }

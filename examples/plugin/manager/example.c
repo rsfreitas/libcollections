@@ -46,155 +46,155 @@ static void help(void)
     fprintf(stdout, "\n");
 }
 
-static void plugin_details(cplugin_info_t *info)
+static void plugin_details(cl_plugin_info_t *info)
 {
-    cstring_t *p, *q;
-    cstring_list_t *l, *a;
+    cl_string_t *p, *q;
+    cl_string_list_t *l, *a;
     int i, t = 0, j, k = 0;
     char *name, *arg_name;
 
-    fprintf(stdout, "Name: %s\n", cplugin_name(info));
-    fprintf(stdout, "Author: %s\n", cplugin_author(info));
-    fprintf(stdout, "Version: %s\n", cplugin_version(info));
-    fprintf(stdout, "Description: %s\n", cplugin_description(info));
+    fprintf(stdout, "Name: %s\n", cl_plugin_name(info));
+    fprintf(stdout, "Author: %s\n", cl_plugin_author(info));
+    fprintf(stdout, "Version: %s\n", cl_plugin_version(info));
+    fprintf(stdout, "Description: %s\n", cl_plugin_description(info));
 
-    p = cplugin_API(info);
-    fprintf(stdout, "API: %s\n", cstring_valueof(p));
-    cstring_unref(p);
+    p = cl_plugin_API(info);
+    fprintf(stdout, "API: %s\n", cl_string_valueof(p));
+    cl_string_unref(p);
 
-    l = cplugin_functions(info);
-    t = cstring_list_size(l);
+    l = cl_plugin_functions(info);
+    t = cl_string_list_size(l);
 
     for (i = 0; i < t; i++) {
-        p = cstring_list_get(l, i);
-        name = (char *)cstring_valueof(p);
+        p = cl_string_list_get(l, i);
+        name = (char *)cl_string_valueof(p);
 
         fprintf(stdout, "Function name: %s\n", name);
         fprintf(stdout, "Return type: %d\n",
-                cplugin_function_return_type(info, name));
+                cl_plugin_function_return_type(info, name));
 
         fprintf(stdout, "Argument mode: %d\n",
-                cplugin_function_arg_mode(info, name));
+                cl_plugin_function_arg_mode(info, name));
 
-        a = cplugin_function_arguments(info, name);
+        a = cl_plugin_function_arguments(info, name);
 
         if (NULL == a) {
-            cstring_unref(p);
+            cl_string_unref(p);
             continue;
         }
 
-        k = cstring_list_size(a);
+        k = cl_string_list_size(a);
         fprintf(stdout, "Arguments\n");
 
         for (j = 0; j < k; j++) {
-            q = cstring_list_get(a, j);
-            arg_name = (char *)cstring_valueof(q);
+            q = cl_string_list_get(a, j);
+            arg_name = (char *)cl_string_valueof(q);
             fprintf(stdout, "\tName: %s\n", arg_name);
             fprintf(stdout, "\tType: %d\n",
-                    cplugin_function_arg_type(info, name, arg_name));
+                    cl_plugin_function_arg_type(info, name, arg_name));
 
-            cstring_unref(q);
+            cl_string_unref(q);
         }
 
-        cstring_list_destroy(a);
-        cstring_unref(p);
+        cl_string_list_destroy(a);
+        cl_string_unref(p);
     }
 
-    cstring_list_destroy(l);
+    cl_string_list_destroy(l);
 }
 
 static void load_and_show_plugin_info(const char *filename)
 {
-    cplugin_info_t *info;
+    cl_plugin_info_t *info;
 
-    info = cplugin_info_from_file(filename);
+    info = cl_plugin_info_from_file(filename);
 
     if (NULL == info) {
         return ;
     }
 
     plugin_details(info);
-    cplugin_info_unref(info);
+    cl_plugin_info_unref(info);
 }
 
-static void show_plugin_info(cplugin_t *cpl)
+static void show_plugin_info(cl_plugin_t *cpl)
 {
-    cplugin_info_t *info;
+    cl_plugin_info_t *info;
 
-    info = cplugin_info(cpl);
+    info = cl_plugin_info(cpl);
 
     if (NULL == info) {
         return;
     }
 
     plugin_details(info);
-    cplugin_info_unref(info);
+    cl_plugin_info_unref(info);
 }
 
-static cstring_t *get_return_as_string(const char *name, cobject_t *v)
+static cl_string_t *get_return_as_string(const char *name, cl_object_t *v)
 {
-    cstring_t *s = cstring_create("%s return value: ", name);
+    cl_string_t *s = cl_string_create("%s return value: ", name);
     char *tmp;
 
-    if (COBJECT_ischar(v))
-        cstring_cat(s, "%c", COBJECT_AS_CHAR(v));
-    else if (COBJECT_isuchar(v))
-        cstring_cat(s, "%d", COBJECT_AS_UCHAR(v));
-    else if (COBJECT_isint(v))
-        cstring_cat(s, "%d", COBJECT_AS_INT(v));
-    else if (COBJECT_isuint(v))
-        cstring_cat(s, "%u", COBJECT_AS_UINT(v));
-    else if (COBJECT_issint(v))
-        cstring_cat(s, "%d", COBJECT_AS_SINT(v));
-    else if (COBJECT_isusint(v))
-        cstring_cat(s, "%d", COBJECT_AS_USINT(v));
-    else if (COBJECT_isfloat(v))
-        cstring_cat(s, "%f", COBJECT_AS_FLOAT(v));
-    else if (COBJECT_isdouble(v))
-        cstring_cat(s, "%f", COBJECT_AS_DOUBLE(v));
-    else if (COBJECT_islong(v))
-        cstring_cat(s, "%ld", COBJECT_AS_LONG(v));
-    else if (COBJECT_isulong(v))
-        cstring_cat(s, "%lu", COBJECT_AS_ULONG(v));
-    else if (COBJECT_isllong(v))
-        cstring_cat(s, "%lld", COBJECT_AS_LLONG(v));
-    else if (COBJECT_isullong(v))
-        cstring_cat(s, "%llu", COBJECT_AS_ULLONG(v));
-    else if (COBJECT_isstring(v)) {
-        tmp = COBJECT_AS_STRING(v);
+    if (CL_OBJECT_ischar(v))
+        cl_string_cat(s, "%c", CL_OBJECT_AS_CHAR(v));
+    else if (CL_OBJECT_isuchar(v))
+        cl_string_cat(s, "%d", CL_OBJECT_AS_UCHAR(v));
+    else if (CL_OBJECT_isint(v))
+        cl_string_cat(s, "%d", CL_OBJECT_AS_INT(v));
+    else if (CL_OBJECT_isuint(v))
+        cl_string_cat(s, "%u", CL_OBJECT_AS_UINT(v));
+    else if (CL_OBJECT_issint(v))
+        cl_string_cat(s, "%d", CL_OBJECT_AS_SINT(v));
+    else if (CL_OBJECT_isusint(v))
+        cl_string_cat(s, "%d", CL_OBJECT_AS_USINT(v));
+    else if (CL_OBJECT_isfloat(v))
+        cl_string_cat(s, "%f", CL_OBJECT_AS_FLOAT(v));
+    else if (CL_OBJECT_isdouble(v))
+        cl_string_cat(s, "%f", CL_OBJECT_AS_DOUBLE(v));
+    else if (CL_OBJECT_islong(v))
+        cl_string_cat(s, "%ld", CL_OBJECT_AS_LONG(v));
+    else if (CL_OBJECT_isulong(v))
+        cl_string_cat(s, "%lu", CL_OBJECT_AS_ULONG(v));
+    else if (CL_OBJECT_isllong(v))
+        cl_string_cat(s, "%lld", CL_OBJECT_AS_LLONG(v));
+    else if (CL_OBJECT_isullong(v))
+        cl_string_cat(s, "%llu", CL_OBJECT_AS_ULLONG(v));
+    else if (CL_OBJECT_isstring(v)) {
+        tmp = CL_OBJECT_AS_STRING(v);
 
         if (tmp != NULL)
-            cstring_cat(s, "%s", tmp);
-    } else if (COBJECT_isboolean(v))
-        cstring_cat(s, "%d", COBJECT_AS_BOOLEAN(v));
+            cl_string_cat(s, "%s", tmp);
+    } else if (CL_OBJECT_isboolean(v))
+        cl_string_cat(s, "%d", CL_OBJECT_AS_BOOLEAN(v));
 
     return s;
 }
 
-static void call_functions(cplugin_t *cpl)
+static void call_functions(cl_plugin_t *cpl)
 {
-    cplugin_info_t *info;
-    cstring_list_t *l;
+    cl_plugin_info_t *info;
+    cl_string_list_t *l;
     int i, t;
-    cstring_t *p, *s;
-    cobject_t *ret;
+    cl_string_t *p, *s;
+    cl_object_t *ret;
 
-    info = cplugin_info(cpl);
-    l = cplugin_functions(info);
-    t = cstring_list_size(l);
+    info = cl_plugin_info(cpl);
+    l = cl_plugin_functions(info);
+    t = cl_string_list_size(l);
 
     for (i = 0; i < t; i++) {
-        p = cstring_list_get(l, i);
-        ret = cplugin_call(cpl, cstring_valueof(p), NULL);
-        s = get_return_as_string(cstring_valueof(p), ret);
-        printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
-        cstring_unref(s);
-        cobject_unref(ret);
-        cstring_unref(p);
+        p = cl_string_list_get(l, i);
+        ret = cl_plugin_call(cpl, cl_string_valueof(p), NULL);
+        s = get_return_as_string(cl_string_valueof(p), ret);
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        cl_string_unref(s);
+        cl_object_unref(ret);
+        cl_string_unref(p);
     }
 
-    cstring_list_destroy(l);
-    cplugin_info_unref(info);
+    cl_string_list_destroy(l);
+    cl_plugin_info_unref(info);
 }
 
 int main(int argc, char **argv)
@@ -202,9 +202,9 @@ int main(int argc, char **argv)
     const char *opt = "f:hIr:";
     int option;
     char *filename = NULL;
-    cplugin_t *cpl;
+    cl_plugin_t *cpl;
     bool info = false;
-    cobject_t *ret;
+    cl_object_t *ret;
     int i, run = 1;
     void *p;
 
@@ -238,17 +238,17 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    collections_init(NULL);
+    cl_init(NULL);
 
     if (info == true) {
         load_and_show_plugin_info(filename);
         return 0;
     }
 
-    cpl = cplugin_load(filename);
+    cpl = cl_plugin_load(filename);
 
     if (NULL == cpl) {
-        printf("Error 0: %s\n", cstrerror(cget_last_error()));
+        printf("Error 0: %s\n", cl_strerror(cl_get_last_error()));
         return -1;
     }
 
@@ -259,7 +259,7 @@ int main(int argc, char **argv)
     for (i = 0; i < run; i++) {
         call_functions(cpl);
 
-        cplugin_call(cpl, "foo_args",
+        cl_plugin_call(cpl, "foo_args",
                      "arg1", 20,
                      "arg2", 21,
                      "arg3", 22,
@@ -276,26 +276,26 @@ int main(int argc, char **argv)
                      "arg14", "Sample text",
                      NULL);
 
-/*        ret = cplugin_call(cpl, "foo_class", "data", "Hi, I'm a class data...",
+/*        ret = cl_plugin_call(cpl, "foo_class", "data", "Hi, I'm a class data...",
                            NULL);
 
-        printf("Type of return: %d\n", cobject_type(ret));
-        p = COBJECT_AS_POINTER(ret);
-        cobject_unref(ret);
-        ret = cplugin_call(cpl, "foo_pointer", "data", p, NULL);
-        printf("Second return: %d\n", COBJECT_AS_INT(ret));
-        cobject_unref(ret);*/
+        printf("Type of return: %d\n", cl_object_type(ret));
+        p = CL_OBJECT_AS_POINTER(ret);
+        cl_object_unref(ret);
+        ret = cl_plugin_call(cpl, "foo_pointer", "data", p, NULL);
+        printf("Second return: %d\n", CL_OBJECT_AS_INT(ret));
+        cl_object_unref(ret);*/
     }
 
-    cplugin_unload(cpl);
+    cl_plugin_unload(cpl);
 
     if (filename != NULL)
         free(filename);
 
-    collections_uninit();
+    cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    //cexit();
+    //cl_exit();
 
     return 0;
 }

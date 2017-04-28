@@ -34,41 +34,41 @@
 #endif
 
 enum cl_object {
-    CSTRING,
-    CSTRINGLIST,
-    CFG_FILE,
-    CFG_SECTION,
-    CFG_KEY,
-    CJSON,
-    CDATETIME,
-    CTIMEOUT,
-    CTHREAD,
-    CTIMER,
-    CTIMER_INFO,
-    CTIMER_ARG,     /* This is not our type, so we can't validate it */
-    CHAT,
-    CLIST,
-    CEVENT,
-    COBJECT,
-    CSPEC,
-    COUNTER,
-    CPLUGIN,
-    CPLUGIN_ARG,
-    CPLUGIN_INFO,
-    CLOG,
-    CIMAGE,
-    CLIST_NODE,
-    CSTACK,
-    CSTACK_NODE,
-    CQUEUE,
-    CQUEUE_NODE,
-    CIMAGE_CAPTION,
-    CHASHTABLE,
-    CIRCULAR_QUEUE,
-    CIRCULAR_STACK
+    CL_OBJ_STRING,
+    CL_OBJ_STRINGLIST,
+    CL_OBJ_CFG_FILE,
+    CL_OBJ_CFG_SECTION,
+    CL_OBJ_CFG_KEY,
+    CL_OBJ_JSON,
+    CL_OBJ_DATETIME,
+    CL_OBJ_TIMEOUT,
+    CL_OBJ_THREAD,
+    CL_OBJ_TIMER,
+    CL_OBJ_TIMER_INFO,
+    CL_OBJ_TIMER_ARG,     /* This is not our type, so we can't validate it */
+    CL_OBJ_CHAT,
+    CL_OBJ_LIST,
+    CL_OBJ_EVENT,
+    CL_OBJ_OBJECT,
+    CL_OBJ_SPEC,
+    CL_OBJ_COUNTER,
+    CL_OBJ_PLUGIN,
+    CL_OBJ_PLUGIN_ARG,
+    CL_OBJ_PLUGIN_INFO,
+    CL_OBJ_LOG,
+    CL_OBJ_IMAGE,
+    CL_OBJ_LIST_NODE,
+    CL_OBJ_STACK,
+    CL_OBJ_STACK_NODE,
+    CL_OBJ_QUEUE,
+    CL_OBJ_QUEUE_NODE,
+    CL_OBJ_CAPTION,
+    CL_OBJ_HASHTABLE,
+    CL_OBJ_CIRCULAR_QUEUE,
+    CL_OBJ_CIRCULAR_STACK
 };
 
-struct cobject_hdr {
+struct cl_object_hdr {
     unsigned long long  lib_id;
     enum cl_object      object;
 };
@@ -78,15 +78,15 @@ struct cobject_hdr {
 
 #define cl_struct_declare(name, members)    \
     struct cl_obj_##name {                  \
-        struct cobject_hdr  hdr;            \
+        struct cl_object_hdr  hdr;          \
         members                             \
     }
 
 #define cl_struct(name)                     \
     struct cl_obj_##name
 
-#define COBJECT_HEADER_ID_SIZE              \
-    sizeof(struct cobject_hdr)
+#define CL_OBJECT_HEADER_ID_SIZE            \
+    sizeof(struct cl_object_hdr)
 
 void set_typeof(enum cl_object type, void *p);
 bool validate_object(const void *p, enum cl_object type);

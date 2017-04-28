@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name clist_node_content
+ * @name cl_list_node_content
  * @brief A function to retrieve the content of a list node.
  *
  * This function must be used by the user to get a reference to its own object
@@ -45,22 +45,22 @@
  *
  * @return On success returns the content of the node or NULL otherwise.
  */
-void *clist_node_content(clist_node_t *node);
+void *cl_list_node_content(cl_list_node_t *node);
 
 /**
- * @name clist_node_ref
- * @brief Increases the reference count for a clist_node_t item.
+ * @name cl_list_node_ref
+ * @brief Increases the reference count for a cl_list_node_t item.
  *
  * @param [in,out] node: The node item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-clist_node_t *clist_node_ref(clist_node_t *node);
+cl_list_node_t *cl_list_node_ref(cl_list_node_t *node);
 
 /**
- * @name clist_node_unref
- * @brief Decreases the reference count for a clist_node_t item.
+ * @name cl_list_node_unref
+ * @brief Decreases the reference count for a cl_list_node_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -69,22 +69,22 @@ clist_node_t *clist_node_ref(clist_node_t *node);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_node_unref(clist_node_t *node);
+int cl_list_node_unref(cl_list_node_t *node);
 
 /**
- * @name clist_ref
- * @brief Increases the reference count for a clist_t item.
+ * @name cl_list_ref
+ * @brief Increases the reference count for a cl_list_t item.
  *
  * @param [in,out] list: The list item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-clist_t *clist_ref(clist_t *list);
+cl_list_t *cl_list_ref(cl_list_t *list);
 
 /**
- * @name clist_unref
- * @brief Decreases the reference count for a clist_t item.
+ * @name cl_list_unref
+ * @brief Decreases the reference count for a cl_list_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -93,10 +93,10 @@ clist_t *clist_ref(clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_unref(clist_t *list);
+int cl_list_unref(cl_list_t *list);
 
 /**
- * @name clist_create
+ * @name cl_list_create
  * @brief Creates a new list object.
  *
  * This function creates a new list object to manipulate all kind of data.
@@ -113,9 +113,9 @@ int clist_unref(clist_t *list);
  * Their prototypes are the following:
  *
  * void free_data(void *);
- * int compare_to(clist_node_t *, clist_node_t *);
- * int filter(clist_node_t *, void *);
- * int equals(clist_node_t *, clist_node_t *);
+ * int compare_to(cl_list_node_t *, cl_list_node_t *);
+ * int filter(cl_list_node_t *, void *);
+ * int equals(cl_list_node_t *, cl_list_node_t *);
  *
  * If the type of a node content if of a cobject_t kind it is not necessary to
  * pass the arguments \a free_data, \a compare_to and \a equals, since them can
@@ -128,13 +128,13 @@ int clist_unref(clist_t *list);
  *
  * @return On success a void object will be returned or NULL otherwise.
  */
-clist_t *clist_create(void (*free_data)(void *),
-                      int (*compare_to)(clist_node_t *, clist_node_t *),
-                      int (*filter)(clist_node_t *, void *),
-                      int (*equals)(clist_node_t *, clist_node_t *));
+cl_list_t *cl_list_create(void (*free_data)(void *),
+                          int (*compare_to)(cl_list_node_t *, cl_list_node_t *),
+                          int (*filter)(cl_list_node_t *, void *),
+                          int (*equals)(cl_list_node_t *, cl_list_node_t *));
 
 /**
- * @name clist_destroy
+ * @name cl_list_destroy
  * @brief Releases a void from memory.
  *
  * When releasing a node from the list, the \a free_data function passed while
@@ -144,20 +144,20 @@ clist_t *clist_create(void (*free_data)(void *),
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_destroy(clist_t *list);
+int cl_list_destroy(cl_list_t *list);
 
 /**
- * @name clist_size
+ * @name cl_list_size
  * @brief Gets the list size.
  *
  * @param [in] list: The list object.
  *
  * @return On success returns the size of the list or -1 otherwise.
  */
-int clist_size(const clist_t *list);
+int cl_list_size(const cl_list_t *list);
 
 /**
- * @name clist_push
+ * @name cl_list_push
  * @brief Pushes a new node onto the list.
  *
  * @param [in,out] list: The list object.
@@ -165,10 +165,10 @@ int clist_size(const clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_push(clist_t *list, const void *node_content, unsigned int size);
+int cl_list_push(cl_list_t *list, const void *node_content, unsigned int size);
 
 /**
- * @name clist_pop
+ * @name cl_list_pop
  * @brief Pop a node from a list.
  *
  * @param [in,out] list: The list object.
@@ -176,10 +176,10 @@ int clist_push(clist_t *list, const void *node_content, unsigned int size);
  * @return On success returns the pop'ed node, and the user is responsible
  *         for releasing it, or NULL otherwise.
  */
-clist_node_t *clist_pop(clist_t *list);
+cl_list_node_t *cl_list_pop(cl_list_t *list);
 
 /**
- * @name clist_shift
+ * @name cl_list_shift
  * @brief Shifts a node from the far end of a list.
  *
  * @param [in,out] list: The list object.
@@ -187,10 +187,10 @@ clist_node_t *clist_pop(clist_t *list);
  * @return On success returns the node shifted off the list, and the user is
  *         responsible for releasing it, or NULL otherwise.
  */
-clist_node_t *clist_shift(clist_t *list);
+cl_list_node_t *cl_list_shift(cl_list_t *list);
 
 /**
- * @name clist_unshift
+ * @name cl_list_unshift
  * @brief Shifts a node onto the far end of a list.
  *
  * @param [in,out] list: The list object.
@@ -199,15 +199,15 @@ clist_node_t *clist_shift(clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_unshift(clist_t *list, const void *node_content, unsigned int size);
+int cl_list_unshift(cl_list_t *list, const void *node_content, unsigned int size);
 
 /**
- * @name clist_map
+ * @name cl_list_map
  * @brief Maps a function to every node on a list.
  *
  * The \a foo function receives as arguments a node from the list and some
  * \a data. Its prototype must be something of this type:
- * int foo(clist_node_t *, void *);
+ * int foo(cl_list_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -218,16 +218,16 @@ int clist_unshift(clist_t *list, const void *node_content, unsigned int size);
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-clist_node_t *clist_map(const clist_t *list,
-                        int (*foo)(clist_node_t *, void *), void *data);
+cl_list_node_t *cl_list_map(const cl_list_t *list,
+                            int (*foo)(cl_list_node_t *, void *), void *data);
 
 /**
- * @name clist_map_indexed
+ * @name cl_list_map_indexed
  * @brief Maps a function to every node on a list.
  *
  * The \a foo function receives as arguments the current node index inside the
  * list, a node from the list and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, clist_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_list_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -238,17 +238,18 @@ clist_node_t *clist_map(const clist_t *list,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-clist_node_t *clist_map_indexed(const clist_t *list,
-                                int (*foo)(unsigned int, clist_node_t *, void *),
-                                void *data);
+cl_list_node_t *cl_list_map_indexed(const cl_list_t *list,
+                                    int (*foo)(unsigned int, cl_list_node_t *,
+                                               void *),
+                                    void *data);
 
 /**
- * @name clist_map_reverse
+ * @name cl_list_map_reverse
  * @brief Maps a functions to every onde on a list from the end to the top.
  *
  * The \a foo function receives as arguments a node from the list and some
  * \a data. Its prototype must be something of this type:
- * int foo(clist_node_t *, void *);
+ * int foo(cl_list_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -259,16 +260,17 @@ clist_node_t *clist_map_indexed(const clist_t *list,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-clist_node_t *clist_map_reverse(const clist_t *list,
-                                int (*foo)(clist_node_t *, void *), void *data);
+cl_list_node_t *cl_list_map_reverse(const cl_list_t *list,
+                                    int (*foo)(cl_list_node_t *, void *),
+                                    void *data);
 
 /**
- * @name clist_map_reverse_indexed
+ * @name cl_list_map_reverse_indexed
  * @brief Maps a function to every node on a list from the end to the top.
  *
  * The \a foo function receives as arguments the current node index inside the
  * list, a node from the list and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, clist_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_list_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -279,13 +281,14 @@ clist_node_t *clist_map_reverse(const clist_t *list,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-clist_node_t *clist_map_reverse_indexed(const clist_t *list,
-                                        int (*foo)(unsigned int, clist_node_t *,
-                                                   void *),
-                                        void *data);
+cl_list_node_t *cl_list_map_reverse_indexed(const cl_list_t *list,
+                                            int (*foo)(unsigned int,
+                                                       cl_list_node_t *,
+                                                       void *),
+                                            void *data);
 
 /**
- * @name clist_at
+ * @name cl_list_at
  * @brief Gets a pointer to a specific node inside a list.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -295,10 +298,10 @@ clist_node_t *clist_map_reverse_indexed(const clist_t *list,
  *
  * @return On success returns a reference to the node or NULL otherwise.
  */
-clist_node_t *clist_at(const clist_t *list, unsigned int index);
+cl_list_node_t *cl_list_at(const cl_list_t *list, unsigned int index);
 
 /**
- * @name clist_delete
+ * @name cl_list_delete
  * @brief Deletes elements from a list according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
@@ -310,10 +313,10 @@ clist_node_t *clist_at(const clist_t *list, unsigned int index);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_delete(clist_t *list, void *data);
+int cl_list_delete(cl_list_t *list, void *data);
 
 /**
- * @name clist_delete_indexed
+ * @name cl_list_delete_indexed
  * @brief Deletes an element from a list at a specific position.
  *
  * @param [in,out] list: The list object.
@@ -321,20 +324,20 @@ int clist_delete(clist_t *list, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_delete_indexed(clist_t *list, unsigned int index);
+int cl_list_delete_indexed(cl_list_t *list, unsigned int index);
 
 /**
- * @name clist_move
+ * @name cl_list_move
  * @brief Moves all elements from a list to another.
  *
  * @param [in] list: The original void object.
  *
  * @return Returns the new list.
  */
-clist_t *clist_move(clist_t *list);
+cl_list_t *cl_list_move(cl_list_t *list);
 
 /**
- * @name clist_filter
+ * @name cl_list_filter
  * @brief Extracts elements from a list according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
@@ -347,10 +350,10 @@ clist_t *clist_move(clist_t *list);
  * @return Returns a list containing all extracted elements from the original
  *         list.
  */
-clist_t *clist_filter(clist_t *list, void *data);
+cl_list_t *cl_list_filter(cl_list_t *list, void *data);
 
 /**
- * @name clist_sort
+ * @name cl_list_sort
  * @brief Sort all elements from a list.
  *
  * This function uses the \a compare_to function to compare two elements from
@@ -360,10 +363,10 @@ clist_t *clist_filter(clist_t *list, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_sort(clist_t *list);
+int cl_list_sort(cl_list_t *list);
 
 /**
- * @name clist_indexof
+ * @name cl_list_indexof
  * @brief Gets the index of the first occurrence of an element inside the list.
  *
  * This function uses the \a equals function to compare objects from the list.
@@ -374,10 +377,10 @@ int clist_sort(clist_t *list);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int clist_indexof(const clist_t *list, void *element, unsigned int size);
+int cl_list_indexof(const cl_list_t *list, void *element, unsigned int size);
 
 /**
- * @name clist_last_indexof
+ * @name cl_list_last_indexof
  * @brief Gets the index of the last occurrence of an element inside the list.
  *
  * This function uses the \a equals function to compare objects from the list.
@@ -388,10 +391,10 @@ int clist_indexof(const clist_t *list, void *element, unsigned int size);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int clist_last_indexof(const clist_t *list, void *element, unsigned int size);
+int cl_list_last_indexof(const cl_list_t *list, void *element, unsigned int size);
 
 /**
- * @name clist_contains
+ * @name cl_list_contains
  * @brief Checks if a list contains a specific element.
  *
  * This function uses the \a equals function to compare objects from the list.
@@ -402,10 +405,10 @@ int clist_last_indexof(const clist_t *list, void *element, unsigned int size);
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool clist_contains(const clist_t *list, void *element, unsigned int size);
+bool cl_list_contains(const cl_list_t *list, void *element, unsigned int size);
 
 /**
- * @name clist_peek
+ * @name cl_list_peek
  * @brief Retrieves, but does not remove, the head of the list.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -416,7 +419,7 @@ bool clist_contains(const clist_t *list, void *element, unsigned int size);
  *         otherwise. The head will be a node from the list, so the user will
  *         have to use the function to get the content of it.
  */
-clist_node_t *clist_peek(const clist_t *list);
+cl_list_node_t *cl_list_peek(const cl_list_t *list);
 
 /**
  * @name cglist_is_empty
@@ -426,10 +429,10 @@ clist_node_t *clist_peek(const clist_t *list);
  *
  * @return Returns true if the list is empty or false otherwise.
  */
-bool clist_is_empty(const clist_t *list);
+bool cl_list_is_empty(const cl_list_t *list);
 
 /**
- * @name clist_set_compare_to
+ * @name cl_list_set_compare_to
  * @brief Updates the internal object compare function.
  *
  * @param [in] list: The list object.
@@ -437,11 +440,11 @@ bool clist_is_empty(const clist_t *list);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_set_compare_to(const clist_t *list,
-                         int (*compare_to)(clist_node_t *, clist_node_t *));
+int cl_list_set_compare_to(const cl_list_t *list,
+                           int (*compare_to)(cl_list_node_t *, cl_list_node_t *));
 
 /**
- * @name clist_set_filter
+ * @name cl_list_set_filter
  * @brief Updates the internal filter function.
  *
  * @param [in] list: The list object.
@@ -449,11 +452,11 @@ int clist_set_compare_to(const clist_t *list,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_set_filter(const clist_t *list,
-                     int (*filter)(clist_node_t *, void *));
+int cl_list_set_filter(const cl_list_t *list,
+                       int (*filter)(cl_list_node_t *, void *));
 
 /**
- * @name clist_set_equals
+ * @name cl_list_set_equals
  * @brief Updates the internal equals function.
  *
  * @param [in] list: The list object.
@@ -461,8 +464,8 @@ int clist_set_filter(const clist_t *list,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int clist_set_equals(const clist_t *list,
-                     int (*equals)(clist_node_t *, clist_node_t *));
+int cl_list_set_equals(const cl_list_t *list,
+                       int (*equals)(cl_list_node_t *, cl_list_node_t *));
 
 #endif
 

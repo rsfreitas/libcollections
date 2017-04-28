@@ -34,14 +34,14 @@ int adjust_arguments(struct cplugin_function_s *foo,
 {
     struct cplugin_fdata_s *arg = NULL;
     char *arg_name;
-    cstring_t *p;
-    cjson_t *node, *jargs;
+    cl_string_t *p;
+    cl_json_t *node, *jargs;
     void *ptr;
     int i = 0;
     bool b;
-    enum cjson_type type;
+    enum cl_json_type type;
 
-    jargs = cjson_create_object();
+    jargs = cl_json_create_object();
 
     for (i = 0; i < argc; i += 2) {
         arg_name = va_arg(ap, char *);
@@ -53,21 +53,21 @@ int adjust_arguments(struct cplugin_function_s *foo,
          *
          * Example: call("arg_name", value, "arg_name", value);
          */
-        arg = cdll_map(foo->args, search_cplugin_fdata_s, arg_name);
+        arg = cl_dll_map(foo->args, search_cplugin_fdata_s, arg_name);
 
         if (NULL == arg)
             return -1;
 
         switch (arg->type) {
             case CL_CHAR:
-                node = cjson_create_node(CJSON_STRING, "%c",
-                                         (char)va_arg(ap, int));
+                node = cl_json_create_node(CL_JSON_STRING, "%c",
+                                           (char)va_arg(ap, int));
 
                 break;
 
             case CL_UCHAR:
-                node = cjson_create_node(CJSON_STRING, "%c",
-                                         (unsigned char)va_arg(ap, int));
+                node = cl_json_create_node(CL_JSON_STRING, "%c",
+                                           (unsigned char)va_arg(ap, int));
 
                 break;
 
@@ -75,70 +75,70 @@ int adjust_arguments(struct cplugin_function_s *foo,
                 b = (bool)va_arg(ap, int);
 
                 if (b == true)
-                    type = CJSON_TRUE;
+                    type = CL_JSON_TRUE;
                 else
-                    type = CJSON_FALSE;
+                    type = CL_JSON_FALSE;
 
-                node = cjson_create_node(type, "%d", b);
+                node = cl_json_create_node(type, "%d", b);
                 break;
 
             case CL_INT:
-                node = cjson_create_node(CJSON_NUMBER, "%d",
-                                         va_arg(ap, int));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%d",
+                                           va_arg(ap, int));
 
                 break;
 
             case CL_UINT:
-                node = cjson_create_node(CJSON_NUMBER, "%u",
-                                         (unsigned int)va_arg(ap, int));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%u",
+                                           (unsigned int)va_arg(ap, int));
 
                 break;
 
             case CL_SINT:
-                node = cjson_create_node(CJSON_NUMBER, "%hd",
-                                         (short int)va_arg(ap, int));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%hd",
+                                           (short int)va_arg(ap, int));
 
                 break;
 
             case CL_USINT:
-                node = cjson_create_node(CJSON_NUMBER, "%hu",
-                                         (unsigned int)va_arg(ap, int));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%hu",
+                                           (unsigned int)va_arg(ap, int));
 
                 break;
 
             case CL_FLOAT:
-                node = cjson_create_node(CJSON_NUMBER_FLOAT, "%f",
-                                         (float)va_arg(ap, double));
+                node = cl_json_create_node(CL_JSON_NUMBER_FLOAT, "%f",
+                                           (float)va_arg(ap, double));
 
                 break;
 
             case CL_DOUBLE:
-                node = cjson_create_node(CJSON_NUMBER_FLOAT, "%f",
-                                         va_arg(ap, double));
+                node = cl_json_create_node(CL_JSON_NUMBER_FLOAT, "%f",
+                                           va_arg(ap, double));
 
                 break;
 
             case CL_LONG:
-                node = cjson_create_node(CJSON_NUMBER, "%ld",
-                                         va_arg(ap, long));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%ld",
+                                           va_arg(ap, long));
 
                 break;
 
             case CL_ULONG:
-                node = cjson_create_node(CJSON_NUMBER, "%lu",
-                                         va_arg(ap, unsigned long));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%lu",
+                                           va_arg(ap, unsigned long));
 
                 break;
 
             case CL_LLONG:
-                node = cjson_create_node(CJSON_NUMBER, "%lld",
-                                         va_arg(ap, long long));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%lld",
+                                           va_arg(ap, long long));
 
                 break;
 
             case CL_ULLONG:
-                node = cjson_create_node(CJSON_NUMBER, "%llu",
-                                         va_arg(ap, unsigned long long));
+                node = cl_json_create_node(CL_JSON_NUMBER, "%llu",
+                                           va_arg(ap, unsigned long long));
 
                 break;
 
@@ -150,12 +150,14 @@ int adjust_arguments(struct cplugin_function_s *foo,
             case CL_STRING:
             case CL_CSTRING:
                 if (arg->type == CL_STRING)
-                    p = cstring_create("%s", va_arg(ap, char *));
+                    p = cl_string_create("%s", va_arg(ap, char *));
                 else
-                    p = (cstring_t *)va_arg(ap, void *);
+                    p = (cl_string_t *)va_arg(ap, void *);
 
-                node = cjson_create_node(CJSON_STRING, "%s", cstring_valueof(p));
-                cstring_unref(p);
+                node = cl_json_create_node(CL_JSON_STRING, "%s",
+                                           cl_string_valueof(p));
+
+                cl_string_unref(p);
                 break;
 
             default:
@@ -164,11 +166,11 @@ int adjust_arguments(struct cplugin_function_s *foo,
         }
 
         if (node != NULL)
-            cjson_add_item_to_object(jargs, arg_name, node);
+            cl_json_add_item_to_object(jargs, arg_name, node);
     }
 
-    args->jargs = cjson_to_string(jargs, false);
-    cjson_delete(jargs);
+    args->jargs = cl_json_to_string(jargs, false);
+    cl_json_delete(jargs);
 
     return 0;
 }

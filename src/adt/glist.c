@@ -31,12 +31,12 @@
 #include "collections.h"
 
 struct gnode_s {
-    clist_entry_t       *prev;
-    clist_entry_t       *next;
-    struct cobject_hdr  hdr;
-    void                *content;
-    unsigned int        content_size;
-    struct cref_s       ref;
+    cl_list_entry_t         *prev;
+    cl_list_entry_t         *next;
+    struct cl_object_hdr    hdr;
+    void                    *content;
+    unsigned int            content_size;
+    struct cl_ref_s         ref;
 
     /*
      * We save the pointer to the node free function here so we don't need
@@ -46,12 +46,12 @@ struct gnode_s {
 };
 
 #define CLIST_NODE_OFFSET           \
-    (sizeof(clist_entry_t *) + sizeof(clist_entry_t *))
+    (sizeof(cl_list_entry_t *) + sizeof(cl_list_entry_t *))
 
 #define clist_members                                                       \
     cl_struct_member(struct gnode_s *, list)                                \
     cl_struct_member(unsigned int, size)                                    \
-    cl_struct_member(struct cref_s, ref)                                    \
+    cl_struct_member(struct cl_ref_s, ref)                                  \
     cl_struct_member(void, (*free_data)(void *))                            \
     cl_struct_member(int, (*compare_to)(void *, void *))                    \
     cl_struct_member(int, (*filter)(void *, void *))                        \
@@ -83,13 +83,13 @@ static bool is_cobject(struct gnode_s *node)
         return false;
 
     /*
-     * If we're holding information smaller than a cobject_hdr structure we
+     * If we're holding information smaller than a cl_object_hdr structure we
      * don't even need to validate it.
      */
-    if (node->content_size < COBJECT_HEADER_ID_SIZE)
+    if (node->content_size < CL_OBJECT_HEADER_ID_SIZE)
         return false;
 
-    return validate_object(node->content, COBJECT);
+    return validate_object(node->content, CL_OBJ_OBJECT);
 }
 
 /*
@@ -99,7 +99,7 @@ static bool is_list_of_cobjects(glist_s *list)
 {
     struct gnode_s *node = NULL;
 
-    node = cdll_at(list->list, 0);
+    node = cl_dll_at(list->list, 0);
 
     return is_cobject(node);
 }
@@ -112,10 +112,10 @@ static int compare_cobjects(void *a, void *b)
 {
     struct gnode_s *node_a = (struct gnode_s *)a;
     struct gnode_s *node_b = (struct gnode_s *)b;
-    cobject_t *ob1 = (cobject_t *)node_a->content;
-    cobject_t *ob2 = (cobject_t *)node_b->content;
+    cl_object_t *ob1 = (cl_object_t *)node_a->content;
+    cl_object_t *ob2 = (cl_object_t *)node_b->content;
 
-    return cobject_compare_to(ob1, ob2);
+    return cl_object_compare_to(ob1, ob2);
 }
 
 /*
@@ -126,10 +126,10 @@ static int cobjects_are_equal(void *a, void *b)
 {
     struct gnode_s *node_a = (struct gnode_s *)a;
     struct gnode_s *node_b = (struct gnode_s *)b;
-    cobject_t *ob1 = (cobject_t *)node_a->content;
-    cobject_t *ob2 = (cobject_t *)node_b->content;
+    cl_object_t *ob1 = (cl_object_t *)node_a->content;
+    cl_object_t *ob2 = (cl_object_t *)node_b->content;
 
-    return cobject_equals(ob1, ob2);
+    return cl_object_equals(ob1, ob2);
 }
 
 /*
@@ -147,18 +147,18 @@ static void destroy_node(struct gnode_s *node, bool free_content)
             (node->free_data)(node->content);
         else {
             /*
-             * If we're holding information smaller than a cobject_hdr structure
+             * If we're holding information smaller than a cl_object_hdr structure
              * we don't even need to validate it and call free on it.
              */
-            if (node->content_size < COBJECT_HEADER_ID_SIZE)
+            if (node->content_size < CL_OBJECT_HEADER_ID_SIZE)
                 free(node->content);
             else {
                 /*
-                 * If we're holding cobject_t pointers we know how to destroy
+                 * If we're holding cl_object_t pointers we know how to destroy
                  * them.
                  */
-                if (validate_object(node->content, COBJECT) == true)
-                    cobject_destroy(node->content);
+                if (validate_object(node->content, CL_OBJ_OBJECT) == true)
+                    cl_object_destroy(node->content);
             }
         }
     }
@@ -171,7 +171,7 @@ static void destroy_node(struct gnode_s *node, bool free_content)
  * The function to release a node called when a reference count from them drops
  * to 0.
  */
-static void __destroy_node(const struct cref_s *ref)
+static void __destroy_node(const struct cl_ref_s *ref)
 {
     struct gnode_s *node = cl_container_of(ref, struct gnode_s, ref);
 
@@ -208,21 +208,21 @@ static struct gnode_s *new_node(const void *content, unsigned int content_size,
  * Destroy a glist_s from memory. Releasing all internal nodes and its
  * respectives content.
  */
-static void destroy_list(const struct cref_s *ref)
+static void destroy_list(const struct cl_ref_s *ref)
 {
     glist_s *list = cl_container_of(ref, glist_s, ref);
-    enum cl_object node_object = CLIST_NODE;
+    enum cl_object node_object = CL_OBJ_LIST_NODE;
     struct gnode_s *p = NULL;
 
     if (NULL == list)
         return;
 
-    if (validate_object(list, CSTACK))
-        node_object = CSTACK_NODE;
-    else if (validate_object(list, CQUEUE))
-        node_object = CQUEUE_NODE;
+    if (validate_object(list, CL_OBJ_STACK))
+        node_object = CL_OBJ_STACK_NODE;
+    else if (validate_object(list, CL_OBJ_QUEUE))
+        node_object = CL_OBJ_QUEUE_NODE;
 
-    while ((p = cdll_pop(&list->list)) != NULL)
+    while ((p = cl_dll_pop(&list->list)) != NULL)
         cglist_node_unref(p, node_object);
 
     pthread_mutex_destroy(&list->lock);
@@ -259,7 +259,7 @@ void *cglist_node_ref(void *node, enum cl_object object)
     struct gnode_s *n = (struct gnode_s *)node;
 
     __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
-    cref_inc(&n->ref);
+    cl_ref_inc(&n->ref);
 
     return node;
 }
@@ -269,7 +269,7 @@ int cglist_node_unref(void *node, enum cl_object object)
     struct gnode_s *n = (struct gnode_s *)node;
 
     __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, -1);
-    cref_dec(&n->ref);
+    cl_ref_dec(&n->ref);
 
     return 0;
 }
@@ -279,7 +279,7 @@ void *cglist_ref(void *list, enum cl_object object)
     glist_s *l = (glist_s *)list;
 
     __clib_function_init__(true, list, object, NULL);
-    cref_inc(&l->ref);
+    cl_ref_inc(&l->ref);
 
     return list;
 }
@@ -289,7 +289,7 @@ int cglist_unref(void *list, enum cl_object object)
     glist_s *l = (glist_s *)list;
 
     __clib_function_init__(true, list, object, -1);
-    cref_dec(&l->ref);
+    cl_ref_dec(&l->ref);
 
     return 0;
 }
@@ -348,7 +348,7 @@ int cglist_push(void *list, enum cl_object object,
         return -1;
 
     pthread_mutex_lock(&l->lock);
-    l->list = cdll_push(l->list, node);
+    l->list = cl_dll_push(l->list, node);
     l->size++;
     pthread_mutex_unlock(&l->lock);
 
@@ -363,7 +363,7 @@ void *cglist_pop(void *list, enum cl_object object)
     __clib_function_init__(true, list, object, NULL);
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_pop(&l->list);
+    node = cl_dll_pop(&l->list);
 
     if (node)
         l->size--;
@@ -384,7 +384,7 @@ void *cglist_shift(void *list, enum cl_object object)
     __clib_function_init__(true, list, object, NULL);
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_shift(&l->list);
+    node = cl_dll_shift(&l->list);
 
     if (node)
         l->size--;
@@ -410,7 +410,7 @@ int cglist_unshift(void *list, enum cl_object object,
         return -1;
 
     pthread_mutex_lock(&l->lock);
-    l->list = cdll_unshift(l->list, node);
+    l->list = cl_dll_unshift(l->list, node);
     l->size++;
     pthread_mutex_unlock(&l->lock);
 
@@ -431,7 +431,7 @@ void *cglist_map(const void *list, enum cl_object object,
     }
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_map(l->list, foo, data);
+    node = cl_dll_map(l->list, foo, data);
     pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
@@ -455,7 +455,7 @@ void *cglist_map_indexed(const void *list, enum cl_object object,
     }
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_map_indexed(l->list, foo, data);
+    node = cl_dll_map_indexed(l->list, foo, data);
     pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
@@ -478,7 +478,7 @@ void *cglist_map_reverse(const void *list, enum cl_object object,
     }
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_map_reverse(l->list, foo, data);
+    node = cl_dll_map_reverse(l->list, foo, data);
     pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
@@ -502,7 +502,7 @@ void *cglist_map_reverse_indexed(const void *list,
     }
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_map_indexed_reverse(l->list, foo, data);
+    node = cl_dll_map_indexed_reverse(l->list, foo, data);
     pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
@@ -519,7 +519,7 @@ void *cglist_at(const void *list, enum cl_object object,
 
     __clib_function_init__(true, list, object, NULL);
     pthread_mutex_lock(&l->lock);
-    node = cdll_at(l->list, index);
+    node = cl_dll_at(l->list, index);
     pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
@@ -542,7 +542,7 @@ int cglist_delete(void *list, enum cl_object object, void *data)
     }
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_delete(l->list, l->filter, data, NULL);
+    node = cl_dll_delete(l->list, l->filter, data, NULL);
 
     if (node) {
         /*
@@ -566,7 +566,7 @@ int cglist_delete_indexed(void *list, enum cl_object object,
     __clib_function_init__(true, list, object, -1);
 
     pthread_mutex_lock(&l->lock);
-    node = cdll_delete_indexed(l->list, index, NULL);
+    node = cl_dll_delete_indexed(l->list, index, NULL);
 
     if (node) {
         /*
@@ -593,7 +593,7 @@ void *cglist_move(void *list, enum cl_object object)
 
     pthread_mutex_lock(&l->lock);
     dup_internal_data(l, n);
-    n->list = cdll_move(l->list);
+    n->list = cl_dll_move(l->list);
 
     /*
      * Since we just move all nodes to another list, we mark its size as
@@ -623,8 +623,8 @@ void *cglist_filter(void *list, enum cl_object object, void *data)
 
     pthread_mutex_lock(&l->lock);
     dup_internal_data(l, n);
-    n->list = cdll_filter(&l->list, l->filter, data);
-    n->size = cdll_size(n->list);
+    n->list = cl_dll_filter(&l->list, l->filter, data);
+    n->size = cl_dll_size(n->list);
     l->size -= n->size;
     pthread_mutex_unlock(&l->lock);
 
@@ -642,7 +642,7 @@ void *cglist_node_content(const void *node, enum cl_object object)
 
     __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
 
-    return (is_cobject(n) == true) ? cobject_ref(n->content)
+    return (is_cobject(n) == true) ? cl_object_ref(n->content)
                                    : n->content;
 }
 
@@ -660,9 +660,9 @@ int cglist_sort(void *list, enum cl_object object)
     }
 
     pthread_mutex_lock(&l->lock);
-    l->list = cdll_mergesort(l->list,
-                             (list_of_cobjects == true) ? compare_cobjects
-                                                        : l->compare_to);
+    l->list = cl_dll_mergesort(l->list,
+                               (list_of_cobjects == true) ? compare_cobjects
+                                                          : l->compare_to);
 
     pthread_mutex_unlock(&l->lock);
 
@@ -691,13 +691,13 @@ static int get_indexof(const void *list, enum cl_object object, void *content,
         return -1;
 
     if (bottom_up == false) {
-        idx = cdll_indexof(l->list, node,
-                           (list_of_cobjects == true) ? cobjects_are_equal
-                                                      : l->equals);
+        idx = cl_dll_indexof(l->list, node,
+                             (list_of_cobjects == true) ? cobjects_are_equal
+                                                        : l->equals);
     } else
-        idx = cdll_last_indexof(l->list, node,
-                                (list_of_cobjects == true) ? cobjects_are_equal
-                                                           : l->equals);
+        idx = cl_dll_last_indexof(l->list, node,
+                                  (list_of_cobjects == true) ? cobjects_are_equal
+                                                             : l->equals);
 
     destroy_node(node, false);
 
@@ -737,9 +737,9 @@ bool cglist_contains(const void *list, enum cl_object object,
     if (NULL == node)
         return -1;
 
-    st = cdll_contains(l->list, node,
-                       (list_of_cobjects == true) ? cobjects_are_equal
-                                                  : l->equals);
+    st = cl_dll_contains(l->list, node,
+                         (list_of_cobjects == true) ? cobjects_are_equal
+                                                    : l->equals);
 
     destroy_node(node, false);
 
@@ -753,7 +753,7 @@ void *cglist_peek(const void *list, enum cl_object object,
     struct gnode_s *node;
 
     __clib_function_init__(true, list, object, NULL);
-    node = cdll_peek(l->list);
+    node = cl_dll_peek(l->list);
 
     if (NULL == node)
         return NULL;

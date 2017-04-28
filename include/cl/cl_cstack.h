@@ -34,19 +34,19 @@
 #endif
 
 /**
- * @name circular_stack_ref
- * @brief Increases the reference count for a circular_stack_t item.
+ * @name cl_cstack_ref
+ * @brief Increases the reference count for a cl_cstack_t item.
  *
  * @param [in,out] cstack: The circular stack item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-circular_stack_t *circular_stack_ref(circular_stack_t *cstack);
+cl_cstack_t *cl_cstack_ref(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_unref
- * @brief Decreases the reference count for a circular_stack_t item.
+ * @name cl_cstack_unref
+ * @brief Decreases the reference count for a cl_cstack_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -55,10 +55,10 @@ circular_stack_t *circular_stack_ref(circular_stack_t *cstack);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_unref(circular_stack_t *cstack);
+int cl_cstack_unref(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_create
+ * @name cl_cstack_create
  * @brief Creates a new circular stack object.
  *
  * This function creates a new circular stack to manipulate all kind of data
@@ -76,9 +76,9 @@ int circular_stack_unref(circular_stack_t *cstack);
  * Their prototypes are the following:
  *
  * void free_data(void *);
- * int compare_to(cstack_node_t *, cstack_node_t *);
- * int filter(cstack_node_t *, void *);
- * int equals(cstack_node_t *, cstack_node_t *);
+ * int compare_to(cl_stack_node_t *, cl_stack_node_t *);
+ * int filter(cl_stack_node_t *, void *);
+ * int equals(cl_stack_node_t *, cl_stack_node_t *);
  *
  * If the type of a node content if of a cobject_t kind it is not necessary to
  * pass the arguments \a free_data, \a compare_to and \a equals, since them can
@@ -92,16 +92,16 @@ int circular_stack_unref(circular_stack_t *cstack);
  *
  * @return On success a void object will be returned or NULL otherwise.
  */
-circular_stack_t *circular_stack_create(unsigned int size,
-                                        void (*unref_node)(void *),
-                                        int (*compare_to)(cstack_node_t *,
-                                                          cstack_node_t *),
-                                        int (*filter)(cstack_node_t *, void *),
-                                        int (*equals)(cstack_node_t *,
-                                                      cstack_node_t *));
+cl_cstack_t *cl_cstack_create(unsigned int size,
+                              void (*unref_node)(void *),
+                              int (*compare_to)(cl_stack_node_t *,
+                                                cl_stack_node_t *),
+                              int (*filter)(cl_stack_node_t *, void *),
+                              int (*equals)(cl_stack_node_t *,
+                                            cl_stack_node_t *));
 
 /**
- * @name circular_stack_destroy
+ * @name cl_cstack_destroy
  * @brief Releases a void from memory.
  *
  * When releasing a node from the stack, the \a free_data function passed while
@@ -111,20 +111,20 @@ circular_stack_t *circular_stack_create(unsigned int size,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_destroy(circular_stack_t *cstack);
+int cl_cstack_destroy(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_size
+ * @name cl_cstack_size
  * @brief Gets the circular stack size.
  *
  * @param [in] cstack:  The circular stack object.
  *
  * @return On success returns the size of the stack or -1 otherwise.
  */
-int circular_stack_size(circular_stack_t *cstack);
+int cl_cstack_size(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_push
+ * @name cl_cstack_push
  * @brief Inserts an element into the circular stack.
  *
  * Whe the circular stack reaches its limit, the older element will be removed
@@ -136,11 +136,11 @@ int circular_stack_size(circular_stack_t *cstack);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_push(circular_stack_t *cstack, const void *data,
-                        unsigned int data_size);
+int cl_cstack_push(cl_cstack_t *cstack, const void *data,
+                   unsigned int data_size);
 
 /**
- * @name circular_stack_pop
+ * @name cl_cstack_pop
  * @brief Retrieves and removes the head of the circular stack.
  *
  * @param [in,out] cstack:  The circular stack object.
@@ -148,15 +148,15 @@ int circular_stack_push(circular_stack_t *cstack, const void *data,
  * @return On success returns the node shifted off the stack, and the user is
  *         responsible for releasing it, or NULL otherwise.
  */
-cstack_node_t *circular_stack_pop(circular_stack_t *cstack);
+cl_stack_node_t *cl_cstack_pop(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_map
+ * @name cl_cstack_map
  * @brief Maps a function to every node on a circular stack.
  *
  * The \a foo function receives as arguments a node from the stack and some
  * \a data. Its prototype must be something of this type:
- * int foo(cstack_node_t *, void *);
+ * int foo(cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -167,17 +167,17 @@ cstack_node_t *circular_stack_pop(circular_stack_t *cstack);
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *circular_stack_map(circular_stack_t *cstack,
-                                  int (*foo)(cstack_node_t *, void *),
-                                  void *data);
+cl_stack_node_t *cl_cstack_map(cl_cstack_t *cstack,
+                               int (*foo)(cl_stack_node_t *, void *),
+                                          void *data);
 
 /**
- * @name circular_stack_map_indexed
+ * @name cl_cstack_map_indexed
  * @brief Maps a function to every node on a circular stack.
  *
  * The \a foo function receives as arguments the current node index inside the
  * stack, a node from the stack and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cstack_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -188,19 +188,20 @@ cstack_node_t *circular_stack_map(circular_stack_t *cstack,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *circular_stack_map_indexed(circular_stack_t *cstack,
-                                          int (*foo)(unsigned int,
-                                                     cstack_node_t *, void *),
-                                          void *data);
+cl_stack_node_t *cl_cstack_map_indexed(cl_cstack_t *cstack,
+                                       int (*foo)(unsigned int,
+                                                  cl_stack_node_t *,
+                                                  void *),
+                                       void *data);
 
 /**
- * @name circular_stack_map_reverse
+ * @name cl_cstack_map_reverse
  * @brief Maps a functions to every onde on a circular stack from the end to
  *        the top.
  *
  * The \a foo function receives as arguments a node from the stack and some
  * \a data. Its prototype must be something of this type:
- * int foo(cstack_node_t *, void *);
+ * int foo(cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -211,18 +212,19 @@ cstack_node_t *circular_stack_map_indexed(circular_stack_t *cstack,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *circular_stack_map_reverse(circular_stack_t *cstack,
-                                          int (*foo)(cstack_node_t *, void *),
-                                          void *data);
+cl_stack_node_t *cl_cstack_map_reverse(cl_cstack_t *cstack,
+                                       int (*foo)(cl_stack_node_t *,
+                                                  void *),
+                                       void *data);
 
 /**
- * @name circular_stack_map_reverse_indexed
+ * @name cl_cstack_map_reverse_indexed
  * @brief Maps a function to every node on a circular stack from the end to the
  *        top.
  *
  * The \a foo function receives as arguments the current node index inside the
  * stack, a node from the stack and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cstack_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_stack_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -233,14 +235,14 @@ cstack_node_t *circular_stack_map_reverse(circular_stack_t *cstack,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cstack_node_t *circular_stack_map_reverse_indexed(circular_stack_t *cstack,
-                                                  int (*foo)(unsigned int,
-                                                             cstack_node_t *,
-                                                             void *),
-                                                  void *data);
+cl_stack_node_t *cl_cstack_map_reverse_indexed(cl_cstack_t *cstack,
+                                               int (*foo)(unsigned int,
+                                                          cl_stack_node_t *,
+                                                          void *),
+                                               void *data);
 
 /**
- * @name circular_stack_at
+ * @name cl_cstack_at
  * @brief Gets a pointer to a specific node inside a circular stack.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -250,10 +252,10 @@ cstack_node_t *circular_stack_map_reverse_indexed(circular_stack_t *cstack,
  *
  * @return On success returns a reference to the node or NULL otherwise.
  */
-cstack_node_t *circular_stack_at(circular_stack_t *cstack, unsigned int index);
+cl_stack_node_t *cl_cstack_at(cl_cstack_t *cstack, unsigned int index);
 
 /**
- * @name circular_stack_delete
+ * @name cl_cstack_delete
  * @brief Deletes elements from a circular stack according a specific filter
  *        function.
  *
@@ -266,10 +268,10 @@ cstack_node_t *circular_stack_at(circular_stack_t *cstack, unsigned int index);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_delete(circular_stack_t *cstack, void *data);
+int cl_cstack_delete(cl_cstack_t *cstack, void *data);
 
 /**
- * @name circular_stack_delete_indexed
+ * @name cl_cstack_delete_indexed
  * @brief Deletes an element from a circular stack at a specific position.
  *
  * @param [in,out] cstack:  The circular stack object.
@@ -277,20 +279,20 @@ int circular_stack_delete(circular_stack_t *cstack, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_delete_indexed(circular_stack_t *cstack, unsigned int index);
+int cl_cstack_delete_indexed(cl_cstack_t *cstack, unsigned int index);
 
 /**
- * @name circular_stack_move
+ * @name cl_cstack_move
  * @brief Moves all elements from a circular stack to another.
  *
  * @param [in] cstack: The original void object.
  *
  * @return Returns the new circular stack.
  */
-circular_stack_t *circular_stack_move(circular_stack_t *cstack);
+cl_cstack_t *cl_cstack_move(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_filter
+ * @name cl_cstack_filter
  * @brief Extracts elements from a circular stack according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
@@ -303,10 +305,10 @@ circular_stack_t *circular_stack_move(circular_stack_t *cstack);
  * @return Returns a circular stack containing all extracted elements from the
  *         original stack.
  */
-circular_stack_t *circular_stack_filter(circular_stack_t *cstack, void *data);
+cl_cstack_t *cl_cstack_filter(cl_cstack_t *cstack, void *data);
 
 /**
- * @name circular_stack_sort
+ * @name cl_cstack_sort
  * @brief Sort all elements from a circular stack.
  *
  * This function uses the \a compare_to function to compare two elements from
@@ -316,10 +318,10 @@ circular_stack_t *circular_stack_filter(circular_stack_t *cstack, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_sort(circular_stack_t *cstack);
+int cl_cstack_sort(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_indexof
+ * @name cl_cstack_indexof
  * @brief Gets the index of the first occurrence of an element inside the
  *        circular stack.
  *
@@ -331,11 +333,10 @@ int circular_stack_sort(circular_stack_t *cstack);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int circular_stack_indexof(circular_stack_t *cstack, void *element,
-                           unsigned int size);
+int cl_cstack_indexof(cl_cstack_t *cstack, void *element, unsigned int size);
 
 /**
- * @name circular_stack_last_indexof
+ * @name cl_cstack_last_indexof
  * @brief Gets the index of the last occurrence of an element inside the
  *        circular stack.
  *
@@ -347,11 +348,11 @@ int circular_stack_indexof(circular_stack_t *cstack, void *element,
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int circular_stack_last_indexof(circular_stack_t *cstack, void *element,
-                                unsigned int size);
+int cl_cstack_last_indexof(cl_cstack_t *cstack, void *element,
+                           unsigned int size);
 
 /**
- * @name circular_stack_contains
+ * @name cl_cstack_contains
  * @brief Checks if a circular stack contains a specific element.
  *
  * This function uses the \a equals function to compare objects from the stack.
@@ -362,11 +363,10 @@ int circular_stack_last_indexof(circular_stack_t *cstack, void *element,
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool circular_stack_contains(circular_stack_t *cstack, void *element,
-                             unsigned int size);
+bool cl_cstack_contains(cl_cstack_t *cstack, void *element, unsigned int size);
 
 /**
- * @name circular_stack_peek
+ * @name cl_cstack_peek
  * @brief Retrieves, but does not remove, the head of the circular stack.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -376,20 +376,20 @@ bool circular_stack_contains(circular_stack_t *cstack, void *element,
  * @return Returns NULL if the stack is empty or a new reference to the head
  *         of it.
  */
-cstack_node_t *circular_stack_peek(circular_stack_t *cstack);
+cl_stack_node_t *cl_cstack_peek(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_is_empty
+ * @name cl_cstack_is_empty
  * @brief Tests to see if the circular stack is empty or not.
  *
  * @param [in] cstack:  The circular stack object.
  *
  * @return Returns true if the stack is empty or false otherwise.
  */
-bool circular_stack_is_empty(circular_stack_t *cstack);
+bool cl_cstack_is_empty(cl_cstack_t *cstack);
 
 /**
- * @name circular_stack_set_compare_to
+ * @name cl_cstack_set_compare_to
  * @brief Updates the internal object compare function.
  *
  * @param [in] cstack:  The circular stack object.
@@ -397,12 +397,12 @@ bool circular_stack_is_empty(circular_stack_t *cstack);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_set_compare_to(circular_stack_t *cstack,
-                                  int (*compare_to)(cstack_node_t *,
-                                                    cstack_node_t *));
+int cl_cstack_set_compare_to(cl_cstack_t *cstack,
+                             int (*compare_to)(cl_stack_node_t *,
+                                               cl_stack_node_t *));
 
 /**
- * @name circular_stack_set_filter
+ * @name cl_cstack_set_filter
  * @brief Updates the internal filter function.
  *
  * @param [in] cstack:  The circular stack object.
@@ -410,11 +410,11 @@ int circular_stack_set_compare_to(circular_stack_t *cstack,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_set_filter(circular_stack_t *cstack,
-                              int (*filter)(cstack_node_t *, void *));
+int cl_cstack_set_filter(cl_cstack_t *cstack,
+                         int (*filter)(cl_stack_node_t *, void *));
 
 /**
- * @name circular_stack_set_equals
+ * @name cl_cstack_set_equals
  * @brief Updates the internal equals function.
  *
  * @param [in] cstack:  The circular stack object.
@@ -422,8 +422,8 @@ int circular_stack_set_filter(circular_stack_t *cstack,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_stack_set_equals(circular_stack_t *cstack,
-                              int (*equals)(cstack_node_t *, cstack_node_t *));
+int cl_cstack_set_equals(cl_cstack_t *cstack,
+                         int (*equals)(cl_stack_node_t *, cl_stack_node_t *));
 
 #endif
 

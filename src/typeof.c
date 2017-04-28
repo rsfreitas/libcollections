@@ -30,7 +30,7 @@
 
 void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset)
 {
-    struct cobject_hdr *hdr = p + offset;
+    struct cl_object_hdr *hdr = p + offset;
 
     if (NULL == hdr)
         return;
@@ -46,7 +46,7 @@ void set_typeof(enum cl_object type, void *p)
 
 static bool validate_libid(void *p, unsigned int offset)
 {
-    struct cobject_hdr *hdr = p + offset;
+    struct cl_object_hdr *hdr = p + offset;
 
     if (NULL == hdr)
         return false;
@@ -59,7 +59,7 @@ static bool validate_libid(void *p, unsigned int offset)
 
 static bool validate_typeof(void *p, enum cl_object type, unsigned int offset)
 {
-    struct cobject_hdr *hdr = p + offset;
+    struct cl_object_hdr *hdr = p + offset;
 
     if (NULL == hdr)
         return false;

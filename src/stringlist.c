@@ -1,6 +1,6 @@
 
 /*
- * Description: API to handle string lists using cstring_list_t object.
+ * Description: API to handle string lists using cl_string_list_t object.
  *
  * Author: Rodrigo Freitas
  * Created at: Sat Nov  7 21:46:43 2015
@@ -28,53 +28,53 @@
 
 #include "collections.h"
 
-struct cstring_list_node_s {
-    clist_entry_t       *prev;
-    clist_entry_t       *next;
-    cstring_t           *s;
+struct cl_string_list_node_s {
+    cl_list_entry_t       *prev;
+    cl_list_entry_t       *next;
+    cl_string_t           *s;
 };
 
-#define cstring_list_members                                \
-    cl_struct_member(struct cstring_list_node_s *, list)    \
+#define cl_string_list_members                                \
+    cl_struct_member(struct cl_string_list_node_s *, list)    \
     cl_struct_member(unsigned int, size)
 
-cl_struct_declare(cstring_list_s, cstring_list_members);
+cl_struct_declare(cl_string_list_s, cl_string_list_members);
 
-#define cstring_list_s      cl_struct(cstring_list_s)
+#define cl_string_list_s      cl_struct(cl_string_list_s)
 
-static struct cstring_list_node_s *new_list_node_s(cstring_t *v)
+static struct cl_string_list_node_s *new_list_node_s(cl_string_t *v)
 {
-    struct cstring_list_node_s *l = NULL;
+    struct cl_string_list_node_s *l = NULL;
 
-    l = calloc(1, sizeof(struct cstring_list_node_s));
+    l = calloc(1, sizeof(struct cl_string_list_node_s));
 
     if (NULL == l) {
         cset_errno(CL_NO_MEM);
         return NULL;
     }
 
-    l->s = cstring_ref(v);
+    l->s = cl_string_ref(v);
 
     return l;
 }
 
 static void destroy_list_node_s(void *ptr)
 {
-    struct cstring_list_node_s *l = (struct cstring_list_node_s *)ptr;
+    struct cl_string_list_node_s *l = (struct cl_string_list_node_s *)ptr;
 
     if (NULL == ptr)
         return;
 
-    cstring_unref(l->s);
+    cl_string_unref(l->s);
     free(l);
 }
 
-__PUB_API__ cstring_list_t *cstring_list_create(void)
+__PUB_API__ cl_string_list_t *cl_string_list_create(void)
 {
-    cstring_list_s *l = NULL;
+    cl_string_list_s *l = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
-    l = calloc(1, sizeof(cstring_list_s));
+    l = calloc(1, sizeof(cl_string_list_s));
 
     if (NULL == l) {
         cset_errno(CL_NO_MEM);
@@ -84,43 +84,43 @@ __PUB_API__ cstring_list_t *cstring_list_create(void)
     l->list = NULL;
     l->size = 0;
 
-    set_typeof(CSTRINGLIST, l);
+    set_typeof(CL_OBJ_STRINGLIST, l);
 
     return l;
 }
 
-__PUB_API__ int cstring_list_destroy(cstring_list_t *l)
+__PUB_API__ int cl_string_list_destroy(cl_string_list_t *l)
 {
-    cstring_list_s *p = (cstring_list_s *)l;
+    cl_string_list_s *p = (cl_string_list_s *)l;
 
-    __clib_function_init__(true, l, CSTRINGLIST, -1);
+    __clib_function_init__(true, l, CL_OBJ_STRINGLIST, -1);
 
     if (p->size > 0)
-        cdll_free(p->list, destroy_list_node_s);
+        cl_dll_free(p->list, destroy_list_node_s);
 
     free(l);
 
     return 0;
 }
 
-__PUB_API__ int cstring_list_size(const cstring_list_t *l)
+__PUB_API__ int cl_string_list_size(const cl_string_list_t *l)
 {
-    cstring_list_s *p = (cstring_list_s *)l;
+    cl_string_list_s *p = (cl_string_list_s *)l;
 
-    __clib_function_init__(true, l, CSTRINGLIST, -1);
+    __clib_function_init__(true, l, CL_OBJ_STRINGLIST, -1);
 
     return p->size;
 }
 
-__PUB_API__ int cstring_list_add(cstring_list_t *l, cstring_t *s)
+__PUB_API__ int cl_string_list_add(cl_string_list_t *l, cl_string_t *s)
 {
-    cstring_list_s *p = (cstring_list_s *)l;
-    struct cstring_list_node_s *n = NULL;
+    cl_string_list_s *p = (cl_string_list_s *)l;
+    struct cl_string_list_node_s *n = NULL;
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(l, CSTRINGLIST) == false) ||
-        (validate_object(s, CSTRING) == false))
+    if ((validate_object(l, CL_OBJ_STRINGLIST) == false) ||
+        (validate_object(s, CL_OBJ_STRING) == false))
     {
         return -1;
     }
@@ -130,45 +130,45 @@ __PUB_API__ int cstring_list_add(cstring_list_t *l, cstring_t *s)
     if (NULL == n)
         return -1;
 
-    p->list = cdll_unshift(p->list, n);
+    p->list = cl_dll_unshift(p->list, n);
     p->size++;
 
     return 0;
 }
 
-__PUB_API__ cstring_t *cstring_list_get(const cstring_list_t *l,
+__PUB_API__ cl_string_t *cl_string_list_get(const cl_string_list_t *l,
     unsigned int index)
 {
-    cstring_list_s *p = (cstring_list_s *)l;
-    struct cstring_list_node_s *n = NULL;
+    cl_string_list_s *p = (cl_string_list_s *)l;
+    struct cl_string_list_node_s *n = NULL;
 
-    __clib_function_init__(true, l, CSTRINGLIST, NULL);
+    __clib_function_init__(true, l, CL_OBJ_STRINGLIST, NULL);
 
-    if (index >= (unsigned int)cstring_list_size(p))
+    if (index >= (unsigned int)cl_string_list_size(p))
         return NULL;
 
-    n = cdll_at(p->list, index);
+    n = cl_dll_at(p->list, index);
 
     if (NULL == n) {
         cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
-    return cstring_ref(n->s);
+    return cl_string_ref(n->s);
 }
 
-__PUB_API__ cstring_t *cstring_list_map(const cstring_list_t *l,
+__PUB_API__ cl_string_t *cl_string_list_map(const cl_string_list_t *l,
     int (*foo)(void *, void *), void *data)
 {
-    cstring_list_s *p = (cstring_list_s *)l;
-    struct cstring_list_node_s *n = NULL;
+    cl_string_list_s *p = (cl_string_list_s *)l;
+    struct cl_string_list_node_s *n = NULL;
 
-    __clib_function_init__(true, l, CSTRINGLIST, NULL);
-    n = cdll_map(p->list, foo, data);
+    __clib_function_init__(true, l, CL_OBJ_STRINGLIST, NULL);
+    n = cl_dll_map(p->list, foo, data);
 
     if (NULL == n)
         return NULL;
 
-    return cstring_ref(n->s);
+    return cl_string_ref(n->s);
 }
 

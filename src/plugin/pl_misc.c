@@ -45,7 +45,7 @@ struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type)
         f->name = strdup(name);
 
     f->type = type;
-    set_typeof_with_offset(CPLUGIN_ARG, f, CPLUGIN_ARG_OBJECT_OFFSET);
+    set_typeof_with_offset(CL_OBJ_PLUGIN_ARG, f, CL_PLUGIN_ARG_OBJECT_OFFSET);
 
     return f;
 }
@@ -64,7 +64,7 @@ void destroy_cplugin_fdata_s(void *a)
 }
 
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
-    enum cl_type return_value, enum cplugin_arg_mode arg_mode,
+    enum cl_type return_value, enum cl_plugin_arg_mode arg_mode,
     struct cplugin_fdata_s *args)
 {
     struct cplugin_function_s *f = NULL;
@@ -89,7 +89,7 @@ static void destroy_cplugin_function_s(void *a)
     struct cplugin_function_s *f = (struct cplugin_function_s *)a;
 
     if (f->args != NULL)
-        cdll_free(f->args, destroy_cplugin_fdata_s);
+        cl_dll_free(f->args, destroy_cplugin_fdata_s);
 
     free(f->name);
     free(f);
@@ -97,7 +97,7 @@ static void destroy_cplugin_function_s(void *a)
 
 void destroy_cplugin_function_s_list(struct cplugin_function_s *flist)
 {
-    cdll_free(flist, destroy_cplugin_function_s);
+    cl_dll_free(flist, destroy_cplugin_function_s);
 }
 
 cplugin_s *new_cplugin_s(void)
@@ -112,7 +112,7 @@ cplugin_s *new_cplugin_s(void)
     }
 
     p->functions = NULL;
-    set_typeof(CPLUGIN, p);
+    set_typeof(CL_OBJ_PLUGIN, p);
 
     return p;
 }
@@ -125,7 +125,7 @@ int destroy_cplugin_s(cplugin_s *cpl)
     }
 
     if (cpl->functions != NULL)
-        cdll_free(cpl->functions, destroy_cplugin_function_s);
+        cl_dll_free(cpl->functions, destroy_cplugin_function_s);
 
     /* Need to free the info struct of the plugin. */
     info_unref(cpl->info);

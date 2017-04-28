@@ -1,6 +1,6 @@
 
 /*
- * Description: Example showing the use of the clist_t API.
+ * Description: Example showing the use of the cl_list_t API.
  *
  * Author: Rodrigo Freitas
  * Created at: Sat Sep  3 17:23:49 2016
@@ -60,10 +60,10 @@ static void destroy_node_example(void *a)
     free(e);
 }
 
-static int compare_node_example(clist_node_t *n1, clist_node_t *n2)
+static int compare_node_example(cl_list_node_t *n1, cl_list_node_t *n2)
 {
-    struct node_example *e1 = (struct node_example *)clist_node_content(n1);
-    struct node_example *e2 = (struct node_example *)clist_node_content(n2);
+    struct node_example *e1 = (struct node_example *)cl_list_node_content(n1);
+    struct node_example *e2 = (struct node_example *)cl_list_node_content(n2);
 
     if (e1->x > e2->x)
         return 1;
@@ -73,9 +73,9 @@ static int compare_node_example(clist_node_t *n1, clist_node_t *n2)
     return 0;
 }
 
-static int filter_node_example(clist_node_t *n, void *filter_data)
+static int filter_node_example(cl_list_node_t *n, void *filter_data)
 {
-    struct node_example *e = (struct node_example *)clist_node_content(n);
+    struct node_example *e = (struct node_example *)cl_list_node_content(n);
     int limit = *((int *)filter_data);
 
     if (e->y < limit)
@@ -84,7 +84,7 @@ static int filter_node_example(clist_node_t *n, void *filter_data)
     return 0;
 }
 
-static int equals_node_example(clist_node_t *n1, clist_node_t *n2)
+static int equals_node_example(cl_list_node_t *n1, cl_list_node_t *n2)
 {
     if (compare_node_example(n1, n2) == 0)
         return 1;
@@ -92,9 +92,9 @@ static int equals_node_example(clist_node_t *n1, clist_node_t *n2)
     return 0;
 }
 
-static int print_node(clist_node_t *node, void *data)
+static int print_node(cl_list_node_t *node, void *data)
 {
-    struct node_example *e = (struct node_example *)clist_node_content(node);
+    struct node_example *e = (struct node_example *)cl_list_node_content(node);
 
     printf("%s: %d, %d\n", __FUNCTION__, e->x, e->y);
 
@@ -103,49 +103,49 @@ static int print_node(clist_node_t *node, void *data)
 
 int main(void)
 {
-    clist_t *list = NULL, *lfilter = NULL;
+    cl_list_t *list = NULL, *lfilter = NULL;
     int i, limit = 40;
     unsigned int n;
     struct node_example e = { 42, 43 };
 
-    collections_init(NULL);
-    list = clist_create(destroy_node_example, compare_node_example,
-                        filter_node_example, equals_node_example);
+    cl_init(NULL);
+    list = cl_list_create(destroy_node_example, compare_node_example,
+                          filter_node_example, equals_node_example);
 
     for (i = 0; i < 20; i++) {
-        n = crand(100);
-        clist_push(list, new_node_example(n, n + 1));
+        n = cl_rand(100);
+        cl_list_push(list, new_node_example(n, n + 1), -1);
     }
 
-    printf("List size = %d\n", clist_size(list));
-    clist_map(list, print_node, NULL);
+    printf("List size = %d\n", cl_list_size(list));
+    cl_list_map(list, print_node, NULL);
 
     printf("Sorted list\n");
-    clist_sort(list);
-    clist_map(list, print_node, NULL);
+    cl_list_sort(list);
+    cl_list_map(list, print_node, NULL);
 
     printf("Filter elements with y < %d\n", limit);
-    lfilter = clist_filter(list, &limit);
+    lfilter = cl_list_filter(list, &limit);
 
-    printf("Filtered list size = %d\n", clist_size(lfilter));
-    clist_map(lfilter, print_node, NULL);
+    printf("Filtered list size = %d\n", cl_list_size(lfilter));
+    cl_list_map(lfilter, print_node, NULL);
 
-    printf("First list size = %d\n", clist_size(list));
-    clist_map(list, print_node, NULL);
+    printf("First list size = %d\n", cl_list_size(list));
+    cl_list_map(list, print_node, NULL);
 
-    if (clist_contains(list, &e) == true)
+    if (cl_list_contains(list, &e, -1) == true)
         printf("Index of item with x = %d, y = %d => %d\n", e.x, e.y,
-               clist_indexof(list, &e));
+               cl_list_indexof(list, &e, -1));
 
-    clist_destroy(list);
+    cl_list_destroy(list);
 
     if (lfilter != NULL)
-        clist_destroy(lfilter);
+        cl_list_destroy(lfilter);
 
-    collections_uninit();
+    cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    cexit();
+    cl_exit();
 
     return 0;
 }

@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name cqueue_node_content
+ * @name cl_queue_node_content
  * @brief A function to retrieve the content of a queue node.
  *
  * This function must be used by the user to get a reference to its own object
@@ -45,22 +45,22 @@
  *
  * @return On success returns the content of the node or NULL otherwise.
  */
-void *cqueue_node_content(cqueue_node_t *node);
+void *cl_queue_node_content(cl_queue_node_t *node);
 
 /**
- * @name cqueue_node_ref
- * @brief Increases the reference count for a cqueue_node_t item.
+ * @name cl_queue_node_ref
+ * @brief Increases the reference count for a cl_queue_node_t item.
  *
  * @param [in,out] node: The node item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cqueue_node_t *cqueue_node_ref(cqueue_node_t *node);
+cl_queue_node_t *cl_queue_node_ref(cl_queue_node_t *node);
 
 /**
- * @name cqueue_node_unref
- * @brief Decreases the reference count for a cqueue_node_t item.
+ * @name cl_queue_node_unref
+ * @brief Decreases the reference count for a cl_queue_node_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -69,22 +69,22 @@ cqueue_node_t *cqueue_node_ref(cqueue_node_t *node);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_node_unref(cqueue_node_t *node);
+int cl_queue_node_unref(cl_queue_node_t *node);
 
 /**
- * @name cqueue_ref
- * @brief Increases the reference count for a cqueue_t item.
+ * @name cl_queue_ref
+ * @brief Increases the reference count for a cl_queue_t item.
  *
  * @param [in,out] queue: The queue item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cqueue_t *cqueue_ref(cqueue_t *queue);
+cl_queue_t *cl_queue_ref(cl_queue_t *queue);
 
 /**
- * @name cqueue_unref
- * @brief Decreases the reference count for a cqueue_t item.
+ * @name cl_queue_unref
+ * @brief Decreases the reference count for a cl_queue_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -93,10 +93,10 @@ cqueue_t *cqueue_ref(cqueue_t *queue);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_unref(cqueue_t *queue);
+int cl_queue_unref(cl_queue_t *queue);
 
 /**
- * @name cqueue_create
+ * @name cl_queue_create
  * @brief Creates a new queue object.
  *
  * This function creates a new queue object to manipulate all kind of data.
@@ -113,9 +113,9 @@ int cqueue_unref(cqueue_t *queue);
  * Their prototypes are the following:
  *
  * void free_data(void *);
- * int compare_to(cqueue_node_t *, cqueue_node_t *);
- * int filter(cqueue_node_t *, void *);
- * int equals(cqueue_node_t *, cqueue_node_t *);
+ * int compare_to(cl_queue_node_t *, cl_queue_node_t *);
+ * int filter(cl_queue_node_t *, void *);
+ * int equals(cl_queue_node_t *, cl_queue_node_t *);
  *
  * If the type of a node content if of a cobject_t kind it is not necessary to
  * pass the arguments \a free_data, \a compare_to and \a equals, since them can
@@ -128,13 +128,15 @@ int cqueue_unref(cqueue_t *queue);
  *
  * @return On success a void object will be returned or NULL otherwise.
  */
-cqueue_t *cqueue_create(void (*free_data)(void *),
-                        int (*compare_to)(cqueue_node_t *, cqueue_node_t *),
-                        int (*filter)(cqueue_node_t *, void *),
-                        int (*equals)(cqueue_node_t *, cqueue_node_t *));
+cl_queue_t *cl_queue_create(void (*free_data)(void *),
+                            int (*compare_to)(cl_queue_node_t *,
+                                              cl_queue_node_t *),
+                            int (*filter)(cl_queue_node_t *, void *),
+                            int (*equals)(cl_queue_node_t *,
+                                          cl_queue_node_t *));
 
 /**
- * @name cqueue_destroy
+ * @name cl_queue_destroy
  * @brief Releases a void from memory.
  *
  * When releasing a node from the queue, the \a free_data function passed while
@@ -144,20 +146,20 @@ cqueue_t *cqueue_create(void (*free_data)(void *),
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_destroy(cqueue_t *queue);
+int cl_queue_destroy(cl_queue_t *queue);
 
 /**
- * @name cqueue_size
+ * @name cl_queue_size
  * @brief Gets the queue size.
  *
  * @param [in] queue: The queue object.
  *
  * @return On success returns the size of the queue or -1 otherwise.
  */
-int cqueue_size(const cqueue_t *queue);
+int cl_queue_size(const cl_queue_t *queue);
 
 /**
- * @name cqueue_dequeue
+ * @name cl_queue_dequeue
  * @brief Retrieves and removes the head of the queue.
  *
  * @param [in,out] queue: The queue object.
@@ -165,10 +167,10 @@ int cqueue_size(const cqueue_t *queue);
  * @return On success returns the node shifted off the queue, and the user is
  *         responsible for releasing it, or NULL otherwise.
  */
-cqueue_node_t *cqueue_dequeue(cqueue_t *queue);
+cl_queue_node_t *cl_queue_dequeue(cl_queue_t *queue);
 
 /**
- * @name cqueue_enqueue
+ * @name cl_queue_enqueue
  * @brief Inserts an element into the queue.
  *
  * @param [in,out] queue: The queue object.
@@ -177,15 +179,16 @@ cqueue_node_t *cqueue_dequeue(cqueue_t *queue);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_enqueue(cqueue_t *queue, const void *node_content, unsigned int size);
+int cl_queue_enqueue(cl_queue_t *queue, const void *node_content,
+                     unsigned int size);
 
 /**
- * @name cqueue_map
+ * @name cl_queue_map
  * @brief Maps a function to every node on a queue.
  *
  * The \a foo function receives as arguments a node from the queue and some
  * \a data. Its prototype must be something of this type:
- * int foo(cqueue_node_t *, void *);
+ * int foo(cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -196,16 +199,16 @@ int cqueue_enqueue(cqueue_t *queue, const void *node_content, unsigned int size)
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *cqueue_map(const cqueue_t *queue,
-                          int (*foo)(cqueue_node_t *, void *), void *data);
+cl_queue_node_t *cl_queue_map(const cl_queue_t *queue,
+                              int (*foo)(cl_queue_node_t *, void *), void *data);
 
 /**
- * @name cqueue_map_indexed
+ * @name cl_queue_map_indexed
  * @brief Maps a function to every node on a queue.
  *
  * The \a foo function receives as arguments the current node index inside the
  * queue, a node from the queue and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -216,18 +219,18 @@ cqueue_node_t *cqueue_map(const cqueue_t *queue,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *cqueue_map_indexed(const cqueue_t *queue,
-                                  int (*foo)(unsigned int, cqueue_node_t *,
-                                             void *),
-                                  void *data);
+cl_queue_node_t *cl_queue_map_indexed(const cl_queue_t *queue,
+                                      int (*foo)(unsigned int, cl_queue_node_t *,
+                                                 void *),
+                                      void *data);
 
 /**
- * @name cqueue_map_reverse
+ * @name cl_queue_map_reverse
  * @brief Maps a functions to every onde on a queue from the end to the top.
  *
  * The \a foo function receives as arguments a node from the queue and some
  * \a data. Its prototype must be something of this type:
- * int foo(cqueue_node_t *, void *);
+ * int foo(cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -238,17 +241,17 @@ cqueue_node_t *cqueue_map_indexed(const cqueue_t *queue,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *cqueue_map_reverse(const cqueue_t *queue,
-                                  int (*foo)(cqueue_node_t *, void *),
-                                  void *data);
+cl_queue_node_t *cl_queue_map_reverse(const cl_queue_t *queue,
+                                      int (*foo)(cl_queue_node_t *, void *),
+                                      void *data);
 
 /**
- * @name cqueue_map_reverse_indexed
+ * @name cl_queue_map_reverse_indexed
  * @brief Maps a function to every node on a queue from the end to the top.
  *
  * The \a foo function receives as arguments the current node index inside the
  * queue, a node from the queue and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -259,13 +262,14 @@ cqueue_node_t *cqueue_map_reverse(const cqueue_t *queue,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *cqueue_map_reverse_indexed(const cqueue_t *queue,
-                                          int (*foo)(unsigned int,
-                                                     cqueue_node_t *, void *),
-                                          void *data);
+cl_queue_node_t *cl_queue_map_reverse_indexed(const cl_queue_t *queue,
+                                              int (*foo)(unsigned int,
+                                                         cl_queue_node_t *,
+                                                         void *),
+                                              void *data);
 
 /**
- * @name cqueue_at
+ * @name cl_queue_at
  * @brief Gets a pointer to a specific node inside a queue.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -275,10 +279,10 @@ cqueue_node_t *cqueue_map_reverse_indexed(const cqueue_t *queue,
  *
  * @return On success returns a reference to the node or NULL otherwise.
  */
-cqueue_node_t *cqueue_at(const cqueue_t *queue, unsigned int index);
+cl_queue_node_t *cl_queue_at(const cl_queue_t *queue, unsigned int index);
 
 /**
- * @name cqueue_delete
+ * @name cl_queue_delete
  * @brief Deletes elements from a queue according a specific filter function.
  *
  * If the filter function returns a positive value the element will be extracted
@@ -290,10 +294,10 @@ cqueue_node_t *cqueue_at(const cqueue_t *queue, unsigned int index);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_delete(cqueue_t *queue, void *data);
+int cl_queue_delete(cl_queue_t *queue, void *data);
 
 /**
- * @name cqueue_delete_indexed
+ * @name cl_queue_delete_indexed
  * @brief Deletes an element from a queue at a specific position.
  *
  * @param [in,out] queue: The queue object.
@@ -301,20 +305,20 @@ int cqueue_delete(cqueue_t *queue, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_delete_indexed(cqueue_t *queue, unsigned int index);
+int cl_queue_delete_indexed(cl_queue_t *queue, unsigned int index);
 
 /**
- * @name cqueue_move
+ * @name cl_queue_move
  * @brief Moves all elements from a queue to another.
  *
  * @param [in] queue: The original void object.
  *
  * @return Returns the new queue.
  */
-cqueue_t *cqueue_move(cqueue_t *queue);
+cl_queue_t *cl_queue_move(cl_queue_t *queue);
 
 /**
- * @name cqueue_filter
+ * @name cl_queue_filter
  * @brief Extracts elements from a queue according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
@@ -327,10 +331,10 @@ cqueue_t *cqueue_move(cqueue_t *queue);
  * @return Returns a queue containing all extracted elements from the original
  *         queue.
  */
-cqueue_t *cqueue_filter(cqueue_t *queue, void *data);
+cl_queue_t *cl_queue_filter(cl_queue_t *queue, void *data);
 
 /**
- * @name cqueue_sort
+ * @name cl_queue_sort
  * @brief Sort all elements from a queue.
  *
  * This function uses the \a compare_to function to compare two elements from
@@ -340,10 +344,10 @@ cqueue_t *cqueue_filter(cqueue_t *queue, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_sort(cqueue_t *queue);
+int cl_queue_sort(cl_queue_t *queue);
 
 /**
- * @name cqueue_indexof
+ * @name cl_queue_indexof
  * @brief Gets the index of the first occurrence of an element inside the queue.
  *
  * This function uses the \a equals function to compare objects from the queue.
@@ -354,10 +358,10 @@ int cqueue_sort(cqueue_t *queue);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cqueue_indexof(const cqueue_t *queue, void *element, unsigned int size);
+int cl_queue_indexof(const cl_queue_t *queue, void *element, unsigned int size);
 
 /**
- * @name cqueue_last_indexof
+ * @name cl_queue_last_indexof
  * @brief Gets the index of the last occurrence of an element inside the queue.
  *
  * This function uses the \a equals function to compare objects from the queue.
@@ -368,10 +372,11 @@ int cqueue_indexof(const cqueue_t *queue, void *element, unsigned int size);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int cqueue_last_indexof(const cqueue_t *queue, void *element, unsigned int size);
+int cl_queue_last_indexof(const cl_queue_t *queue, void *element,
+                          unsigned int size);
 
 /**
- * @name cqueue_contains
+ * @name cl_queue_contains
  * @brief Checks if a queue contains a specific element.
  *
  * This function uses the \a equals function to compare objects from the queue.
@@ -382,10 +387,10 @@ int cqueue_last_indexof(const cqueue_t *queue, void *element, unsigned int size)
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool cqueue_contains(const cqueue_t *queue, void *element, unsigned int size);
+bool cl_queue_contains(const cl_queue_t *queue, void *element, unsigned int size);
 
 /**
- * @name cqueue_front
+ * @name cl_queue_front
  * @brief Retrieves, but does not remove, the head of the queue.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -395,20 +400,20 @@ bool cqueue_contains(const cqueue_t *queue, void *element, unsigned int size);
  * @return Returns NULL if the queue is empty or a new reference to the head
  *         of it.
  */
-cqueue_node_t *cqueue_front(const cqueue_t *queue);
+cl_queue_node_t *cl_queue_front(const cl_queue_t *queue);
 
 /**
- * @name cqueue_is_empty
+ * @name cl_queue_is_empty
  * @brief Tests to see if the queue is empty or not.
  *
  * @param [in] queue: The queue object.
  *
  * @return Returns true if the queue is empty or false otherwise.
  */
-bool cqueue_is_empty(const cqueue_t *queue);
+bool cl_queue_is_empty(const cl_queue_t *queue);
 
 /**
- * @name cqueue_set_compare_to
+ * @name cl_queue_set_compare_to
  * @brief Updates the internal object compare function.
  *
  * @param [in] queue: The queue object.
@@ -416,11 +421,12 @@ bool cqueue_is_empty(const cqueue_t *queue);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_set_compare_to(const cqueue_t *queue,
-                          int (*compare_to)(cqueue_node_t *, cqueue_node_t *));
+int cl_queue_set_compare_to(const cl_queue_t *queue,
+                            int (*compare_to)(cl_queue_node_t *,
+                                              cl_queue_node_t *));
 
 /**
- * @name cqueue_set_filter
+ * @name cl_queue_set_filter
  * @brief Updates the internal filter function.
  *
  * @param [in] queue: The queue object.
@@ -428,11 +434,11 @@ int cqueue_set_compare_to(const cqueue_t *queue,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_set_filter(const cqueue_t *queue,
-                      int (*filter)(cqueue_node_t *, void *));
+int cl_queue_set_filter(const cl_queue_t *queue,
+                        int (*filter)(cl_queue_node_t *, void *));
 
 /**
- * @name cqueue_set_equals
+ * @name cl_queue_set_equals
  * @brief Updates the internal equals function.
  *
  * @param [in] queue: The queue object.
@@ -440,8 +446,8 @@ int cqueue_set_filter(const cqueue_t *queue,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cqueue_set_equals(const cqueue_t *queue,
-                      int (*equals)(cqueue_node_t *, cqueue_node_t *));
+int cl_queue_set_equals(const cl_queue_t *queue,
+                        int (*equals)(cl_queue_node_t *, cl_queue_node_t *));
 
 #endif
 

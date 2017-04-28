@@ -34,17 +34,17 @@
 #endif
 
 /**
- * @name cdll_size
+ * @name cl_dll_size
  * @brief Returns the number of nodes of a list.
  *
  * @param [in] root: The list.
  *
  * @return Returns the number of nodes of a list.
  */
-int cdll_size(void *root);
+int cl_dll_size(void *root);
 
 /**
- * @name cdll_push
+ * @name cl_dll_push
  * @brief Pushes a new node onto the list.
  *
  * @param [in,out] root: The list.
@@ -52,20 +52,20 @@ int cdll_size(void *root);
  *
  * @return Returns the new list.
  */
-void *cdll_push(void *root, void *node);
+void *cl_dll_push(void *root, void *node);
 
 /**
- * @name cdll_pop
+ * @name cl_dll_pop
  * @brief Pop a node from a list.
  *
  * @param [in,out] root: The list.
  *
  * @return On success returns the pop'ed node or NULL otherwise.
  */
-void *cdll_pop(void *root);
+void *cl_dll_pop(void *root);
 
 /**
- * @name cdll_unshift
+ * @name cl_dll_unshift
  * @brief Shifts a node onto the far end of a list.
  *
  * @param [in,out] root: The list.
@@ -73,20 +73,20 @@ void *cdll_pop(void *root);
  *
  * @return Returns the new list.
  */
-void *cdll_unshift(void *root, void *node);
+void *cl_dll_unshift(void *root, void *node);
 
 /**
- * @name cdll_shift
+ * @name cl_dll_shift
  * @brief Shifts a node from the far end of a list.
  *
  * @param [in,out] root: The list.
  *
  * @return On success returns the node shifted off the list or NULL otherwise.
  */
-void *cdll_shift(void *root);
+void *cl_dll_shift(void *root);
 
 /**
- * @name cdll_map
+ * @name cl_dll_map
  * @brief Maps a function to every node on a list.
  *
  * The \a foo function receives as arguments a node from the list and some
@@ -100,10 +100,10 @@ void *cdll_shift(void *root);
  * @return If \a foo returns non-zero returns a pointer to the current node.
  *         If not returns NULL.
  */
-void *cdll_map(void *root, int (*foo)(void *, void *), void *data);
+void *cl_dll_map(void *root, int (*foo)(void *, void *), void *data);
 
 /**
- * @name cdll_map_indexed
+ * @name cl_dll_map_indexed
  * @brief Maps a function to every node on a list.
  *
  * The \a foo function receives as arguments the current node index inside
@@ -117,11 +117,11 @@ void *cdll_map(void *root, int (*foo)(void *, void *), void *data);
  * @return If \a foo returns non-zero returns a pointer to the current node.
  *         If not returns NULL.
  */
-void *cdll_map_indexed(void *root, int (*foo)(unsigned int, void *, void *),
-                       void *data);
+void *cl_dll_map_indexed(void *root, int (*foo)(unsigned int, void *, void *),
+                         void *data);
 
 /**
- * @name cdll_map_reverse
+ * @name cl_dll_map_reverse
  * @brief Maps a function to every node on a list from the end to the top.
  *
  * The \a foo function receives as arguments a node from the list and some
@@ -135,10 +135,10 @@ void *cdll_map_indexed(void *root, int (*foo)(unsigned int, void *, void *),
  * @return If \a foo returns non-zero returns a pointer to the current node.
  *         If not returns NULL.
  */
-void *cdll_map_reverse(void *root, int (*foo)(void *, void *), void *data);
+void *cl_dll_map_reverse(void *root, int (*foo)(void *, void *), void *data);
 
 /**
- * @name cdll_map_indexed_reverse
+ * @name cl_dll_map_indexed_reverse
  * @brief Maps a function to every node on a list from the end to the top.
  *
  * The \a foo function receives as arguments the current node index inside
@@ -152,12 +152,12 @@ void *cdll_map_reverse(void *root, int (*foo)(void *, void *), void *data);
  * @return If \a foo returns non-zero returns a pointer to the current node.
  *         If not returns NULL.
  */
-void *cdll_map_indexed_reverse(void *root,
-                               int (*foo)(unsigned int, void *, void *),
-                               void *data);
+void *cl_dll_map_indexed_reverse(void *root,
+                                 int (*foo)(unsigned int, void *, void *),
+                                 void *data);
 
 /**
- * @name cdll_free
+ * @name cl_dll_free
  * @brief Frees a list of nodes.
  *
  * If \a foo is NULL the functions uses the libc free function to deallocate
@@ -166,10 +166,10 @@ void *cdll_map_indexed_reverse(void *root,
  * @param [in] root: The list.
  * @param [in] foo: The custom free function.
  */
-void cdll_free(void *root, void (*foo)(void *));
+void cl_dll_free(void *root, void (*foo)(void *));
 
 /**
- * @name cdll_at
+ * @name cl_dll_at
  * @brief Gets a pointer to a specific node inside a list.
  *
  * @param [in] root: The list.
@@ -177,20 +177,20 @@ void cdll_free(void *root, void (*foo)(void *));
  *
  * @return On success returns the node from the list or NULL otherwise.
  */
-void *cdll_at(void *root, unsigned int index);
+void *cl_dll_at(void *root, unsigned int index);
 
 /**
- * @name cdll_move
+ * @name cl_dll_move
  * @brief Moves all elements from a list to another.
  *
  * @param [in] root: The list.
  *
  * @return Returns the new list.
  */
-void *cdll_move(void *root);
+void *cl_dll_move(void *root);
 
 /**
- * @name cdll_filter
+ * @name cl_dll_filter
  * @brief Extracts elements from a list according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
@@ -202,10 +202,10 @@ void *cdll_move(void *root);
  * @return Returns a list containing all extracted elements from the original
  *         list.
  */
-void *cdll_filter(void *root, int (*foo)(void *, void *), void *data);
+void *cl_dll_filter(void *root, int (*foo)(void *, void *), void *data);
 
 /**
- * @name cdll_delete
+ * @name cl_dll_delete
  * @brief Deletes elements from a list according a specific filter function.
  *
  * If the filter function returns a positive value the element will be
@@ -220,11 +220,11 @@ void *cdll_filter(void *root, int (*foo)(void *, void *), void *data);
  * @return Returns the extracted elements from the list or NULL if \a foo is
  *         not NULL.
  */
-void *cdll_delete(void *root, int (*filter)(void *, void *), void *data,
-                  void (*foo)(void *));
+void *cl_dll_delete(void *root, int (*filter)(void *, void *), void *data,
+                    void (*foo)(void *));
 
 /**
- * @name cdll_delete_indexed
+ * @name cl_dll_delete_indexed
  * @brief Delete an element from a list at a specific position.
  *
  * If \a foo is not NULL it will be used as a function to release memory of the
@@ -237,10 +237,10 @@ void *cdll_delete(void *root, int (*filter)(void *, void *), void *data,
  * @return Return the extracted element from the list or NULL if \a foo is not
  *         NULL.
  */
-void *cdll_delete_indexed(void *root, unsigned int index, void (*foo)(void *));
+void *cl_dll_delete_indexed(void *root, unsigned int index, void (*foo)(void *));
 
 /**
- * @name cdll_mergesort
+ * @name cl_dll_mergesort
  * @brief Sort all elements from a list using mergesort algorithm.
  *
  * @param [in] root: The list.
@@ -248,10 +248,10 @@ void *cdll_delete_indexed(void *root, unsigned int index, void (*foo)(void *));
  *
  * @return Returns the sorted list.
  */
-void *cdll_mergesort(void *root, int (*cmp)(void *, void *));
+void *cl_dll_mergesort(void *root, int (*cmp)(void *, void *));
 
 /**
- * @name cdll_contains
+ * @name cl_dll_contains
  * @brief Checks if a list contains a specific element.
  *
  * @param [in] root: The list.
@@ -261,10 +261,10 @@ void *cdll_mergesort(void *root, int (*cmp)(void *, void *));
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool cdll_contains(void *root, void *p, int (*foo)(void *, void *));
+bool cl_dll_contains(void *root, void *p, int (*foo)(void *, void *));
 
 /**
- * @name cdll_indexof
+ * @name cl_dll_indexof
  * @brief Gets the index of the first occurrence of an element inside a list.
  *
  * @param [in] root: The list.
@@ -274,10 +274,10 @@ bool cdll_contains(void *root, void *p, int (*foo)(void *, void *));
  *
  * @return Returns the index of the element or -1 if it is not found.
  */
-int cdll_indexof(void *root, void *n, int (*foo)(void *, void *));
+int cl_dll_indexof(void *root, void *n, int (*foo)(void *, void *));
 
 /**
- * @name cdll_last_indexof
+ * @name cl_dll_last_indexof
  * @brief Gets the index of the last occurrence of an element inside a list.
  *
  * @param [in] root: The list.
@@ -287,17 +287,17 @@ int cdll_indexof(void *root, void *n, int (*foo)(void *, void *));
  *
  * @return Returns the index of the element or -1 if it is not found.
  */
-int cdll_last_indexof(void *root, void *n, int (*foo)(void *, void *));
+int cl_dll_last_indexof(void *root, void *n, int (*foo)(void *, void *));
 
 /**
- * @name cdll_peek
+ * @name cl_dll_peek
  * @brief Retrieves, but does not remove, the head of the list.
  *
  * @param [in] list: The list.
  *
  * @return Returns NULL if the list is empty or the head of it otherwise.
  */
-void *cdll_peek(void *root);
+void *cl_dll_peek(void *root);
 
 #endif
 

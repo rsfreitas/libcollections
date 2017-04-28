@@ -33,14 +33,18 @@
 # endif
 #endif
 
-/**
- * @name cprcs_daemon_start
- * @brief Makes the actual process run in daemon mode (background).
- */
-void cprcs_daemon_start(void);
+#ifndef _SIGNAL_H
+# include <signal.h>
+#endif
 
 /**
- * @name csystem
+ * @name cl_daemon_start
+ * @brief Makes the actual process run in daemon mode (background).
+ */
+void cl_daemon_start(void);
+
+/**
+ * @name cl_system
  * @brief Execute a shell command.
  *
  * @param [in] close_parent_files: Boolean flag to indicate the need to close
@@ -51,19 +55,19 @@ void cprcs_daemon_start(void);
  * @return On success returns the returned value from the executed command or
  *         -1 otherwise.
  */
-int csystem(bool close_parent_files, const char *fmt, ...)
-            __attribute__((format(printf, 2, 3)));
+int cl_system(bool close_parent_files, const char *fmt, ...)
+              __attribute__((format(printf, 2, 3)));
 
 /**
- * @name cmsleep
+ * @name cl_msleep
  * @brief Suspend execution for milliseconds interval.
  *
  * @param [in] mseconds: Milliseconds interval.
  */
-void cmsleep(long mseconds);
+void cl_msleep(long mseconds);
 
 /**
- * @name ctrap
+ * @name cl_trap
  * @brief Trap signals.
  *
  * Defines a function to be called when an application receives a specific
@@ -74,10 +78,10 @@ void cmsleep(long mseconds);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int ctrap(int signum, void (*f)(int));
+int cl_trap(int signum, void (*f)(int));
 
 /**
- * @name cinstance_active
+ * @name cl_instance_active
  * @brief Checks if an instance is running in the system.
  *
  * This function checks if an application, started by the same user with the
@@ -91,10 +95,10 @@ int ctrap(int signum, void (*f)(int));
  *
  * @return In case the instance is active returns true otherwise returns false.
  */
-bool cinstance_active(const char *name);
+bool cl_instance_active(const char *name);
 
 /**
- * @name cset_instance_as_active
+ * @name cl_set_instance_as_active
  * @brief Sets the current instance as active.
  *
  * Sets the current instance as active writing a file with the application name
@@ -102,7 +106,7 @@ bool cinstance_active(const char *name);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cset_instance_as_active(void);
+int cl_set_instance_as_active(void);
 
 #endif
 

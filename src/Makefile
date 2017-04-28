@@ -33,22 +33,22 @@ TARGET = $(TARGET_DIR)/$(SONAME)
 TARGET_DEST = $(TARGET_DIR)/$(DEST_LIBNAME)
 
 INCLUDEDIR = -I../include
-
 LIBDIR = -L/usr/local/lib
 
 CHAT_PATH = ./chat
 PLUGIN_PATH = ./plugin
 JNI_PATH = ./plugin/java
+IMAGE_PATH = ./image
+ADT_PATH = ./adt
 
-ifeq ($(IMAGEAPI), 1)
+ifeq ($(CL_IMAGEAPI), 1)
     OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui \
 		  -lfreetype -ljpeg -lpng -ltiff -lswscale -ljasper
 
+    IMAGES = -DUSE_CL_IMAGEAPI
     INCLUDEDIR += -I/usr/include/freetype2
-    IMAGE_OBJ = 			\
-			image.o		\
-			caption.o	\
-			raw.o
+    IMAGE_SOURCES := $(wildcard $(IMAGE_PATH)/*.c)
+    IMAGE_OBJS = $(IMAGE_SOURCES:.c=.o)
 endif
 
 # Is the python plugin enabled?
@@ -78,17 +78,11 @@ LIBS = -lpthread -lm -lrt -ldl -lmagic $(PLUGIN_LIBS) $(OPENCV_LIBS)
 PLUGIN_ELF = -DPLUGIN_ELF
 PLUGINS = $(PLUGIN_ELF) $(PLUGIN_PYTHON) $(PLUGIN_JAVA)
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
-		 -D_GNU_SOURCE -DLINUX $(PLUGINS) $(INCLUDEDIR)
+		 -D_GNU_SOURCE -DLINUX $(PLUGINS) $(IMAGES) $(INCLUDEDIR)
 
 ifeq ($(GCCVERSION), 5)
     CFLAGS += -fgnu89-inline
 endif
-
-ifeq ($(IMAGEAPI), 1)
-    CFLAGS += -DIMAGEAPI
-endif
-
-VPATH = ../include:.:$(CHAT_PATH):$(PLUGIN_PATH):$(JNI_PATH)
 
 CHAT_SOURCES := $(wildcard $(CHAT_PATH)/*.c)
 CHAT_OBJS = $(CHAT_SOURCES:.c=.o)
@@ -105,14 +99,13 @@ PLUGIN_OBJS = \
 			  $(PLUGIN_SOURCES:.c=.o)	\
 			  $(DL_OBJS)
 
+ADT_SOURCES := $(wildcard $(ADT_PATH)/*.c)
 SOURCES := $(wildcard *.c)
-SOURCES := $(filter-out image.c, $(SOURCES))
-SOURCES := $(filter-out caption.c, $(SOURCES))
-SOURCES := $(filter-out raw.c, $(SOURCES))
 OBJS =	\
-		$(CHAT_OBJS)	\
-		$(PLUGIN_OBJS)	\
-		$(IMAGE_OBJ)	\
+		$(CHAT_OBJS)			\
+		$(PLUGIN_OBJS)			\
+		$(IMAGE_OBJS)			\
+		$(ADT_SOURCES:.c=.o)	\
 		$(SOURCES:.c=.o)
 
 $(TARGET): outputdir $(OBJS)
@@ -134,7 +127,7 @@ install:
 
 install_headers:
 	$(shell [ ! -d /usr/local/include/cl ] && mkdir -p /usr/local/include/cl)
-	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h|^cl_raw.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
+	$(shell for f in `ls ../include/cl | egrep -v '^cl_internal.h|^cl_typeof.h'`; do cp -f ../include/cl/$$f /usr/local/include/cl; done)
 	cp -f ../include/collections.h /usr/local/include
 
 dev_install: install_headers install

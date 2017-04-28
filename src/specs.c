@@ -30,22 +30,22 @@
 
 #include "collections.h"
 
-#define cspec_members                                   \
+#define cl_spec_members                                 \
     cl_struct_member(enum cl_spec_attrib, properties)   \
-    cl_struct_member(cobject_t *, max)                  \
-    cl_struct_member(cobject_t *, min)                  \
+    cl_struct_member(cl_object_t *, max)                \
+    cl_struct_member(cl_object_t *, min)                \
     cl_struct_member(unsigned int, max_length)
 
-cl_struct_declare(cspec_s, cspec_members);
+cl_struct_declare(cl_spec_s, cl_spec_members);
 
-#define cspec_s             cl_struct(cspec_s)
+#define cl_spec_s             cl_struct(cl_spec_s)
 
-static cspec_s *new_spec_s(enum cl_spec_attrib properties,
-    cobject_t *min, cobject_t *max, unsigned int max_length)
+static cl_spec_s *new_spec_s(enum cl_spec_attrib properties,
+    cl_object_t *min, cl_object_t *max, unsigned int max_length)
 {
-    cspec_s *s = NULL;
+    cl_spec_s *s = NULL;
 
-    s = calloc(1, sizeof(cspec_s *));
+    s = calloc(1, sizeof(cl_spec_s *));
 
     if (NULL == s) {
         cset_errno(CL_NO_MEM);
@@ -53,35 +53,35 @@ static cspec_s *new_spec_s(enum cl_spec_attrib properties,
     }
 
     s->properties = properties;
-    s->max = (max != NULL) ? cobject_ref(max) : NULL;
-    s->min = (min != NULL) ? cobject_ref(min) : NULL;
+    s->max = (max != NULL) ? cl_object_ref(max) : NULL;
+    s->min = (min != NULL) ? cl_object_ref(min) : NULL;
     s->max_length = max_length;
-    set_typeof(CSPEC, s);
+    set_typeof(CL_OBJ_SPEC, s);
 
     return s;
 }
 
-static void destroy_spec_s(cspec_s *spec)
+static void destroy_spec_s(cl_spec_s *spec)
 {
     if (NULL == spec)
         return;
 
     if (spec->min != NULL)
-        cobject_unref(spec->min);
+        cl_object_unref(spec->min);
 
     if (spec->max != NULL)
-        cobject_unref(spec->max);
+        cl_object_unref(spec->max);
 
     free(spec);
 }
 
-__PUB_API__ cspec_t *cspec_create(enum cl_spec_attrib properties,
-    cobject_t *min, cobject_t *max, unsigned int max_length)
+__PUB_API__ cl_spec_t *cl_spec_create(enum cl_spec_attrib properties,
+    cl_object_t *min, cl_object_t *max, unsigned int max_length)
 {
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if ((validate_object(min, COBJECT) == false) ||
-        (validate_object(max, COBJECT) == false))
+    if ((validate_object(min, CL_OBJ_OBJECT) == false) ||
+        (validate_object(max, CL_OBJ_OBJECT) == false))
     {
         return NULL;
     }
@@ -89,15 +89,15 @@ __PUB_API__ cspec_t *cspec_create(enum cl_spec_attrib properties,
     return new_spec_s(properties, min, max, max_length);
 }
 
-__PUB_API__ int cspec_destroy(cspec_t *spec)
+__PUB_API__ int cl_spec_destroy(cl_spec_t *spec)
 {
-    __clib_function_init__(true, spec, CSPEC, -1);
+    __clib_function_init__(true, spec, CL_OBJ_SPEC, -1);
     destroy_spec_s(spec);
 
     return 0;
 }
 
-static bool validate_accessibility(const cspec_s *spec, bool set)
+static bool validate_accessibility(const cl_spec_s *spec, bool set)
 {
     /* May write? */
     if ((set == true) && (!(spec->properties & CL_WRITABLE)))
@@ -110,13 +110,13 @@ static bool validate_accessibility(const cspec_s *spec, bool set)
     return true;
 }
 
-static bool validate_char(const cspec_s *spec, char value,
+static bool validate_char(const cl_spec_s *spec, char value,
     enum cl_spec_validation_fmt validation)
 {
     char min, max;
 
-    cobject_get(spec->min, COBJECT_CHAR, &min);
-    cobject_get(spec->max, COBJECT_CHAR, &max);
+    cl_object_get(spec->min, CL_OBJECT_CHAR, &min);
+    cl_object_get(spec->max, CL_OBJECT_CHAR, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -179,13 +179,13 @@ static bool validate_char(const cspec_s *spec, char value,
     return false;
 }
 
-static bool validate_uchar(const cspec_s *spec, unsigned char value,
+static bool validate_uchar(const cl_spec_s *spec, unsigned char value,
     enum cl_spec_validation_fmt validation)
 {
     unsigned char min, max;
 
-    cobject_get(spec->min, COBJECT_UCHAR, &min);
-    cobject_get(spec->max, COBJECT_UCHAR, &max);
+    cl_object_get(spec->min, CL_OBJECT_UCHAR, &min);
+    cl_object_get(spec->max, CL_OBJECT_UCHAR, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -248,13 +248,13 @@ static bool validate_uchar(const cspec_s *spec, unsigned char value,
     return false;
 }
 
-static bool validate_int(const cspec_s *spec, int value,
+static bool validate_int(const cl_spec_s *spec, int value,
     enum cl_spec_validation_fmt validation)
 {
     int min, max;
 
-    cobject_get(spec->min, COBJECT_INT, &min);
-    cobject_get(spec->max, COBJECT_INT, &max);
+    cl_object_get(spec->min, CL_OBJECT_INT, &min);
+    cl_object_get(spec->max, CL_OBJECT_INT, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -317,13 +317,13 @@ static bool validate_int(const cspec_s *spec, int value,
     return false;
 }
 
-static bool validate_uint(const cspec_s *spec, unsigned int value,
+static bool validate_uint(const cl_spec_s *spec, unsigned int value,
     enum cl_spec_validation_fmt validation)
 {
     unsigned int min, max;
 
-    cobject_get(spec->min, COBJECT_UINT, &min);
-    cobject_get(spec->max, COBJECT_UINT, &max);
+    cl_object_get(spec->min, CL_OBJECT_UINT, &min);
+    cl_object_get(spec->max, CL_OBJECT_UINT, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -386,13 +386,13 @@ static bool validate_uint(const cspec_s *spec, unsigned int value,
     return false;
 }
 
-static bool validate_sint(const cspec_s *spec, short int value,
+static bool validate_sint(const cl_spec_s *spec, short int value,
     enum cl_spec_validation_fmt validation)
 {
     short int min, max;
 
-    cobject_get(spec->min, COBJECT_SINT, &min);
-    cobject_get(spec->max, COBJECT_SINT, &max);
+    cl_object_get(spec->min, CL_OBJECT_SINT, &min);
+    cl_object_get(spec->max, CL_OBJECT_SINT, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -455,13 +455,13 @@ static bool validate_sint(const cspec_s *spec, short int value,
     return false;
 }
 
-static bool validate_usint(const cspec_s *spec,
+static bool validate_usint(const cl_spec_s *spec,
      unsigned short int value, enum cl_spec_validation_fmt validation)
 {
     unsigned short int min, max;
 
-    cobject_get(spec->min, COBJECT_USINT, &min);
-    cobject_get(spec->max, COBJECT_USINT, &max);
+    cl_object_get(spec->min, CL_OBJECT_USINT, &min);
+    cl_object_get(spec->max, CL_OBJECT_USINT, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -524,13 +524,13 @@ static bool validate_usint(const cspec_s *spec,
     return false;
 }
 
-static bool validate_long(const cspec_s *spec, long value,
+static bool validate_long(const cl_spec_s *spec, long value,
     enum cl_spec_validation_fmt validation)
 {
     long min, max;
 
-    cobject_get(spec->min, COBJECT_LONG, &min);
-    cobject_get(spec->max, COBJECT_LONG, &max);
+    cl_object_get(spec->min, CL_OBJECT_LONG, &min);
+    cl_object_get(spec->max, CL_OBJECT_LONG, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -593,13 +593,13 @@ static bool validate_long(const cspec_s *spec, long value,
     return false;
 }
 
-static bool validate_ulong(const cspec_s *spec, unsigned long value,
+static bool validate_ulong(const cl_spec_s *spec, unsigned long value,
     enum cl_spec_validation_fmt validation)
 {
     unsigned long min, max;
 
-    cobject_get(spec->min, COBJECT_ULONG, &min);
-    cobject_get(spec->max, COBJECT_ULONG, &max);
+    cl_object_get(spec->min, CL_OBJECT_ULONG, &min);
+    cl_object_get(spec->max, CL_OBJECT_ULONG, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -662,13 +662,13 @@ static bool validate_ulong(const cspec_s *spec, unsigned long value,
     return false;
 }
 
-static bool validate_llong(const cspec_s *spec, long long value,
+static bool validate_llong(const cl_spec_s *spec, long long value,
     enum cl_spec_validation_fmt validation)
 {
     long long min, max;
 
-    cobject_get(spec->min, COBJECT_LLONG, &min);
-    cobject_get(spec->max, COBJECT_LLONG, &max);
+    cl_object_get(spec->min, CL_OBJECT_LLONG, &min);
+    cl_object_get(spec->max, CL_OBJECT_LLONG, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -731,13 +731,13 @@ static bool validate_llong(const cspec_s *spec, long long value,
     return false;
 }
 
-static bool validate_ullong(const cspec_s *spec,
+static bool validate_ullong(const cl_spec_s *spec,
     unsigned long long value, enum cl_spec_validation_fmt validation)
 {
     unsigned long long min, max;
 
-    cobject_get(spec->min, COBJECT_ULLONG, &min);
-    cobject_get(spec->max, COBJECT_ULLONG, &max);
+    cl_object_get(spec->min, CL_OBJECT_ULLONG, &min);
+    cl_object_get(spec->max, CL_OBJECT_ULLONG, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -800,13 +800,13 @@ static bool validate_ullong(const cspec_s *spec,
     return false;
 }
 
-static bool validate_float(const cspec_s *spec, float value,
+static bool validate_float(const cl_spec_s *spec, float value,
     enum cl_spec_validation_fmt validation)
 {
     float min, max;
 
-    cobject_get(spec->min, COBJECT_FLOAT, &min);
-    cobject_get(spec->max, COBJECT_FLOAT, &max);
+    cl_object_get(spec->min, CL_OBJECT_FLOAT, &min);
+    cl_object_get(spec->max, CL_OBJECT_FLOAT, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -869,13 +869,13 @@ static bool validate_float(const cspec_s *spec, float value,
     return false;
 }
 
-static bool validate_double(const cspec_s *spec, double value,
+static bool validate_double(const cl_spec_s *spec, double value,
     enum cl_spec_validation_fmt validation)
 {
     double min, max;
 
-    cobject_get(spec->min, COBJECT_DOUBLE, &min);
-    cobject_get(spec->max, COBJECT_DOUBLE, &max);
+    cl_object_get(spec->min, CL_OBJECT_DOUBLE, &min);
+    cl_object_get(spec->max, CL_OBJECT_DOUBLE, &max);
 
     switch (validation) {
         case CL_VALIDATE_IGNORED:
@@ -946,7 +946,7 @@ static bool validate_boolean(bool value)
     return true;
 }
 
-static bool validate_string(const cspec_s *spec, const char *s)
+static bool validate_string(const cl_spec_s *spec, const char *s)
 {
     if ((unsigned int)strlen(s) > spec->max_length)
         return false;
@@ -954,15 +954,15 @@ static bool validate_string(const cspec_s *spec, const char *s)
     return true;
 }
 
-static bool validate_cstring(const cspec_s *spec, cstring_t *s)
+static bool validate_cstring(const cl_spec_s *spec, cl_string_t *s)
 {
-    if ((unsigned int)cstring_length(s) > spec->max_length)
+    if ((unsigned int)cl_string_length(s) > spec->max_length)
         return false;
 
     return true;
 }
 
-static bool validate_value(const cspec_s *spec, cobject_t *value,
+static bool validate_value(const cl_spec_s *spec, cl_object_t *value,
     enum cl_spec_validation_fmt validation, va_list ap)
 {
     bool b, ret = false;
@@ -980,7 +980,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
     double d;
     void *p;
 
-    switch (cobject_type(value)) {
+    switch (cl_object_type(value)) {
         case CL_VOID:
         case CL_POINTER:
             /* noop */
@@ -990,7 +990,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             c = (char)va_arg(ap, int);
 
             if (validate_char(spec, c, validation) == true) {
-                cobject_set_char(value, c);
+                cl_object_set_char(value, c);
                 ret = true;
             }
 
@@ -1000,7 +1000,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             uc = (unsigned char)va_arg(ap, int);
 
             if (validate_uchar(spec, uc, validation) == true) {
-                cobject_set_uchar(value, uc);
+                cl_object_set_uchar(value, uc);
                 ret = true;
             }
 
@@ -1010,7 +1010,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             i = va_arg(ap, int);
 
             if (validate_int(spec, i, validation) == true) {
-                cobject_set_int(value, i);
+                cl_object_set_int(value, i);
                 ret = true;
             }
 
@@ -1020,7 +1020,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             ui = va_arg(ap, unsigned int);
 
             if (validate_uint(spec, ui, validation) == true) {
-                cobject_set_uint(value, ui);
+                cl_object_set_uint(value, ui);
                 ret = true;
             }
 
@@ -1030,7 +1030,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             si = (short int)va_arg(ap, int);
 
             if (validate_sint(spec, si, validation) == true) {
-                cobject_set_int(value, si);
+                cl_object_set_int(value, si);
                 ret = true;
             }
 
@@ -1040,7 +1040,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             usi = (unsigned short int)va_arg(ap, unsigned int);
 
             if (validate_usint(spec, usi, validation) == true) {
-                cobject_set_uint(value, usi);
+                cl_object_set_uint(value, usi);
                 ret = true;
             }
 
@@ -1050,7 +1050,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             f = (float)va_arg(ap, double);
 
             if (validate_float(spec, f, validation) == true) {
-                cobject_set_float(value, f);
+                cl_object_set_float(value, f);
                 ret = true;
             }
 
@@ -1060,7 +1060,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             d = va_arg(ap, double);
 
             if (validate_double(spec, d, validation) == true) {
-                cobject_set_double(value, d);
+                cl_object_set_double(value, d);
                 ret = true;
             }
 
@@ -1070,7 +1070,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             l = va_arg(ap, long);
 
             if (validate_long(spec, l, validation) == true) {
-                cobject_set_long(value, l);
+                cl_object_set_long(value, l);
                 ret = true;
             }
 
@@ -1080,7 +1080,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             ul = va_arg(ap, unsigned long);
 
             if (validate_ulong(spec, ul, validation) == true) {
-                cobject_set_ulong(value, ul);
+                cl_object_set_ulong(value, ul);
                 ret = true;
             }
 
@@ -1090,7 +1090,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             ll = va_arg(ap, long long);
 
             if (validate_llong(spec, ll, validation) == true) {
-                cobject_set_llong(value, ll);
+                cl_object_set_llong(value, ll);
                 ret = true;
             }
 
@@ -1100,7 +1100,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             ull = va_arg(ap, unsigned long long);
 
             if (validate_ullong(spec, ull, validation) == true) {
-                cobject_set_ullong(value, ull);
+                cl_object_set_ullong(value, ull);
                 ret = true;
             }
 
@@ -1110,7 +1110,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             p = va_arg(ap, void *);
 
             if (validate_cstring(spec, p) == true) {
-                cobject_set_cstring(value, p);
+                cl_object_set_cstring(value, p);
                 ret = true;
             }
 
@@ -1120,7 +1120,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             cp = va_arg(ap, char *);
 
             if (validate_string(spec, cp) == true) {
-                cobject_set_string(value, cp);
+                cl_object_set_string(value, cp);
                 ret = true;
             }
 
@@ -1130,7 +1130,7 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
             b = va_arg(ap, int);
 
             if (validate_boolean(b) == true) {
-                cobject_set_boolean(value, b);
+                cl_object_set_boolean(value, b);
                 ret = true;
             }
 
@@ -1140,91 +1140,92 @@ static bool validate_value(const cspec_s *spec, cobject_t *value,
     return ret;
 }
 
-__PUB_API__ bool cspec_validate(const cspec_t *spec, cobject_t *value,
+__PUB_API__ bool cl_spec_validate(const cl_spec_t *spec, cl_object_t *value,
     bool set_value, enum cl_spec_validation_fmt validation, va_list ap)
 {
-    cobject_t *ref;
+    cl_object_t *ref;
     bool ret;
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(spec, CSPEC) == false) ||
-        (validate_object(value, COBJECT) == false))
+    if ((validate_object(spec, CL_OBJ_SPEC) == false) ||
+        (validate_object(value, CL_OBJ_OBJECT) == false))
     {
         return false;
     }
 
-    ref = cobject_ref(value);
+    ref = cl_object_ref(value);
     ret = validate_accessibility(spec, set_value);
 
     if (ret == false) {
-        cobject_unref(ref);
+        cl_object_unref(ref);
         return false;
     } else {
         /* Doesn't need to parse while checking for trying to read value */
         if (set_value == false) {
-            cobject_unref(ref);
+            cl_object_unref(ref);
             return ret;
         }
     }
 
     ret = validate_value(spec, ref, validation, ap);
-    cobject_unref(ref);
+    cl_object_unref(ref);
 
     return ret;
 }
 
-__PUB_API__ int cspec_set_min(cspec_t *spec, cobject_t *min)
+__PUB_API__ int cl_spec_set_min(cl_spec_t *spec, cl_object_t *min)
 {
-    cspec_s *s = (cspec_s *)spec;
+    cl_spec_s *s = (cl_spec_s *)spec;
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(spec, CSPEC) == false) ||
-        (validate_object(min, COBJECT) == false))
+    if ((validate_object(spec, CL_OBJ_SPEC) == false) ||
+        (validate_object(min, CL_OBJ_OBJECT) == false))
     {
         return -1;
     }
 
-    cobject_unref(s->min);
-    s->min = cobject_ref(min);
+    cl_object_unref(s->min);
+    s->min = cl_object_ref(min);
 
     return 0;
 }
 
-__PUB_API__ int cspec_set_max(cspec_t *spec, cobject_t *max)
+__PUB_API__ int cl_spec_set_max(cl_spec_t *spec, cl_object_t *max)
 {
-    cspec_s *s = (cspec_s *)spec;
+    cl_spec_s *s = (cl_spec_s *)spec;
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(spec, CSPEC) == false) ||
-        (validate_object(max, COBJECT) == false))
+    if ((validate_object(spec, CL_OBJ_SPEC) == false) ||
+        (validate_object(max, CL_OBJ_OBJECT) == false))
     {
         return -1;
     }
 
-    cobject_unref(s->max);
-    s->max = cobject_ref(max);
+    cl_object_unref(s->max);
+    s->max = cl_object_ref(max);
 
     return 0;
 }
 
-__PUB_API__ int cspec_set_max_length(cspec_t *spec, unsigned int max_length)
+__PUB_API__ int cl_spec_set_max_length(cl_spec_t *spec, unsigned int max_length)
 {
-    cspec_s *s = (cspec_s *)spec;
+    cl_spec_s *s = (cl_spec_s *)spec;
 
-    __clib_function_init__(true, spec, CSPEC, -1);
+    __clib_function_init__(true, spec, CL_OBJ_SPEC, -1);
     s->max_length = max_length;
 
     return 0;
 }
 
-__PUB_API__ int cspec_set_accessibility(cspec_t *spec, enum cl_spec_attrib attrib)
+__PUB_API__ int cl_spec_set_accessibility(cl_spec_t *spec,
+    enum cl_spec_attrib attrib)
 {
-    cspec_s *s = (cspec_s *)spec;
+    cl_spec_s *s = (cl_spec_s *)spec;
 
-    __clib_function_init__(true, spec, CSPEC, -1);
+    __clib_function_init__(true, spec, CL_OBJ_SPEC, -1);
     s->properties = attrib;
 
     return 0;

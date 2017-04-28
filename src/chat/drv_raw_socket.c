@@ -31,14 +31,14 @@
 
 /*
  * Makes the insertion of raw data from arguments @data (and @data_size) in
- * a 'struct chat_data_s' structure, for sending it through an internal IPC
+ * a 'struct cl_chat_data_s' structure, for sending it through an internal IPC
  * protocol.
  */
-struct chat_data_s
+struct cl_chat_data_s
     *raw_socket_prepare_to_send(drv_data_t *drv_data __attribute__((unused)),
                 void *data, unsigned int data_size)
 {
-    struct chat_data_s *scd = NULL;
+    struct cl_chat_data_s *scd = NULL;
 
     scd = new_chat_data_s(data_size);
 
@@ -51,11 +51,11 @@ struct chat_data_s
 }
 
 /*
- * Breaks an information received from an IPC protocol in a 'struct chat_data_s'
- * structure (raw data).
+ * Breaks an information received from an IPC protocol in a
+ * 'struct cl_chat_data_s' structure (raw data).
  */
 void *raw_socket_process_recv_data(drv_data_t *drv_data __attribute__((unused)),
-    struct chat_data_s *scd, unsigned int *data_size)
+    struct cl_chat_data_s *scd, unsigned int *data_size)
 {
     void *d;
 
@@ -64,7 +64,7 @@ void *raw_socket_process_recv_data(drv_data_t *drv_data __attribute__((unused)),
      * the function returns to the user.
      */
     *data_size = scd->data_size;
-    d = cmemdup(scd->data, scd->data_size);
+    d = cl_memdup(scd->data, scd->data_size);
 
     return d;
 }

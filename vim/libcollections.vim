@@ -1,5 +1,5 @@
 
-syn keyword cType cstring_t cstring_list_t cfg_file_t cfg_section_t cfg_key_t cjson_t cdatetime_t ctimeout_t cthread_t ctimer_t ctimer_info_t ctimer_arg_t chat_t clist_entry_t cevent_t cobject_t cspec_t counter_t cplugin_t cplugin_arg_t cplugin_info_t clog_t clist_t clist_node_t cimage_t cstack_t cstack_node_t cqueue_t cqueue_node_t cimage_caption_t chashtable_t circular_queue_t
+syn keyword cType cl_string_t cl_string_list_t cl_cfg_file_t cl_cfg_section_t cl_cfg_key_t cl_json_t cl_datetime_t cl_timeout_t cl_thread_t cl_timer_t cl_timer_info_t cl_timer_arg_t cl_chat_t cl_list_entry_t cl_event_t cl_object_t cl_spec_t cl_counter_t cl_plugin_t cl_plugin_info_t cl_log_t cl_list_t cl_list_node_t cl_image_t cl_stack_t cl_stack_node_t cl_queue_t cl_queue_node_t cl_caption_t cl_hashtable_t cl_cqueue_t cl_cstack_t
 
 syn keyword cConstant CL_VOID CL_CHAR CL_UCHAR CL_INT CL_UINT CL_SINT CL_USINT CL_FLOAT CL_DOUBLE CL_LONG CL_ULONG CL_LLONG CL_ULLONG CL_POINTER CL_STRING CL_BOOLEAN CL_CSTRING
 

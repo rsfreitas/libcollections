@@ -32,17 +32,17 @@
 #include "collections.h"
 #include "chat/chat.h"
 
-#define chat_s      cl_struct(chat_s)
+#define cl_chat_s      cl_struct(cl_chat_s)
 
 /*
  * TODO: Save client info on the server side.
  */
 
 /* IPCs methods */
-static struct chat_ipc_methods_s __ipc_methods[] = {
+static struct cl_chat_ipc_methods_s __ipc_methods[] = {
     /* socket TCP */
     {
-        .ipc_type = CHAT_IPC_TCP,
+        .ipc_type = CL_CHAT_IPC_TCP,
         .init = tcp_init,
         .uninit = tcp_uninit,
         .set_up = tcp_set_up,
@@ -56,7 +56,7 @@ static struct chat_ipc_methods_s __ipc_methods[] = {
 
     /* socket UDP */
     {
-        .ipc_type = CHAT_IPC_UDP,
+        .ipc_type = CL_CHAT_IPC_UDP,
         .init = udp_init,
         .uninit = udp_uninit,
         .set_up = udp_set_up,
@@ -70,10 +70,10 @@ static struct chat_ipc_methods_s __ipc_methods[] = {
 };
 
 /* Protocols */
-static struct chat_driver_info_s __drv_info[] = {
+static struct cl_chat_driver_info_s __drv_info[] = {
     {
-        .driver_id = CHAT_DRV_RAW_TCP,
-        .ipc_type = CHAT_IPC_TCP,
+        .driver_id = CL_CHAT_DRV_RAW_TCP,
+        .ipc_type = CL_CHAT_IPC_TCP,
         .init = NULL,
         .uninit = NULL,
         .established_connection = NULL,
@@ -83,8 +83,8 @@ static struct chat_driver_info_s __drv_info[] = {
     },
 
     {
-        .driver_id = CHAT_DRV_RAW_UDP,
-        .ipc_type = CHAT_IPC_UDP,
+        .driver_id = CL_CHAT_DRV_RAW_UDP,
+        .ipc_type = CL_CHAT_IPC_UDP,
         .init = NULL,
         .uninit = NULL,
         .established_connection = NULL,
@@ -100,8 +100,8 @@ static struct chat_driver_info_s __drv_info[] = {
  *
  */
 
-static struct chat_ipc_methods_s
-        *get_chat_ipc_methods_s(enum chat_ipc_protocol cim)
+static struct cl_chat_ipc_methods_s
+        *get_chat_ipc_methods_s(enum cl_chat_ipc_protocol cim)
 {
     unsigned int i = 0, t = 0;
 
@@ -114,10 +114,10 @@ static struct chat_ipc_methods_s
     return NULL;
 }
 
-static struct chat_ipc_methods_s
-        *get_chat_ipc_methods_s_from_chat_t(chat_s *c)
+static struct cl_chat_ipc_methods_s
+        *get_chat_ipc_methods_s_from_cl_chat_t(cl_chat_s *c)
 {
-    struct chat_ipc_methods_s *cim;
+    struct cl_chat_ipc_methods_s *cim;
 
     cim = c->ipc_methods;
 
@@ -129,12 +129,12 @@ static struct chat_ipc_methods_s
     return cim;
 }
 
-static ipc_data_t *chat_ipc_init(chat_s *c)
+static ipc_data_t *cl_chat_ipc_init(cl_chat_s *c)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
     ipc_data_t *ipc_data = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return NULL;
@@ -154,11 +154,11 @@ static ipc_data_t *chat_ipc_init(chat_s *c)
     return ipc_data;
 }
 
-static int chat_ipc_uninit(chat_s *c)
+static int cl_chat_ipc_uninit(cl_chat_s *c)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return -1;
@@ -176,11 +176,11 @@ static int chat_ipc_uninit(chat_s *c)
     return 0;
 }
 
-static int chat_ipc_set_up(chat_s *c, enum chat_mode mode, va_list ap)
+static int cl_chat_ipc_set_up(cl_chat_s *c, enum cl_chat_mode mode, va_list ap)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return -1;
@@ -198,11 +198,11 @@ static int chat_ipc_set_up(chat_s *c, enum chat_mode mode, va_list ap)
     return 0;
 }
 
-static int chat_ipc_stop(chat_s *c)
+static int cl_chat_ipc_stop(cl_chat_s *c)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return -1;
@@ -215,11 +215,11 @@ static int chat_ipc_stop(chat_s *c)
     return (cim->stop)(c->ipc_data);
 }
 
-static int chat_ipc_send(chat_s *c, struct chat_data_s *data)
+static int cl_chat_ipc_send(cl_chat_s *c, struct cl_chat_data_s *data)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return -1;
@@ -237,13 +237,13 @@ static int chat_ipc_send(chat_s *c, struct chat_data_s *data)
     return 0;
 }
 
-static struct chat_data_s *chat_ipc_recv(chat_s *c,
+static struct cl_chat_data_s *cl_chat_ipc_recv(cl_chat_s *c,
     unsigned int recv_timeout)
 {
-    struct chat_ipc_methods_s *cim = NULL;
-    struct chat_data_s *cd = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_data_s *cd = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return NULL;
@@ -263,11 +263,11 @@ static struct chat_data_s *chat_ipc_recv(chat_s *c,
     return cd;
 }
 
-static int chat_ipc_connect(chat_s *c)
+static int cl_chat_ipc_connect(cl_chat_s *c)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return -1;
@@ -283,19 +283,19 @@ static int chat_ipc_connect(chat_s *c)
     return 0;
 }
 
-static ipc_data_t *chat_ipc_accept(chat_s *c, unsigned int accept_timeout)
+static ipc_data_t *cl_chat_ipc_accept(cl_chat_s *c, unsigned int accept_timeout)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
     ipc_data_t *ipc_data = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return NULL;
 
     /* Optional method, returns a pointer != NULL */
     if (NULL == (cim->accept))
-        return (struct chat_data_s *)c;
+        return (struct cl_chat_data_s *)c;
 
     ipc_data = (cim->accept)(c->ipc_data, accept_timeout);
 
@@ -307,11 +307,11 @@ static ipc_data_t *chat_ipc_accept(chat_s *c, unsigned int accept_timeout)
     return ipc_data;
 }
 
-static int chat_ipc_fd(chat_s *c)
+static int cl_chat_ipc_fd(cl_chat_s *c)
 {
-    struct chat_ipc_methods_s *cim = NULL;
+    struct cl_chat_ipc_methods_s *cim = NULL;
 
-    cim = get_chat_ipc_methods_s_from_chat_t(c);
+    cim = get_chat_ipc_methods_s_from_cl_chat_t(c);
 
     if (NULL == cim)
         return -1;
@@ -330,7 +330,7 @@ static int chat_ipc_fd(chat_s *c)
  *
  */
 
-static struct chat_driver_info_s *get_chat_driver_info_s(enum chat_driver cd)
+static struct cl_chat_driver_info_s *get_chat_driver_info_s(enum cl_chat_driver cd)
 {
     unsigned int i = 0, t = 0;
 
@@ -343,10 +343,10 @@ static struct chat_driver_info_s *get_chat_driver_info_s(enum chat_driver cd)
     return NULL;
 }
 
-static struct chat_driver_info_s
-        *get_chat_driver_info_s_from_chat_t(chat_s *c)
+static struct cl_chat_driver_info_s
+        *get_chat_driver_info_s_from_cl_chat_t(cl_chat_s *c)
 {
-    struct chat_driver_info_s *cdi = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
 
     cdi = c->driver_info;
 
@@ -358,12 +358,12 @@ static struct chat_driver_info_s
     return cdi;
 }
 
-static drv_data_t *chat_drv_init(chat_s *c)
+static drv_data_t *cl_chat_drv_init(cl_chat_s *c)
 {
-    struct chat_driver_info_s *cdi = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
     drv_data_t *drv_data = NULL;
 
-    cdi = get_chat_driver_info_s_from_chat_t(c);
+    cdi = get_chat_driver_info_s_from_cl_chat_t(c);
 
     if (NULL == cdi)
         return NULL;
@@ -381,11 +381,11 @@ static drv_data_t *chat_drv_init(chat_s *c)
     return drv_data;
 }
 
-static int chat_drv_uninit(chat_s *c)
+static int cl_chat_drv_uninit(cl_chat_s *c)
 {
-    struct chat_driver_info_s *cdi = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
 
-    cdi = get_chat_driver_info_s_from_chat_t(c);
+    cdi = get_chat_driver_info_s_from_cl_chat_t(c);
 
     if (NULL == cdi)
         return -1;
@@ -401,11 +401,11 @@ static int chat_drv_uninit(chat_s *c)
     return 0;
 }
 
-static int chat_drv_established_connection(chat_s *c)
+static int cl_chat_drv_established_connection(cl_chat_s *c)
 {
-    struct chat_driver_info_s *cdi = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
 
-    cdi = get_chat_driver_info_s_from_chat_t(c);
+    cdi = get_chat_driver_info_s_from_cl_chat_t(c);
 
     if (NULL == cdi)
         return -1;
@@ -421,11 +421,11 @@ static int chat_drv_established_connection(chat_s *c)
     return 0;
 }
 
-static int chat_drv_connection_received(chat_s *c)
+static int cl_chat_drv_connection_received(cl_chat_s *c)
 {
-    struct chat_driver_info_s *cdi = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
 
-    cdi = get_chat_driver_info_s_from_chat_t(c);
+    cdi = get_chat_driver_info_s_from_cl_chat_t(c);
 
     if (NULL == cdi)
         return -1;
@@ -441,11 +441,11 @@ static int chat_drv_connection_received(chat_s *c)
     return 0;
 }
 
-static int chat_drv_connection_ended(chat_s *c)
+static int cl_chat_drv_connection_ended(cl_chat_s *c)
 {
-    struct chat_driver_info_s *cdi = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
 
-    cdi = get_chat_driver_info_s_from_chat_t(c);
+    cdi = get_chat_driver_info_s_from_cl_chat_t(c);
 
     if (NULL == cdi)
         return -1;
@@ -453,19 +453,19 @@ static int chat_drv_connection_ended(chat_s *c)
     return 0;
 }
 
-static struct chat_data_s *chat_drv_prepare_to_send(chat_s *c,
+static struct cl_chat_data_s *cl_chat_drv_prepare_to_send(cl_chat_s *c,
     void *data, unsigned int data_size)
 {
-    struct chat_driver_info_s *cdi = NULL;
-    struct chat_data_s *cd = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
+    struct cl_chat_data_s *cd = NULL;
 
-    cdi = get_chat_driver_info_s_from_chat_t(c);
+    cdi = get_chat_driver_info_s_from_cl_chat_t(c);
 
     if (NULL == cdi)
         return NULL;
 
     if (NULL == cdi->prepare_to_send)
-        return (struct chat_data_s *)c;
+        return (struct cl_chat_data_s *)c;
 
     cd = (cdi->prepare_to_send)(c->drv_data, data, data_size);
 
@@ -477,13 +477,13 @@ static struct chat_data_s *chat_drv_prepare_to_send(chat_s *c,
     return cd;
 }
 
-static void *chat_drv_process_recv_data(chat_s *c, struct chat_data_s *cd,
-    unsigned int *data_size)
+static void *cl_chat_drv_process_recv_data(cl_chat_s *c,
+    struct cl_chat_data_s *cd, unsigned int *data_size)
 {
-    struct chat_driver_info_s *cdi = NULL;
+    struct cl_chat_driver_info_s *cdi = NULL;
     void *data = NULL;
 
-    cdi = get_chat_driver_info_s_from_chat_t(c);
+    cdi = get_chat_driver_info_s_from_cl_chat_t(c);
 
     if (NULL == cdi)
         return NULL;
@@ -504,10 +504,10 @@ static void *chat_drv_process_recv_data(chat_s *c, struct chat_data_s *cd,
  *
  */
 
-static bool validate_chat_driver(enum chat_driver scd)
+static bool validate_chat_driver(enum cl_chat_driver scd)
 {
-    if ((scd == CHAT_DRV_RAW_TCP) ||
-        (scd == CHAT_DRV_RAW_UDP))
+    if ((scd == CL_CHAT_DRV_RAW_TCP) ||
+        (scd == CL_CHAT_DRV_RAW_UDP))
     {
         return true;
     }
@@ -515,7 +515,7 @@ static bool validate_chat_driver(enum chat_driver scd)
     return false;
 }
 
-static void blocks_sigpipe(chat_s *c)
+static void blocks_sigpipe(cl_chat_s *c)
 {
     struct sigaction sa_pipe;
 
@@ -524,20 +524,20 @@ static void blocks_sigpipe(chat_s *c)
     sigaction(SIGPIPE, &sa_pipe, &c->sa_pipe);
 }
 
-static void restores_sigpipe(chat_s *c)
+static void restores_sigpipe(cl_chat_s *c)
 {
     sigaction(SIGPIPE, &c->sa_pipe, NULL);
 }
 
-static void destroy_chat_s(chat_s *c)
+static void destroy_chat_s(cl_chat_s *c)
 {
     free(c);
     c = NULL;
 }
 
-static void __destroy_chat_s(const struct cref_s *ref)
+static void __destroy_chat_s(const struct cl_ref_s *ref)
 {
-    chat_s *c = cl_container_of(ref, chat_s, ref);
+    cl_chat_s *c = cl_container_of(ref, cl_chat_s, ref);
 
     if (NULL == c)
         return;
@@ -546,37 +546,37 @@ static void __destroy_chat_s(const struct cref_s *ref)
         restores_sigpipe(c);
 
     /* Call driver closing function */
-    if (chat_drv_uninit(c) < 0)
+    if (cl_chat_drv_uninit(c) < 0)
         return;
 
     /* Call IPC closing function */
-    if (chat_ipc_uninit(c) < 0)
+    if (cl_chat_ipc_uninit(c) < 0)
         return;
 
     destroy_chat_s(c);
 }
 
-static chat_s *new_chat_s(void)
+static cl_chat_s *new_chat_s(void)
 {
-    chat_s *s = NULL;
+    cl_chat_s *s = NULL;
 
-    s = calloc(1, sizeof(chat_s));
+    s = calloc(1, sizeof(cl_chat_s));
 
     if (NULL == s) {
         cset_errno(CL_NO_MEM);
         return NULL;
     }
 
-    set_typeof(CHAT, s);
+    set_typeof(CL_OBJ_CHAT, s);
     s->ref.count = 1;
     s->ref.free = __destroy_chat_s;
 
     return s;
 }
 
-static chat_s *dup_chat_s(chat_s *c)
+static cl_chat_s *dup_chat_s(cl_chat_s *c)
 {
-    chat_s *s = NULL;
+    cl_chat_s *s = NULL;
 
     s = new_chat_s();
 
@@ -597,12 +597,12 @@ static chat_s *dup_chat_s(chat_s *c)
  *
  */
 
-__PUB_API__ chat_t *chat_create(enum chat_driver cd, enum chat_mode mode,
-    bool sigpipe_block)
+__PUB_API__ cl_chat_t *cl_chat_create(enum cl_chat_driver cd,
+    enum cl_chat_mode mode, bool sigpipe_block)
 {
-    chat_s *c = NULL;
-    struct chat_driver_info_s *cdi;
-    struct chat_ipc_methods_s *cim;
+    cl_chat_s *c = NULL;
+    struct cl_chat_driver_info_s *cdi;
+    struct cl_chat_ipc_methods_s *cim;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -637,13 +637,13 @@ __PUB_API__ chat_t *chat_create(enum chat_driver cd, enum chat_mode mode,
     c->sigpipe = sigpipe_block;
 
     /* Call IPC initialization function */
-    c->ipc_data = chat_ipc_init(c);
+    c->ipc_data = cl_chat_ipc_init(c);
 
     if (NULL == c->ipc_data)
         goto error_block;
 
     /* Call driver initialization function */
-    c->drv_data = chat_drv_init(c);
+    c->drv_data = cl_chat_drv_init(c);
 
     if (NULL == c->drv_data)
         goto error_block;
@@ -658,21 +658,21 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ int chat_destroy(chat_t *chat)
+__PUB_API__ int cl_chat_destroy(cl_chat_t *chat)
 {
-    return chat_unref(chat);
+    return cl_chat_unref(chat);
 }
 
-__PUB_API__ int chat_set_info(chat_t *chat, ...)
+__PUB_API__ int cl_chat_set_info(cl_chat_t *chat, ...)
 {
-    chat_s *c = (chat_s *)chat;
+    cl_chat_s *c = (cl_chat_s *)chat;
     va_list ap;
 
-    __clib_function_init__(true, chat, CHAT, -1);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
     va_start(ap, NULL);
 
     /* Call function to set up some socket details */
-    if (chat_ipc_set_up(c, c->mode, ap) < 0)
+    if (cl_chat_ipc_set_up(c, c->mode, ap) < 0)
         return -1;
 
     va_end(ap);
@@ -680,39 +680,43 @@ __PUB_API__ int chat_set_info(chat_t *chat, ...)
     return 0;
 }
 
-__PUB_API__ int chat_client_start(chat_t *chat)
+__PUB_API__ int cl_chat_client_start(cl_chat_t *chat)
 {
-    chat_s *c = (chat_s *)chat;
+    cl_chat_s *c = (cl_chat_s *)chat;
 
-    __clib_function_init__(true, chat, CHAT, -1);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
 
     /* Call function to establish connection */
-    if (chat_ipc_connect(c) < 0)
+    if (cl_chat_ipc_connect(c) < 0)
         return -1;
 
-    /* Call driver event function after a successfully established connection */
-    if (chat_drv_established_connection(c) < 0)
+    /*
+     * Call driver event function after a successfully established
+     * connection.
+     */
+    if (cl_chat_drv_established_connection(c) < 0)
         return -1;
 
     return 0;
 }
 
-__PUB_API__ chat_t *chat_server_start(chat_t *chat, unsigned int accept_timeout)
+__PUB_API__ cl_chat_t *cl_chat_server_start(cl_chat_t *chat,
+    unsigned int accept_timeout)
 {
-    chat_s *c = (chat_s *)chat;
-    chat_s *client_c = NULL;
+    cl_chat_s *c = (cl_chat_s *)chat;
+    cl_chat_s *client_c = NULL;
     ipc_data_t *d = NULL;
 
-    __clib_function_init__(true, chat, CHAT, NULL);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, NULL);
 
     /* Call function to wait connections */
-    d = chat_ipc_accept(c, accept_timeout);
+    d = cl_chat_ipc_accept(c, accept_timeout);
 
     if (NULL == d)
         return NULL;
 
     /* Call driver event function after a successfully receveid connection */
-    if (chat_drv_connection_received(c) < 0)
+    if (cl_chat_drv_connection_received(c) < 0)
         goto error_block;
 
     /* Set up a new struct for the connected client */
@@ -721,7 +725,7 @@ __PUB_API__ chat_t *chat_server_start(chat_t *chat, unsigned int accept_timeout)
     if (NULL == client_c)
         goto error_block;
 
-    client_c->mode = CHAT_CLIENT;
+    client_c->mode = CL_CHAT_CLIENT;
     client_c->ipc_data = d;
     client_c->sigpipe = false;
     client_c->drv_data = c->drv_data;
@@ -729,26 +733,27 @@ __PUB_API__ chat_t *chat_server_start(chat_t *chat, unsigned int accept_timeout)
     return client_c;
 
 error_block:
-    chat_ipc_uninit(d);
+    cl_chat_ipc_uninit(d);
     return NULL;
 }
 
-__PUB_API__ int chat_send(chat_t *chat, void *data, unsigned int data_size)
+__PUB_API__ int cl_chat_send(cl_chat_t *chat, void *data,
+    unsigned int data_size)
 {
-    chat_s *c = (chat_s *)chat;
-    struct chat_data_s *cd = NULL;
+    cl_chat_s *c = (cl_chat_s *)chat;
+    struct cl_chat_data_s *cd = NULL;
     int ret = 0;
 
-    __clib_function_init__(true, chat, CHAT, -1);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
 
     /* Prepare data to be sent */
-    cd = chat_drv_prepare_to_send(c, data, data_size);
+    cd = cl_chat_drv_prepare_to_send(c, data, data_size);
 
     if (NULL == cd)
         return -1;
 
     /* Call sending function */
-    if (chat_ipc_send(c, cd) < 0) {
+    if (cl_chat_ipc_send(c, cd) < 0) {
         ret = -1;
         goto end_block;
     }
@@ -760,23 +765,23 @@ end_block:
     return ret;
 }
 
-__PUB_API__ void *chat_recv(chat_t *chat, unsigned int recv_timeout,
+__PUB_API__ void *cl_chat_recv(cl_chat_t *chat, unsigned int recv_timeout,
     unsigned int *data_size)
 {
-    chat_s *c = (chat_s *)chat;
-    struct chat_data_s *cd = NULL;
+    cl_chat_s *c = (cl_chat_s *)chat;
+    struct cl_chat_data_s *cd = NULL;
     void *data = NULL;
 
-    __clib_function_init__(true, chat, CHAT, NULL);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, NULL);
 
     /* Call receive function */
-    cd = chat_ipc_recv(c, recv_timeout);
+    cd = cl_chat_ipc_recv(c, recv_timeout);
 
     if (NULL == cd)
         return NULL;
 
     /* Handle received data */
-    data = chat_drv_process_recv_data(c, cd, data_size);
+    data = cl_chat_drv_process_recv_data(c, cd, data_size);
 
     if (NULL == data)
         goto end_block;
@@ -786,50 +791,50 @@ end_block:
     return data;
 }
 
-__PUB_API__ int chat_stop(chat_t *chat)
+__PUB_API__ int cl_chat_stop(cl_chat_t *chat)
 {
-    __clib_function_init__(true, chat, CHAT, -1);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
 
     /* Call IPC stop function */
-    if (chat_ipc_stop(chat) < 0)
+    if (cl_chat_ipc_stop(chat) < 0)
         return -1;
 
     /* And call driver event function after a connection closed */
-    if (chat_drv_connection_ended(chat) < 0)
+    if (cl_chat_drv_connection_ended(chat) < 0)
         return -1;
 
     return 0;
 }
 
-__PUB_API__ int chat_fd(chat_t *chat)
+__PUB_API__ int cl_chat_fd(cl_chat_t *chat)
 {
     int fd;
 
-    __clib_function_init__(true, chat, CHAT, -1);
-    chat_ref(chat);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
+    cl_chat_ref(chat);
 
-    fd = chat_ipc_fd(chat);
-    chat_unref(chat);
+    fd = cl_chat_ipc_fd(chat);
+    cl_chat_unref(chat);
 
     return fd;
 }
 
-__PUB_API__ chat_t *chat_ref(chat_t *chat)
+__PUB_API__ cl_chat_t *cl_chat_ref(cl_chat_t *chat)
 {
-    chat_s *c = (chat_s *)chat;
+    cl_chat_s *c = (cl_chat_s *)chat;
 
-    __clib_function_init__(true, chat, CHAT, NULL);
-    cref_inc(&c->ref);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, NULL);
+    cl_ref_inc(&c->ref);
 
     return chat;
 }
 
-__PUB_API__ int chat_unref(chat_t *chat)
+__PUB_API__ int cl_chat_unref(cl_chat_t *chat)
 {
-    chat_s *c = (chat_s *)chat;
+    cl_chat_s *c = (cl_chat_s *)chat;
 
-    __clib_function_init__(true, chat, CHAT, -1);
-    cref_dec(&c->ref);
+    __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
+    cl_ref_dec(&c->ref);
 
     return 0;
 }

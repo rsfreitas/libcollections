@@ -33,8 +33,8 @@ int main(int argc, char **argv)
 {
     const char *opt = "m:\0";
     int option, m = 0;
-    cdatetime_t *dt, *p;
-    cstring_t *s;
+    cl_datetime_t *dt, *p;
+    cl_string_t *s;
 
     do {
         option = getopt(argc, argv, opt);
@@ -49,20 +49,20 @@ int main(int argc, char **argv)
         }
     } while (option != -1);
 
-    collections_init(NULL);
+    cl_init(NULL);
 
-    dt = cdt_mktime(2016, 3, 30, 10, 30, 40);
-    s = cdt_to_cstring(dt, "%Y/%m/%d %H:%M:%S");
-    printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
-    cstring_destroy(s);
+    dt = cl_dt_mktime(2016, 3, 30, 10, 30, 40);
+    s = cl_dt_to_cstring(dt, "%Y/%m/%d %H:%M:%S");
+    printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+    cl_string_destroy(s);
 
-    p = cdt_minus_years(dt, m);
-    s = cdt_to_cstring(p, "%Y/%m/%d %H:%M:%S");
-    printf("%s: %s\n", __FUNCTION__, cstring_valueof(s));
-    cstring_destroy(s);
+    p = cl_dt_minus_years(dt, m);
+    s = cl_dt_to_cstring(p, "%Y/%m/%d %H:%M:%S");
+    printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+    cl_string_destroy(s);
 
-    cdt_destroy(dt);
-    collections_uninit();
+    cl_dt_destroy(dt);
+    cl_uninit();
 
     return 0;
 }

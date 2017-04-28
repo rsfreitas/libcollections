@@ -40,7 +40,7 @@ struct py_info {
     char    *shutdown_name;
 };
 
-static void set_custom_plugin_info(cplugin_info_t *info, const char *startup,
+static void set_custom_plugin_info(cl_plugin_info_t *info, const char *startup,
     const char *shutdown)
 {
     struct py_info *p;
@@ -96,29 +96,29 @@ static int py_unload_function(void *a, void *b __attribute__((unused)))
 
 static void add_preconfigured_paths(void)
 {
-    cjson_t *paths = NULL, *root, *p;
+    cl_json_t *paths = NULL, *root, *p;
     int i, t;
     char *tmp;
-    cstring_t *s;
+    cl_string_t *s;
 
     root = library_configuration();
 
     if (NULL == root)
         return;
 
-    paths = cjson_get_object_item(root, "plugin_path");
+    paths = cl_json_get_object_item(root, "plugin_path");
 
     if (NULL == paths)
         return;
 
-    t = cjson_get_array_size(paths);
+    t = cl_json_get_array_size(paths);
     PyRun_SimpleString("import sys");
 
     for (i = 0; i < t; i++) {
-        p = cjson_get_array_item(paths, i);
-        s = cjson_get_object_value(p);
+        p = cl_json_get_array_item(paths, i);
+        s = cl_json_get_object_value(p);
 
-        if (asprintf(&tmp, "sys.path.append(%s)", cstring_valueof(s)) == -1)
+        if (asprintf(&tmp, "sys.path.append(%s)", cl_string_valueof(s)) == -1)
             return;
 
         PyRun_SimpleString(tmp);
@@ -147,12 +147,12 @@ void py_library_uninit(void *data __attribute__((unused)))
 /*
  * Loads information from within 'CpluginMainEntry' class.
  */
-cplugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
+cl_plugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
 {
     PyObject *dict = (PyObject *)ptr;
     PyObject *class = NULL, *instance = NULL, *result = NULL;
     unsigned int i = 0, t = 0;
-    cplugin_info_t *info = NULL;
+    cl_plugin_info_t *info = NULL;
     PyGILState_STATE gstate;
     struct plugin_internal_function pyinfo[] = {
         /*
@@ -218,7 +218,7 @@ end_block:
 int py_load_functions(void *data __attribute__((unused)),
     struct cplugin_function_s *flist, void *handle)
 {
-    if (cdll_map(flist, py_load_function, handle) != NULL)
+    if (cl_dll_map(flist, py_load_function, handle) != NULL)
         return -1;
 
     return 0;
@@ -227,7 +227,7 @@ int py_load_functions(void *data __attribute__((unused)),
 void py_unload_functions(void *data __attribute__((unused)),
     struct cplugin_function_s *flist, void *handle __attribute__((unused)))
 {
-    cdll_map(flist, py_unload_function, NULL);
+    cl_dll_map(flist, py_unload_function, NULL);
 }
 
 void *py_open(void *data __attribute__((unused)), const char *pathname)
@@ -282,30 +282,30 @@ int py_close(void *data __attribute__((unused)), void *ptr)
     return 0;
 }
 
-cobject_t *py_call(void *data __attribute__((unused)),
-    struct cplugin_function_s *foo, cplugin_t *cpl __attribute__((unused)),
+cl_object_t *py_call(void *data __attribute__((unused)),
+    struct cplugin_function_s *foo, cl_plugin_t *cpl __attribute__((unused)),
     struct function_argument *args)
 {
     PyObject *pvalue, *pret, *ptr_arg = NULL;;
     PyGILState_STATE gstate;
-    cobject_t *ret;
-    cstring_t *s;
+    cl_object_t *ret;
+    cl_string_t *s;
     char *tmp;
 
     gstate = PyGILState_Ensure();
 
-    if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-        (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+        (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         ptr_arg = args->ptr;
         Py_INCREF(ptr_arg);
         pvalue = Py_BuildValue("(sO)", args->jargs, ptr_arg);
-    } else if ((foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               !(foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if ((foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               !(foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         pvalue = Py_BuildValue("(s)", args->jargs);
-    } else if (!(foo->arg_mode & CPLUGIN_ARGS_COMMON) &&
-               (foo->arg_mode & CPLUGIN_ARGS_POINTER))
+    } else if (!(foo->arg_mode & CL_PLUGIN_ARGS_COMMON) &&
+               (foo->arg_mode & CL_PLUGIN_ARGS_POINTER))
     {
         ptr_arg = args->ptr;
         Py_INCREF(ptr_arg);
@@ -319,7 +319,7 @@ cobject_t *py_call(void *data __attribute__((unused)),
     if (NULL == pret)
         goto end_block;
 
-    ret = cobject_create_empty(foo->return_value);
+    ret = cl_object_create_empty(foo->return_value);
 
     switch (foo->return_value) {
         case CL_VOID:
@@ -328,55 +328,57 @@ cobject_t *py_call(void *data __attribute__((unused)),
 
         case CL_CHAR:
             tmp = PyString_AsString(pret);
-            cobject_set_char(ret, tmp[0]);
+            cl_object_set_char(ret, tmp[0]);
             break;
 
         case CL_UCHAR:
-            cobject_set_uchar(ret, (unsigned char)PyInt_AsLong(pret));
+            cl_object_set_uchar(ret, (unsigned char)PyInt_AsLong(pret));
             break;
 
         case CL_INT:
-            cobject_set_int(ret, (int)PyInt_AsLong(pret));
+            cl_object_set_int(ret, (int)PyInt_AsLong(pret));
             break;
 
         case CL_UINT:
-            cobject_set_uint(ret, (unsigned int)PyInt_AsLong(pret));
+            cl_object_set_uint(ret, (unsigned int)PyInt_AsLong(pret));
             break;
 
         case CL_SINT:
-            cobject_set_sint(ret, (short int)PyInt_AsLong(pret));
+            cl_object_set_sint(ret, (short int)PyInt_AsLong(pret));
             break;
 
         case CL_USINT:
-            cobject_set_usint(ret, (unsigned short int)PyInt_AsLong(pret));
+            cl_object_set_usint(ret, (unsigned short int)PyInt_AsLong(pret));
             break;
 
         case CL_FLOAT:
-            cobject_set_float(ret, (float)PyFloat_AsDouble(pret));
+            cl_object_set_float(ret, (float)PyFloat_AsDouble(pret));
             break;
 
         case CL_DOUBLE:
-            cobject_set_double(ret, PyFloat_AsDouble(pret));
+            cl_object_set_double(ret, PyFloat_AsDouble(pret));
             break;
 
         case CL_LONG:
-            cobject_set_long(ret, PyInt_AsLong(pret));
+            cl_object_set_long(ret, PyInt_AsLong(pret));
             break;
 
         case CL_ULONG:
-            cobject_set_ulong(ret, (unsigned long)PyInt_AsLong(pret));
+            cl_object_set_ulong(ret, (unsigned long)PyInt_AsLong(pret));
             break;
 
         case CL_LLONG:
-            cobject_set_llong(ret, (long long)PyLong_AsLongLong(pret));
+            cl_object_set_llong(ret, (long long)PyLong_AsLongLong(pret));
             break;
 
         case CL_ULLONG:
-            cobject_set_ullong(ret, (unsigned long long)PyLong_AsLongLong(pret));
+            cl_object_set_ullong(ret,
+                                 (unsigned long long)PyLong_AsLongLong(pret));
+
             break;
 
         case CL_POINTER:
-            cobject_set_pointer(ret, false, pret, -1, NULL);
+            cl_object_set_pointer(ret, false, pret, -1, NULL);
 
             /*
              * Since we just received an object as an argument, we increase its
@@ -386,17 +388,17 @@ cobject_t *py_call(void *data __attribute__((unused)),
             break;
 
         case CL_STRING:
-            cobject_set_string(ret, PyString_AsString(pret));
+            cl_object_set_string(ret, PyString_AsString(pret));
             break;
 
         case CL_BOOLEAN:
-            cobject_set_boolean(ret, (char)PyInt_AsLong(pret));
+            cl_object_set_boolean(ret, (char)PyInt_AsLong(pret));
             break;
 
         case CL_CSTRING: /* collections strings */
-            s = cstring_create("%s", PyString_AsString(pret));
-            cobject_set_cstring(ret, s);
-            cstring_unref(s);
+            s = cl_string_create("%s", PyString_AsString(pret));
+            cl_object_set_cstring(ret, s);
+            cl_string_unref(s);
             break;
     }
 
@@ -414,7 +416,7 @@ end_block:
 }
 
 int py_plugin_startup(void *data __attribute__((unused)), void *handle,
-    cplugin_info_t *info)
+    cl_plugin_info_t *info)
 {
     PyObject *dict, *foo, *pvalue, *pret;
     struct py_info *plinfo = NULL;
@@ -447,7 +449,7 @@ int py_plugin_startup(void *data __attribute__((unused)), void *handle,
 }
 
 int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
-    cplugin_info_t *info)
+    cl_plugin_info_t *info)
 {
     PyObject *dict, *foo, *pvalue, *pret;
     struct py_info *plinfo = NULL;
@@ -475,7 +477,7 @@ int py_plugin_shutdown(void *data __attribute__((unused)), void *handle,
     return 0;
 }
 
-bool py_plugin_test(const cstring_t *mime)
+bool py_plugin_test(const cl_string_t *mime)
 {
     const char *recognized_mime[] = {
         "text/x-python",
@@ -483,19 +485,19 @@ bool py_plugin_test(const cstring_t *mime)
         "application/octet-stream"
     };
     int i = 0, t;
-    cstring_t *p;
+    cl_string_t *p;
 
     t = sizeof(recognized_mime) / sizeof(recognized_mime[0]);
 
     for (i = 0; i < t; i++) {
-        p = cstring_create("%s", recognized_mime[i]);
+        p = cl_string_create("%s", recognized_mime[i]);
 
-        if (cstring_cmp(mime, p) == 0) {
-            cstring_unref(p);
+        if (cl_string_cmp(mime, p) == 0) {
+            cl_string_unref(p);
             return true;
         }
 
-        cstring_unref(p);
+        cl_string_unref(p);
     }
 
     return false;

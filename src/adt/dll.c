@@ -29,17 +29,17 @@
 
 #include "collections.h"
 
-struct cdll_node {
-    struct cdll_node *prev;
-    struct cdll_node *next;
+struct cl_dll_node {
+    struct cl_dll_node *prev;
+    struct cl_dll_node *next;
 };
 
 /*
  * Pushes a new node onto the list.
  */
-__PUB_API__ void *cdll_push(void *root, void *node)
+__PUB_API__ void *cl_dll_push(void *root, void *node)
 {
-    struct cdll_node *l = root, *p = node;
+    struct cl_dll_node *l = root, *p = node;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -60,10 +60,10 @@ __PUB_API__ void *cdll_push(void *root, void *node)
 /*
  * Pop a node from a list.
  */
-__PUB_API__ void *cdll_pop(void *root)
+__PUB_API__ void *cl_dll_pop(void *root)
 {
-    struct cdll_node **pp = root;
-    struct cdll_node *p = *pp;
+    struct cl_dll_node **pp = root;
+    struct cl_dll_node *p = *pp;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -84,10 +84,10 @@ __PUB_API__ void *cdll_pop(void *root)
 /*
  * Shifts a node onto the far end of a list.
  */
-__PUB_API__ void *cdll_unshift(void *root, void *node)
+__PUB_API__ void *cl_dll_unshift(void *root, void *node)
 {
-    struct cdll_node *l = root;
-    struct cdll_node *p = node;
+    struct cl_dll_node *l = root;
+    struct cl_dll_node *p = node;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -115,11 +115,11 @@ __PUB_API__ void *cdll_unshift(void *root, void *node)
 /*
  * Shifts a node from the far end of a list.
  */
-__PUB_API__ void *cdll_shift(void *root)
+__PUB_API__ void *cl_dll_shift(void *root)
 {
-    struct cdll_node **pp = root;
-    struct cdll_node *p = *pp;
-    struct cdll_node *q;
+    struct cl_dll_node **pp = root;
+    struct cl_dll_node *p = *pp;
+    struct cl_dll_node *q;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -145,9 +145,9 @@ __PUB_API__ void *cdll_shift(void *root)
 /*
  * Returns the number of nodes of a list.
  */
-__PUB_API__ int cdll_size(void *root)
+__PUB_API__ int cl_dll_size(void *root)
 {
-    struct cdll_node *p = root;
+    struct cl_dll_node *p = root;
     int c = 1;
 
     __clib_function_init__(false, NULL, -1, -1);
@@ -164,9 +164,9 @@ __PUB_API__ int cdll_size(void *root)
 /*
  * Maps a function to every node on a list.
  */
-__PUB_API__ void *cdll_map(void *root, int (*foo)(void *, void *), void *data)
+__PUB_API__ void *cl_dll_map(void *root, int (*foo)(void *, void *), void *data)
 {
-    struct cdll_node *p = NULL;
+    struct cl_dll_node *p = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -180,10 +180,10 @@ __PUB_API__ void *cdll_map(void *root, int (*foo)(void *, void *), void *data)
 /*
  * Maps a function to every node on a list.
  */
-__PUB_API__ void *cdll_map_indexed(void *root,
+__PUB_API__ void *cl_dll_map_indexed(void *root,
     int (*foo)(unsigned int, void *, void *), void *data)
 {
-    struct cdll_node *p = NULL;
+    struct cl_dll_node *p = NULL;
     unsigned int i;
 
     __clib_function_init__(false, NULL, -1, NULL);
@@ -198,10 +198,10 @@ __PUB_API__ void *cdll_map_indexed(void *root,
 /*
  * Maps a function to every node on a list from the end to the top.
  */
-__PUB_API__ void *cdll_map_reverse(void *root, int (*foo)(void *, void *),
+__PUB_API__ void *cl_dll_map_reverse(void *root, int (*foo)(void *, void *),
     void *data)
 {
-    struct cdll_node *l = root, *p = NULL;
+    struct cl_dll_node *l = root, *p = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -219,10 +219,10 @@ __PUB_API__ void *cdll_map_reverse(void *root, int (*foo)(void *, void *),
 /*
  * Maps a function to every node on a list from the end to the top.
  */
-__PUB_API__ void *cdll_map_indexed_reverse(void *root,
+__PUB_API__ void *cl_dll_map_indexed_reverse(void *root,
     int (*foo)(unsigned int, void *, void *), void *data)
 {
-    struct cdll_node *l = root, *p = NULL;
+    struct cl_dll_node *l = root, *p = NULL;
     unsigned int i;
 
     __clib_function_init__(false, NULL, -1, NULL);
@@ -241,25 +241,25 @@ __PUB_API__ void *cdll_map_indexed_reverse(void *root,
 /*
  * Frees a list of nodes.
  */
-__PUB_API__ void cdll_free(void *root, void (*foo)(void *))
+__PUB_API__ void cl_dll_free(void *root, void (*foo)(void *))
 {
-    struct cdll_node *p;
+    struct cl_dll_node *p;
 
     __clib_function_init_ex2__(false, NULL, -1);
 
     if (NULL == foo)
         foo = free;
 
-    while ((p = cdll_pop(&root)))
+    while ((p = cl_dll_pop(&root)))
         foo(p);
 }
 
 /*
  * Gets a pointer to a specific node inside a list.
  */
-__PUB_API__ void *cdll_at(void *root, unsigned int index)
+__PUB_API__ void *cl_dll_at(void *root, unsigned int index)
 {
-    struct cdll_node *p;
+    struct cl_dll_node *p;
     unsigned int i;
 
     __clib_function_init__(false, NULL, -1, NULL);
@@ -274,14 +274,14 @@ __PUB_API__ void *cdll_at(void *root, unsigned int index)
 /*
  * Moves all elements from a list to another
  */
-__PUB_API__ void *cdll_move(void *root)
+__PUB_API__ void *cl_dll_move(void *root)
 {
-    struct cdll_node *n = NULL, *p;
+    struct cl_dll_node *n = NULL, *p;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    while ((p = cdll_pop(&root)))
-        n = cdll_unshift(n, p);
+    while ((p = cl_dll_pop(&root)))
+        n = cl_dll_unshift(n, p);
 
     return n;
 }
@@ -289,30 +289,30 @@ __PUB_API__ void *cdll_move(void *root)
 /*
  * Extracts elements from a list according a specific filter.
  */
-__PUB_API__ void *cdll_filter(void *root, int (*foo)(void *, void *), void *data)
+__PUB_API__ void *cl_dll_filter(void *root, int (*foo)(void *, void *), void *data)
 {
-    struct cdll_node **pp = root;
-    struct cdll_node *p = *pp;
-    struct cdll_node *r = NULL, *head = NULL, *q = NULL;
+    struct cl_dll_node **pp = root;
+    struct cl_dll_node *p = *pp;
+    struct cl_dll_node *r = NULL, *head = NULL, *q = NULL;
     int v;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
     while (p) {
-        q = cdll_pop(&p);
+        q = cl_dll_pop(&p);
         v = foo(q, data);
 
         if (v == 0)
-            head = cdll_unshift(head, q);
+            head = cl_dll_unshift(head, q);
         else {
-            r = cdll_unshift(r, q);
+            r = cl_dll_unshift(r, q);
 
             if (v < 0)
                 break;
         }
     }
 
-    *pp = cdll_unshift(head, p);
+    *pp = cl_dll_unshift(head, p);
 
     return r;
 }
@@ -320,16 +320,16 @@ __PUB_API__ void *cdll_filter(void *root, int (*foo)(void *, void *), void *data
 /*
  * Deletes elements from a list according a specific filter function.
  */
-__PUB_API__ void *cdll_delete(void *root, int (*filter)(void *, void *),
+__PUB_API__ void *cl_dll_delete(void *root, int (*filter)(void *, void *),
     void *data, void (*foo)(void *))
 {
-    struct cdll_node *p = NULL;
+    struct cl_dll_node *p = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
-    p = cdll_filter(root, filter, data);
+    p = cl_dll_filter(root, filter, data);
 
     if ((p != NULL) && (foo != NULL)) {
-        cdll_free(p, foo);
+        cl_dll_free(p, foo);
         p = NULL;
     }
 
@@ -339,18 +339,18 @@ __PUB_API__ void *cdll_delete(void *root, int (*filter)(void *, void *),
 /*
  * Delete an element from a list at a specific position.
  */
-__PUB_API__ void *cdll_delete_indexed(void *root, unsigned int index,
+__PUB_API__ void *cl_dll_delete_indexed(void *root, unsigned int index,
     void (*foo)(void *))
 {
-    struct cdll_node **pp = root;
-    struct cdll_node *p = *pp;
-    struct cdll_node *q = NULL, *r = NULL;
+    struct cl_dll_node **pp = root;
+    struct cl_dll_node *p = *pp;
+    struct cl_dll_node *q = NULL, *r = NULL;
     int size = 0;
     unsigned int i;
     bool first = false, last = false;
 
     __clib_function_init__(false, NULL, -1, NULL);
-    size = cdll_size(p);
+    size = cl_dll_size(p);
 
     /* Takes a few decisions first */
     if (index >= (unsigned int)size)
@@ -399,9 +399,9 @@ end_block:
     return r;
 }
 
-static void *cdll_split(void *root)
+static void *cl_dll_split(void *root)
 {
-    struct cdll_node *f, *s, *tmp;
+    struct cl_dll_node *f, *s, *tmp;
 
     f = s = root;
 
@@ -416,9 +416,9 @@ static void *cdll_split(void *root)
     return tmp;
 }
 
-static void *cdll_merge(void *p1, void *p2, int (*cmp)(void *, void*))
+static void *cl_dll_merge(void *p1, void *p2, int (*cmp)(void *, void*))
 {
-    struct cdll_node *f = p1, *s = p2, *q;
+    struct cl_dll_node *f = p1, *s = p2, *q;
     int ret;
 
     if (NULL == p1)
@@ -431,12 +431,12 @@ static void *cdll_merge(void *p1, void *p2, int (*cmp)(void *, void*))
     ret = cmp(p1, p2);
 
     if (ret < 0) {
-        f->next = cdll_merge(f->next, s, cmp);
+        f->next = cl_dll_merge(f->next, s, cmp);
         f->next->prev = f;
         f->prev = NULL;
         q = f;
     } else {
-        s->next = cdll_merge(f, s->next, cmp);
+        s->next = cl_dll_merge(f, s->next, cmp);
         s->next->prev = s;
         s->prev = NULL;
         q = s;
@@ -448,28 +448,28 @@ static void *cdll_merge(void *p1, void *p2, int (*cmp)(void *, void*))
 /*
  * Sort all elements from a list using mergesort algorithm.
  */
-__PUB_API__ void *cdll_mergesort(void *root, int (*cmp)(void *, void *))
+__PUB_API__ void *cl_dll_mergesort(void *root, int (*cmp)(void *, void *))
 {
-    struct cdll_node *p = root;
+    struct cl_dll_node *p = root;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
     if (p && p->next) {
-        p = cdll_split(root);
-        root = cdll_merge(cdll_mergesort(root, cmp), cdll_mergesort(p, cmp),
+        p = cl_dll_split(root);
+        root = cl_dll_merge(cl_dll_mergesort(root, cmp), cl_dll_mergesort(p, cmp),
                           cmp);
     }
 
     return root;
 }
 
-__PUB_API__ bool cdll_contains(void *root, void *p,
+__PUB_API__ bool cl_dll_contains(void *root, void *p,
     int (*foo)(void *, void *))
 {
-    struct cdll_node *q = NULL;
+    struct cl_dll_node *q = NULL;
 
     __clib_function_init__(false, NULL, -1, false);
-    q = cdll_map(root, foo, p);
+    q = cl_dll_map(root, foo, p);
 
     if (NULL == q)
         return false;
@@ -477,9 +477,9 @@ __PUB_API__ bool cdll_contains(void *root, void *p,
     return true;
 }
 
-__PUB_API__ int cdll_indexof(void *root, void *n, int (*foo)(void *, void *))
+__PUB_API__ int cl_dll_indexof(void *root, void *n, int (*foo)(void *, void *))
 {
-    struct cdll_node *p = NULL;
+    struct cl_dll_node *p = NULL;
     int i;
 
     __clib_function_init__(false, NULL, -1, -1);
@@ -491,10 +491,10 @@ __PUB_API__ int cdll_indexof(void *root, void *n, int (*foo)(void *, void *))
     return -1;
 }
 
-__PUB_API__ int cdll_last_indexof(void *root, void *n,
+__PUB_API__ int cl_dll_last_indexof(void *root, void *n,
     int (*foo)(void *, void *))
 {
-    struct cdll_node *l = root, *p = NULL;
+    struct cl_dll_node *l = root, *p = NULL;
     int i, size = 0;
 
     __clib_function_init__(false, NULL, -1, -1);
@@ -512,7 +512,7 @@ __PUB_API__ int cdll_last_indexof(void *root, void *n,
     return -1;
 }
 
-__PUB_API__ void *cdll_peek(void *root)
+__PUB_API__ void *cl_dll_peek(void *root)
 {
     __clib_function_init__(false, NULL, -1, NULL);
 

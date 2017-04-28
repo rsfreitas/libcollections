@@ -40,44 +40,44 @@
     ((type *)((char *)(ptr) - offsetof(type, member)))
 
 /** A reference count structure */
-struct cref_s {
-    void    (*free)(const struct cref_s *);
+struct cl_ref_s {
+    void    (*free)(const struct cl_ref_s *);
     int     count;
 };
 
 /**
- * @name cref_inc
+ * @name cl_ref_inc
  * @brief Increments a reference count by one.
  *
  * @param [in,out] ref: A reference count structure to be increased.
  */
-inline void cref_inc(const struct cref_s *ref);
+inline void cl_ref_inc(const struct cl_ref_s *ref);
 
 /**
- * @name cref_dec
+ * @name cl_ref_dec
  * @brief Decrements from a reference count.
  *
  * When this reference count drops to 0, the ref->free function is called.
  *
  * @param [in,out] ref: A reference count structure to be decreased.
  */
-inline void cref_dec(const struct cref_s *ref);
+inline void cl_ref_dec(const struct cl_ref_s *ref);
 
 /**
- * @name cref_bool_compare
+ * @name cl_ref_bool_compare
  * @brief Compares the current reference and swap its value.
  *
- * If the current reference value of ref->count is \a old, then write \a new
+ * If the current reference value of ref->count is \a old, then write \a new_
  * to it.
  *
  * @param [in,out] ref: A reference count structure to be compared.
  * @param [in] old: The old value from the reference count.
- * @param [in] new: The new value of the reference count.
+ * @param [in] new_: The new value of the reference count.
  *
  * @return On success, i.e, the comparison is successful and \a new was written,
  *         returns true, otherwise returns false.
  */
-inline bool cref_bool_compare(const struct cref_s *ref, int old, int new);
+inline bool cl_ref_bool_compare(const struct cl_ref_s *ref, int old, int new_);
 
 #endif
 

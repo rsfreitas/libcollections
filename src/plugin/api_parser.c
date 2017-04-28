@@ -81,13 +81,13 @@ static enum cl_type cvt_str_to_cv(const char *rv)
  * FIXME: We need to create better error codes, to tell the user that he may
  *        have an error in its JSON API.
  */
-cjson_t *api_load(const char *api_data)
+cl_json_t *api_load(const char *api_data)
 {
-    cjson_t *api;
-    cstring_t *s = cstring_create("%s", api_data);
+    cl_json_t *api;
+    cl_string_t *s = cl_string_create("%s", api_data);
 
-    api = cjson_parse(s);
-    cstring_destroy(s);
+    api = cl_json_parse(s);
+    cl_string_destroy(s);
 
     if (NULL == api)
         return NULL;
@@ -95,49 +95,49 @@ cjson_t *api_load(const char *api_data)
     return api;
 }
 
-void api_unload(cjson_t *api)
+void api_unload(cl_json_t *api)
 {
-    cjson_delete(api);
+    cl_json_delete(api);
 }
 
 /*
  * Makes a translation between a JSON representing arguments from a function
  * to a 'struct cplugin_fdata_s'.
  */
-static struct cplugin_fdata_s *api_parse_function_args(cjson_t *args)
+static struct cplugin_fdata_s *api_parse_function_args(cl_json_t *args)
 {
     struct cplugin_fdata_s *alist = NULL, *p = NULL;
     int i, t_args = 0;
-    cjson_t *a, *q;
-    cstring_t *jname, *jtype;
+    cl_json_t *a, *q;
+    cl_string_t *jname, *jtype;
 
-    t_args = cjson_get_array_size(args);
+    t_args = cl_json_get_array_size(args);
 
     for (i = 0; i < t_args; i++) {
-        a = cjson_get_array_item(args, i);
+        a = cl_json_get_array_item(args, i);
 
         /* name */
-        q = cjson_get_object_item(a, ARGUMENT_NAME);
-        jname = cjson_get_object_value(q);
+        q = cl_json_get_object_item(a, ARGUMENT_NAME);
+        jname = cl_json_get_object_value(q);
 
         /* type */
-        q = cjson_get_object_item(a, ARGUMENT_TYPE);
-        jtype = cjson_get_object_value(q);
+        q = cl_json_get_object_item(a, ARGUMENT_TYPE);
+        jtype = cl_json_get_object_value(q);
 
-        p = new_cplugin_fdata_s(cstring_valueof(jname),
-                                cvt_str_to_cv(cstring_valueof(jtype)));
+        p = new_cplugin_fdata_s(cl_string_valueof(jname),
+                                cvt_str_to_cv(cl_string_valueof(jtype)));
 
         if (NULL == p)
             goto error_block;
 
-        alist = cdll_unshift(alist, p);
+        alist = cl_dll_unshift(alist, p);
     }
 
     return alist;
 
 error_block:
     if (args != NULL)
-        cdll_free(alist, destroy_cplugin_fdata_s);
+        cl_dll_free(alist, destroy_cplugin_fdata_s);
 
     return NULL;
 }
@@ -152,10 +152,10 @@ static int find_pointer_argument(void *a, void *b __attribute__((unused)))
     return 0;
 }
 
-static enum cplugin_arg_mode get_arg_mode(struct cplugin_fdata_s *args)
+static enum cl_plugin_arg_mode get_arg_mode(struct cplugin_fdata_s *args)
 {
     struct cplugin_fdata_s *ptr = NULL;
-    enum cplugin_arg_mode arg_mode = CPLUGIN_ARGS_VOID;
+    enum cl_plugin_arg_mode arg_mode = CL_PLUGIN_ARGS_VOID;
     bool ptr_argument = false, other_arguments = false;
     int total = 0;
 
@@ -163,8 +163,8 @@ static enum cplugin_arg_mode get_arg_mode(struct cplugin_fdata_s *args)
      * TODO: Block if we have more than one pointer argument.
      */
 
-    total = cdll_size(args);
-    ptr = cdll_map(args, find_pointer_argument, NULL);
+    total = cl_dll_size(args);
+    ptr = cl_dll_map(args, find_pointer_argument, NULL);
 
     if (ptr != NULL)
         ptr_argument = true;
@@ -176,10 +176,10 @@ static enum cplugin_arg_mode get_arg_mode(struct cplugin_fdata_s *args)
     }
 
     if (ptr_argument)
-        arg_mode |= CPLUGIN_ARGS_POINTER;
+        arg_mode |= CL_PLUGIN_ARGS_POINTER;
 
     if (other_arguments)
-        arg_mode |= CPLUGIN_ARGS_COMMON;
+        arg_mode |= CL_PLUGIN_ARGS_COMMON;
 
     return arg_mode;
 }
@@ -188,35 +188,35 @@ static enum cplugin_arg_mode get_arg_mode(struct cplugin_fdata_s *args)
  * Translate a JSON API, created by a plugin, into a 'struct cplugin_function_s',
  * so that we can manipulated it internally.
  */
-struct cplugin_function_s *api_parse(cplugin_info_t *info)
+struct cplugin_function_s *api_parse(cl_plugin_info_t *info)
 {
-    cjson_t *functions, *f, *q, *api;
+    cl_json_t *functions, *f, *q, *api;
     struct cplugin_function_s *flist = NULL, *p = NULL;
     struct cplugin_fdata_s *args = NULL;
     int i, t_functions = 0;
     enum cl_type return_value;
-    cstring_t *jname, *jrv;
-    enum cplugin_arg_mode arg_mode = CPLUGIN_ARGS_VOID;
+    cl_string_t *jname, *jrv;
+    enum cl_plugin_arg_mode arg_mode = CL_PLUGIN_ARGS_VOID;
 
     api = info_get_api(info);
-    functions = cjson_get_object_item(api, PLUGIN_API);
-    t_functions = cjson_get_array_size(functions);
+    functions = cl_json_get_object_item(api, PLUGIN_API);
+    t_functions = cl_json_get_array_size(functions);
 
     for (i = 0; i < t_functions; i++) {
         args = NULL;
-        f = cjson_get_array_item(functions, i);
+        f = cl_json_get_array_item(functions, i);
 
         /* name */
-        q = cjson_get_object_item(f, FUNCTION_NAME);
-        jname = cjson_get_object_value(q);
+        q = cl_json_get_object_item(f, FUNCTION_NAME);
+        jname = cl_json_get_object_value(q);
 
         /* function return type */
-        q = cjson_get_object_item(f, FUNCTION_RETURN_TYPE);
-        jrv = cjson_get_object_value(q);
-        return_value = cvt_str_to_cv(cstring_valueof(jrv));
+        q = cl_json_get_object_item(f, FUNCTION_RETURN_TYPE);
+        jrv = cl_json_get_object_value(q);
+        return_value = cvt_str_to_cv(cl_string_valueof(jrv));
 
         /* function arguments */
-        q = cjson_get_object_item(f, FUNCTION_ARGUMENTS);
+        q = cl_json_get_object_item(f, FUNCTION_ARGUMENTS);
 
         if (q != NULL) {
             args = api_parse_function_args(q);
@@ -227,20 +227,20 @@ struct cplugin_function_s *api_parse(cplugin_info_t *info)
             arg_mode = get_arg_mode(args);
         }
 
-        p = new_cplugin_function_s(cstring_valueof(jname), return_value,
+        p = new_cplugin_function_s(cl_string_valueof(jname), return_value,
                                    arg_mode, args);
 
         if (NULL == p)
             goto error_block_functions;
 
-        flist = cdll_unshift(flist, p);
+        flist = cl_dll_unshift(flist, p);
     }
 
     return flist;
 
 error_block_args:
     if (args != NULL)
-        cdll_free(args, destroy_cplugin_fdata_s);
+        cl_dll_free(args, destroy_cplugin_fdata_s);
 
 error_block_functions:
     if (flist != NULL)
@@ -249,16 +249,16 @@ error_block_functions:
     return NULL;
 }
 
-cstring_t *api_to_cstring(cjson_t *api)
+cl_string_t *api_to_cstring(cl_json_t *api)
 {
-    return cjson_to_cstring(api, true);
+    return cl_json_to_cstring(api, true);
 }
 
-cstring_list_t *api_functions(const cplugin_info_t *info)
+cl_string_list_t *api_functions(const cl_plugin_info_t *info)
 {
-    cjson_t *f, *o, *p;
+    cl_json_t *f, *o, *p;
     int i, t = 0;
-    cstring_list_t *list = NULL;
+    cl_string_list_t *list = NULL;
 
     cerrno_clear();
 
@@ -267,119 +267,119 @@ cstring_list_t *api_functions(const cplugin_info_t *info)
         return NULL;
     }
 
-    f = cjson_get_object_item(info_get_api(info), PLUGIN_API);
+    f = cl_json_get_object_item(info_get_api(info), PLUGIN_API);
 
     if (NULL == f) {
         cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
-    t = cjson_get_array_size(f);
-    list = cstring_list_create();
+    t = cl_json_get_array_size(f);
+    list = cl_string_list_create();
 
     for (i = 0; i < t; i++) {
-        o = cjson_get_array_item(f, i);
+        o = cl_json_get_array_item(f, i);
 
         if (NULL == o) {
             cset_errno(CL_OBJECT_NOT_FOUND);
             return NULL;
         }
 
-        p = cjson_get_object_item(o, FUNCTION_NAME);
-        cstring_list_add(list, cjson_get_object_value(p));
+        p = cl_json_get_object_item(o, FUNCTION_NAME);
+        cl_string_list_add(list, cl_json_get_object_value(p));
     }
 
     return list;
 }
 
-static cjson_t *get_function_object(cjson_t *api, const char *function_name)
+static cl_json_t *get_function_object(cl_json_t *api, const char *function_name)
 {
-    cjson_t *f, *o, *p;
+    cl_json_t *f, *o, *p;
     int i, t = 0;
-    cstring_t *name;
+    cl_string_t *name;
 
-    f = cjson_get_object_item(api, PLUGIN_API);
-    t = cjson_get_array_size(f);
+    f = cl_json_get_object_item(api, PLUGIN_API);
+    t = cl_json_get_array_size(f);
 
     for (i = 0; i < t; i++) {
-        o = cjson_get_array_item(f, i);
-        p = cjson_get_object_item(o, FUNCTION_NAME);
-        name = cjson_get_object_value(p);
+        o = cl_json_get_array_item(f, i);
+        p = cl_json_get_object_item(o, FUNCTION_NAME);
+        name = cl_json_get_object_value(p);
 
-        if (!strcmp(cstring_valueof(name), function_name))
+        if (!strcmp(cl_string_valueof(name), function_name))
             return o;
     }
 
     return NULL;
 }
 
-cstring_list_t *api_function_arguments(const cplugin_info_t *info,
+cl_string_list_t *api_function_arguments(const cl_plugin_info_t *info,
     const char *function_name)
 {
-    cjson_t *foo, *args, *a, *p;
+    cl_json_t *foo, *args, *a, *p;
     int i, t = 0;
-    cstring_list_t *list = NULL;
+    cl_string_list_t *list = NULL;
 
     foo = get_function_object(info_get_api(info), function_name);
-    args = cjson_get_object_item(foo, FUNCTION_ARGUMENTS);
+    args = cl_json_get_object_item(foo, FUNCTION_ARGUMENTS);
 
     if (NULL == args)
         return NULL;
 
-    t = cjson_get_array_size(args);
-    list = cstring_list_create();
+    t = cl_json_get_array_size(args);
+    list = cl_string_list_create();
 
     for (i = 0; i < t; i++) {
-        a = cjson_get_array_item(args, i);
-        p = cjson_get_object_item(a, ARGUMENT_NAME);
-        cstring_list_add(list, cjson_get_object_value(p));
+        a = cl_json_get_array_item(args, i);
+        p = cl_json_get_object_item(a, ARGUMENT_NAME);
+        cl_string_list_add(list, cl_json_get_object_value(p));
     }
 
     return list;
 }
 
-enum cl_type api_function_return_type(const cplugin_info_t *info,
+enum cl_type api_function_return_type(const cl_plugin_info_t *info,
     const char *function_name)
 {
-    cjson_t *foo, *p;
-    cstring_t *v;
+    cl_json_t *foo, *p;
+    cl_string_t *v;
 
     foo = get_function_object(info_get_api(info), function_name);
-    p = cjson_get_object_item(foo, FUNCTION_RETURN_TYPE);
+    p = cl_json_get_object_item(foo, FUNCTION_RETURN_TYPE);
 
     if (NULL == p) {
         cset_errno(CL_OBJECT_NOT_FOUND);
         return -1;
     }
 
-    v = cjson_get_object_value(p);
+    v = cl_json_get_object_value(p);
 
-    return cvt_str_to_cv(cstring_valueof(v));
+    return cvt_str_to_cv(cl_string_valueof(v));
 }
 
-enum cplugin_arg_mode api_function_arg_mode(const cplugin_info_t *info,
+enum cl_plugin_arg_mode api_function_arg_mode(const cl_plugin_info_t *info,
     const char *function_name)
 {
-    cjson_t *foo, *args, *p, *type;
-    cstring_t *value;
-    enum cplugin_arg_mode mode = CPLUGIN_ARGS_VOID;
+    cl_json_t *foo, *args, *p, *type;
+    cl_string_t *value;
+    enum cl_plugin_arg_mode mode = CL_PLUGIN_ARGS_VOID;
     bool ptr_argument = false, other_arguments = false;
     int i, total;
 
     foo = get_function_object(info_get_api(info), function_name);
-    args = cjson_get_object_item(foo, FUNCTION_ARGUMENTS);
+    args = cl_json_get_object_item(foo, FUNCTION_ARGUMENTS);
 
     if (NULL == args)
-        return CPLUGIN_ARGS_VOID;
+        return CL_PLUGIN_ARGS_VOID;
 
-    total = cjson_get_array_size(args);
+    total = cl_json_get_array_size(args);
 
     for (i = 0; i < total; i++) {
-        p = cjson_get_array_item(args, i);
-        type = cjson_get_object_item(p, ARGUMENT_TYPE);
-        value = cjson_get_object_value(type);
+        p = cl_json_get_array_item(args, i);
+        type = cl_json_get_object_item(p, ARGUMENT_TYPE);
+        value = cl_json_get_object_value(type);
 
-        if (strcmp(cstring_valueof(value), "pointer") == 0) {
+        if (strcmp(cl_string_valueof(value), "pointer") == 0) {
             ptr_argument = true;
             break;
         }
@@ -392,40 +392,40 @@ enum cplugin_arg_mode api_function_arg_mode(const cplugin_info_t *info,
     }
 
     if (ptr_argument)
-        mode |= CPLUGIN_ARGS_POINTER;
+        mode |= CL_PLUGIN_ARGS_POINTER;
 
     if (other_arguments)
-        mode |= CPLUGIN_ARGS_COMMON;
+        mode |= CL_PLUGIN_ARGS_COMMON;
 
     return mode;
 }
 
-enum cl_type api_function_arg_type(const cplugin_info_t *info,
+enum cl_type api_function_arg_type(const cl_plugin_info_t *info,
     const char *function_name, const char *argument_name)
 {
-    cjson_t *foo, *args, *a, *p;
+    cl_json_t *foo, *args, *a, *p;
     int i, t = 0;
-    cstring_t *data;
+    cl_string_t *data;
     enum cl_type type = CL_VOID;
 
-    if (api_function_arg_mode(info, function_name) == CPLUGIN_ARGS_VOID)
+    if (api_function_arg_mode(info, function_name) == CL_PLUGIN_ARGS_VOID)
         return -1;
 
     foo = get_function_object(info_get_api(info), function_name);
-    args = cjson_get_object_item(foo, FUNCTION_ARGUMENTS);
-    t = cjson_get_array_size(args);
+    args = cl_json_get_object_item(foo, FUNCTION_ARGUMENTS);
+    t = cl_json_get_array_size(args);
 
     for (i = 0; i < t; i++) {
-        a = cjson_get_array_item(args, i);
-        p = cjson_get_object_item(a, ARGUMENT_NAME);
-        data = cjson_get_object_value(p);
+        a = cl_json_get_array_item(args, i);
+        p = cl_json_get_object_item(a, ARGUMENT_NAME);
+        data = cl_json_get_object_value(p);
 
-        if (strcmp(cstring_valueof(data), argument_name))
+        if (strcmp(cl_string_valueof(data), argument_name))
             continue;
 
-        p = cjson_get_object_item(a, ARGUMENT_TYPE);
-        data = cjson_get_object_value(p);
-        type = cvt_str_to_cv(cstring_valueof(data));
+        p = cl_json_get_object_item(a, ARGUMENT_TYPE);
+        data = cl_json_get_object_value(p);
+        type = cvt_str_to_cv(cl_string_valueof(data));
 
         break;
     }

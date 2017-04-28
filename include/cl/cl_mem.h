@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name cmemdup
+ * @name cl_memdup
  * @brief Duplicates a specific buffer.
  *
  * @param [in] src: Buffer that will be duplicated.
@@ -42,7 +42,7 @@
  *
  * @return On success returns the new buffer or NULL otherwise.
  */
-void *cmemdup(const void *src, unsigned int len);
+void *cl_memdup(const void *src, unsigned int len);
 
 #endif
 

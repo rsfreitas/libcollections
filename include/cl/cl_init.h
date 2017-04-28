@@ -34,7 +34,7 @@
 #endif
 
 /**
- * @name collections_init
+ * @name cl_init
  * @brief The function to initialize all library internals.
  *
  * This function must be the first library function called inside a code.
@@ -49,13 +49,13 @@
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int collections_init(const char *arg);
+int cl_init(const char *arg);
 
 /**
- * @name collections_uninit
+ * @name cl_uninit
  * @brief The function to end all library internals.
  */
-void collections_uninit(void);
+void cl_uninit(void);
 
 #endif
 

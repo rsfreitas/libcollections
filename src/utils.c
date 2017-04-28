@@ -29,7 +29,7 @@
 
 #include "collections.h"
 
-__PUB_API__ cstring_t *cbool_to_cstring(bool flag)
+__PUB_API__ cl_string_t *cl_bool_to_cstring(bool flag)
 {
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -38,27 +38,27 @@ __PUB_API__ cstring_t *cbool_to_cstring(bool flag)
         return NULL;
     }
 
-    return cstring_create("%s", (flag == true) ? "true" : "false");
+    return cl_string_create("%s", (flag == true) ? "true" : "false");
 }
 
-__PUB_API__ char *cbool_to_string(bool flag)
+__PUB_API__ char *cl_bool_to_string(bool flag)
 {
-    cstring_t *s = NULL;
+    cl_string_t *s = NULL;
     char *t = NULL;
 
     __clib_function_init__(false, NULL, -1, NULL);
-    s = cbool_to_cstring(flag);
+    s = cl_bool_to_cstring(flag);
 
     if (NULL == s)
         return NULL;
 
-    t = strdup(cstring_valueof(s));
-    cstring_destroy(s);
+    t = strdup(cl_string_valueof(s));
+    cl_string_destroy(s);
 
     return t;
 }
 
-__PUB_API__ char *collections_version(void)
+__PUB_API__ char *cl_version(void)
 {
     char *s = NULL;
 
@@ -70,7 +70,7 @@ __PUB_API__ char *collections_version(void)
     return s;
 }
 
-__PUB_API__ cstring_t *cl_type_to_cstring(enum cl_type value)
+__PUB_API__ cl_string_t *cl_type_to_cstring(enum cl_type value)
 {
     const char *value_desc[] = {
         "void", "char", "unsigned char", "int", "unsigned int", "short int",
@@ -85,7 +85,7 @@ __PUB_API__ cstring_t *cl_type_to_cstring(enum cl_type value)
         return NULL;
     }
 
-    return cstring_create("%s", value_desc[value]);
+    return cl_string_create("%s", value_desc[value]);
 }
 
 char *value_to_hex(void *p, unsigned int size)

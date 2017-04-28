@@ -47,37 +47,37 @@
 }
 
 
-#define chashtable_members                              \
+#define cl_hashtable_members                            \
     cl_struct_member(unsigned int, size)                \
     cl_struct_member(bool, replace_data)                \
     cl_struct_member(char **, keys)                     \
     cl_struct_member(void **, table)                    \
     cl_struct_member(bool, (*compare)(void *, void *))  \
     cl_struct_member(void, (*release)(void *))          \
-    cl_struct_member(struct cref_s, ref)
+    cl_struct_member(struct cl_ref_s, ref)
 
-cl_struct_declare(hashtable_s, chashtable_members);
+cl_struct_declare(hashtable_s, cl_hashtable_members);
 
 #define hashtable_s         cl_struct(hashtable_s)
 
 /*
  *
- * Functions to handle elements inside a list of keys exported by chashtable_keys
+ * Functions to handle elements inside a list of keys exported by cl_hashtable_keys
  * function.
  *
  */
 
-static int compare_to_keys(clist_node_t *a, clist_node_t *b)
+static int compare_to_keys(cl_list_node_t *a, cl_list_node_t *b)
 {
-    char *key_a = clist_node_content(a);
-    char *key_b = clist_node_content(b);
+    char *key_a = cl_list_node_content(a);
+    char *key_b = cl_list_node_content(b);
 
     return strcmp(key_a, key_b);
 }
 
-static int filter_keys(clist_node_t *a, void *b)
+static int filter_keys(cl_list_node_t *a, void *b)
 {
-    char *key_a = clist_node_content(a);
+    char *key_a = cl_list_node_content(a);
     char *key_b = (char *)b;
 
     if (strcmp(key_a, key_b) == 0)
@@ -86,10 +86,10 @@ static int filter_keys(clist_node_t *a, void *b)
     return 0;
 }
 
-static int equals_keys(clist_node_t *a, clist_node_t *b)
+static int equals_keys(cl_list_node_t *a, cl_list_node_t *b)
 {
-    char *key_a = clist_node_content(a);
-    char *key_b = clist_node_content(b);
+    char *key_a = cl_list_node_content(a);
+    char *key_b = cl_list_node_content(b);
 
     if (strcmp(key_a, key_b) == 0)
         return 1;
@@ -97,24 +97,24 @@ static int equals_keys(clist_node_t *a, clist_node_t *b)
     return 0;
 }
 
-static clist_t *create_list_of_keys(bool dup)
+static cl_list_t *create_list_of_keys(bool dup)
 {
-    return clist_create((dup == true) ? free : NULL, compare_to_keys,
-                        filter_keys, equals_keys);
+    return cl_list_create((dup == true) ? free : NULL, compare_to_keys,
+                          filter_keys, equals_keys);
 }
 
 /*
  * Copies all stored keys to a list of keys.
  */
-static void add_keys_to_list_of_keys(clist_t *keys, hashtable_s *hashtable,
+static void add_keys_to_list_of_keys(cl_list_t *keys, hashtable_s *hashtable,
     bool dup)
 {
     unsigned int i;
 
     for (i = 0; i < hashtable->size; i++)
         if (hashtable->keys[i] != NULL)
-            clist_push(keys, (dup == true) ? strdup(hashtable->keys[i])
-                                           : hashtable->keys[i], -1);
+            cl_list_push(keys, (dup == true) ? strdup(hashtable->keys[i])
+                                             : hashtable->keys[i], -1);
 }
 
 /*
@@ -195,7 +195,7 @@ static bool contains_value(hashtable_s *hashtable, void *data)
     return false;
 }
 
-static void destroy_hashtable_s(const struct cref_s *ref)
+static void destroy_hashtable_s(const struct cl_ref_s *ref)
 {
     hashtable_s *h = cl_container_of(ref, hashtable_s, ref);
     unsigned int i;
@@ -253,7 +253,7 @@ static hashtable_s *new_hashtable_s(unsigned int size, bool replace_data,
     h->ref.count = 1;
     h->ref.free = destroy_hashtable_s;
 
-    set_typeof(CHASHTABLE, h);
+    set_typeof(CL_OBJ_HASHTABLE, h);
 
     return h;
 }
@@ -333,28 +333,29 @@ static int hashkey(const char *key, unsigned int hashtable_size)
  *
  */
 
-__PUB_API__ chashtable_t *chashtable_ref(chashtable_t *hashtable)
+__PUB_API__ cl_hashtable_t *cl_hashtable_ref(cl_hashtable_t *hashtable)
 {
     hashtable_s *h = (hashtable_s *)hashtable;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, NULL);
-    cref_inc(&h->ref);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, NULL);
+    cl_ref_inc(&h->ref);
 
     return hashtable;
 }
 
-__PUB_API__ int chashtable_unref(chashtable_t *hashtable)
+__PUB_API__ int cl_hashtable_unref(cl_hashtable_t *hashtable)
 {
     hashtable_s *h = (hashtable_s *)hashtable;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, -1);
-    cref_dec(&h->ref);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, -1);
+    cl_ref_dec(&h->ref);
 
     return 0;
 }
 
-__PUB_API__ chashtable_t *chashtable_init(unsigned int size, bool replace_data,
-    bool (*compare)(void *, void *), void (*release)(void *))
+__PUB_API__ cl_hashtable_t *cl_hashtable_init(unsigned int size,
+    bool replace_data, bool (*compare)(void *, void *),
+    void (*release)(void *))
 {
     hashtable_s *h = NULL;
 
@@ -373,26 +374,26 @@ __PUB_API__ chashtable_t *chashtable_init(unsigned int size, bool replace_data,
     return h;
 }
 
-__PUB_API__ int chashtable_uninit(chashtable_t *hashtable)
+__PUB_API__ int cl_hashtable_uninit(cl_hashtable_t *hashtable)
 {
-    return chashtable_unref(hashtable);
+    return cl_hashtable_unref(hashtable);
 }
 
-__PUB_API__ void *chashtable_put(chashtable_t *hashtable, const char *key,
+__PUB_API__ void *cl_hashtable_put(cl_hashtable_t *hashtable, const char *key,
     void *data)
 {
     hashtable_s *h;
     int idx = -1;
     void *ret = NULL;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, NULL);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, NULL);
 
     if ((NULL == key) || (NULL == data)) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     idx = hashkey(key, h->size);
 
     if (idx < 0) {
@@ -411,24 +412,24 @@ __PUB_API__ void *chashtable_put(chashtable_t *hashtable, const char *key,
     add_key(h, key, idx);
 
 end_block:
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
     return ret;
 }
 
-__PUB_API__ void *chashtable_get(chashtable_t *hashtable, const char *key)
+__PUB_API__ void *cl_hashtable_get(cl_hashtable_t *hashtable, const char *key)
 {
     hashtable_s *h;
     int idx = -1;
     void *ptr = NULL;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, NULL);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, NULL);
 
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     idx = hashkey(key, h->size);
 
     if (idx < 0) {
@@ -439,23 +440,23 @@ __PUB_API__ void *chashtable_get(chashtable_t *hashtable, const char *key)
     ptr = h->table[idx];
 
 end_block:
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
     return ptr;
 }
 
-__PUB_API__ int chashtable_delete(chashtable_t *hashtable, const char *key)
+__PUB_API__ int cl_hashtable_delete(cl_hashtable_t *hashtable, const char *key)
 {
     hashtable_s *h;
     int idx = -1, ret = -1;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, -1);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, -1);
 
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     idx = hashkey(key, h->size);
 
     if (idx < 0) {
@@ -468,90 +469,91 @@ __PUB_API__ int chashtable_delete(chashtable_t *hashtable, const char *key)
     delete_key(h, idx);
 
 end_block:
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
     return ret;
 }
 
-__PUB_API__ bool chashtable_contains_key(chashtable_t *hashtable,
+__PUB_API__ bool cl_hashtable_contains_key(cl_hashtable_t *hashtable,
     const char *key)
 {
     hashtable_s *h;
     bool ret = false;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, -1);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, -1);
 
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
         return false;
     }
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     ret = contains_key(h, key);
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
 
     return ret;
 }
 
-__PUB_API__ int chashtable_size(chashtable_t *hashtable)
+__PUB_API__ int cl_hashtable_size(cl_hashtable_t *hashtable)
 {
     hashtable_s *h;
     int size = -1;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, -1);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, -1);
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     size = count_values(h);
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
 
     return size;
 }
 
-__PUB_API__ int chashtable_clear(chashtable_t *hashtable)
+__PUB_API__ int cl_hashtable_clear(cl_hashtable_t *hashtable)
 {
     hashtable_s *h;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, -1);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, -1);
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     clear_hashtable(h);
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
 
     return 0;
 }
 
-__PUB_API__ bool chashtable_contains_value(chashtable_t *hashtable, void *data)
+__PUB_API__ bool cl_hashtable_contains_value(cl_hashtable_t *hashtable,
+    void *data)
 {
     hashtable_s *h;
     bool ret = false;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, -1);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, -1);
 
     if (NULL == data) {
         cset_errno(CL_NULL_ARG);
         return false;
     }
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     ret = contains_value(h, data);
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
 
     return ret;
 }
 
-__PUB_API__ clist_t *chashtable_keys(chashtable_t *hashtable, bool dup)
+__PUB_API__ cl_list_t *cl_hashtable_keys(cl_hashtable_t *hashtable, bool dup)
 {
     hashtable_s *h;
-    clist_t *keys = NULL;
+    cl_list_t *keys = NULL;
 
-    __clib_function_init__(true, hashtable, CHASHTABLE, NULL);
+    __clib_function_init__(true, hashtable, CL_OBJ_HASHTABLE, NULL);
     keys = create_list_of_keys(dup);
 
     if (NULL == keys)
         return NULL;
 
-    h = chashtable_ref(hashtable);
+    h = cl_hashtable_ref(hashtable);
     add_keys_to_list_of_keys(keys, h, dup);
-    chashtable_unref(h);
+    cl_hashtable_unref(h);
 
     return keys;
 }

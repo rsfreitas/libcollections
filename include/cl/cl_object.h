@@ -34,8 +34,8 @@
 #endif
 
 /**
- * @name cobject_create
- * @brief Creates a new cobject_t object.
+ * @name cl_object_create
+ * @brief Creates a new cl_object_t object.
  *
  * If object is of CL_OBJECT_VOIDP type the variadic arguments should be
  * the binary content and its size. The variadic arguments should end with
@@ -44,143 +44,143 @@
  * @param [in] type: The object type of the new object.
  * @param [in] ...: The item object.
  *
- * @return On success returns a cobject_t object or NULL othewise.
+ * @return On success returns a cl_object_t object or NULL othewise.
  */
-cobject_t *cobject_create(enum cl_type type, ...);
+cl_object_t *cl_object_create(enum cl_type type, ...);
 
 /**
- * @name cobject_create_empty
- * @brief Creates a new empty cobject_t object.
+ * @name cl_object_create_empty
+ * @brief Creates a new empty cl_object_t object.
  *
  * @param [in] type: The object type of the new object.
  *
- * @return On success returns a cobject_t object or NULL othewise.
+ * @return On success returns a cl_object_t object or NULL othewise.
  */
-cobject_t *cobject_create_empty(enum cl_type type);
+cl_object_t *cl_object_create_empty(enum cl_type type);
 
 /**
- * @name cobject_create_with_spec
- * @brief Creates a new cobject_t with parameters specification support.
+ * @name cl_object_create_with_spec
+ * @brief Creates a new cl_object_t with parameters specification support.
  *
  * @param [in] type: The object type of the new object.
  * @param [in] spec: The parameters specification.
  *
- * @return On success returns a cobject_t object or NULL othewise.
+ * @return On success returns a cl_object_t object or NULL othewise.
  */
-cobject_t *cobject_create_with_spec(enum cl_type type, cspec_t *spec);
+cl_object_t *cl_object_create_with_spec(enum cl_type type, cl_spec_t *spec);
 
 /**
- * @name cobject_destroy
- * @brief Releases a cobject_t from memory.
+ * @name cl_object_destroy
+ * @brief Releases a cl_object_t from memory.
  *
- * @param [in,out] object: The cobject_t which will be released.
+ * @param [in,out] object: The cl_object_t which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cobject_destroy(cobject_t *object);
+int cl_object_destroy(cl_object_t *object);
 
 /**
- * @name cobject_sizeof
- * @brief Gets the sizeof of a cobject_t.
+ * @name cl_object_sizeof
+ * @brief Gets the sizeof of a cl_object_t.
  *
- * @param [in] object: The cobject_t object.
+ * @param [in] object: The cl_object_t object.
  *
- * @return On success returns the sizeof of the cobject_t or -1 otherwise.
+ * @return On success returns the sizeof of the cl_object_t or -1 otherwise.
  */
-int cobject_sizeof(const cobject_t *object);
+int cl_object_sizeof(const cl_object_t *object);
 
 /**
- * @name cobject_type
- * @brief Gets the type of a cobject_t.
+ * @name cl_object_type
+ * @brief Gets the type of a cl_object_t.
  *
- * @param [in] object: The cobject_t object.
+ * @param [in] object: The cl_object_t object.
  *
- * @return On success returns the cobject_t object type or -1 otherwise.
+ * @return On success returns the cl_object_t object type or -1 otherwise.
  */
-enum cl_type cobject_type(const cobject_t *object);
+enum cl_type cl_object_type(const cl_object_t *object);
 
 /**
- * @name cobject_set
- * @brief Changes the content of a cobject_t.
+ * @name cl_object_set
+ * @brief Changes the content of a cl_object_t.
  *
- * @param [in] object: The cobject_t object.
+ * @param [in] object: The cl_object_t object.
  * @param [in] ...: The new content of the object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cobject_set(cobject_t *object, ...);
+int cl_object_set(cl_object_t *object, ...);
 
 /**
- * @name cobject_get
- * @brief Gets the content from a cobject_t object.
+ * @name cl_object_get
+ * @brief Gets the content from a cl_object_t object.
  *
- * @param [in] object: The cobject_t object.
+ * @param [in] object: The cl_object_t object.
  * @param [in] fmt: The output format of the object.
  * @param [out] ...: The output object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cobject_get(const cobject_t *object, const char *fmt, ...);
+int cl_object_get(const cl_object_t *object, const char *fmt, ...);
 
 /**
- * @name cobject_is_of_type
- * @brief Checks if a cobject_t is from a specific type.
+ * @name cl_object_is_of_type
+ * @brief Checks if a cl_object_t is from a specific type.
  *
- * @param [in] object: The cobject_t.
+ * @param [in] object: The cl_object_t.
  * @param [in] type: The type to check.
  *
  * @return Returns true if \a object is of \a type type or false
  *         otherwise.
  */
-bool cobject_is_of_type(const cobject_t *object, unsigned int type);
+bool cl_object_is_of_type(const cl_object_t *object, unsigned int type);
 
 /**
- * @name cobject_to_cstring
- * @brief Converts a cobject_t object into a human readable string (cstring_t).
+ * @name cl_object_to_cstring
+ * @brief Converts a cl_object_t object into a human readable string (cl_string_t).
  *
- * @param [in] object: The cobject_t object.
+ * @param [in] object: The cl_object_t object.
  *
- * @return On success returns a cstring_t containing the cobject_t or NULL
+ * @return On success returns a cl_string_t containing the cl_object_t or NULL
  *         otherwise.
  */
-cstring_t *cobject_to_cstring(const cobject_t *object);
+cl_string_t *cl_object_to_cstring(const cl_object_t *object);
 
 /**
- * @name cobject_from_cstring
- * @brief Creates a cobject_t from a cstring_t object.
+ * @name cl_object_from_cstring
+ * @brief Creates a cl_object_t from a cl_string_t object.
  *
- * @param [in] object: The cstring_t object.
+ * @param [in] object: The cl_string_t object.
  *
- * @return On success returns the new cobject_t or NULL otherwise.
+ * @return On success returns the new cl_object_t or NULL otherwise.
  */
-cobject_t *cobject_from_cstring(const cstring_t *object);
+cl_object_t *cl_object_from_cstring(const cl_string_t *object);
 
 /**
- * @name cobject_ref
- * @brief Increases the reference count for a cobject_t item.
+ * @name cl_object_ref
+ * @brief Increases the reference count for a cl_object_t item.
  *
- * @param [in,out] object: The cobject_t item.
+ * @param [in,out] object: The cl_object_t item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cobject_t *cobject_ref(cobject_t *object);
+cl_object_t *cl_object_ref(cl_object_t *object);
 
 /**
- * @name cobject_unref
- * @brief Decreases the reference count for a cobject_t item.
+ * @name cl_object_unref
+ * @brief Decreases the reference count for a cl_object_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] object: The cobject_t item.
+ * @param [in,out] object: The cl_object_t item.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cobject_unref(cobject_t *object);
+int cl_object_unref(cl_object_t *object);
 
 /**
- * @name cobject_set_equals
+ * @name cl_object_set_equals
  * @brief Sets the object equals function.
  *
  * An object equals function is a function to indicate whether some other
@@ -188,27 +188,27 @@ int cobject_unref(cobject_t *object);
  *
  * It must return true if the objects are equal or false otherwise.
  *
- * @param [in,out] object: The cobject_t item.
+ * @param [in,out] object: The cl_object_t item.
  * @param [in] equals: The equals function pointer.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cobject_set_equals(cobject_t *object, bool (*equals)(cobject_t *));
+int cl_object_set_equals(cl_object_t *object, bool (*equals)(cl_object_t *));
 
 /**
- * @name cobject_equals
+ * @name cl_object_equals
  * @brief A function to indicate whether an object is equal to another.
  *
- * @param [in] ob1: The cobject_t object.
+ * @param [in] ob1: The cl_object_t object.
  * @param [in] ob2: The object which will be compared.
  *
  * @return Returns true is \a ob1 is the same as the \a ob2 or false
  *         otherwise.
  */
-bool cobject_equals(const cobject_t *ob1, const cobject_t *ob2);
+bool cl_object_equals(const cl_object_t *ob1, const cl_object_t *ob2);
 
 /**
- * @name cobject_set_compare_to
+ * @name cl_object_set_compare_to
  * @brief Sets the object compare_to function.
  *
  * An object compare_to function is a function to compare the object with
@@ -217,94 +217,95 @@ bool cobject_equals(const cobject_t *ob1, const cobject_t *ob2);
  * It must return negative, zero or a positive integer if the object is less
  * than, equal to, or greater than the specified object.
  *
- * @param [in,out] object: The cobject_t item.
+ * @param [in,out] object: The cl_object_t item.
  * @param [in] compare_to: The compare_to function.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cobject_set_compare_to(cobject_t *object, int (*compare_to)(cobject_t *));
+int cl_object_set_compare_to(cl_object_t *object,
+                             int (*compare_to)(cl_object_t *));
 
 /**
- * @name cobject_compare_to
+ * @name cl_object_compare_to
  * @brief A function to compare an object to another to order them.
  *
- * @param [in] ob1: The cobject_t object.
+ * @param [in] ob1: The cl_object_t object.
  * @param [in] ob2: The object which will be compared.
  *
  * @return Returns a negative, zero or a positive integer if the object \a ob1
  *         is less than, equal to, or greater than \a ob2.
  */
-int cobject_compare_to(const cobject_t *ob1, const cobject_t *ob2);
+int cl_object_compare_to(const cl_object_t *ob1, const cl_object_t *ob2);
 
 /**
- * Macros to get the cobject_t item object. The STRING and CSTRING objects must
- * be released by the user, using 'free' or 'cstring_unref' calls.
+ * Macros to get the cl_object_t item object. The STRING and CSTRING objects must
+ * be released by the user, using 'free' or 'cl_string_unref' calls.
  */
-#define COBJECT_AS_INT(v)       \
-    ({ int __x; cobject_get(v, COBJECT_INT, &__x, NULL); __x; })
+#define CL_OBJECT_AS_INT(v)       \
+    ({ int __x; cl_object_get(v, CL_OBJECT_INT, &__x, NULL); __x; })
 
-#define COBJECT_AS_UINT(v)       \
-    ({ unsigned int __x; cobject_get(v, COBJECT_UINT, &__x, NULL); __x; })
+#define CL_OBJECT_AS_UINT(v)       \
+    ({ unsigned int __x; cl_object_get(v, CL_OBJECT_UINT, &__x, NULL); __x; })
 
-#define COBJECT_AS_LONG(v)       \
-    ({ long __x; cobject_get(v, COBJECT_LONG, &__x, NULL); __x; })
+#define CL_OBJECT_AS_LONG(v)       \
+    ({ long __x; cl_object_get(v, CL_OBJECT_LONG, &__x, NULL); __x; })
 
-#define COBJECT_AS_ULONG(v)       \
-    ({ unsigned long __x; cobject_get(v, COBJECT_ULONG, &__x, NULL); __x; })
+#define CL_OBJECT_AS_ULONG(v)       \
+    ({ unsigned long __x; cl_object_get(v, CL_OBJECT_ULONG, &__x, NULL); __x; })
 
-#define COBJECT_AS_LLONG(v)       \
-    ({ long long __x; cobject_get(v, COBJECT_LLONG, &__x, NULL); __x; })
+#define CL_OBJECT_AS_LLONG(v)       \
+    ({ long long __x; cl_object_get(v, CL_OBJECT_LLONG, &__x, NULL); __x; })
 
-#define COBJECT_AS_ULLONG(v)       \
-    ({ unsigned long long __x; cobject_get(v, COBJECT_ULLONG, &__x, NULL); __x; })
+#define CL_OBJECT_AS_ULLONG(v)       \
+    ({ unsigned long long __x; cl_object_get(v, CL_OBJECT_ULLONG, &__x, NULL); __x; })
 
-#define COBJECT_AS_SINT(v)       \
-    ({ short int __x; cobject_get(v, COBJECT_SINT, &__x, NULL); __x; })
+#define CL_OBJECT_AS_SINT(v)       \
+    ({ short int __x; cl_object_get(v, CL_OBJECT_SINT, &__x, NULL); __x; })
 
-#define COBJECT_AS_USINT(v)       \
-    ({ unsigned short int __x; cobject_get(v, COBJECT_USINT, &__x, NULL); __x; })
+#define CL_OBJECT_AS_USINT(v)       \
+    ({ unsigned short int __x; cl_object_get(v, CL_OBJECT_USINT, &__x, NULL); __x; })
 
-#define COBJECT_AS_CHAR(v)       \
-    ({ char __x; cobject_get(v, COBJECT_CHAR, &__x, NULL); __x; })
+#define CL_OBJECT_AS_CHAR(v)       \
+    ({ char __x; cl_object_get(v, CL_OBJECT_CHAR, &__x, NULL); __x; })
 
-#define COBJECT_AS_UCHAR(v)       \
-    ({ unsigned char __x; cobject_get(v, COBJECT_UCHAR, &__x, NULL); __x; })
+#define CL_OBJECT_AS_UCHAR(v)       \
+    ({ unsigned char __x; cl_object_get(v, CL_OBJECT_UCHAR, &__x, NULL); __x; })
 
-#define COBJECT_AS_FLOAT(v)      \
-    ({ float __x; cobject_get(v, COBJECT_FLOAT, &__x, NULL); __x; })
+#define CL_OBJECT_AS_FLOAT(v)      \
+    ({ float __x; cl_object_get(v, CL_OBJECT_FLOAT, &__x, NULL); __x; })
 
-#define COBJECT_AS_DOUBLE(v)     \
-    ({ double __x; cobject_get(v, COBJECT_DOUBLE, &__x, NULL); __x; })
+#define CL_OBJECT_AS_DOUBLE(v)     \
+    ({ double __x; cl_object_get(v, CL_OBJECT_DOUBLE, &__x, NULL); __x; })
 
-#define COBJECT_AS_BOOLEAN(v)    \
-    ({ bool __x; cobject_get(v, COBJECT_BOOLEAN, &__x, NULL); __x; })
+#define CL_OBJECT_AS_BOOLEAN(v)    \
+    ({ bool __x; cl_object_get(v, CL_OBJECT_BOOLEAN, &__x, NULL); __x; })
 
-#define COBJECT_AS_STRING(v)     \
-    ({ char *__x; cobject_get(v, COBJECT_STRING, &__x, NULL); __x; })
+#define CL_OBJECT_AS_STRING(v)     \
+    ({ char *__x; cl_object_get(v, CL_OBJECT_STRING, &__x, NULL); __x; })
 
-#define COBJECT_AS_CSTRING(v)    \
-    ({ cstring_t *__x; cobject_get(v, COBJECT_CSTRING, &__x, NULL); __x; })
+#define CL_OBJECT_AS_CSTRING(v)    \
+    ({ cl_string_t *__x; cl_object_get(v, CL_OBJECT_CSTRING, &__x, NULL); __x; })
 
-#define COBJECT_AS_POINTER(v)    \
-    ({ int __s; void *__x; cobject_get(v, COBJECT_POINTER, &__x, &__s, NULL); __x; })
+#define CL_OBJECT_AS_POINTER(v)    \
+    ({ int __s; void *__x; cl_object_get(v, CL_OBJECT_POINTER, &__x, &__s, NULL); __x; })
 
 /** Macros to check if an item correspond to a specific type */
-#define COBJECT_isvoid(o)        cobject_is_of_type((o), CL_VOID)
-#define COBJECT_ischar(o)        cobject_is_of_type((o), CL_CHAR)
-#define COBJECT_isuchar(o)       cobject_is_of_type((o), CL_UCHAR)
-#define COBJECT_isint(o)         cobject_is_of_type((o), CL_INT)
-#define COBJECT_isuint(o)        cobject_is_of_type((o), CL_UINT)
-#define COBJECT_issint(o)        cobject_is_of_type((o), CL_SINT)
-#define COBJECT_isusint(o)       cobject_is_of_type((o), CL_USINT)
-#define COBJECT_isfloat(o)       cobject_is_of_type((o), CL_FLOAT)
-#define COBJECT_isdouble(o)      cobject_is_of_type((o), CL_DOUBLE)
-#define COBJECT_islong(o)        cobject_is_of_type((o), CL_LONG)
-#define COBJECT_isulong(o)       cobject_is_of_type((o), CL_ULONG)
-#define COBJECT_isllong(o)       cobject_is_of_type((o), CL_LLONG)
-#define COBJECT_isullong(o)      cobject_is_of_type((o), CL_ULLONG)
-#define COBJECT_isstring(o)      cobject_is_of_type((o), CL_STRING)
-#define COBJECT_iscstring(o)     cobject_is_of_type((o), CL_CSTRING)
-#define COBJECT_isboolean(o)     cobject_is_of_type((o), CL_BOOLEAN)
+#define CL_OBJECT_isvoid(o)         cl_object_is_of_type((o), CL_VOID)
+#define CL_OBJECT_ischar(o)         cl_object_is_of_type((o), CL_CHAR)
+#define CL_OBJECT_isuchar(o)        cl_object_is_of_type((o), CL_UCHAR)
+#define CL_OBJECT_isint(o)          cl_object_is_of_type((o), CL_INT)
+#define CL_OBJECT_isuint(o)         cl_object_is_of_type((o), CL_UINT)
+#define CL_OBJECT_issint(o)         cl_object_is_of_type((o), CL_SINT)
+#define CL_OBJECT_isusint(o)        cl_object_is_of_type((o), CL_USINT)
+#define CL_OBJECT_isfloat(o)        cl_object_is_of_type((o), CL_FLOAT)
+#define CL_OBJECT_isdouble(o)       cl_object_is_of_type((o), CL_DOUBLE)
+#define CL_OBJECT_islong(o)         cl_object_is_of_type((o), CL_LONG)
+#define CL_OBJECT_isulong(o)        cl_object_is_of_type((o), CL_ULONG)
+#define CL_OBJECT_isllong(o)        cl_object_is_of_type((o), CL_LLONG)
+#define CL_OBJECT_isullong(o)       cl_object_is_of_type((o), CL_ULLONG)
+#define CL_OBJECT_isstring(o)       cl_object_is_of_type((o), CL_STRING)
+#define CL_OBJECT_iscstring(o)      cl_object_is_of_type((o), CL_CSTRING)
+#define CL_OBJECT_isboolean(o)      cl_object_is_of_type((o), CL_BOOLEAN)
 
 #endif
 

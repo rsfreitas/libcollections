@@ -38,7 +38,7 @@
 #endif
 
 /**
- * @name cfload
+ * @name cl_fload
  * @brief Loads a file to memory.
  *
  * This function will try to open file \a filename and load it to a memory
@@ -50,20 +50,20 @@
  * @return On success returns the new allocated buffer containing the file
  *         or NULL otherwise.
  */
-unsigned char *cfload(const char *filename, unsigned int *bsize);
+unsigned char *cl_fload(const char *filename, unsigned int *bsize);
 
 /**
- * @name cfunload
+ * @name cl_funload
  * @brief Unloads a buffer from memory.
  *
  * @param [in,out] buffer: The buffer which will be released.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cfunload(unsigned char *buffer);
+int cl_funload(unsigned char *buffer);
 
 /**
- * @name cfsave
+ * @name cl_fsave
  * @brief Write a file.
  *
  * @param [in] filename: The file name which will be created (or overwritten).
@@ -72,10 +72,11 @@ int cfunload(unsigned char *buffer);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cfsave(const char *filename, const unsigned char *buffer, unsigned int bsize);
+int cl_fsave(const char *filename, const unsigned char *buffer,
+             unsigned int bsize);
 
 /**
- * @name cfreadline
+ * @name cl_freadline
  * @brief Reads a line from a file until a 'new line' is found or EOF.
  *
  * @param [in] infile: A FILE pointer to previously opened file.
@@ -83,10 +84,10 @@ int cfsave(const char *filename, const unsigned char *buffer, unsigned int bsize
  * @return On success returns a pointer to an allocated buffer containing the
  *         line read (which should be freed after used) or NULL otherwise.
  */
-char *cfreadline(FILE *infile);
+char *cl_freadline(FILE *infile);
 
 /**
- * @name cfile_mime_type
+ * @name cl_file_mime_type
  * @brief Gets the mime type of a file.
  *
  * @param [in] pathname: The file name.
@@ -94,10 +95,10 @@ char *cfreadline(FILE *infile);
  * @return On success returns a C string with the file mime type or NULL
  *         otherwise.
  */
-char *cfile_mime_type(const char *pathname);
+char *cl_file_mime_type(const char *pathname);
 
 /**
- * @name cbuffer_mime_type
+ * @name cl_buffer_mime_type
  * @brief Gets the mime type of a file from its buffer.
  *
  * @param [in] buffer: The file buffer.
@@ -106,7 +107,7 @@ char *cfile_mime_type(const char *pathname);
  * @return On success returns a C string with the file mime type or NULL
  *         otherwise.
  */
-char *cbuffer_mime_type(const unsigned char *buffer, unsigned int size);
+char *cl_buffer_mime_type(const unsigned char *buffer, unsigned int size);
 
 #endif
 

@@ -42,10 +42,10 @@ struct cl_data {
     magic_t             cookie;
     pthread_mutex_t     m_cookie;
     bool                initialized;
-    struct cref_s       ref;
+    struct cl_ref_s     ref;
     struct random_data  rd_data;
     char                state[128];
-    cjson_t             *cfg;
+    cl_json_t           *cfg;
     char                *package;
     char                *locale_dir;
 };
@@ -60,11 +60,11 @@ static struct cl_data __cl_data = {
 
 static bool load_arg_as_json_string(const char *data)
 {
-    cstring_t *s = NULL;
+    cl_string_t *s = NULL;
 
-    s = cstring_create("%s", data);
-    __cl_data.cfg = cjson_parse(s);
-    cstring_unref(s);
+    s = cl_string_create("%s", data);
+    __cl_data.cfg = cl_json_parse(s);
+    cl_string_unref(s);
 
     if (NULL == __cl_data.cfg)
         return false;
@@ -79,7 +79,7 @@ static bool load_arg_as_file(const char *pathname)
     if (stat(pathname, &st) < 0)
         return false;
 
-    __cl_data.cfg = cjson_read_file(pathname);
+    __cl_data.cfg = cl_json_read_file(pathname);
 
     if (NULL == __cl_data.cfg)
         return false;
@@ -105,11 +105,11 @@ static char *get_program_name(void)
 
 #define get_configuration(object) \
 ({\
-     cstring_t *s;\
-     cobject_t *o = NULL;\
-     o = cjson_get_object_item(__cl_data.cfg, object);\
-     s = cjson_get_object_value(o);\
-     cstring_valueof(s);\
+     cl_string_t *s;\
+     cl_object_t *o = NULL;\
+     o = cl_json_get_object_item(__cl_data.cfg, object);\
+     s = cl_json_get_object_value(o);\
+     cl_string_valueof(s);\
 })
 
 static void load_default_values(void)
@@ -154,7 +154,7 @@ static void load_arg(const char *arg)
     __cl_data.initialized = false;
 }
 
-static void __uninit(const struct cref_s *ref __attribute__((unused)))
+static void __uninit(const struct cl_ref_s *ref __attribute__((unused)))
 {
     if (__cl_data.package != NULL)
         free(__cl_data.package);
@@ -163,7 +163,7 @@ static void __uninit(const struct cref_s *ref __attribute__((unused)))
         free(__cl_data.locale_dir);
 
     if (__cl_data.cfg != NULL)
-        cjson_delete(__cl_data.cfg);
+        cl_json_delete(__cl_data.cfg);
 
     dl_library_uninit();
     magic_close(__cl_data.cookie);
@@ -202,21 +202,21 @@ static int __init(const char *arg)
     return 0;
 }
 
-__PUB_API__ int collections_init(const char *arg)
+__PUB_API__ int cl_init(const char *arg)
 {
     int old = 0, new = 1, ret = 0;
 
-    if (cref_bool_compare(&__cl_data.ref, old, new) == true)
+    if (cl_ref_bool_compare(&__cl_data.ref, old, new) == true)
         ret = __init(arg);
     else
-        cref_inc(&__cl_data.ref);
+        cl_ref_inc(&__cl_data.ref);
 
     return ret;
 }
 
-__PUB_API__ void collections_uninit(void)
+__PUB_API__ void cl_uninit(void)
 {
-    cref_dec(&__cl_data.ref);
+    cl_ref_dec(&__cl_data.ref);
 }
 
 /*
@@ -280,7 +280,7 @@ const char *library_locale_dir(void)
     return __cl_data.locale_dir;
 }
 
-cjson_t *library_configuration(void)
+cl_json_t *library_configuration(void)
 {
     return __cl_data.cfg;
 }

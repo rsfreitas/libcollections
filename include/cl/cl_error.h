@@ -34,7 +34,7 @@
 #endif
 
 /** Error codes from all internal APIs */
-enum cerror_code {
+enum cl_error_code {
     CL_NO_ERROR = 0,
 
     CL_NULL_ARG,
@@ -46,7 +46,7 @@ enum cerror_code {
     CL_PARSE_ERROR,
     CL_NO_TTY,
     CL_TTY_GET_ATTR,
-    CL_TTY_SET_ATTR_TCSAFLUSH,
+    CL_TTY_SET_ATTR_TCSAFLUSH,                  // 10
     CL_FILE_OPEN_ERROR,
     CL_UNRECOGNIZED_CFG_LINE,
     CL_FORK_FAILED,
@@ -56,7 +56,7 @@ enum cerror_code {
     CL_UNSUPPORTED_TYPE,
     CL_NULL_DATA,
     CL_ENDED_WITH_TIMEOUT,
-    CL_EXTERNAL_INIT_ERROR,
+    CL_EXTERNAL_INIT_ERROR,                     // 20
     CL_EXTERNAL_UNINIT_ERROR,
     CL_SETTIME_FAILED,
     CL_PSELECT_FAILED,
@@ -66,7 +66,7 @@ enum cerror_code {
     CL_CONNECT_FAILED,
     CL_IPC_INIT_FAILED,
     CL_IPC_UNINIT_FAILED,
-    CL_IPC_SET_UP_FAILED,
+    CL_IPC_SET_UP_FAILED,                       // 30
     CL_DRIVER_INIT_FAILED,
     CL_DRIVER_UNINIT_FAILED,
     CL_ESTABLISHED_CONNECTION_FAILED,
@@ -91,44 +91,45 @@ enum cerror_code {
     CL_HASHTABLE_COLLISION,
     CL_UNSUPPORTED_RAW_IMAGE,
     CL_UNABLE_TO_LOAD_IMAGE,
+    CL_UNABLE_TO_CREATE_TMP_IMAGE,
 
     CL_MAX_ERROR_CODE
 };
 
 /**
- * @name cerrno_storage
+ * @name cl_errno_storage
  * @brief Gets a pointer to the global thread specific error variable.
  *
  * @return Returns a pointer to the global error variable.
  */
-cerrno *cerrno_storage(void);
+cl_errno *cl_errno_storage(void);
 
 /**
- * @name cexit
+ * @name cl_exit
  * @brief Terminate calling thread.
  *
  * This function be must called at the end of main function if the user wants no
  * memory leak errors reported by the valgrind tool.
  */
-void cexit(void);
+void cl_exit(void);
 
 /**
- * @name cget_last_error
+ * @name cl_get_last_error
  * @brief Gets the last error code internally occurred.
  *
  * @return Returns the last error code.
  */
-enum cerror_code cget_last_error(void);
+enum cl_error_code cl_get_last_error(void);
 
 /**
- * @name cstrerror
+ * @name cl_strerror
  * @brief Converts a numeric error code in a text message.
  *
  * @param [in] error_code: Numeric error code.
  *
  * @return Returns the text corresponding the error code.
  */
-const char *cstrerror(enum cerror_code error_code);
+const char *cl_strerror(enum cl_error_code error_code);
 
 #endif
 

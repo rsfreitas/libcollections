@@ -34,64 +34,64 @@
 #endif
 
 /**
- * @name cstring_list_create
- * @brief Creates a new cstring_list_t object.
+ * @name cl_string_list_create
+ * @brief Creates a new cl_string_list_t object.
  *
- * @return On success returns the cstring_list_t object or NULL otherwise.
+ * @return On success returns the cl_string_list_t object or NULL otherwise.
  */
-cstring_list_t *cstring_list_create(void);
+cl_string_list_t *cl_string_list_create(void);
 
 /**
- * @name cstring_list_destroy
- * @brief Releases memory from a cstring_list_t object.
+ * @name cl_string_list_destroy
+ * @brief Releases memory from a cl_string_list_t object.
  *
- * @param [in] l: The cstring_list_t object.
+ * @param [in] l: The cl_string_list_t object.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstring_list_destroy(cstring_list_t *l);
+int cl_string_list_destroy(cl_string_list_t *l);
 
 /**
- * @name cstring_list_size
- * @brief Gets the size of a cstring_list_t object.
+ * @name cl_string_list_size
+ * @brief Gets the size of a cl_string_list_t object.
  *
- * @param [in] l: The cstring_list_t object.
+ * @param [in] l: The cl_string_list_t object.
  *
  * @return On success returns the size of \a l or -1 otherwise.
  */
-int cstring_list_size(const cstring_list_t *l);
+int cl_string_list_size(const cl_string_list_t *l);
 
 /**
- * @name cstring_list_add
- * @brief Add an item of cstring_t type into a cstring_list_t object.
+ * @name cl_string_list_add
+ * @brief Add an item of cl_string_t type into a cl_string_list_t object.
  *
- * @param [in,out] l: The cstring_list_t object.
- * @param [in] s: The cstring_t which will be inserted on the list.
+ * @param [in,out] l: The cl_string_list_t object.
+ * @param [in] s: The cl_string_t which will be inserted on the list.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cstring_list_add(cstring_list_t *l, cstring_t *s);
+int cl_string_list_add(cl_string_list_t *l, cl_string_t *s);
 
 /**
- * @name cstring_list_get
- * @brief Gets a pointer to a specific item inside a cstring_list_t object.
+ * @name cl_string_list_get
+ * @brief Gets a pointer to a specific item inside a cl_string_list_t object.
  *
  * On a successful call the returned string reference must be 'unreferenced'.
  *
- * @param [in] l: The cstring_list_t object.
+ * @param [in] l: The cl_string_list_t object.
  * @param [in] index: The index of the item.
  *
  * @return On success returns a reference to an item or NULL otherwise.
  */
-cstring_t *cstring_list_get(const cstring_list_t *l, unsigned int index);
+cl_string_t *cl_string_list_get(const cl_string_list_t *l, unsigned int index);
 
 /**
- * @name cstring_list_map
+ * @name cl_string_list_map
  * @brief Call a function to act on every node from a list.
  *
  * On a successful call the returned string reference must be 'unreferenced'.
  *
- * @param [in] l: The cstring_list_t object.
+ * @param [in] l: The cl_string_list_t object.
  * @param [in] foo: Function to execute over a node onto the list.
  * @param [in] data: An optional data to pass together with every node while
  *                   walks through the list.
@@ -100,8 +100,8 @@ cstring_t *cstring_list_get(const cstring_list_t *l, unsigned int index);
  *         new reference to the current object from the list otherwise returns
  *         NULL.
  */
-cstring_t *cstring_list_map(const cstring_list_t *l,
-                            int (*foo)(void *, void *), void *data);
+cl_string_t *cl_string_list_map(const cl_string_list_t *l,
+                                int (*foo)(void *, void *), void *data);
 
 #endif
 

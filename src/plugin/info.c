@@ -36,15 +36,15 @@
     cl_struct_member(char *, version)       \
     cl_struct_member(char *, author)        \
     cl_struct_member(char *, description)   \
-    cl_struct_member(cjson_t *, api)        \
+    cl_struct_member(cl_json_t *, api)      \
     cl_struct_member(void *, data)          \
-    cl_struct_member(struct cref_s, ref)
+    cl_struct_member(struct cl_ref_s, ref)
 
 cl_struct_declare(cinfo_s, cinfo_members);
 
 #define cinfo_s         cl_struct(cinfo_s)
 
-static void __destroy_info_s(const struct cref_s *ref)
+static void __destroy_info_s(const struct cl_ref_s *ref)
 {
     cinfo_s *info = cl_container_of(ref, cinfo_s, ref);
 
@@ -83,34 +83,34 @@ static cinfo_s *new_info_s(const char *name, const char *version,
     i->ref.count = 1;
     i->ref.free = __destroy_info_s;
 
-    set_typeof(CPLUGIN_INFO, i);
+    set_typeof(CL_OBJ_PLUGIN_INFO, i);
 
     return i;
 }
 
-cplugin_info_t *info_ref(cplugin_info_t *info)
+cl_plugin_info_t *info_ref(cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return NULL;
 
-    cref_inc(&i->ref);
+    cl_ref_inc(&i->ref);
 
     return info;
 }
 
-void info_unref(cplugin_info_t *info)
+void info_unref(cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 
     if (NULL == i)
         return;
 
-    cref_dec(&i->ref);
+    cl_ref_dec(&i->ref);
 }
 
-cplugin_info_t *info_create_from_data(const char *name,
+cl_plugin_info_t *info_create_from_data(const char *name,
     const char *version, const char *author, const char *description,
     const char *api)
 {
@@ -124,34 +124,14 @@ cplugin_info_t *info_create_from_data(const char *name,
     info->api = api_load(api);
 
     if (NULL == info->api) {
-        info_unref((cplugin_info_t *)info);
+        info_unref((cl_plugin_info_t *)info);
         return NULL;
     }
 
-    return (cplugin_info_t *)info;
+    return (cl_plugin_info_t *)info;
 }
 
-cplugin_info_t *info_create_from_entry(struct cplugin_entry_s *entry)
-{
-    cinfo_s *info = NULL;
-
-    info = new_info_s(entry->name, entry->version, entry->description,
-                      entry->author);
-
-    if (NULL == info)
-        return NULL;
-
-    info->api = api_load(entry->api);
-
-    if (NULL == info->api) {
-        info_unref((cplugin_info_t *)info);
-        return NULL;
-    }
-
-    return (cplugin_info_t *)info;
-}
-
-cjson_t *info_get_api(const cplugin_info_t *info)
+cl_json_t *info_get_api(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 
@@ -161,7 +141,7 @@ cjson_t *info_get_api(const cplugin_info_t *info)
     return i->api;
 }
 
-char *info_get_name(const cplugin_info_t *info)
+char *info_get_name(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 
@@ -171,7 +151,7 @@ char *info_get_name(const cplugin_info_t *info)
     return i->name;
 }
 
-char *info_get_version(const cplugin_info_t *info)
+char *info_get_version(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 
@@ -181,7 +161,7 @@ char *info_get_version(const cplugin_info_t *info)
     return i->version;
 }
 
-char *info_get_description(const cplugin_info_t *info)
+char *info_get_description(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 
@@ -191,7 +171,7 @@ char *info_get_description(const cplugin_info_t *info)
     return i->description;
 }
 
-char *info_get_author(const cplugin_info_t *info)
+char *info_get_author(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 
@@ -201,7 +181,7 @@ char *info_get_author(const cplugin_info_t *info)
     return i->author;
 }
 
-void info_set_custom_data(cplugin_info_t *info, void *ptr)
+void info_set_custom_data(cl_plugin_info_t *info, void *ptr)
 {
     cinfo_s *i = (cinfo_s *)info;
 
@@ -211,7 +191,7 @@ void info_set_custom_data(cplugin_info_t *info, void *ptr)
     i->data = ptr;
 }
 
-void *info_get_custom_data(cplugin_info_t *info)
+void *info_get_custom_data(cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
 

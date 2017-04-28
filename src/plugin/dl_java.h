@@ -35,18 +35,18 @@
 
 void *jni_library_init(void);
 void jni_library_uninit(void *data);
-cplugin_info_t *jni_load_info(void *data, void *ptr);
+cl_plugin_info_t *jni_load_info(void *data, void *ptr);
 int jni_load_functions(void *data, struct cplugin_function_s *flist,
                        void *handle);
 
 void *jni_open(void *data, const char *pathname);
 int jni_close(void *data, void *ptr);
-cobject_t *jni_call(void *data, struct cplugin_function_s *foo,
-                    cplugin_t *cpl, struct function_argument *args);
+cl_object_t *jni_call(void *data, struct cplugin_function_s *foo,
+                    cl_plugin_t *cpl, struct function_argument *args);
 
-int jni_plugin_startup(void *data, void *handle, cplugin_info_t *info);
-int jni_plugin_shutdown(void *data, void *handle, cplugin_info_t *info);
-bool jni_plugin_test(const cstring_t *mime);
+int jni_plugin_startup(void *data, void *handle, cl_plugin_info_t *info);
+int jni_plugin_shutdown(void *data, void *handle, cl_plugin_info_t *info);
+bool jni_plugin_test(const cl_string_t *mime);
 
 #endif
 

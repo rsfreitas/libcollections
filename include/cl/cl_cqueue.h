@@ -34,19 +34,19 @@
 #endif
 
 /**
- * @name circular_queue_ref
- * @brief Increases the reference count for a circular_queue_t item.
+ * @name cl_cqueue_ref
+ * @brief Increases the reference count for a cl_cqueue_t item.
  *
  * @param [in,out] cqueue: The circular queue item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-circular_queue_t *circular_queue_ref(circular_queue_t *cqueue);
+cl_cqueue_t *cl_cqueue_ref(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_unref
- * @brief Decreases the reference count for a circular_queue_t item.
+ * @name cl_cqueue_unref
+ * @brief Decreases the reference count for a cl_cqueue_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
@@ -55,10 +55,10 @@ circular_queue_t *circular_queue_ref(circular_queue_t *cqueue);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_unref(circular_queue_t *cqueue);
+int cl_cqueue_unref(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_create
+ * @name cl_cqueue_create
  * @brief Creates a new circular queue object.
  *
  * This function creates a new circular queue to manipulate all kind of data
@@ -76,9 +76,9 @@ int circular_queue_unref(circular_queue_t *cqueue);
  * Their prototypes are the following:
  *
  * void free_data(void *);
- * int compare_to(cqueue_node_t *, cqueue_node_t *);
- * int filter(cqueue_node_t *, void *);
- * int equals(cqueue_node_t *, cqueue_node_t *);
+ * int compare_to(cl_queue_node_t *, cl_queue_node_t *);
+ * int filter(cl_queue_node_t *, void *);
+ * int equals(cl_queue_node_t *, cl_queue_node_t *);
  *
  * If the type of a node content if of a cobject_t kind it is not necessary to
  * pass the arguments \a free_data, \a compare_to and \a equals, since them can
@@ -92,16 +92,15 @@ int circular_queue_unref(circular_queue_t *cqueue);
  *
  * @return On success a void object will be returned or NULL otherwise.
  */
-circular_queue_t *circular_queue_create(unsigned int size,
-                                        void (*unref_node)(void *),
-                                        int (*compare_to)(cqueue_node_t *,
-                                                          cqueue_node_t *),
-                                        int (*filter)(cqueue_node_t *, void *),
-                                        int (*equals)(cqueue_node_t *,
-                                                      cqueue_node_t *));
+cl_cqueue_t *cl_cqueue_create(unsigned int size, void (*unref_node)(void *),
+                              int (*compare_to)(cl_queue_node_t *,
+                                                cl_queue_node_t *),
+                              int (*filter)(cl_queue_node_t *, void *),
+                              int (*equals)(cl_queue_node_t *,
+                                            cl_queue_node_t *));
 
 /**
- * @name circular_queue_destroy
+ * @name cl_cqueue_destroy
  * @brief Releases a void from memory.
  *
  * When releasing a node from the queue, the \a free_data function passed while
@@ -111,20 +110,20 @@ circular_queue_t *circular_queue_create(unsigned int size,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_destroy(circular_queue_t *cqueue);
+int cl_cqueue_destroy(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_size
+ * @name cl_cqueue_size
  * @brief Gets the circular queue size.
  *
  * @param [in] cqueue:  The circular queue object.
  *
  * @return On success returns the size of the queue or -1 otherwise.
  */
-int circular_queue_size(circular_queue_t *cqueue);
+int cl_cqueue_size(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_enqueue
+ * @name cl_cqueue_enqueue
  * @brief Inserts an element into the circular queue.
  *
  * Whe the circular queue reaches its limit, the older element will be removed
@@ -136,11 +135,11 @@ int circular_queue_size(circular_queue_t *cqueue);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_enqueue(circular_queue_t *cqueue, const void *data,
-                           unsigned int data_size);
+int cl_cqueue_enqueue(cl_cqueue_t *cqueue, const void *data,
+                      unsigned int data_size);
 
 /**
- * @name circular_queue_dequeue
+ * @name cl_cqueue_dequeue
  * @brief Retrieves and removes the head of the circular queue.
  *
  * @param [in,out] cqueue:  The circular queue object.
@@ -148,15 +147,15 @@ int circular_queue_enqueue(circular_queue_t *cqueue, const void *data,
  * @return On success returns the node shifted off the queue, and the user is
  *         responsible for releasing it, or NULL otherwise.
  */
-cqueue_node_t *circular_queue_dequeue(circular_queue_t *cqueue);
+cl_queue_node_t *cl_cqueue_dequeue(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_map
+ * @name cl_cqueue_map
  * @brief Maps a function to every node on a circular queue.
  *
  * The \a foo function receives as arguments a node from the queue and some
  * \a data. Its prototype must be something of this type:
- * int foo(cqueue_node_t *, void *);
+ * int foo(cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -167,17 +166,17 @@ cqueue_node_t *circular_queue_dequeue(circular_queue_t *cqueue);
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *circular_queue_map(circular_queue_t *cqueue,
-                                  int (*foo)(cqueue_node_t *, void *),
-                                  void *data);
+cl_queue_node_t *cl_cqueue_map(cl_cqueue_t *cqueue,
+                               int (*foo)(cl_queue_node_t *, void *),
+                               void *data);
 
 /**
- * @name circular_queue_map_indexed
+ * @name cl_cqueue_map_indexed
  * @brief Maps a function to every node on a circular queue.
  *
  * The \a foo function receives as arguments the current node index inside the
  * queue, a node from the queue and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -188,19 +187,19 @@ cqueue_node_t *circular_queue_map(circular_queue_t *cqueue,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *circular_queue_map_indexed(circular_queue_t *cqueue,
-                                          int (*foo)(unsigned int,
-                                                     cqueue_node_t *, void *),
-                                          void *data);
+cl_queue_node_t *cl_cqueue_map_indexed(cl_cqueue_t *cqueue,
+                                       int (*foo)(unsigned int,
+                                                  cl_queue_node_t *, void *),
+                                       void *data);
 
 /**
- * @name circular_queue_map_reverse
+ * @name cl_cqueue_map_reverse
  * @brief Maps a functions to every onde on a circular queue from the end to
  *        the top.
  *
  * The \a foo function receives as arguments a node from the queue and some
  * \a data. Its prototype must be something of this type:
- * int foo(cqueue_node_t *, void *);
+ * int foo(cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -211,18 +210,18 @@ cqueue_node_t *circular_queue_map_indexed(circular_queue_t *cqueue,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *circular_queue_map_reverse(circular_queue_t *cqueue,
-                                          int (*foo)(cqueue_node_t *, void *),
-                                          void *data);
+cl_queue_node_t *cl_cqueue_map_reverse(cl_cqueue_t *cqueue,
+                                       int (*foo)(cl_queue_node_t *, void *),
+                                       void *data);
 
 /**
- * @name circular_queue_map_reverse_indexed
+ * @name cl_cqueue_map_reverse_indexed
  * @brief Maps a function to every node on a circular queue from the end to the
  *        top.
  *
  * The \a foo function receives as arguments the current node index inside the
  * queue, a node from the queue and some custom \a data. Its prototype must be
- * something of this kind: int foo(unsigned int, cqueue_node_t *, void *);
+ * something of this kind: int foo(unsigned int, cl_queue_node_t *, void *);
  *
  * On a successful call the node reference must be 'unreferenced'.
  *
@@ -233,14 +232,14 @@ cqueue_node_t *circular_queue_map_reverse(circular_queue_t *cqueue,
  * @return If \a foo returns a non-zero returns a new reference to the current
  *         node. If not returns NULL.
  */
-cqueue_node_t *circular_queue_map_reverse_indexed(circular_queue_t *cqueue,
-                                                  int (*foo)(unsigned int,
-                                                             cqueue_node_t *,
-                                                             void *),
-                                                  void *data);
+cl_queue_node_t *cl_cqueue_map_reverse_indexed(cl_cqueue_t *cqueue,
+                                               int (*foo)(unsigned int,
+                                                          cl_queue_node_t *,
+                                                          void *),
+                                               void *data);
 
 /**
- * @name circular_queue_at
+ * @name cl_cqueue_at
  * @brief Gets a pointer to a specific node inside a circular queue.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -250,10 +249,10 @@ cqueue_node_t *circular_queue_map_reverse_indexed(circular_queue_t *cqueue,
  *
  * @return On success returns a reference to the node or NULL otherwise.
  */
-cqueue_node_t *circular_queue_at(circular_queue_t *cqueue, unsigned int index);
+cl_queue_node_t *cl_cqueue_at(cl_cqueue_t *cqueue, unsigned int index);
 
 /**
- * @name circular_queue_delete
+ * @name cl_cqueue_delete
  * @brief Deletes elements from a circular queue according a specific filter
  *        function.
  *
@@ -266,10 +265,10 @@ cqueue_node_t *circular_queue_at(circular_queue_t *cqueue, unsigned int index);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_delete(circular_queue_t *cqueue, void *data);
+int cl_cqueue_delete(cl_cqueue_t *cqueue, void *data);
 
 /**
- * @name circular_queue_delete_indexed
+ * @name cl_cqueue_delete_indexed
  * @brief Deletes an element from a circular queue at a specific position.
  *
  * @param [in,out] cqueue:  The circular queue object.
@@ -277,20 +276,20 @@ int circular_queue_delete(circular_queue_t *cqueue, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_delete_indexed(circular_queue_t *cqueue, unsigned int index);
+int cl_cqueue_delete_indexed(cl_cqueue_t *cqueue, unsigned int index);
 
 /**
- * @name circular_queue_move
+ * @name cl_cqueue_move
  * @brief Moves all elements from a circular queue to another.
  *
  * @param [in] cqueue: The original void object.
  *
  * @return Returns the new circular queue.
  */
-circular_queue_t *circular_queue_move(circular_queue_t *cqueue);
+cl_cqueue_t *cl_cqueue_move(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_filter
+ * @name cl_cqueue_filter
  * @brief Extracts elements from a circular queue according a specific filter.
  *
  * If the filter function returns a positive value the element will be extracted.
@@ -303,10 +302,10 @@ circular_queue_t *circular_queue_move(circular_queue_t *cqueue);
  * @return Returns a circular queue containing all extracted elements from the
  *         original queue.
  */
-circular_queue_t *circular_queue_filter(circular_queue_t *cqueue, void *data);
+cl_cqueue_t *cl_cqueue_filter(cl_cqueue_t *cqueue, void *data);
 
 /**
- * @name circular_queue_sort
+ * @name cl_cqueue_sort
  * @brief Sort all elements from a circular queue.
  *
  * This function uses the \a compare_to function to compare two elements from
@@ -316,10 +315,10 @@ circular_queue_t *circular_queue_filter(circular_queue_t *cqueue, void *data);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_sort(circular_queue_t *cqueue);
+int cl_cqueue_sort(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_indexof
+ * @name cl_cqueue_indexof
  * @brief Gets the index of the first occurrence of an element inside the
  *        circular queue.
  *
@@ -331,11 +330,11 @@ int circular_queue_sort(circular_queue_t *cqueue);
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int circular_queue_indexof(circular_queue_t *cqueue, void *element,
-                           unsigned int size);
+int cl_cqueue_indexof(cl_cqueue_t *cqueue, void *element,
+                      unsigned int size);
 
 /**
- * @name circular_queue_last_indexof
+ * @name cl_cqueue_last_indexof
  * @brief Gets the index of the last occurrence of an element inside the
  *        circular queue.
  *
@@ -347,11 +346,11 @@ int circular_queue_indexof(circular_queue_t *cqueue, void *element,
  *
  * @return Returns the element index or -1 if it is not found.
  */
-int circular_queue_last_indexof(circular_queue_t *cqueue, void *element,
-                                unsigned int size);
+int cl_cqueue_last_indexof(cl_cqueue_t *cqueue, void *element,
+                           unsigned int size);
 
 /**
- * @name circular_queue_contains
+ * @name cl_cqueue_contains
  * @brief Checks if a circular queue contains a specific element.
  *
  * This function uses the \a equals function to compare objects from the queue.
@@ -362,11 +361,11 @@ int circular_queue_last_indexof(circular_queue_t *cqueue, void *element,
  *
  * @return Returns true if the element is found or false otherwise.
  */
-bool circular_queue_contains(circular_queue_t *cqueue, void *element,
-                             unsigned int size);
+bool cl_cqueue_contains(cl_cqueue_t *cqueue, void *element,
+                        unsigned int size);
 
 /**
- * @name circular_queue_front
+ * @name cl_cqueue_front
  * @brief Retrieves, but does not remove, the head of the circular queue.
  *
  * On a successful call the node reference must be 'unreferenced'.
@@ -376,20 +375,20 @@ bool circular_queue_contains(circular_queue_t *cqueue, void *element,
  * @return Returns NULL if the queue is empty or a new reference to the head
  *         of it.
  */
-cqueue_node_t *circular_queue_front(circular_queue_t *cqueue);
+cl_queue_node_t *cl_cqueue_front(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_is_empty
+ * @name cl_cqueue_is_empty
  * @brief Tests to see if the circular queue is empty or not.
  *
  * @param [in] cqueue:  The circular queue object.
  *
  * @return Returns true if the queue is empty or false otherwise.
  */
-bool circular_queue_is_empty(circular_queue_t *cqueue);
+bool cl_cqueue_is_empty(cl_cqueue_t *cqueue);
 
 /**
- * @name circular_queue_set_compare_to
+ * @name cl_cqueue_set_compare_to
  * @brief Updates the internal object compare function.
  *
  * @param [in] cqueue:  The circular queue object.
@@ -397,12 +396,12 @@ bool circular_queue_is_empty(circular_queue_t *cqueue);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_set_compare_to(circular_queue_t *cqueue,
-                                  int (*compare_to)(cqueue_node_t *,
-                                                    cqueue_node_t *));
+int cl_cqueue_set_compare_to(cl_cqueue_t *cqueue,
+                             int (*compare_to)(cl_queue_node_t *,
+                                               cl_queue_node_t *));
 
 /**
- * @name circular_queue_set_filter
+ * @name cl_cqueue_set_filter
  * @brief Updates the internal filter function.
  *
  * @param [in] cqueue:  The circular queue object.
@@ -410,11 +409,11 @@ int circular_queue_set_compare_to(circular_queue_t *cqueue,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_set_filter(circular_queue_t *cqueue,
-                              int (*filter)(cqueue_node_t *, void *));
+int cl_cqueue_set_filter(cl_cqueue_t *cqueue, int (*filter)(cl_queue_node_t *,
+                                                            void *));
 
 /**
- * @name circular_queue_set_equals
+ * @name cl_cqueue_set_equals
  * @brief Updates the internal equals function.
  *
  * @param [in] cqueue:  The circular queue object.
@@ -422,8 +421,8 @@ int circular_queue_set_filter(circular_queue_t *cqueue,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int circular_queue_set_equals(circular_queue_t *cqueue,
-                              int (*equals)(cqueue_node_t *, cqueue_node_t *));
+int cl_cqueue_set_equals(cl_cqueue_t *cqueue, int (*equals)(cl_queue_node_t *,
+                                                            cl_queue_node_t *));
 
 #endif
 
