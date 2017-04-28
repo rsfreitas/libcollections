@@ -265,7 +265,7 @@ static cl_string_t *get_comment(const cl_string_t *s, char delim,
 static cl_string_t *get_line_content(const cl_string_t *s, char delim,
     const cl_string_list_t *list)
 {
-    cl_string_t *p, *content;
+    cl_string_t *p = NULL, *content;
     int l;
 
     if (NULL == list)
@@ -276,10 +276,11 @@ static cl_string_t *get_line_content(const cl_string_t *s, char delim,
     if (delim != 0) {
         /* Has only comment */
         l = cl_string_length(p);
-        cl_string_unref(p);
 
-        if (l == 0)
+        if (l == 0) {
+            cl_string_unref(p);
             return NULL;
+        }
     }
 
     content = cl_string_dup(p);
@@ -865,6 +866,7 @@ static int add_section(cl_list_node_t *a, void *b)
     cl_string_dchr(s, ']');
 
     cl_string_list_add(sections, s);
+    cl_string_unref(s);
 
     return 0;
 }
