@@ -633,6 +633,13 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
     node = cl_list_map(f->section, search_section, (void *)section);
 
     if (NULL == node) {
+        /*
+         * We create an empty line to keep a distance from one section to
+         * another
+         */
+        s = new_cfg_line_s(NULL, NULL, NULL, 0, CFG_LINE_EMPTY);
+        cl_list_unshift(f->section, s, -1);
+
         if (is_section(section) == true)
             t = cl_string_create("%s", section);
         else
