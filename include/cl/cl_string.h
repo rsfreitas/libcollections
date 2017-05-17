@@ -529,5 +529,16 @@ int cl_string_count_matches(const cl_string_t *string, const char *needle);
  */
 int cl_string_set_content(cl_string_t *s, const char *content);
 
+/**
+ * @name cl_string_update_length
+ * @brief Updates the string internal length information with its current
+ *        content.
+ *
+ * @param [in] s: The cl_string_t object.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_string_update_length(cl_string_t *s);
+
 #endif
 

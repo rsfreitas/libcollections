@@ -426,8 +426,8 @@ __PUB_API__ int cl_object_set(cl_object_t *object, ...)
     va_start(ap, NULL);
 
     if (o->specs != NULL) {
-        if (cl_spec_validate(o->specs, o, true, CL_VALIDATE_IGNORED,
-                             ap) == false)
+        if (cl_spec_validate_va(o->specs, o, true, CL_VALIDATE_IGNORED,
+                                ap) == false)
         {
             return -1;
         }
@@ -590,8 +590,8 @@ static int get_object_check(const cl_object_t *object, enum cl_type type)
     }
 
     if (o->specs != NULL) {
-        if (cl_spec_validate(o->specs, (cl_object_t *)object, false,
-                           CL_VALIDATE_IGNORED, ap) == false)
+        if (cl_spec_validate_va(o->specs, (cl_object_t *)object, false,
+                                CL_VALIDATE_IGNORED, ap) == false)
         {
             cset_errno(CL_INVALID_VALUE);
             return -1;
@@ -654,7 +654,7 @@ static cl_string_t *print_object(const cl_object_s *o)
             break;
 
         case CL_FLOAT:
-            s = cl_string_create("%f", o->f);
+            s = cl_string_create("%.2f", o->f);
             break;
 
         case CL_DOUBLE:
@@ -718,10 +718,13 @@ __PUB_API__ cl_object_t *cl_object_from_cstring(const cl_string_t *object)
     __clib_function_init__(true, object, CL_OBJ_STRING, NULL);
     ref = cl_string_ref((cl_string_t *)object);
 
-    if (cl_string_is_number(ref) == true)
+    /* Are we receiving an empty string? */
+    if (cl_string_length(ref) == 0)
+        o = cl_object_create(CL_STRING, "");
+    else if (cl_string_is_number(ref) == true)
         o = cl_object_create(CL_INT, cl_string_to_int(ref));
     else if (cl_string_is_float_number(ref) == true)
-        o = cl_object_create(CL_FLOAT, cl_string_to_int(ref));
+        o = cl_object_create(CL_FLOAT, cl_string_to_float(ref));
     else
         o = cl_object_create(CL_STRING, cl_string_valueof(ref));
 

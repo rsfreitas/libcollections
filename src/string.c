@@ -978,7 +978,6 @@ __PUB_API__ bool cl_string_is_number(const cl_string_t *string)
     bool ret = true;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, false);
-
     value = cl_string_ref((cl_string_t *)string);
     l = cl_string_length(value);
 
@@ -1005,7 +1004,7 @@ __PUB_API__ bool cl_string_is_float_number(const cl_string_t *string)
     l = cl_string_length(value);
 
     for (i = 0; i < l; i++) {
-        if ((isdigit(cl_string_at(value, i)) == 0) ||
+        if ((isdigit(cl_string_at(value, i)) == 0) &&
             (cl_string_at(value, i) != '.'))
         {
             ret = false;
@@ -1176,6 +1175,19 @@ __PUB_API__ int cl_string_set_content(cl_string_t *s, const char *content)
     p = cl_string_ref(s);
     p->str = (char *)content;
     p->size = strlen(content);
+    cl_string_unref(p);
+
+    return 0;
+}
+
+__PUB_API__ int cl_string_update_length(cl_string_t *s)
+{
+    cl_string_s *p = NULL;
+
+    __clib_function_init__(true, s, CL_OBJ_STRING, -1);
+
+    p = cl_string_ref(s);
+    p->size = strlen(p->str);
     cl_string_unref(p);
 
     return 0;

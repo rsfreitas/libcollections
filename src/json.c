@@ -290,6 +290,7 @@ static const char *parse_string(cl_json_s *n, const char *s)
         ptr++;
 
     n->value = out;
+    cl_string_update_length(n->value);
     n->type = CL_JSON_STRING;
 
     return ptr;

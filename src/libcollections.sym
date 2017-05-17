@@ -163,6 +163,7 @@ LIBCOLLECTIONS_0.1 {
         cl_json_to_string;
         cl_spec_create;
         cl_spec_destroy;
+        cl_spec_validate_va;
         cl_spec_validate;
         cl_spec_set_min;
         cl_spec_set_max;
@@ -212,11 +213,12 @@ LIBCOLLECTIONS_0.1 {
         cl_string_list_create;
         cl_string_list_destroy;
         cl_string_list_get;
-        cl_string_list_map;
         cl_string_list_size;
+        cl_string_list_flat;
         cl_string_dchr;
         cl_string_idchr;
         cl_string_set_content;
+        cl_string_update_length;
         cl_thread_get_user_data;
         cl_thread_set_state;
         cl_thread_wait_startup;
