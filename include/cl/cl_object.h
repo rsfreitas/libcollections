@@ -238,6 +238,16 @@ int cl_object_set_compare_to(cl_object_t *object,
 int cl_object_compare_to(const cl_object_t *ob1, const cl_object_t *ob2);
 
 /**
+ * @name cl_object_dup
+ * @brief Duplicates a cl_object_t object.
+ *
+ * @param [in] object: The cl_object_t object.
+ *
+ * @return On success returns a new cl_object_t object or NULL otherwise.
+ */
+cl_object_t *cl_object_dup(const cl_object_t *object);
+
+/**
  * Macros to get the cl_object_t item object. The STRING and CSTRING objects must
  * be released by the user, using 'free' or 'cl_string_unref' calls.
  */

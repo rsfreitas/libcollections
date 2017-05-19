@@ -90,7 +90,7 @@ cl_spec_t *cl_spec_create(enum cl_spec_attrib properties, cl_object_t *min,
 int cl_spec_destroy(cl_spec_t *spec);
 
 /**
- * @name cl_spec_validate
+ * @name cl_spec_validate_va
  * @brief Performs validations on a cl_object_t using a cl_spec_t content.
  *
  * The validations are executed according to the cl_object_t type and, if the
@@ -105,8 +105,27 @@ int cl_spec_destroy(cl_spec_t *spec);
  *
  * @return On success returns true or false otherwise.
  */
+bool cl_spec_validate_va(const cl_spec_t *spec, cl_object_t *value, bool set_value,
+                         enum cl_spec_validation_fmt validation, va_list ap);
+
+/**
+ * @name cl_spec_validate
+ * @brief Performs validations on a cl_object_t using a cl_spec_t content.
+ *
+ * The validations are executed according to the cl_object_t type and, if the
+ * return is true, the cl_object_t internal object is updated.
+ *
+ * @param [in] spec: The cl_spec_t object parameters.
+ * @param [in,out] value: The cl_object_t object.
+ * @param [in] set_value: Flag indicating what will be validated, if we can
+ *                        read or write the object.
+ * @param [in] validation: Validation which will be applied.
+ * @param [in] ...: Values that the cl_object_t may have if validations were true.
+ *
+ * @return On success returns true or false otherwise.
+ */
 bool cl_spec_validate(const cl_spec_t *spec, cl_object_t *value, bool set_value,
-                      enum cl_spec_validation_fmt validation, va_list ap);
+                      enum cl_spec_validation_fmt validation, ...);
 
 /**
  * @name cl_spec_set_min

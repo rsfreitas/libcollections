@@ -426,8 +426,8 @@ __PUB_API__ int cl_object_set(cl_object_t *object, ...)
     va_start(ap, NULL);
 
     if (o->specs != NULL) {
-        if (cl_spec_validate(o->specs, o, true, CL_VALIDATE_IGNORED,
-                             ap) == false)
+        if (cl_spec_validate_va(o->specs, o, true, CL_VALIDATE_IGNORED,
+                                ap) == false)
         {
             return -1;
         }
@@ -590,8 +590,8 @@ static int get_object_check(const cl_object_t *object, enum cl_type type)
     }
 
     if (o->specs != NULL) {
-        if (cl_spec_validate(o->specs, (cl_object_t *)object, false,
-                           CL_VALIDATE_IGNORED, ap) == false)
+        if (cl_spec_validate_va(o->specs, (cl_object_t *)object, false,
+                                CL_VALIDATE_IGNORED, ap) == false)
         {
             cset_errno(CL_INVALID_VALUE);
             return -1;
@@ -654,7 +654,7 @@ static cl_string_t *print_object(const cl_object_s *o)
             break;
 
         case CL_FLOAT:
-            s = cl_string_create("%f", o->f);
+            s = cl_string_create("%.2f", o->f);
             break;
 
         case CL_DOUBLE:
@@ -718,10 +718,13 @@ __PUB_API__ cl_object_t *cl_object_from_cstring(const cl_string_t *object)
     __clib_function_init__(true, object, CL_OBJ_STRING, NULL);
     ref = cl_string_ref((cl_string_t *)object);
 
-    if (cl_string_is_number(ref) == true)
+    /* Are we receiving an empty string? */
+    if (cl_string_length(ref) == 0)
+        o = cl_object_create(CL_STRING, "");
+    else if (cl_string_is_number(ref) == true)
         o = cl_object_create(CL_INT, cl_string_to_int(ref));
     else if (cl_string_is_float_number(ref) == true)
-        o = cl_object_create(CL_FLOAT, cl_string_to_int(ref));
+        o = cl_object_create(CL_FLOAT, cl_string_to_float(ref));
     else
         o = cl_object_create(CL_STRING, cl_string_valueof(ref));
 
@@ -997,5 +1000,100 @@ __PUB_API__ int cl_object_compare_to(const cl_object_t *ob1,
     }
 
     return (v->compare_to)((cl_object_t *)ob2);
+}
+
+static void dup_object_content(cl_object_s *new, const cl_object_s *object)
+{
+    switch (new->type) {
+        case CL_VOID:
+            /* noop */
+            break;
+
+        case CL_CHAR:
+            cl_object_set(new, CL_OBJECT_AS_CHAR(object));
+            break;
+
+        case CL_UCHAR:
+            cl_object_set(new, CL_OBJECT_AS_UCHAR(object));
+            break;
+
+        case CL_INT:
+            cl_object_set(new, CL_OBJECT_AS_INT(object));
+            break;
+
+        case CL_UINT:
+            cl_object_set(new, CL_OBJECT_AS_UINT(object));
+            break;
+
+        case CL_SINT:
+            cl_object_set(new, CL_OBJECT_AS_SINT(object));
+            break;
+
+        case CL_USINT:
+            cl_object_set(new, CL_OBJECT_AS_USINT(object));
+            break;
+
+        case CL_FLOAT:
+            cl_object_set(new, CL_OBJECT_AS_FLOAT(object));
+            break;
+
+        case CL_DOUBLE:
+            cl_object_set(new, CL_OBJECT_AS_DOUBLE(object));
+            break;
+
+        case CL_LONG:
+            cl_object_set(new, CL_OBJECT_AS_LONG(object));
+            break;
+
+        case CL_ULONG:
+            cl_object_set(new, CL_OBJECT_AS_ULONG(object));
+            break;
+
+        case CL_LLONG:
+            cl_object_set(new, CL_OBJECT_AS_LLONG(object));
+            break;
+
+        case CL_ULLONG:
+            cl_object_set(new, CL_OBJECT_AS_ULLONG(object));
+            break;
+
+        case CL_POINTER:
+            /* TODO */
+            break;
+
+        case CL_STRING:
+        case CL_CSTRING:
+            new->s = cl_string_dup(object->s);
+            break;
+
+        case CL_BOOLEAN:
+            cl_object_set(new, CL_OBJECT_AS_BOOLEAN(object));
+            break;
+    }
+
+}
+
+static void dup_object_events(cl_object_s *new, const cl_object_s *object)
+{
+    new->equals = object->equals;
+    new->compare_to = object->compare_to;
+
+    /* TODO: specs */
+}
+
+__PUB_API__ cl_object_t *cl_object_dup(const cl_object_t *object)
+{
+    cl_object_s *new = NULL;
+
+    __clib_function_init__(true, object, CL_OBJ_OBJECT, NULL);
+    new = new_cl_object_s(cl_object_type(object));
+
+    if (NULL == new)
+        return NULL;
+
+    dup_object_content(new, object);
+    dup_object_events(new, object);
+
+    return new;
 }
 

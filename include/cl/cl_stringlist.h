@@ -86,22 +86,28 @@ int cl_string_list_add(cl_string_list_t *l, cl_string_t *s);
 cl_string_t *cl_string_list_get(const cl_string_list_t *l, unsigned int index);
 
 /**
- * @name cl_string_list_map
- * @brief Call a function to act on every node from a list.
- *
- * On a successful call the returned string reference must be 'unreferenced'.
+ * @name cl_string_list_flat
+ * @brief Gives a cl_string_t object with all strings from a stringlist.
  *
  * @param [in] l: The cl_string_list_t object.
- * @param [in] foo: Function to execute over a node onto the list.
- * @param [in] data: An optional data to pass together with every node while
- *                   walks through the list.
+ * @param [in] delimiter: A delimiter character to put between every string
+ *                        list entry.
  *
- * @return If the function \a foo returns a value different than 0 returns a
- *         new reference to the current object from the list otherwise returns
- *         NULL.
+ * @return On success returns a cl_string_t object with the stringlist content
+ *         or NULL otherwise.
  */
-cl_string_t *cl_string_list_map(const cl_string_list_t *l,
-                                int (*foo)(void *, void *), void *data);
+cl_string_t *cl_string_list_flat(const cl_string_list_t *l,
+                                 const char delimiter);
+
+/**
+ * @name cl_string_list_dup
+ * @brief Duplicates a cl_string_list_t object.
+ *
+ * @param [in] list: The cl_string_list_t object.
+ *
+ * @return On success returns a new cl_string_list_t object or NULL otherwise.
+ */
+cl_string_list_t *cl_string_list_dup(const cl_string_list_t *list);
 
 #endif
 

@@ -157,18 +157,52 @@ __PUB_API__ cl_string_t *cl_string_list_get(const cl_string_list_t *l,
     return cl_string_ref(n->s);
 }
 
-__PUB_API__ cl_string_t *cl_string_list_map(const cl_string_list_t *l,
-    int (*foo)(void *, void *), void *data)
+__PUB_API__ cl_string_t *cl_string_list_flat(const cl_string_list_t *l,
+    const char delimiter)
 {
     cl_string_list_s *p = (cl_string_list_s *)l;
     struct cl_string_list_node_s *n = NULL;
+    cl_string_t *s = NULL;
+    unsigned int i;
 
     __clib_function_init__(true, l, CL_OBJ_STRINGLIST, NULL);
-    n = cl_dll_map(p->list, foo, data);
+    s = cl_string_create_empty(0);
 
-    if (NULL == n)
+    if (NULL == s)
         return NULL;
 
-    return cl_string_ref(n->s);
+    for (i = 0; i < p->size; i++) {
+        n = cl_dll_at(p->list, i);
+
+        if (n != NULL)
+            cl_string_cat(s, "%s%c", cl_string_valueof(n->s), delimiter);
+    }
+
+    return s;
+}
+
+__PUB_API__ cl_string_list_t *cl_string_list_dup(const cl_string_list_t *list)
+{
+    int i, t;
+    cl_string_list_t *new = NULL;
+    cl_string_t *tmp, *s;
+
+    __clib_function_init__(true, list, CL_OBJ_STRINGLIST, NULL);
+    t = cl_string_list_size(list);
+    new = cl_string_list_create();
+
+    if (NULL == new)
+        return NULL;
+
+    for (i = 0; i < t; i++) {
+        tmp = cl_string_list_get(list, i);
+        s = cl_string_dup(tmp);
+        cl_string_unref(tmp);
+
+        cl_string_list_add(new, s);
+        cl_string_unref(s);
+    }
+
+    return new;
 }
 

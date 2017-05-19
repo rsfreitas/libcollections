@@ -430,9 +430,7 @@ void *cglist_map(const void *list, enum cl_object object,
         return NULL;
     }
 
-    pthread_mutex_lock(&l->lock);
     node = cl_dll_map(l->list, foo, data);
-    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -454,9 +452,7 @@ void *cglist_map_indexed(const void *list, enum cl_object object,
         return NULL;
     }
 
-    pthread_mutex_lock(&l->lock);
     node = cl_dll_map_indexed(l->list, foo, data);
-    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -477,9 +473,7 @@ void *cglist_map_reverse(const void *list, enum cl_object object,
         return NULL;
     }
 
-    pthread_mutex_lock(&l->lock);
     node = cl_dll_map_reverse(l->list, foo, data);
-    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -501,9 +495,7 @@ void *cglist_map_reverse_indexed(const void *list,
         return NULL;
     }
 
-    pthread_mutex_lock(&l->lock);
     node = cl_dll_map_indexed_reverse(l->list, foo, data);
-    pthread_mutex_unlock(&l->lock);
 
     if (NULL == node)
         return NULL;
@@ -542,7 +534,7 @@ int cglist_delete(void *list, enum cl_object object, void *data)
     }
 
     pthread_mutex_lock(&l->lock);
-    node = cl_dll_delete(l->list, l->filter, data, NULL);
+    node = cl_dll_delete(&l->list, l->filter, data, NULL);
 
     if (node) {
         /*
@@ -566,7 +558,7 @@ int cglist_delete_indexed(void *list, enum cl_object object,
     __clib_function_init__(true, list, object, -1);
 
     pthread_mutex_lock(&l->lock);
-    node = cl_dll_delete_indexed(l->list, index, NULL);
+    node = cl_dll_delete_indexed(&l->list, index, NULL);
 
     if (node) {
         /*
