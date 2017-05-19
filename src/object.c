@@ -1002,3 +1002,98 @@ __PUB_API__ int cl_object_compare_to(const cl_object_t *ob1,
     return (v->compare_to)((cl_object_t *)ob2);
 }
 
+static void dup_object_content(cl_object_s *new, const cl_object_s *object)
+{
+    switch (new->type) {
+        case CL_VOID:
+            /* noop */
+            break;
+
+        case CL_CHAR:
+            cl_object_set(new, CL_OBJECT_AS_CHAR(object));
+            break;
+
+        case CL_UCHAR:
+            cl_object_set(new, CL_OBJECT_AS_UCHAR(object));
+            break;
+
+        case CL_INT:
+            cl_object_set(new, CL_OBJECT_AS_INT(object));
+            break;
+
+        case CL_UINT:
+            cl_object_set(new, CL_OBJECT_AS_UINT(object));
+            break;
+
+        case CL_SINT:
+            cl_object_set(new, CL_OBJECT_AS_SINT(object));
+            break;
+
+        case CL_USINT:
+            cl_object_set(new, CL_OBJECT_AS_USINT(object));
+            break;
+
+        case CL_FLOAT:
+            cl_object_set(new, CL_OBJECT_AS_FLOAT(object));
+            break;
+
+        case CL_DOUBLE:
+            cl_object_set(new, CL_OBJECT_AS_DOUBLE(object));
+            break;
+
+        case CL_LONG:
+            cl_object_set(new, CL_OBJECT_AS_LONG(object));
+            break;
+
+        case CL_ULONG:
+            cl_object_set(new, CL_OBJECT_AS_ULONG(object));
+            break;
+
+        case CL_LLONG:
+            cl_object_set(new, CL_OBJECT_AS_LLONG(object));
+            break;
+
+        case CL_ULLONG:
+            cl_object_set(new, CL_OBJECT_AS_ULLONG(object));
+            break;
+
+        case CL_POINTER:
+            /* TODO */
+            break;
+
+        case CL_STRING:
+        case CL_CSTRING:
+            new->s = cl_string_dup(object->s);
+            break;
+
+        case CL_BOOLEAN:
+            cl_object_set(new, CL_OBJECT_AS_BOOLEAN(object));
+            break;
+    }
+
+}
+
+static void dup_object_events(cl_object_s *new, const cl_object_s *object)
+{
+    new->equals = object->equals;
+    new->compare_to = object->compare_to;
+
+    /* TODO: specs */
+}
+
+__PUB_API__ cl_object_t *cl_object_dup(const cl_object_t *object)
+{
+    cl_object_s *new = NULL;
+
+    __clib_function_init__(true, object, CL_OBJ_OBJECT, NULL);
+    new = new_cl_object_s(cl_object_type(object));
+
+    if (NULL == new)
+        return NULL;
+
+    dup_object_content(new, object);
+    dup_object_events(new, object);
+
+    return new;
+}
+

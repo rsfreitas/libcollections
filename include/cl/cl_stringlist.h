@@ -99,5 +99,15 @@ cl_string_t *cl_string_list_get(const cl_string_list_t *l, unsigned int index);
 cl_string_t *cl_string_list_flat(const cl_string_list_t *l,
                                  const char delimiter);
 
+/**
+ * @name cl_string_list_dup
+ * @brief Duplicates a cl_string_list_t object.
+ *
+ * @param [in] list: The cl_string_list_t object.
+ *
+ * @return On success returns a new cl_string_list_t object or NULL otherwise.
+ */
+cl_string_list_t *cl_string_list_dup(const cl_string_list_t *list);
+
 #endif
 

@@ -215,6 +215,7 @@ LIBCOLLECTIONS_0.1 {
         cl_string_list_get;
         cl_string_list_size;
         cl_string_list_flat;
+        cl_string_list_dup;
         cl_string_dchr;
         cl_string_idchr;
         cl_string_set_content;
@@ -249,6 +250,7 @@ LIBCOLLECTIONS_0.1 {
         cl_object_from_cstring;
         cl_object_ref;
         cl_object_unref;
+        cl_object_dup;
         cl_plugin_load;
         cl_plugin_unload;
         cl_plugin_info;

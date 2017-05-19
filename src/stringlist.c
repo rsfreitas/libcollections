@@ -181,3 +181,28 @@ __PUB_API__ cl_string_t *cl_string_list_flat(const cl_string_list_t *l,
     return s;
 }
 
+__PUB_API__ cl_string_list_t *cl_string_list_dup(const cl_string_list_t *list)
+{
+    int i, t;
+    cl_string_list_t *new = NULL;
+    cl_string_t *tmp, *s;
+
+    __clib_function_init__(true, list, CL_OBJ_STRINGLIST, NULL);
+    t = cl_string_list_size(list);
+    new = cl_string_list_create();
+
+    if (NULL == new)
+        return NULL;
+
+    for (i = 0; i < t; i++) {
+        tmp = cl_string_list_get(list, i);
+        s = cl_string_dup(tmp);
+        cl_string_unref(tmp);
+
+        cl_string_list_add(new, s);
+        cl_string_unref(s);
+    }
+
+    return new;
+}
+
