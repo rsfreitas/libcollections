@@ -299,5 +299,22 @@ cl_cfg_file_t *cl_cfg_file_ref(cl_cfg_file_t *file);
  */
 int cl_cfg_file_unref(cl_cfg_file_t *file);
 
+/**
+ * @name cl_cfg_set_value_comment
+ * @brief Sets/Updates a key comment to be saved.
+ *
+ * The key must exist to do this.
+ *
+ * @param [in,out] file: The file item.
+ * @param [in] section: The section name.
+ * @param [in] key: The key name.
+ * @param [in] fmt: The comment format.
+ * @param [in] ...: The comment values.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_cfg_set_value_comment(cl_cfg_file_t *file, const char *section,
+                             const char *key, const char *fmt, ...);
+
 #endif
 

@@ -944,3 +944,31 @@ __PUB_API__ int cl_cfg_file_unref(cl_cfg_file_t *file)
     return 0;
 }
 
+__PUB_API__ int cl_cfg_set_value_comment(cl_cfg_file_t *file,
+    const char *section, const char *key, const char *fmt, ...)
+{
+    cfg_line_s *cl_key = NULL;
+    va_list ap;
+    char *s = NULL;
+
+    __clib_function_init__(true, file, CL_OBJ_CFG_FILE, -1);
+    cl_key = cl_cfg_get_key(file, section, key);
+
+    if (NULL == cl_key) {
+        cset_errno(CL_VALUE_NOT_FOUND);
+        return -1;
+    }
+
+    va_start(ap, fmt);
+    vasprintf(&s, fmt, ap);
+    va_end(ap);
+
+    if (cl_key->comment != NULL)
+        cl_string_unref(cl_key->comment);
+
+    cl_key->comment = cl_string_create("%s", s);
+    free(s);
+
+    return 0;
+}
+

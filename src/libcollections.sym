@@ -22,6 +22,7 @@ LIBCOLLECTIONS_0.1 {
         cl_cfg_section_unref;
         cl_cfg_file_ref;
         cl_cfg_file_unref;
+        cl_cfg_set_value_comment;
         cl_chat_client_start;
         cl_chat_create;
         cl_chat_destroy;

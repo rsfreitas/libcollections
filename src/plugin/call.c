@@ -35,7 +35,7 @@ int adjust_arguments(struct cplugin_function_s *foo,
     struct cplugin_fdata_s *arg = NULL;
     char *arg_name;
     cl_string_t *p;
-    cl_json_t *node, *jargs;
+    cl_json_t *node = NULL, *jargs = NULL;
     void *ptr;
     int i = 0;
     bool b;

@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <locale.h>
 
 #include "collections.h"
 
@@ -622,7 +623,7 @@ __PUB_API__ bool cl_object_is_of_type(const cl_object_t *object,
 static cl_string_t *print_object(const cl_object_s *o)
 {
     cl_string_t *s = NULL;
-    char *tmp;
+    char *tmp, *old_locale;
 
     switch (o->type) {
         case CL_VOID:
@@ -654,7 +655,10 @@ static cl_string_t *print_object(const cl_object_s *o)
             break;
 
         case CL_FLOAT:
+            old_locale = setlocale(LC_NUMERIC, NULL);
+            setlocale(LC_NUMERIC, "en_US.UTF-8");
             s = cl_string_create("%.2f", o->f);
+            setlocale(LC_NUMERIC, old_locale);
             break;
 
         case CL_DOUBLE:
