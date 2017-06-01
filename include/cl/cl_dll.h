@@ -110,6 +110,8 @@ void *cl_dll_map(void *root, int (*foo)(void *, void *), void *data);
  * the list, a node from the list and some custom \a data. Its prototype must
  * be something like this: int foo(unsigned int index, void *a, void *b);
  *
+ * If \a foo returns a positive value its index value is not incremented.
+ *
  * @param [in] root: The list.
  * @param [in] foo: The function.
  * @param [in] data: The custom data passed to the map function.
@@ -144,6 +146,8 @@ void *cl_dll_map_reverse(void *root, int (*foo)(void *, void *), void *data);
  * The \a foo function receives as arguments the current node index inside
  * the list, a node from the list and some custom \a data. Its prototype must
  * be something like this: int foo(unsigned int index, void *a, void *b);
+ *
+ * If \a foo returns a positive value its index value is not incremented.
  *
  * @param [in] root: The list.
  * @param [in] foo: The function.
