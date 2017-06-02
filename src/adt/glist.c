@@ -542,6 +542,7 @@ int cglist_delete(void *list, enum cl_object object, void *data)
          * from the memory.
          */
         destroy_node(node, true);
+        l->size--;
     }
 
     pthread_mutex_unlock(&l->lock);
@@ -566,6 +567,7 @@ int cglist_delete_indexed(void *list, enum cl_object object,
          * from the memory.
          */
         destroy_node(node, true);
+        l->size--;
     }
 
     pthread_mutex_unlock(&l->lock);

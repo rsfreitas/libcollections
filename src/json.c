@@ -41,10 +41,10 @@ typedef struct cl_json_s {
     cl_list_entry_t         *prev;
     cl_list_entry_t         *next;
     struct cl_object_hdr    hdr;
-    void                    *child;
-    cl_string_t             *name;
     enum cl_json_type       type;
+    cl_string_t             *name;
     cl_string_t             *value;
+    void                    *child;
 } cl_json_s;
 
 #define CL_JSON_OBJECT_OFFSET         \
@@ -100,7 +100,7 @@ static cl_json_s *cl_json_new(void)
     return j;
 }
 
-static cl_json_t *__dup(const cl_json_s *j)
+static cl_json_s *__dup(const cl_json_s *j)
 {
     cl_json_s *p = NULL;
 
@@ -120,16 +120,23 @@ static void __cl_json_delete(void *a)
 {
     cl_json_s *c = (cl_json_s *)a;
 
-    if (!(c->type & CL_JSON_IS_REFERENCE) && c->child)
+    if (!(c->type & CL_JSON_IS_REFERENCE) && c->child) {
         cl_dll_free(c->child, __cl_json_delete);
+        c->child = NULL;
+    }
 
-    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value)
+    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value) {
         cl_string_destroy(c->value);
+        c->value = NULL;
+    }
 
-    if (c->name)
+    if (c->name) {
         cl_string_destroy(c->name);
+        c->name = NULL;
+    }
 
     free(c);
+    c = NULL;
 }
 
 /*
@@ -666,6 +673,17 @@ __PUB_API__ void cl_json_delete(cl_json_t *j)
     }
 
     cl_dll_free(c->child, __cl_json_delete);
+
+    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value) {
+        cl_string_destroy(c->value);
+        c->value = NULL;
+    }
+
+    if (c->name) {
+        cl_string_destroy(c->name);
+        c->name = NULL;
+    }
+
     free(c);
 }
 

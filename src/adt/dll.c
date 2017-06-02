@@ -375,7 +375,9 @@ __PUB_API__ void *cl_dll_delete_indexed(void *root, unsigned int index,
     if (first == true) {
         r = p;
         p = p->next;
-        p->prev = NULL;
+
+        if (p)
+            p->prev = NULL;
 
         goto end_block;
     }
