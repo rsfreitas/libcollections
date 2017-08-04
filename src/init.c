@@ -43,7 +43,11 @@ struct cl_data {
     pthread_mutex_t     m_cookie;
     bool                initialized;
     struct cl_ref_s     ref;
+
+#ifdef LINUX
     struct random_data  rd_data;
+#endif
+
     char                state[128];
     cl_json_t           *cfg;
     char                *package;
@@ -174,8 +178,13 @@ static int __init(const char *arg)
     load_arg(arg);
 
     /* Initialize libc random numbers seed */
+#ifdef LINUX
     initstate_r(time(NULL) + cl_cseed(), __cl_data.state,
                 sizeof(__cl_data.state), &__cl_data.rd_data);
+#else
+    initstate(time(NULL) + cl_cseed(), __cl_data.state,
+              sizeof(__cl_data.state));
+#endif
 
     /* Initialize translation support */
     intl_start(__cl_data.package, __cl_data.locale_dir);
@@ -265,10 +274,12 @@ char *library_buffer_mime_type(const unsigned char *buffer,
     return ptr;
 }
 
+#ifdef LINUX
 struct random_data *library_random_data(void)
 {
     return &__cl_data.rd_data;
 }
+#endif
 
 const char *library_package_name(void)
 {

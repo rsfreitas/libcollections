@@ -261,10 +261,15 @@ static cl_timer_info_s *new_timer_info(struct cl_timer_s *timer)
     asprintf(&i->info[CL_TIMER_INFO_INTERVAL], "%ld",
              timer->its.it_interval.tv_sec);
 
+#ifdef LINUX
     asprintf(&i->info[CL_TIMER_INFO_OVERRUN], "%d",
              (timer->state >= CL_TIMER_ST_INSTALLED)
                     ? timer_getoverrun(timer->timerid)
                     : 0);
+#else
+    /* We don't have this info... */
+    asprintf(&i->info[CL_TIMER_INFO_OVERRUN], "%d", 0);
+#endif
 
     asprintf(&i->info[CL_TIMER_INFO_FINISH_TIMEOUT], "%d",
              timer->tid.finish_timeout);

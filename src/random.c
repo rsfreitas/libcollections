@@ -74,7 +74,11 @@ __PUB_API__ unsigned int cl_rand(unsigned int random_max)
     defect = num_rand % num_bins;
 
     do {
+#ifdef LINUX
         random_r(library_random_data(), (int32_t *)&x);
+#else
+        x = random();
+#endif
     } while (num_rand - defect <= x);
 
     return x / bin_size;
