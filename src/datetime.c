@@ -44,6 +44,7 @@
     cl_struct_member(unsigned int, hour)        \
     cl_struct_member(unsigned int, minute)      \
     cl_struct_member(unsigned int, second)      \
+    cl_struct_member(int, tz_offset)            \
     cl_struct_member(enum cl_weekday, weekday)  \
     cl_struct_member(bool, isdst)               \
     cl_struct_member(struct timeval, tv)        \
@@ -140,6 +141,15 @@ static void cvt_time(cl_datetime_s *dt, bool UTC)
         cl_string_destroy(dt->tzone);
 
     dt->tzone = cl_string_create("%s", tm.tm_zone);
+
+#ifdef LINUX
+    dt->tz_offset = tm.tm_gmtoff;
+#else
+    dt->tz_offset = _timezone;
+#endif
+
+    if (dt->isdst == true)
+        dt->tz_offset += (-3600);
 }
 
 __PUB_API__ int cl_dt_destroy(cl_datetime_t *dt)
@@ -328,17 +338,19 @@ __PUB_API__ cl_string_t *cl_dt_day_of_week(const cl_datetime_t *dt, bool full)
  * %r - equivalent to %I:%M:%S %p
  * %u - decimal day of week (1 to 7) (1 = Monday)
  * %w - decimal day of week (0 to 6) (0 = Sunday)
+ * %z - Timezone offset
  * %Z - Timezone name or abbreviation
  *
  * NON ANSI C:
  *
  * %1 - milliseconds
+ * %2 - combined date and time in the ISO 8061 format
  */
 __PUB_API__ cl_string_t *cl_dt_to_cstring(const cl_datetime_t *dt, const char *fmt)
 {
     cl_datetime_s *t = (cl_datetime_s *)dt;
     cl_string_t *d = NULL;
-    int i;
+    int i, hours = 0, minutes = 0;
 
     __clib_function_init__(true, dt, CL_OBJ_DATETIME, NULL);
 
@@ -432,6 +444,9 @@ __PUB_API__ cl_string_t *cl_dt_to_cstring(const cl_datetime_t *dt, const char *f
                     cl_string_cat(d, "%02d:%02d:%02d", t->hour, t->minute,
                                   t->second);
 
+                    if (is_GMT(t))
+                        cl_string_cat(d, "Z");
+
                     break;
 
                 case 'r':
@@ -464,8 +479,34 @@ __PUB_API__ cl_string_t *cl_dt_to_cstring(const cl_datetime_t *dt, const char *f
                     cl_string_cat(d, "%s", cl_string_valueof(t->tzone));
                     break;
 
+                case 'z':
+                    hours = (abs(t->tz_offset) / 3600);
+                    minutes = (abs(t->tz_offset) % 3600);
+                    cl_string_cat(d, "%c%02d:%02d -> %d %d",
+                                  t->tz_offset < 0 ? '+' : '-', hours, minutes,
+                                  t->tz_offset, t->isdst);
+
+                    break;
+
                 case '1':
                     cl_string_cat(d, "%03ld", t->tv.tv_usec / 1000);
+                    break;
+
+                case '2':
+                    cl_string_cat(d, "%d-%02d-%02dT%02d:%02d:%02d", t->year,
+                                  t->month + 1, t->day, t->hour, t->minute,
+                                  t->second);
+
+                    if (is_GMT(t))
+                        cl_string_cat(d, "Z");
+                    else {
+                        hours = (abs(t->tz_offset) / 3600);
+                        minutes = (abs(t->tz_offset) % 3600);
+                        cl_string_cat(d, "%c%02d:%02d",
+                                      (t->tz_offset < 0 ? '+' : '-'), hours,
+                                      minutes);
+                    }
+
                     break;
             }
         } else
@@ -693,7 +734,7 @@ __PUB_API__ cl_datetime_t *cl_dt_mktime(unsigned int year, unsigned int month,
     }
 
     tm.tm_year = year - 1900;
-    tm.tm_mon = month;
+    tm.tm_mon = month - 1;
     tm.tm_mday = day;
     tm.tm_hour = hour;
     tm.tm_min = minute;
@@ -711,41 +752,197 @@ __PUB_API__ cl_datetime_t *cl_dt_mktime(unsigned int year, unsigned int month,
     return dt;
 }
 
-__PUB_API__ cl_datetime_t *cl_dt_mktime_from_cstring(const cl_string_t *datetime)
+static int split_time(cl_string_list_t *dt, cl_string_t *time)
 {
-    cl_string_t *p, *s;
-    cl_string_list_t *l, *ld, *lt;
-    int day, month, year, hour, min, sec;
+    cl_string_list_t *tmp = NULL;
+    cl_string_t *s = NULL;
+    int i, t;
 
-    __clib_function_init__(true, datetime, CL_OBJ_STRING, NULL);
-    s = cl_string_dup(datetime);
-    cl_string_alltrim(s);
-
-    l = cl_string_split(s, " ");
-    ld = cl_string_split(cl_string_list_get(l, 0), "/-");
-    lt = cl_string_split(cl_string_list_get(l, 1), ":");
-
-    hour = cl_string_to_int(cl_string_list_get(lt, 0));
-    min = cl_string_to_int(cl_string_list_get(lt, 1));
-    sec = cl_string_to_int(cl_string_list_get(lt, 2));
-
-    p = cl_string_list_get(ld, 0);
-    month = cl_string_to_int(cl_string_list_get(ld, 1));
-
-    if (cl_string_length(p) == 2) {
-        day = cl_string_to_int(p);
-        year = cl_string_to_int(cl_string_list_get(ld, 2));
-    } else {
-        year = cl_string_to_int(p);
-        day = cl_string_to_int(cl_string_list_get(ld, 2));
+    /* UTC time? */
+    if (cl_string_contains(time, "Z")) {
+        cl_string_dchr(time, 'Z');
+        cl_string_list_add(dt, time);
+        return 0;
     }
 
-    cl_string_list_destroy(lt);
-    cl_string_list_destroy(ld);
-    cl_string_list_destroy(l);
+    tmp = cl_string_split(time, "+-");
+
+    if (NULL == tmp)
+        return -1;
+
+    t = cl_string_list_size(tmp);
+
+    for (i = 0; i < t; i++) {
+        s = cl_string_list_get(tmp, i);
+        cl_string_list_add(dt, s);
+        cl_string_unref(s);
+    }
+
+    cl_string_list_destroy(tmp);
+
+    return 0;
+}
+
+/*
+ * We split the date and time into a stringlist object, assuming we have an
+ * empty space between them, or if we're dealing with a combined ISO 8061 format
+ * a delimiter character T.
+ *
+ * Note that if it's a ISO 8061 date we split the time and its timezone offset.
+ */
+static cl_string_list_t *split_date_time(const cl_string_t *datetime)
+{
+    cl_string_list_t *dt = NULL, *tmp = NULL;
+    cl_string_t *s = NULL;
+    int ret;
+
+    if (cl_string_contains(datetime, "T") == false)
+        return cl_string_split(datetime, " ");
+
+    dt = cl_string_list_create();
+
+    if (NULL == dt)
+        return NULL;
+
+    tmp = cl_string_split(datetime, "T");
+
+    if (NULL == tmp)
+        return NULL;
+
+    /* Add the date */
+    s = cl_string_list_get(tmp, 0);
+    cl_string_list_add(dt, s);
     cl_string_unref(s);
 
-    return cl_dt_mktime(year, month, day, hour, min, sec);
+    /* Add the time */
+    s = cl_string_list_get(tmp, 1);
+    ret = split_time(dt, s);
+    cl_string_unref(s);
+
+    if (ret < 0)
+        return NULL;
+
+    /* XXX: What to do with the timezone offset? */
+
+    return dt;
+}
+
+static int parse_date(const cl_string_t *date, int *year, int *month,
+    int *day)
+{
+    cl_string_list_t *ldate = NULL;
+    cl_string_t *tmp = NULL;
+
+    ldate = cl_string_split(date, "/-");
+
+    if (NULL == ldate)
+        return -1;
+
+    /* month */
+    tmp = cl_string_list_get(ldate, 1);
+    *month = cl_string_to_int(tmp);
+    cl_string_unref(tmp);
+
+    /* year and day */
+    tmp = cl_string_list_get(ldate, 0);
+
+    if (cl_string_length(tmp) == 2) {
+        /* day */
+        *day = cl_string_to_int(tmp);
+        cl_string_unref(tmp);
+
+        /* year */
+        tmp = cl_string_list_get(ldate, 2);
+        *year = cl_string_to_int(tmp);
+        cl_string_unref(tmp);
+    } else {
+        /* year */
+        *year = cl_string_to_int(tmp);
+        cl_string_unref(tmp);
+
+        /* day */
+        tmp = cl_string_list_get(ldate, 2);
+        *day = cl_string_to_int(tmp);
+        cl_string_unref(tmp);
+    }
+
+    return 0;
+}
+
+static int parse_time(const cl_string_t *time, int *hour, int *minute,
+    int *second)
+{
+    cl_string_list_t *ltime = NULL;
+    cl_string_t *tmp = NULL;
+
+    ltime = cl_string_split(time, ":");
+
+    if (NULL == ltime)
+        return -1;
+
+    /* hour */
+    tmp = cl_string_list_get(ltime, 0);
+    *hour = cl_string_to_int(tmp);
+    cl_string_unref(tmp);
+
+    /* minute */
+    tmp = cl_string_list_get(ltime, 1);
+    *minute = cl_string_to_int(tmp);
+    cl_string_unref(tmp);
+
+    /* seconds */
+    tmp = cl_string_list_get(ltime, 2);
+    *second = cl_string_to_int(tmp);
+    cl_string_unref(tmp);
+
+    return 0;
+}
+
+__PUB_API__ cl_datetime_t *cl_dt_mktime_from_string(const char *datetime)
+{
+    cl_datetime_t *dt = NULL;
+    cl_string_list_t *ldt = NULL;
+    cl_string_t *tmp = NULL;
+    int day, month, year, hour, min, sec;
+
+    __clib_function_init__(false, datetime, -1, NULL);
+
+    if (NULL == datetime) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    tmp = cl_string_create("%s", datetime);
+    ldt = split_date_time(tmp);
+    cl_string_unref(tmp);
+
+    if (NULL == ldt)
+        return NULL;
+
+    /* Date */
+    tmp = cl_string_list_get(ldt, 0);
+    parse_date(tmp, &year, &month, &day);
+    cl_string_unref(tmp);
+
+    /* Time */
+    tmp = cl_string_list_get(ldt, 1);
+    parse_time(tmp, &hour, &min, &sec);
+    cl_string_unref(tmp);
+
+    /*
+     * FIXME: If we're loading an UTC date, this won't work as expected.
+     */
+    dt = cl_dt_mktime(year, month, day, hour, min, sec);
+    cl_string_list_destroy(ldt);
+
+    return dt;
+}
+
+__PUB_API__ cl_datetime_t *cl_dt_mktime_from_cstring(const cl_string_t *datetime)
+{
+    __clib_function_init__(true, datetime, CL_OBJ_STRING, NULL);
+
+    return cl_dt_mktime_from_string(cl_string_valueof(datetime));
 }
 
 static bool is_leap_year(unsigned int year)

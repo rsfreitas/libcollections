@@ -33,7 +33,12 @@ unsigned int cl_cseed(void)
     FILE *f;
     char tmp[64] = {0}, *p;
 
+#ifdef LINUX
     f = popen("cat /proc/sys/kernel/random/uuid | cut -d '-' -f 2", "r");
+#else
+    f = popen("cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1",
+              "r");
+#endif
 
     if (NULL == f)
         return 0;

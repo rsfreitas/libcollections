@@ -82,6 +82,7 @@ LIBCOLLECTIONS_0.1 {
         cl_dt_to_gmtime;
         cl_dt_mktime;
         cl_dt_mktime_from_cstring;
+        cl_dt_mktime_from_string;
         cl_dt_minus_years;
         cl_dt_minus_days;
         cl_dt_minus_seconds;
