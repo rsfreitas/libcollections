@@ -77,99 +77,98 @@ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename);
 
 /**
  * @name cl_cfg_set_value
- * @brief Sets a value to a specific key - section.
+ * @brief Sets a value to a specific entry - block.
  *
- * Sets the value of a item, inside a section, to the value passed as
+ * Sets the value of a item, inside a block, to the value passed as
  * an argument.
  *
- * If the section is not found, a new one will be created. The same rule
- * applies in case of the key.
+ * If the block is not found, a new one will be created. The same rule
+ * applies in case of the entry.
  *
  * @param [in,out] file: The cl_cfg_file_t object previously loaded.
- * @param [in] section: The section name.
- * @param [in] key: The key name.
+ * @param [in] block: The block name.
+ * @param [in] entry: The entry name.
  * @param [in] fmt: The format of the new value.
  * @param [in] ...: The "real" value.
  *
  * @return Returns 0 on success or -1 otherwise.
  */
-int cl_cfg_set_value(cl_cfg_file_t *file, const char *section, const char *key,
+int cl_cfg_set_value(cl_cfg_file_t *file, const char *block, const char *entry,
                      const char *fmt, ...) __attribute__((format(printf, 4, 5)));
 
 /**
- * @name cl_cfg_get_section
- * @brief Search and get a pointer to a specific section from a cl_cfg_file_t
+ * @name cl_cfg_block
+ * @brief Search and get a pointer to a specific block from a cl_cfg_file_t
  *        object.
  *
  * @param [in] file: cl_cfg_file_t object previously loaded.
- * @param [in] section: The name of the section which will be sought.
+ * @param [in] block: The name of the block which will be sought.
  *
- * @return On success returns a cl_cfg_section_t object containing the section and
+ * @return On success returns a cl_cfg_block_t object containing the block and
  *         its respective keys. Returns NULL otherwise.
  */
-cl_cfg_section_t *cl_cfg_get_section(const cl_cfg_file_t *file,
-                                     const char *section);
+cl_cfg_block_t *cl_cfg_block(const cl_cfg_file_t *file, const char *block);
 
 /**
- * @name cl_cfg_get_key
- * @brief Search and get a pointer to a specific key from a cl_cfg_file_t object.
+ * @name cl_cfg_entry
+ * @brief Search and get a pointer to a specific entry from a cl_cfg_file_t object.
  *
  * @param [in] file: cfg_gile_t object.
- * @param [in] section: The name of the section.
- * @param [in] key: The name of the key wich will be sought.
+ * @param [in] block: The name of the block.
+ * @param [in] entry: The name of the entry wich will be sought.
  *
- * @return On success returns a cl_cfg_key_t object containing the key and its
+ * @return On success returns a cl_cfg_entry_t object containing the entry and its
  *         respective value. Returns NULL otherwise.
  */
-cl_cfg_key_t *cl_cfg_get_key(const cl_cfg_file_t *file, const char *section,
-                             const char *key);
+cl_cfg_entry_t *cl_cfg_entry(const cl_cfg_file_t *file, const char *block,
+                             const char *entry);
 
 /**
- * @name cl_cfg_get_key_from_section
- * @brief Search and get a pointer to a specific key from a cl_cfg_section_t
+ * @name cl_cfg_block_entry
+ * @brief Search and get a pointer to a specific entry from a cl_cfg_block_t
  *        object.
  *
- * @param [in] section: cl_cfg_section_t object.
- * @param [in] key: The name of the key which will be sought.
+ * @param [in] block: cl_cfg_block_t object.
+ * @param [in] entry: The name of the entry which will be sought.
  *
- * @return On success returns a cl_cfg_key_t object containing the key and its
+ * @return On success returns a cl_cfg_entry_t object containing the entry and its
  *         respective value. Returns NULL otherwise.
  */
-cl_cfg_key_t *cl_cfg_get_key_from_section(const cl_cfg_section_t *section,
-                                          const char *key);
+cl_cfg_entry_t *cl_cfg_block_entry(const cl_cfg_block_t *block,
+                                   const char *entry);
 
 /**
- * @name cl_cfg_section_name
- * @brief Gets the section name from a cl_cfg_section_t object.
+ * @name cl_cfg_block_name
+ * @brief Gets the block name from a cl_cfg_block_t object.
  *
- * @param [in] section: cl_cfg_section_t object.
+ * @param [in] block: cl_cfg_block_t object.
  *
- * @return On success returns a cl_string_t object containing the section
+ * @return On success returns a cl_string_t object containing the block
  *         name. Returns NULL otherwise.
  */
-cl_string_t *cl_cfg_section_name(const cl_cfg_section_t *section);
+cl_string_t *cl_cfg_block_name(const cl_cfg_block_t *block);
 
 /**
- * @name cl_cfg_key_name
- * @brief Gets the key name from a cl_cfg_key_t object.
+ * @name cl_cfg_entry_name
+ * @brief Gets the entry name from a cl_cfg_entry_t object.
  *
- * @param [in] key: cl_cfg_key_t object.
+ * @param [in] entry: cl_cfg_entry_t object.
  *
- * @return On success returns a cl_string_t object containing the key
+ * @return On success returns a cl_string_t object containing the entry
  *         name. Returns NULL otherwise.
  */
-cl_string_t *cl_cfg_key_name(const cl_cfg_key_t *key);
+cl_string_t *cl_cfg_entry_name(const cl_cfg_entry_t *entry);
 
 /**
- * @name cl_cfg_key_value
- * @brief Gets the actual value from a cl_cfg_key_t object.
+ * @name cl_cfg_entry_value
+ * @brief Gets the actual value from a cl_cfg_entry_t object.
  *
- * @param [in] key: cl_cfg_key_t object.
+ * @param [in] entry: cl_cfg_entry_t object.
  *
  * @return On success returns a reference to a cl_object_t object containing the
- *         key value or NULL otherwise.
+ *         entry value or NULL otherwise.
  */
-cl_object_t *cl_cfg_key_value(const cl_cfg_key_t *key);
+cl_object_t *cl_cfg_entry_value(const cl_cfg_entry_t *entry);
 
 /**
  * @name cl_cfg_to_cstring
@@ -182,101 +181,101 @@ cl_object_t *cl_cfg_key_value(const cl_cfg_key_t *key);
 cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file);
 
 /**
- * @name cl_cfg_get_key_names
- * @brief Get all key names from a section.
+ * @name cl_cfg_all_entry_names
+ * @brief Get all entry names from a block.
  *
  * @param [in] file: The cl_cfg_file_t object.
- * @param [in] section: The section name.
+ * @param [in] block: The block name.
  *
- * @return On success returns a cl_string_list_t object with all key names or
+ * @return On success returns a cl_string_list_t object with all entry names or
  *         NULL otherwise.
  */
-cl_string_list_t *cl_cfg_get_key_names(const cl_cfg_file_t *file,
-                                       const char *section);
+cl_string_list_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
+                                         const char *block);
 
 /**
- * @name cl_cfg_get_key_names_from_section
- * @brief Get all key names from a section.
+ * @name cl_cfg_block_entry_names
+ * @brief Get all entry names from a block.
  *
- * @param [in] section: The cl_cfg_section_t object.
+ * @param [in] block: The cl_cfg_block_t object.
  *
- * @return On success returns a cl_string_list_t object with all key names or
+ * @return On success returns a cl_string_list_t object with all entry names or
  *         NULL otherwise.
  */
-cl_string_list_t *cl_cfg_get_key_names_from_section(const cl_cfg_section_t *section);
+cl_string_list_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block);
 
 /**
- * @name cl_cfg_get_sections
- * @brief Get all section names from a configuration file.
+ * @name cl_cfg_all_block_names
+ * @brief Get all block names from a configuration file.
  *
  * @param [in] file: The cl_cfg_file_t object.
  *
- * @return On success returns a cl_string_list_t object with all section names
+ * @return On success returns a cl_string_list_t object with all block names
  *         or NULL otherwise.
  */
-cl_string_list_t *cl_cfg_get_sections(const cl_cfg_file_t *file);
+cl_string_list_t *cl_cfg_all_block_names(const cl_cfg_file_t *file);
 
 /**
- * @name cl_cfg_key_comment
- * @brief Gets the comment value from a cl_cfg_key_t object.
+ * @name cl_cfg_entry_comment
+ * @brief Gets the comment value from a cl_cfg_entry_t object.
  *
- * @param [in] key: cl_cfg_key_t object.
+ * @param [in] entry: cl_cfg_entry_t object.
  *
- * @return On success returns a cl_string_t object containing the key
+ * @return On success returns a cl_string_t object containing the entry
  *         comment. Returns NULL otherwise.
  */
-cl_string_t *cl_cfg_key_comment(const cl_cfg_key_t *key);
+cl_string_t *cl_cfg_entry_comment(const cl_cfg_entry_t *entry);
 
 /**
- * @name cl_cfg_key_ref
- * @brief Increases the reference count for a cl_cfg_key_t item.
+ * @name cl_cfg_entry_ref
+ * @brief Increases the reference count for a cl_cfg_entry_t item.
  *
- * @param [in,out] key: The key item.
+ * @param [in,out] entry: The entry item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cl_cfg_key_t *cl_cfg_key_ref(cl_cfg_key_t *key);
+cl_cfg_entry_t *cl_cfg_entry_ref(cl_cfg_entry_t *entry);
 
 /**
- * @name cl_cfg_key_unref
- * @brief Decreases the reference count for a cl_cfg_key_t item.
+ * @name cl_cfg_entry_unref
+ * @brief Decreases the reference count for a cl_cfg_entry_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] key: The key item.
+ * @param [in,out] entry: The entry item.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cl_cfg_key_unref(cl_cfg_key_t *key);
+int cl_cfg_entry_unref(cl_cfg_entry_t *entry);
 
 /**
- * @name cl_cfg_section_ref
- * @brief Increases the reference count for a cl_cfg_section_t item.
+ * @name cl_cfg_block_ref
+ * @brief Increases the reference count for a cl_cfg_block_t item.
  *
- * @param [in,out] section: The section item.
+ * @param [in,out] block: The block item.
  *
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cl_cfg_section_t *cl_cfg_section_ref(cl_cfg_section_t *section);
+cl_cfg_block_t *cl_cfg_block_ref(cl_cfg_block_t *block);
 
 /**
- * @name cl_cfg_section_unref
- * @brief Decreases the reference count for a cl_cfg_section_titem.
+ * @name cl_cfg_block_unref
+ * @brief Decreases the reference count for a cl_cfg_block_titem.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
  * freed).
  *
- * @param [in,out] section: The section item.
+ * @param [in,out] block: The block item.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cl_cfg_section_unref(cl_cfg_section_t *section);
+int cl_cfg_block_unref(cl_cfg_block_t *block);
 
 /**
- * @name cl_cfg_file_ref
+ * @name cl_cfg_ref
  * @brief Increases the reference count for a cl_cfg_file_t item.
  *
  * @param [in,out] file: The file item.
@@ -284,10 +283,10 @@ int cl_cfg_section_unref(cl_cfg_section_t *section);
  * @return On success returns the item itself with its reference count
  *         increased or NULL otherwise.
  */
-cl_cfg_file_t *cl_cfg_file_ref(cl_cfg_file_t *file);
+cl_cfg_file_t *cl_cfg_ref(cl_cfg_file_t *file);
 
 /**
- * @name cl_cfg_file_unref
+ * @name cl_cfg_unref
  * @brief Decreases the reference count for a cl_cfg_file_t item.
  *
  * When its reference count drops to 0, the item is finalized (its memory is
@@ -297,24 +296,38 @@ cl_cfg_file_t *cl_cfg_file_ref(cl_cfg_file_t *file);
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cl_cfg_file_unref(cl_cfg_file_t *file);
+int cl_cfg_unref(cl_cfg_file_t *file);
 
 /**
  * @name cl_cfg_set_value_comment
- * @brief Sets/Updates a key comment to be saved.
+ * @brief Sets/Updates an entry comment to be saved.
  *
- * The key must exist to do this.
+ * The entry must exist to do this.
  *
  * @param [in,out] file: The file item.
- * @param [in] section: The section name.
- * @param [in] key: The key name.
+ * @param [in] block: The block name.
+ * @param [in] entry: The entry name.
  * @param [in] fmt: The comment format.
  * @param [in] ...: The comment values.
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cl_cfg_set_value_comment(cl_cfg_file_t *file, const char *section,
-                             const char *key, const char *fmt, ...);
+int cl_cfg_set_value_comment(cl_cfg_file_t *file, const char *block,
+                             const char *entry, const char *fmt, ...);
+
+/**
+ * @name cl_cfg_get_value
+ * @brief Gets the value from an entry inside a configuration file.
+ *
+ * @param [in] file: The file object.
+ * @param [in] block: The block name.
+ * @param [in] entry: The entry name.
+ *
+ * @return On success returns a new reference to the current entry value or
+ *         NULL otherwise.
+ */
+cl_object_t *cl_cfg_get_value(const cl_cfg_file_t *file,
+                              const char *block, const char *entry);
 
 #endif
 
