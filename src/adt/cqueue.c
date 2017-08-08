@@ -68,7 +68,7 @@ static cl_cqueue_s *new_circular_queue_s(unsigned int max_size)
 
     q->max_size = max_size;
     pthread_mutex_init(&q->lock, NULL);
-    set_typeof(CL_OBJ_CIRCULAR_QUEUE, q);
+    typeof_set(CL_OBJ_CIRCULAR_QUEUE, q);
 
     /* Reference count */
     q->ref.count = 1;

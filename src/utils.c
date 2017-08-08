@@ -80,7 +80,7 @@ __PUB_API__ cl_string_t *cl_type_to_cstring(enum cl_type value)
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if (validate_cl_type(value) == false) {
+    if (cl_object_is_valid(value) == false) {
         cset_errno(CL_INVALID_VALUE);
         return NULL;
     }

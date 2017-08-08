@@ -45,7 +45,7 @@ struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type)
         f->name = strdup(name);
 
     f->type = type;
-    set_typeof_with_offset(CL_OBJ_PLUGIN_ARG, f, CL_PLUGIN_ARG_OBJECT_OFFSET);
+    typeof_set_with_offset(CL_OBJ_PLUGIN_ARG, f, CL_PLUGIN_ARG_OBJECT_OFFSET);
 
     return f;
 }
@@ -112,7 +112,7 @@ cplugin_s *new_cplugin_s(void)
     }
 
     p->functions = NULL;
-    set_typeof(CL_OBJ_PLUGIN, p);
+    typeof_set(CL_OBJ_PLUGIN, p);
 
     return p;
 }

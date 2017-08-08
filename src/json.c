@@ -95,7 +95,7 @@ static cl_json_s *cl_json_new(void)
     }
 
     j->child = NULL;
-    set_typeof_with_offset(CL_OBJ_JSON, j, CL_JSON_OBJECT_OFFSET);
+    typeof_set_with_offset(CL_OBJ_JSON, j, CL_JSON_OBJECT_OFFSET);
 
     return j;
 }
@@ -666,7 +666,7 @@ __PUB_API__ void cl_json_delete(cl_json_t *j)
     if (library_initialized() == false)
         return;
 
-    if (validate_object_with_offset(j, CL_OBJ_JSON,
+    if (typeof_validate_object_with_offset(j, CL_OBJ_JSON,
                                     CL_JSON_OBJECT_OFFSET) == false)
     {
         return;
@@ -1062,9 +1062,9 @@ __PUB_API__ int cl_json_add_item_to_array(cl_json_t *array, const cl_json_t *ite
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(array, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1083,9 +1083,9 @@ __PUB_API__ int cl_json_add_item_to_object(cl_json_t *root, const char *name,
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(root, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1123,9 +1123,9 @@ __PUB_API__ int cl_json_add_item_reference_to_array(cl_json_t *array,
 {
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(array, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1139,9 +1139,9 @@ __PUB_API__ int cl_json_add_item_reference_to_object(cl_json_t *root,
 {
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(root, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1235,9 +1235,9 @@ __PUB_API__ int cl_json_replace_item_in_array(cl_json_t *array,
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(array, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(new_item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1274,10 +1274,10 @@ __PUB_API__ int cl_json_replace_item_in_object(cl_json_t *root,
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(root, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(new_item, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false))
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
+                                            CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
+                                            CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }

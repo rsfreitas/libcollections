@@ -279,7 +279,7 @@ static cl_timer_info_s *new_timer_info(struct cl_timer_s *timer)
              translate_imode(timer->imode));
 
     i->data = timer->tid.data;
-    set_typeof(CL_OBJ_TIMER_INFO, i);
+    typeof_set(CL_OBJ_TIMER_INFO, i);
 
     return i;
 }
@@ -399,7 +399,7 @@ static struct cl_timer_s *new_timer(const char *timer_name)
     }
 
     t->tid.name = strdup(timer_name);
-    set_typeof_with_offset(CL_OBJ_TIMER, t, CL_TIMER_OBJECT_OFFSET);
+    typeof_set_with_offset(CL_OBJ_TIMER, t, CL_TIMER_OBJECT_OFFSET);
     set_state(t, CL_TIMER_ST_CREATED);
 
     return t;

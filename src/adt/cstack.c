@@ -68,7 +68,7 @@ static cl_cstack_s *new_circular_stack_s(unsigned int max_size)
 
     q->max_size = max_size;
     pthread_mutex_init(&q->lock, NULL);
-    set_typeof(CL_OBJ_CIRCULAR_STACK, q);
+    typeof_set(CL_OBJ_CIRCULAR_STACK, q);
 
     /* Reference count */
     q->ref.count = 1;

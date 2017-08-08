@@ -83,7 +83,7 @@ static cinfo_s *new_info_s(const char *name, const char *version,
     i->ref.count = 1;
     i->ref.free = __destroy_info_s;
 
-    set_typeof(CL_OBJ_PLUGIN_INFO, i);
+    typeof_set(CL_OBJ_PLUGIN_INFO, i);
 
     return i;
 }

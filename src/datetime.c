@@ -86,7 +86,7 @@ static cl_datetime_s *new_cdatetime_s(void)
     }
 
     d->tzone = NULL;
-    set_typeof(CL_OBJ_DATETIME, d);
+    typeof_set(CL_OBJ_DATETIME, d);
 
     return d;
 }
@@ -527,8 +527,8 @@ __PUB_API__ int cl_dt_cmp(const cl_datetime_t *t1, const cl_datetime_t *t2)
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(t1, CL_OBJ_DATETIME) == false) ||
-        (validate_object(t2, CL_OBJ_DATETIME) == false))
+    if ((typeof_validate_object(t1, CL_OBJ_DATETIME) == false) ||
+        (typeof_validate_object(t2, CL_OBJ_DATETIME) == false))
     {
         return -1;
     }
@@ -550,8 +550,8 @@ __PUB_API__ bool cl_dt_isafter(const cl_datetime_t *dt, const cl_datetime_t *oth
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(dt, CL_OBJ_DATETIME) == false) ||
-        (validate_object(other, CL_OBJ_DATETIME) == false))
+    if ((typeof_validate_object(dt, CL_OBJ_DATETIME) == false) ||
+        (typeof_validate_object(other, CL_OBJ_DATETIME) == false))
     {
         return false;
     }
@@ -571,8 +571,8 @@ __PUB_API__ bool cl_dt_isbefore(const cl_datetime_t *dt, const cl_datetime_t *ot
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(dt, CL_OBJ_DATETIME) == false) ||
-        (validate_object(other, CL_OBJ_DATETIME) == false))
+    if ((typeof_validate_object(dt, CL_OBJ_DATETIME) == false) ||
+        (typeof_validate_object(other, CL_OBJ_DATETIME) == false))
     {
         return false;
     }
@@ -592,8 +592,8 @@ __PUB_API__ bool cl_dt_isequal(const cl_datetime_t *dt, const cl_datetime_t *oth
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(dt, CL_OBJ_DATETIME) == false) ||
-        (validate_object(other, CL_OBJ_DATETIME) == false))
+    if ((typeof_validate_object(dt, CL_OBJ_DATETIME) == false) ||
+        (typeof_validate_object(other, CL_OBJ_DATETIME) == false))
     {
         return false;
     }

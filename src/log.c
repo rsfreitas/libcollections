@@ -209,7 +209,7 @@ static cl_log_s *new_cl_log_s(void)
     l->ref.free = __destroy_cl_log_s;
     pthread_mutex_init(&l->lock, NULL);
 
-    set_typeof(CL_OBJ_LOG, l);
+    typeof_set(CL_OBJ_LOG, l);
 
     return l;
 }

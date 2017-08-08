@@ -151,7 +151,7 @@ static cl_counter_s *new_counter_s(enum cl_counter_precision precision,
     c->ref.free = destroy_counter_s;
     c->ref.count = 1;
 
-    set_typeof(CL_OBJ_COUNTER, c);
+    typeof_set(CL_OBJ_COUNTER, c);
     pthread_mutex_init(&c->lock, NULL);
 
     /* Adjust counter limits */

@@ -147,7 +147,7 @@ static cfg_line_s *new_cfg_line_s(cl_string_t *name,
     l->ref.count = 1;
     l->ref.free = __destroy_cfg_line;
 
-    set_typeof(object, l);
+    typeof_set(object, l);
 
     return l;
 }
@@ -179,7 +179,7 @@ static cfg_file_s *new_cfg_file_s(const char *filename)
         return NULL;
     }
 
-    set_typeof(CL_OBJ_CFG_FILE, p);
+    typeof_set(CL_OBJ_CFG_FILE, p);
     p->filename = cl_string_create("%s", filename);
     p->block = cl_list_create(cl_cfg_line_unref, NULL, NULL, NULL);
 

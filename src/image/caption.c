@@ -322,7 +322,7 @@ static caption_s *new_caption(void)
     c->ref.free = destroy_caption;
     c->ref.count = 1;
 
-    set_typeof(CL_OBJ_CAPTION, c);
+    typeof_set(CL_OBJ_CAPTION, c);
 
     return c;
 }

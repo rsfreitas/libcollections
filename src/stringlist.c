@@ -90,7 +90,7 @@ __PUB_API__ cl_stringlist_t *cl_stringlist_create(void)
     if (NULL == l->data)
         return NULL;
 
-    set_typeof(CL_OBJ_STRINGLIST, l);
+    typeof_set(CL_OBJ_STRINGLIST, l);
 
     return l;
 }
@@ -122,8 +122,8 @@ __PUB_API__ int cl_stringlist_add(cl_stringlist_t *l, cl_string_t *s)
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(l, CL_OBJ_STRINGLIST) == false) ||
-        (validate_object(s, CL_OBJ_STRING) == false))
+    if ((typeof_validate_object(l, CL_OBJ_STRINGLIST) == false) ||
+        (typeof_validate_object(s, CL_OBJ_STRING) == false))
     {
         return -1;
     }

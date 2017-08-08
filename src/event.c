@@ -127,7 +127,7 @@ static cl_event_s *new_event(void)
     e->reset_cond = NULL;
     e->reset_arg = NULL;
 
-    set_typeof(CL_OBJ_EVENT, e);
+    typeof_set(CL_OBJ_EVENT, e);
     pthread_mutex_init(&e->m_evc, NULL);
 
     return e;

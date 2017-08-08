@@ -36,6 +36,7 @@ struct gnode_s {
     struct cl_object_hdr    hdr;
     void                    *content;
     unsigned int            content_size;
+    enum cl_object          content_type;
     struct cl_ref_s         ref;
 
     /*
@@ -48,14 +49,14 @@ struct gnode_s {
 #define CLIST_NODE_OFFSET           \
     (sizeof(cl_list_entry_t *) + sizeof(cl_list_entry_t *))
 
-#define clist_members                                                       \
-    cl_struct_member(struct gnode_s *, list)                                \
-    cl_struct_member(unsigned int, size)                                    \
-    cl_struct_member(struct cl_ref_s, ref)                                  \
-    cl_struct_member(void, (*free_data)(void *))                            \
-    cl_struct_member(int, (*compare_to)(void *, void *))                    \
-    cl_struct_member(int, (*filter)(void *, void *))                        \
-    cl_struct_member(int, (*equals)(void *, void *))                        \
+#define clist_members                                       \
+    cl_struct_member(struct gnode_s *, list)                \
+    cl_struct_member(unsigned int, size)                    \
+    cl_struct_member(struct cl_ref_s, ref)                  \
+    cl_struct_member(void, (*free_data)(void *))            \
+    cl_struct_member(int, (*compare_to)(void *, void *))    \
+    cl_struct_member(int, (*filter)(void *, void *))        \
+    cl_struct_member(int, (*equals)(void *, void *))        \
     cl_struct_member(pthread_mutex_t, lock)
 
 cl_struct_declare(glist_s, clist_members);
@@ -77,7 +78,7 @@ static void dup_internal_data(glist_s *orig, glist_s *dest)
     dest->equals = orig->equals;
 }
 
-static bool is_cobject(struct gnode_s *node)
+static bool is_cl_object(struct gnode_s *node)
 {
     if (NULL == node)
         return false;
@@ -89,7 +90,7 @@ static bool is_cobject(struct gnode_s *node)
     if (node->content_size < CL_OBJECT_HEADER_ID_SIZE)
         return false;
 
-    return validate_object(node->content, CL_OBJ_OBJECT);
+    return typeof_validate_object(node->content, CL_OBJ_OBJECT);
 }
 
 /*
@@ -101,7 +102,7 @@ static bool is_list_of_cobjects(glist_s *list)
 
     node = cl_dll_at(list->list, 0);
 
-    return is_cobject(node);
+    return is_cl_object(node);
 }
 
 /*
@@ -142,23 +143,30 @@ static void destroy_node(struct gnode_s *node, bool free_content)
     if (NULL == node)
         return;
 
+    /* FIXME: Remove debug messages */
     if (free_content == true) {
-        if (node->free_data != NULL)
+        printf("%s: content_size = %d\n", __FUNCTION__, node->content_size);
+        if (node->free_data != NULL) {
             (node->free_data)(node->content);
-        else {
+            printf("%s: custom free\n", __FUNCTION__);
+        } else {
             /*
              * If we're holding information smaller than a cl_object_hdr structure
              * we don't even need to validate it and call free on it.
              */
-            if (node->content_size < CL_OBJECT_HEADER_ID_SIZE)
+            if (node->content_size < CL_OBJECT_HEADER_ID_SIZE) {
                 free(node->content);
-            else {
+                printf("%s: libc free\n", __FUNCTION__);
+            } else {
+                // TODO: Add support to free cl_string_t objects...
                 /*
                  * If we're holding cl_object_t pointers we know how to destroy
                  * them.
                  */
-                if (validate_object(node->content, CL_OBJ_OBJECT) == true)
+                if (typeof_validate_object(node->content, CL_OBJ_OBJECT) == true) {
                     cl_object_destroy(node->content);
+                    printf("%s: cl_object release\n", __FUNCTION__);
+                }
             }
         }
     }
@@ -195,11 +203,12 @@ static struct gnode_s *new_node(const void *content, unsigned int content_size,
 
     n->content = (void *)content;
     n->content_size = content_size;
+    n->content_type = typeof_guess_object(content);
     n->free_data = list->free_data;
     n->ref.free = __destroy_node;
     n->ref.count = 1;
 
-    set_typeof_with_offset(object, n, CLIST_NODE_OFFSET);
+    typeof_set_with_offset(object, n, CLIST_NODE_OFFSET);
 
     return n;
 }
@@ -217,9 +226,9 @@ static void destroy_list(const struct cl_ref_s *ref)
     if (NULL == list)
         return;
 
-    if (validate_object(list, CL_OBJ_STACK))
+    if (typeof_validate_object(list, CL_OBJ_STACK))
         node_object = CL_OBJ_STACK_NODE;
-    else if (validate_object(list, CL_OBJ_QUEUE))
+    else if (typeof_validate_object(list, CL_OBJ_QUEUE))
         node_object = CL_OBJ_QUEUE_NODE;
 
     while ((p = cl_dll_pop(&list->list)) != NULL)
@@ -246,7 +255,7 @@ static glist_s *new_clist(enum cl_object object)
 
     l->size = 0;
     pthread_mutex_init(&l->lock, NULL);
-    set_typeof(object, l);
+    typeof_set(object, l);
 
     l->ref.free = destroy_list;
     l->ref.count = 1;
@@ -636,8 +645,8 @@ void *cglist_node_content(const void *node, enum cl_object object)
 
     __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
 
-    return (is_cobject(n) == true) ? cl_object_ref(n->content)
-                                   : n->content;
+    return (is_cl_object(n) == true) ? cl_object_ref(n->content)
+                                     : n->content;
 }
 
 int cglist_sort(void *list, enum cl_object object)
