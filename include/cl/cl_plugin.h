@@ -175,10 +175,10 @@ cl_string_t *cl_plugin_API(const cl_plugin_info_t *info);
  *
  * @param [in] info: The plugin info object.
  *
- * @return On success returns a cl_string_list_t object with all the exported
+ * @return On success returns a cl_stringlist_t object with all the exported
  *         function names from the plugin or NULL otherwise.
  */
-cl_string_list_t *cl_plugin_functions(const cl_plugin_info_t *info);
+cl_stringlist_t *cl_plugin_functions(const cl_plugin_info_t *info);
 
 /**
  * @name cl_plugin_function_return_type
@@ -200,11 +200,11 @@ enum cl_type cl_plugin_function_return_type(const cl_plugin_info_t *info,
  * @param [in] info: The plugin info object.
  * @param [in] function_name: The name of the function which will be sought.
  *
- * @return On success returns a cl_string_list_t object with all the argument
+ * @return On success returns a cl_stringlist_t object with all the argument
  *         names from the requested function or NULL otherwise.
  */
-cl_string_list_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
-                                               const char *function_name);
+cl_stringlist_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
+                                              const char *function_name);
 
 /**
  * @name cl_plugin_function_arg_mode

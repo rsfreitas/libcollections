@@ -230,7 +230,7 @@ static char get_comment_delim_char(const cl_string_t *s)
 }
 
 static cl_string_t *get_comment(const cl_string_t *s, char delim,
-    cl_string_list_t **list)
+    cl_stringlist_t **list)
 {
     char tmp[2] = {0};
     int list_size = 0;
@@ -242,11 +242,11 @@ static cl_string_t *get_comment(const cl_string_t *s, char delim,
     if (NULL == *list)
         return NULL;
 
-    list_size = cl_string_list_size(*list);
+    list_size = cl_stringlist_size(*list);
 
     if (list_size < 1) {
         /* Never falls here */
-        cl_string_list_destroy(*list);
+        cl_stringlist_destroy(*list);
         return NULL;
     }
 
@@ -254,7 +254,7 @@ static cl_string_t *get_comment(const cl_string_t *s, char delim,
      * @list_size will always be > 1. So the comment will be in the
      * @list_size - 1 index at the list
      */
-    ref = cl_string_list_get(*list, list_size - 1);
+    ref = cl_stringlist_get(*list, list_size - 1);
     comment = cl_string_dup(ref);
     cl_string_unref(ref);
     cl_string_alltrim(comment);
@@ -263,7 +263,7 @@ static cl_string_t *get_comment(const cl_string_t *s, char delim,
 }
 
 static cl_string_t *get_line_content(const cl_string_t *s, char delim,
-    const cl_string_list_t *list)
+    const cl_stringlist_t *list)
 {
     cl_string_t *p = NULL, *content;
     int l;
@@ -271,7 +271,7 @@ static cl_string_t *get_line_content(const cl_string_t *s, char delim,
     if (NULL == list)
         return cl_string_dup(s);
 
-    p = cl_string_list_get(list, 0);
+    p = cl_stringlist_get(list, 0);
 
     if (delim != 0) {
         /* Has only comment */
@@ -292,15 +292,15 @@ static cl_string_t *get_line_content(const cl_string_t *s, char delim,
 
 static cl_string_t *get_data(const cl_string_t *s, int index)
 {
-    cl_string_list_t *l = NULL;
+    cl_stringlist_t *l = NULL;
     cl_string_t *r = NULL, *ref;
 
     l = cl_string_split(s, "=");
-    ref = cl_string_list_get(l, index);
+    ref = cl_stringlist_get(l, index);
     r = cl_string_dup(ref);
     cl_string_unref(ref);
     cl_string_alltrim(r);
-    cl_string_list_destroy(l);
+    cl_stringlist_destroy(l);
 
     return r;
 }
@@ -321,7 +321,7 @@ static cfg_line_s *cvt_line_to_cfg_line(const char *line)
     char cdelim = 0;
     cl_string_t *s = NULL, *comment = NULL, *data = NULL, *name = NULL,
         *value = NULL;
-    cl_string_list_t *list = NULL;
+    cl_stringlist_t *list = NULL;
     cfg_line_s *cline = NULL;
 
     if (!strlen(line)) {
@@ -369,7 +369,7 @@ end_block:
         cl_string_unref(data);
 
     if (list != NULL)
-        cl_string_list_destroy(list);
+        cl_stringlist_destroy(list);
 
     if (s != NULL)
         cl_string_unref(s);
@@ -830,37 +830,37 @@ __PUB_API__ cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file)
 static int append_entry_name(cl_list_node_t *a, void *b)
 {
     cfg_line_s *entry = (cfg_line_s *)cl_list_node_content(a);
-    cl_string_list_t *keys = (cl_string_list_t *)b;
+    cl_stringlist_t *keys = (cl_stringlist_t *)b;
 
-    cl_string_list_add(keys, entry->name);
+    cl_stringlist_add(keys, entry->name);
 
     return 0;
 }
 
-__PUB_API__ cl_string_list_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
+__PUB_API__ cl_stringlist_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
     const char *block)
 {
     cfg_line_s *s;
-    cl_string_list_t *keys;
+    cl_stringlist_t *keys;
 
     s = cl_cfg_block(file, block);
 
     if (NULL == s)
         return NULL;
 
-    keys = cl_string_list_create();
+    keys = cl_stringlist_create();
     cl_list_map(s->child, append_entry_name, keys);
 
     return keys;
 }
 
-__PUB_API__ cl_string_list_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block)
+__PUB_API__ cl_stringlist_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block)
 {
     cfg_line_s *s = (cfg_line_s *)block;
-    cl_string_list_t *keys;
+    cl_stringlist_t *keys;
 
     __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, NULL);
-    keys = cl_string_list_create();
+    keys = cl_stringlist_create();
     cl_list_map(s->child, append_entry_name, keys);
 
     return keys;
@@ -869,26 +869,26 @@ __PUB_API__ cl_string_list_t *cl_cfg_block_entry_names(const cl_cfg_block_t *blo
 static int append_block_name(cl_list_node_t *a, void *b)
 {
     cfg_line_s *block = (cfg_line_s *)cl_list_node_content(a);
-    cl_string_list_t *sections = (cl_string_list_t *)b;
+    cl_stringlist_t *sections = (cl_stringlist_t *)b;
     cl_string_t *s = cl_string_dup(block->name);
 
     /* Remove brackets */
     cl_string_dchr(s, '[');
     cl_string_dchr(s, ']');
 
-    cl_string_list_add(sections, s);
+    cl_stringlist_add(sections, s);
     cl_string_unref(s);
 
     return 0;
 }
 
-__PUB_API__ cl_string_list_t *cl_cfg_all_block_names(const cl_cfg_file_t *file)
+__PUB_API__ cl_stringlist_t *cl_cfg_all_block_names(const cl_cfg_file_t *file)
 {
     cfg_file_s *f = (cfg_file_s *)file;
-    cl_string_list_t *sections = NULL;
+    cl_stringlist_t *sections = NULL;
 
     __clib_function_init__(true, file, CL_OBJ_CFG_FILE, NULL);
-    sections = cl_string_list_create();
+    sections = cl_stringlist_create();
     cl_list_map(f->block, append_block_name, sections);
 
     return sections;

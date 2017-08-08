@@ -779,11 +779,11 @@ static char *__strtok(const char *string, const char *delim, char **next_s)
 /*
  * Splits the cl_string_t object around matches of the given tokens.
  */
-__PUB_API__ cl_string_list_t *cl_string_split(const cl_string_t *string,
+__PUB_API__ cl_stringlist_t *cl_string_split(const cl_string_t *string,
     const char *delim)
 {
     cl_string_s *p;
-    cl_string_list_t *l = NULL;
+    cl_stringlist_t *l = NULL;
     char *t = NULL, *tmp = NULL;
     cl_string_t *data;
 
@@ -795,7 +795,7 @@ __PUB_API__ cl_string_list_t *cl_string_split(const cl_string_t *string,
     }
 
     p = cl_string_ref((cl_string_t *)string);
-    l = cl_string_list_create();
+    l = cl_stringlist_create();
 
     if (NULL == l) {
         cl_string_unref(p);
@@ -810,13 +810,13 @@ __PUB_API__ cl_string_list_t *cl_string_split(const cl_string_t *string,
     }
 
     data = cl_string_create("%s", t);
-    cl_string_list_add(l, data);
+    cl_stringlist_add(l, data);
     cl_string_unref(data);
     free(t);
 
     while ((t = __strtok(NULL, delim, &tmp)) != NULL) {
         data = cl_string_create("%s", t);
-        cl_string_list_add(l, data);
+        cl_stringlist_add(l, data);
         cl_string_unref(data);
         free(t);
     }

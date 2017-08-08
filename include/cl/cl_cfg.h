@@ -187,11 +187,11 @@ cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file);
  * @param [in] file: The cl_cfg_file_t object.
  * @param [in] block: The block name.
  *
- * @return On success returns a cl_string_list_t object with all entry names or
+ * @return On success returns a cl_stringlist_t object with all entry names or
  *         NULL otherwise.
  */
-cl_string_list_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
-                                         const char *block);
+cl_stringlist_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
+                                        const char *block);
 
 /**
  * @name cl_cfg_block_entry_names
@@ -199,10 +199,10 @@ cl_string_list_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
  *
  * @param [in] block: The cl_cfg_block_t object.
  *
- * @return On success returns a cl_string_list_t object with all entry names or
+ * @return On success returns a cl_stringlist_t object with all entry names or
  *         NULL otherwise.
  */
-cl_string_list_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block);
+cl_stringlist_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block);
 
 /**
  * @name cl_cfg_all_block_names
@@ -210,10 +210,10 @@ cl_string_list_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block);
  *
  * @param [in] file: The cl_cfg_file_t object.
  *
- * @return On success returns a cl_string_list_t object with all block names
+ * @return On success returns a cl_stringlist_t object with all block names
  *         or NULL otherwise.
  */
-cl_string_list_t *cl_cfg_all_block_names(const cl_cfg_file_t *file);
+cl_stringlist_t *cl_cfg_all_block_names(const cl_cfg_file_t *file);
 
 /**
  * @name cl_cfg_entry_comment

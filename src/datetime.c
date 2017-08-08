@@ -752,16 +752,16 @@ __PUB_API__ cl_datetime_t *cl_dt_mktime(unsigned int year, unsigned int month,
     return dt;
 }
 
-static int split_time(cl_string_list_t *dt, cl_string_t *time)
+static int split_time(cl_stringlist_t *dt, cl_string_t *time)
 {
-    cl_string_list_t *tmp = NULL;
+    cl_stringlist_t *tmp = NULL;
     cl_string_t *s = NULL;
     int i, t;
 
     /* UTC time? */
     if (cl_string_contains(time, "Z")) {
         cl_string_dchr(time, 'Z');
-        cl_string_list_add(dt, time);
+        cl_stringlist_add(dt, time);
         return 0;
     }
 
@@ -770,15 +770,15 @@ static int split_time(cl_string_list_t *dt, cl_string_t *time)
     if (NULL == tmp)
         return -1;
 
-    t = cl_string_list_size(tmp);
+    t = cl_stringlist_size(tmp);
 
     for (i = 0; i < t; i++) {
-        s = cl_string_list_get(tmp, i);
-        cl_string_list_add(dt, s);
+        s = cl_stringlist_get(tmp, i);
+        cl_stringlist_add(dt, s);
         cl_string_unref(s);
     }
 
-    cl_string_list_destroy(tmp);
+    cl_stringlist_destroy(tmp);
 
     return 0;
 }
@@ -790,16 +790,16 @@ static int split_time(cl_string_list_t *dt, cl_string_t *time)
  *
  * Note that if it's a ISO 8061 date we split the time and its timezone offset.
  */
-static cl_string_list_t *split_date_time(const cl_string_t *datetime)
+static cl_stringlist_t *split_date_time(const cl_string_t *datetime)
 {
-    cl_string_list_t *dt = NULL, *tmp = NULL;
+    cl_stringlist_t *dt = NULL, *tmp = NULL;
     cl_string_t *s = NULL;
     int ret;
 
     if (cl_string_contains(datetime, "T") == false)
         return cl_string_split(datetime, " ");
 
-    dt = cl_string_list_create();
+    dt = cl_stringlist_create();
 
     if (NULL == dt)
         return NULL;
@@ -810,12 +810,12 @@ static cl_string_list_t *split_date_time(const cl_string_t *datetime)
         return NULL;
 
     /* Add the date */
-    s = cl_string_list_get(tmp, 0);
-    cl_string_list_add(dt, s);
+    s = cl_stringlist_get(tmp, 0);
+    cl_stringlist_add(dt, s);
     cl_string_unref(s);
 
     /* Add the time */
-    s = cl_string_list_get(tmp, 1);
+    s = cl_stringlist_get(tmp, 1);
     ret = split_time(dt, s);
     cl_string_unref(s);
 
@@ -830,7 +830,7 @@ static cl_string_list_t *split_date_time(const cl_string_t *datetime)
 static int parse_date(const cl_string_t *date, int *year, int *month,
     int *day)
 {
-    cl_string_list_t *ldate = NULL;
+    cl_stringlist_t *ldate = NULL;
     cl_string_t *tmp = NULL;
 
     ldate = cl_string_split(date, "/-");
@@ -839,12 +839,12 @@ static int parse_date(const cl_string_t *date, int *year, int *month,
         return -1;
 
     /* month */
-    tmp = cl_string_list_get(ldate, 1);
+    tmp = cl_stringlist_get(ldate, 1);
     *month = cl_string_to_int(tmp);
     cl_string_unref(tmp);
 
     /* year and day */
-    tmp = cl_string_list_get(ldate, 0);
+    tmp = cl_stringlist_get(ldate, 0);
 
     if (cl_string_length(tmp) == 2) {
         /* day */
@@ -852,7 +852,7 @@ static int parse_date(const cl_string_t *date, int *year, int *month,
         cl_string_unref(tmp);
 
         /* year */
-        tmp = cl_string_list_get(ldate, 2);
+        tmp = cl_stringlist_get(ldate, 2);
         *year = cl_string_to_int(tmp);
         cl_string_unref(tmp);
     } else {
@@ -861,7 +861,7 @@ static int parse_date(const cl_string_t *date, int *year, int *month,
         cl_string_unref(tmp);
 
         /* day */
-        tmp = cl_string_list_get(ldate, 2);
+        tmp = cl_stringlist_get(ldate, 2);
         *day = cl_string_to_int(tmp);
         cl_string_unref(tmp);
     }
@@ -872,7 +872,7 @@ static int parse_date(const cl_string_t *date, int *year, int *month,
 static int parse_time(const cl_string_t *time, int *hour, int *minute,
     int *second)
 {
-    cl_string_list_t *ltime = NULL;
+    cl_stringlist_t *ltime = NULL;
     cl_string_t *tmp = NULL;
 
     ltime = cl_string_split(time, ":");
@@ -881,17 +881,17 @@ static int parse_time(const cl_string_t *time, int *hour, int *minute,
         return -1;
 
     /* hour */
-    tmp = cl_string_list_get(ltime, 0);
+    tmp = cl_stringlist_get(ltime, 0);
     *hour = cl_string_to_int(tmp);
     cl_string_unref(tmp);
 
     /* minute */
-    tmp = cl_string_list_get(ltime, 1);
+    tmp = cl_stringlist_get(ltime, 1);
     *minute = cl_string_to_int(tmp);
     cl_string_unref(tmp);
 
     /* seconds */
-    tmp = cl_string_list_get(ltime, 2);
+    tmp = cl_stringlist_get(ltime, 2);
     *second = cl_string_to_int(tmp);
     cl_string_unref(tmp);
 
@@ -901,7 +901,7 @@ static int parse_time(const cl_string_t *time, int *hour, int *minute,
 __PUB_API__ cl_datetime_t *cl_dt_mktime_from_string(const char *datetime)
 {
     cl_datetime_t *dt = NULL;
-    cl_string_list_t *ldt = NULL;
+    cl_stringlist_t *ldt = NULL;
     cl_string_t *tmp = NULL;
     int day, month, year, hour, min, sec;
 
@@ -920,12 +920,12 @@ __PUB_API__ cl_datetime_t *cl_dt_mktime_from_string(const char *datetime)
         return NULL;
 
     /* Date */
-    tmp = cl_string_list_get(ldt, 0);
+    tmp = cl_stringlist_get(ldt, 0);
     parse_date(tmp, &year, &month, &day);
     cl_string_unref(tmp);
 
     /* Time */
-    tmp = cl_string_list_get(ldt, 1);
+    tmp = cl_stringlist_get(ldt, 1);
     parse_time(tmp, &hour, &min, &sec);
     cl_string_unref(tmp);
 
@@ -933,7 +933,7 @@ __PUB_API__ cl_datetime_t *cl_dt_mktime_from_string(const char *datetime)
      * FIXME: If we're loading an UTC date, this won't work as expected.
      */
     dt = cl_dt_mktime(year, month, day, hour, min, sec);
-    cl_string_list_destroy(ldt);
+    cl_stringlist_destroy(ldt);
 
     return dt;
 }

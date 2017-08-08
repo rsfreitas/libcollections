@@ -130,8 +130,8 @@ typedef void                    cl_cfg_entry_t;     /** config block entry */
 typedef void                    cl_list_entry_t;
 
 /** string types */
-typedef void                    cl_string_t;      /** string */
-typedef void                    cl_string_list_t; /** list of strings */
+typedef void                    cl_string_t;        /** string */
+typedef void                    cl_stringlist_t;    /** list of strings */
 
 /** JSON type */
 typedef void                    cl_json_t;

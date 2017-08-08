@@ -88,24 +88,24 @@ __PUB_API__ void cl_daemon_start(void)
 static char **cvt_cmd(const char *cmd)
 {
     cl_string_t *s = NULL, *ref;
-    cl_string_list_t *l = NULL;
+    cl_stringlist_t *l = NULL;
     char **app_argv;
     unsigned int size, i;
 
     s = cl_string_create("%s", cmd);
     l = cl_string_split(s, " ");
     cl_string_destroy(s);
-    size = cl_string_list_size(l);
+    size = cl_stringlist_size(l);
     app_argv = calloc(size + 1, sizeof(char *));
 
     for (i = 0; i < size; i++) {
-        ref = cl_string_list_get(l, i);
+        ref = cl_stringlist_get(l, i);
         app_argv[i] = strdup(cl_string_valueof(ref));
         cl_string_unref(ref);
     }
 
     app_argv[size] = NULL;
-    cl_string_list_destroy(l);
+    cl_stringlist_destroy(l);
 
     return app_argv;
 }

@@ -127,7 +127,7 @@ __PUB_API__ cl_string_t *cl_plugin_API(const cl_plugin_info_t *info)
     return api_to_cstring(api);
 }
 
-__PUB_API__ cl_string_list_t *cl_plugin_functions(const cl_plugin_info_t *info)
+__PUB_API__ cl_stringlist_t *cl_plugin_functions(const cl_plugin_info_t *info)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
 
@@ -147,7 +147,7 @@ __PUB_API__ enum cl_type cl_plugin_function_return_type(const cl_plugin_info_t *
     return api_function_return_type(info, function_name);
 }
 
-__PUB_API__ cl_string_list_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
+__PUB_API__ cl_stringlist_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
     const char *function_name)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);

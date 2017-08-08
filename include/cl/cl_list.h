@@ -103,7 +103,7 @@ int cl_list_unref(cl_list_t *list);
  *
  * The function receives a few function pointers to be used by its API,
  * \a free_data is a function used to release the content of a list node,
- * \a compare_to is a function to be used while sorting a list it must return
+ * \a compare_to is a function to be used while sorting a list, it must return
  * a negative value, zero or a positive value if the nodes are less then, equal
  * to or, greater then one another, \a filter is a function used to extract
  * elements from the list if it returns a positive value and \a equals is also a
