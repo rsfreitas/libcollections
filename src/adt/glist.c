@@ -143,30 +143,23 @@ static void destroy_node(struct gnode_s *node, bool free_content)
     if (NULL == node)
         return;
 
-    /* FIXME: Remove debug messages */
     if (free_content == true) {
-        printf("%s: content_size = %d\n", __FUNCTION__, node->content_size);
-        if (node->free_data != NULL) {
+        if (node->free_data != NULL)
             (node->free_data)(node->content);
-            printf("%s: custom free\n", __FUNCTION__);
-        } else {
+        else {
             /*
              * If we're holding information smaller than a cl_object_hdr structure
              * we don't even need to validate it and call free on it.
              */
-            if (node->content_size < CL_OBJECT_HEADER_ID_SIZE) {
+            if (node->content_size < CL_OBJECT_HEADER_ID_SIZE)
                 free(node->content);
-                printf("%s: libc free\n", __FUNCTION__);
-            } else {
-                // TODO: Add support to free cl_string_t objects...
+            else {
                 /*
                  * If we're holding cl_object_t pointers we know how to destroy
                  * them.
                  */
-                if (typeof_validate_object(node->content, CL_OBJ_OBJECT) == true) {
+                if (typeof_validate_object(node->content, CL_OBJ_OBJECT) == true)
                     cl_object_destroy(node->content);
-                    printf("%s: cl_object release\n", __FUNCTION__);
-                }
             }
         }
     }
