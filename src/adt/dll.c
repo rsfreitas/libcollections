@@ -185,12 +185,18 @@ __PUB_API__ void *cl_dll_map_indexed(void *root,
 {
     struct cl_dll_node *p = NULL;
     unsigned int i;
+    int ret;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    for (p = root, i = 0; p != NULL; p = p->next, i++)
-        if (foo(i, p, data))
+    for (p = root, i = 0; p != NULL; p = p->next) {
+        ret = foo(i, p, data);
+
+        if (ret < 0)
             return p;
+        else if (ret == 0)
+            i++;
+    }
 
     return NULL;
 }
@@ -224,6 +230,7 @@ __PUB_API__ void *cl_dll_map_indexed_reverse(void *root,
 {
     struct cl_dll_node *l = root, *p = NULL;
     unsigned int i;
+    int ret;
 
     __clib_function_init__(false, NULL, -1, NULL);
 
@@ -231,9 +238,14 @@ __PUB_API__ void *cl_dll_map_indexed_reverse(void *root,
     while (l->next)
         l = l->next;
 
-    for (p = l, i = 0; p != NULL; p = p->prev, i++)
-        if (foo(i, p, data))
+    for (p = root, i = 0; p != NULL; p = p->next) {
+        ret = foo(i, p, data);
+
+        if (ret < 0)
             return p;
+        else if (ret == 0)
+            i++;
+    }
 
     return NULL;
 }
@@ -363,7 +375,9 @@ __PUB_API__ void *cl_dll_delete_indexed(void *root, unsigned int index,
     if (first == true) {
         r = p;
         p = p->next;
-        p->prev = NULL;
+
+        if (p)
+            p->prev = NULL;
 
         goto end_block;
     }

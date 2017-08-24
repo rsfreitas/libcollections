@@ -7,6 +7,7 @@ CC = gcc
 GCCVERSION = 4
 ARCH_TEST := $(shell uname -m)
 GCCVERSION_TEST := $(shell expr `gcc -dumpversion | cut -f1 -d.` \> 4)
+OS := $(shell uname -o | tr '[:lower:]' '[:upper:]' | tr '/' '_')
 
 ifeq ($(ARCH_TEST), x86_64)
     ARCH = amd64
@@ -74,11 +75,15 @@ endif
 PLUGIN_LIBS = $(PYTHON_LIBS) $(JAVA_LIBS)
 LIBS = -lpthread -lm -lrt -ldl -lmagic $(PLUGIN_LIBS) $(OPENCV_LIBS)
 
+ifneq ($(OS), GNU_LINUX)
+    LIBS += -lintl
+endif
+
 # Elf plugin is always enabled
 PLUGIN_ELF = -DPLUGIN_ELF
 PLUGINS = $(PLUGIN_ELF) $(PLUGIN_PYTHON) $(PLUGIN_JAVA)
 CFLAGS = -Wall -Wextra -fPIC -ggdb -O0 -g3 -DLIBCOLLECTIONS_COMPILE \
-		 -D_GNU_SOURCE -DLINUX $(PLUGINS) $(IMAGES) $(INCLUDEDIR)
+		 -D_GNU_SOURCE -D$(OS) $(PLUGINS) $(IMAGES) $(INCLUDEDIR)
 
 ifeq ($(GCCVERSION), 5)
     CFLAGS += -fgnu89-inline

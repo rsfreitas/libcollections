@@ -56,7 +56,7 @@ static cl_spec_s *new_spec_s(enum cl_spec_attrib properties,
     s->max = (max != NULL) ? cl_object_ref(max) : NULL;
     s->min = (min != NULL) ? cl_object_ref(min) : NULL;
     s->max_length = max_length;
-    set_typeof(CL_OBJ_SPEC, s);
+    typeof_set(CL_OBJ_SPEC, s);
 
     return s;
 }
@@ -80,8 +80,8 @@ __PUB_API__ cl_spec_t *cl_spec_create(enum cl_spec_attrib properties,
 {
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if ((validate_object(min, CL_OBJ_OBJECT) == false) ||
-        (validate_object(max, CL_OBJ_OBJECT) == false))
+    if ((typeof_validate_object(min, CL_OBJ_OBJECT) == false) ||
+        (typeof_validate_object(max, CL_OBJ_OBJECT) == false))
     {
         return NULL;
     }
@@ -1466,8 +1466,8 @@ __PUB_API__ bool cl_spec_validate_va(const cl_spec_t *spec, cl_object_t *value,
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(spec, CL_OBJ_SPEC) == false) ||
-        (validate_object(value, CL_OBJ_OBJECT) == false))
+    if ((typeof_validate_object(spec, CL_OBJ_SPEC) == false) ||
+        (typeof_validate_object(value, CL_OBJ_OBJECT) == false))
     {
         return false;
     }
@@ -1505,8 +1505,8 @@ __PUB_API__ int cl_spec_set_min(cl_spec_t *spec, cl_object_t *min)
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(spec, CL_OBJ_SPEC) == false) ||
-        (validate_object(min, CL_OBJ_OBJECT) == false))
+    if ((typeof_validate_object(spec, CL_OBJ_SPEC) == false) ||
+        (typeof_validate_object(min, CL_OBJ_OBJECT) == false))
     {
         return -1;
     }
@@ -1523,8 +1523,8 @@ __PUB_API__ int cl_spec_set_max(cl_spec_t *spec, cl_object_t *max)
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(spec, CL_OBJ_SPEC) == false) ||
-        (validate_object(max, CL_OBJ_OBJECT) == false))
+    if ((typeof_validate_object(spec, CL_OBJ_SPEC) == false) ||
+        (typeof_validate_object(max, CL_OBJ_OBJECT) == false))
     {
         return -1;
     }

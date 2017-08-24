@@ -382,15 +382,19 @@ cl_datetime_t *cl_dt_mktime(unsigned int year, unsigned int month,
 
 /**
  * @name cl_dt_mktime_from_cstring
- * @brief Creates a cl_datetime_t object with a specific date and time.
+ * @brief Creates a cl_datetime_t object with a specific date and time from
+ *        a cl_string_t object.
  *
  * In this case the date and time information comes from a cl_string_t object,
  * with the following supported formats:
  *
- * YYYY-MM-DD HH:MM:SS
- * YYYY/MM/DD HH:MM:SS
- * DD-MM-YYYY HH:MM:SS
- * DD/MM/YYYY HH:MM:SS
+ * YYYY-MM-DD HH:MM:SS (localtime)
+ * YYYY/MM/DD HH:MM:SS (localtime)
+ * DD-MM-YYYY HH:MM:SS (localtime)
+ * DD/MM/YYYY HH:MM:SS (localtime)
+ * YYYY-MM-DDTHH:MM:SSZ (UTC)
+ * YYYY-MM-DDTHH:MM:SS+HH:MM (localtime with timezone offset)
+ * YYYY-MM-DDTHH:MM:SS-HH:MM (localtime with timezone offset)
  *
  * @param [in] datetime: The cl_string_t object.
  *
@@ -398,6 +402,29 @@ cl_datetime_t *cl_dt_mktime(unsigned int year, unsigned int month,
  *         otherwise.
  */
 cl_datetime_t *cl_dt_mktime_from_cstring(const cl_string_t *datetime);
+
+/**
+ * @name cl_dt_mktime_from_string
+ * @brief Creates a cl_datetime_t object with a specific date and time from
+ *        a char *.
+ *
+ * In this case the date and time information comes from a string, with the
+ * following supported formats:
+ *
+ * YYYY-MM-DD HH:MM:SS (localtime)
+ * YYYY/MM/DD HH:MM:SS (localtime)
+ * DD-MM-YYYY HH:MM:SS (localtime)
+ * DD/MM/YYYY HH:MM:SS (localtime)
+ * YYYY-MM-DDTHH:MM:SSZ (UTC)
+ * YYYY-MM-DDTHH:MM:SS+HH:MM (localtime with timezone offset)
+ * YYYY-MM-DDTHH:MM:SS-HH:MM (localtime with timezone offset)
+ *
+ * @param [in] datetime: The datetime as a string.
+ *
+ * @return On success a new cl_datetime_t object will be returned or NULL
+ *         otherwise.
+ */
+cl_datetime_t *cl_dt_mktime_from_string(const char *datetime);
 
 /**
  * @name cl_dt_minus_years

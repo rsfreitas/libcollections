@@ -34,11 +34,12 @@
 #endif
 
 enum cl_object {
+    CL_OBJ_UNKNOWN = -1,
     CL_OBJ_STRING,
     CL_OBJ_STRINGLIST,
     CL_OBJ_CFG_FILE,
-    CL_OBJ_CFG_SECTION,
-    CL_OBJ_CFG_KEY,
+    CL_OBJ_CFG_BLOCK,
+    CL_OBJ_CFG_ENTRY,
     CL_OBJ_JSON,
     CL_OBJ_DATETIME,
     CL_OBJ_TIMEOUT,
@@ -88,11 +89,13 @@ struct cl_object_hdr {
 #define CL_OBJECT_HEADER_ID_SIZE            \
     sizeof(struct cl_object_hdr)
 
-void set_typeof(enum cl_object type, void *p);
-bool validate_object(const void *p, enum cl_object type);
-void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset);
-bool validate_object_with_offset(const void *p, enum cl_object type,
-                                 unsigned int offset);
+void typeof_set(enum cl_object type, void *p);
+void typeof_set_with_offset(enum cl_object type, void *p, unsigned int offset);
+bool typeof_validate_object(const void *p, enum cl_object type);
+bool typeof_validate_object_with_offset(const void *p, enum cl_object type,
+                                        unsigned int offset);
+
+enum cl_object typeof_guess_object(const void *ptr);
 
 #endif
 

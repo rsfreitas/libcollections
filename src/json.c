@@ -41,10 +41,10 @@ typedef struct cl_json_s {
     cl_list_entry_t         *prev;
     cl_list_entry_t         *next;
     struct cl_object_hdr    hdr;
-    void                    *child;
-    cl_string_t             *name;
     enum cl_json_type       type;
+    cl_string_t             *name;
     cl_string_t             *value;
+    void                    *child;
 } cl_json_s;
 
 #define CL_JSON_OBJECT_OFFSET         \
@@ -95,12 +95,12 @@ static cl_json_s *cl_json_new(void)
     }
 
     j->child = NULL;
-    set_typeof_with_offset(CL_OBJ_JSON, j, CL_JSON_OBJECT_OFFSET);
+    typeof_set_with_offset(CL_OBJ_JSON, j, CL_JSON_OBJECT_OFFSET);
 
     return j;
 }
 
-static cl_json_t *__dup(const cl_json_s *j)
+static cl_json_s *__dup(const cl_json_s *j)
 {
     cl_json_s *p = NULL;
 
@@ -120,16 +120,23 @@ static void __cl_json_delete(void *a)
 {
     cl_json_s *c = (cl_json_s *)a;
 
-    if (!(c->type & CL_JSON_IS_REFERENCE) && c->child)
+    if (!(c->type & CL_JSON_IS_REFERENCE) && c->child) {
         cl_dll_free(c->child, __cl_json_delete);
+        c->child = NULL;
+    }
 
-    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value)
+    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value) {
         cl_string_destroy(c->value);
+        c->value = NULL;
+    }
 
-    if (c->name)
+    if (c->name) {
         cl_string_destroy(c->name);
+        c->name = NULL;
+    }
 
     free(c);
+    c = NULL;
 }
 
 /*
@@ -659,13 +666,24 @@ __PUB_API__ void cl_json_delete(cl_json_t *j)
     if (library_initialized() == false)
         return;
 
-    if (validate_object_with_offset(j, CL_OBJ_JSON,
+    if (typeof_validate_object_with_offset(j, CL_OBJ_JSON,
                                     CL_JSON_OBJECT_OFFSET) == false)
     {
         return;
     }
 
     cl_dll_free(c->child, __cl_json_delete);
+
+    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value) {
+        cl_string_destroy(c->value);
+        c->value = NULL;
+    }
+
+    if (c->name) {
+        cl_string_destroy(c->name);
+        c->name = NULL;
+    }
+
     free(c);
 }
 
@@ -1011,7 +1029,7 @@ __PUB_API__ cl_json_t *cl_json_create_float_array(const float *values, int size)
     return a;
 }
 
-__PUB_API__ cl_json_t *cl_json_create_string_array(const cl_string_list_t *values)
+__PUB_API__ cl_json_t *cl_json_create_string_array(const cl_stringlist_t *values)
 {
     int i, size;
     cl_json_s *a = NULL, *n;
@@ -1022,10 +1040,10 @@ __PUB_API__ cl_json_t *cl_json_create_string_array(const cl_string_list_t *value
     if (NULL == a)
         return NULL;
 
-    size = cl_string_list_size(values);
+    size = cl_stringlist_size(values);
 
     for (i = 0; i < size; i++) {
-        n = cl_json_create_string(cl_string_valueof(cl_string_list_get(values,
+        n = cl_json_create_string(cl_string_valueof(cl_stringlist_get(values,
                                                                        i)));
 
         if (NULL == n)
@@ -1044,9 +1062,9 @@ __PUB_API__ int cl_json_add_item_to_array(cl_json_t *array, const cl_json_t *ite
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(array, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1065,9 +1083,9 @@ __PUB_API__ int cl_json_add_item_to_object(cl_json_t *root, const char *name,
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(root, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1105,9 +1123,9 @@ __PUB_API__ int cl_json_add_item_reference_to_array(cl_json_t *array,
 {
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(array, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1121,9 +1139,9 @@ __PUB_API__ int cl_json_add_item_reference_to_object(cl_json_t *root,
 {
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(root, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1217,9 +1235,9 @@ __PUB_API__ int cl_json_replace_item_in_array(cl_json_t *array,
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(array, CL_OBJ_JSON,
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(new_item, CL_OBJ_JSON,
+        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
                                      CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
@@ -1256,10 +1274,10 @@ __PUB_API__ int cl_json_replace_item_in_object(cl_json_t *root,
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object_with_offset(root, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false) ||
-        (validate_object_with_offset(new_item, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false))
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
+                                            CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
+                                            CL_JSON_OBJECT_OFFSET) == false))
     {
         return -1;
     }
@@ -1400,7 +1418,7 @@ static char *print_string(const cl_string_t *value)
     return out;
 }
 
-static cl_string_t *output_array(cl_string_list_t *sl, bool fmt)
+static cl_string_t *output_array(cl_stringlist_t *sl, bool fmt)
 {
     cl_string_t *out = NULL, *v;
     int i;
@@ -1408,12 +1426,12 @@ static cl_string_t *output_array(cl_string_list_t *sl, bool fmt)
     /* Output */
     out = cl_string_create("[");
 
-    for (i = 0; i < cl_string_list_size(sl); i++) {
-        v = cl_string_list_get(sl, i);
+    for (i = 0; i < cl_stringlist_size(sl); i++) {
+        v = cl_stringlist_get(sl, i);
         cl_string_cat(out, "%s", cl_string_valueof(v));
         cl_string_unref(v);
 
-        if (i != (cl_string_list_size(sl) - 1)) {
+        if (i != (cl_stringlist_size(sl) - 1)) {
             cl_string_cat(out, ",");
 
             if (fmt == true)
@@ -1429,23 +1447,23 @@ static cl_string_t *output_array(cl_string_list_t *sl, bool fmt)
 static char *print_array(cl_json_s *item, int depth, bool fmt)
 {
     char *ptr;
-    cl_string_list_t *sl = NULL;
+    cl_stringlist_t *sl = NULL;
     cl_string_t *v = NULL;
     cl_json_s *child = item->child;
 
-    sl = cl_string_list_create();
+    sl = cl_stringlist_create();
 
     /* Get child values */
     while (child) {
         ptr = print_value(child, depth + 1, fmt);
 
         if (NULL == ptr) {
-            cl_string_list_destroy(sl);
+            cl_stringlist_destroy(sl);
             return NULL;
         }
 
         v = cl_string_create("%s", ptr);
-        cl_string_list_add(sl, v);
+        cl_stringlist_add(sl, v);
         cl_string_unref(v);
         free(ptr);
         child = child->next;
@@ -1454,13 +1472,13 @@ static char *print_array(cl_json_s *item, int depth, bool fmt)
     v = output_array(sl, fmt);
     ptr = strdup(cl_string_valueof(v));
     cl_string_destroy(v);
-    cl_string_list_destroy(sl);
+    cl_stringlist_destroy(sl);
 
     return ptr;
 }
 
-static cl_string_t *output_object(cl_string_list_t *sl_names,
-    cl_string_list_t *sl_values, int depth, bool fmt)
+static cl_string_t *output_object(cl_stringlist_t *sl_names,
+    cl_stringlist_t *sl_values, int depth, bool fmt)
 {
     cl_string_t *out = NULL, *v;
     int i, j;
@@ -1471,12 +1489,12 @@ static cl_string_t *output_object(cl_string_list_t *sl_names,
         cl_string_cat(out, "\n");
 
     /* Both lists must have the same sizes */
-    for (i = 0; i < cl_string_list_size(sl_names); i++) {
+    for (i = 0; i < cl_stringlist_size(sl_names); i++) {
         if (fmt == true)
             for (j = 0; j < depth; j++)
                 cl_string_cat(out, "\t");
 
-        v = cl_string_list_get(sl_names, i);
+        v = cl_stringlist_get(sl_names, i);
         cl_string_cat(out, "%s", cl_string_valueof(v));
         cl_string_unref(v);
         cl_string_cat(out, ":");
@@ -1484,11 +1502,11 @@ static cl_string_t *output_object(cl_string_list_t *sl_names,
         if (fmt == true)
             cl_string_cat(out, "\t");
 
-        v = cl_string_list_get(sl_values, i);
+        v = cl_stringlist_get(sl_values, i);
         cl_string_cat(out, "%s", cl_string_valueof(v));
         cl_string_unref(v);
 
-        if (i != (cl_string_list_size(sl_names) - 1))
+        if (i != (cl_stringlist_size(sl_names) - 1))
             cl_string_cat(out, ",");
 
         if (fmt == true)
@@ -1508,11 +1526,11 @@ static char *print_object(cl_json_s *item, int depth, bool fmt)
 {
     char *ptr;
     cl_json_s *child = item->child;
-    cl_string_list_t *sl_names = NULL, *sl_values = NULL;
+    cl_stringlist_t *sl_names = NULL, *sl_values = NULL;
     cl_string_t *v;
 
-    sl_names = cl_string_list_create();
-    sl_values = cl_string_list_create();
+    sl_names = cl_stringlist_create();
+    sl_values = cl_stringlist_create();
     depth++;
 
     while (child) {
@@ -1522,7 +1540,7 @@ static char *print_object(cl_json_s *item, int depth, bool fmt)
             goto end_block;
 
         v = cl_string_create("%s", ptr);
-        cl_string_list_add(sl_names, v);
+        cl_stringlist_add(sl_names, v);
         cl_string_unref(v);
         free(ptr);
 
@@ -1532,7 +1550,7 @@ static char *print_object(cl_json_s *item, int depth, bool fmt)
             goto end_block;
 
         v = cl_string_create("%s", ptr);
-        cl_string_list_add(sl_values, v);
+        cl_stringlist_add(sl_values, v);
         cl_string_unref(v);
         free(ptr);
 
@@ -1544,8 +1562,8 @@ static char *print_object(cl_json_s *item, int depth, bool fmt)
     cl_string_unref(v);
 
 end_block:
-    cl_string_list_destroy(sl_names);
-    cl_string_list_destroy(sl_values);
+    cl_stringlist_destroy(sl_names);
+    cl_stringlist_destroy(sl_values);
 
     return ptr;
 

@@ -122,16 +122,16 @@ enum cl_type {
 typedef int                     cl_errno;
 
 /** config types */
-typedef void                    cl_cfg_file_t;     /** config file */
-typedef void                    cl_cfg_section_t;  /** config section */
-typedef void                    cl_cfg_key_t;      /** config key */
+typedef void                    cl_cfg_file_t;      /** config file */
+typedef void                    cl_cfg_block_t;     /** config section block */
+typedef void                    cl_cfg_entry_t;     /** config block entry */
 
-/** doubly linded list entry type */
+/** doubly linked list entry type */
 typedef void                    cl_list_entry_t;
 
 /** string types */
-typedef void                    cl_string_t;      /** string */
-typedef void                    cl_string_list_t; /** list of strings */
+typedef void                    cl_string_t;        /** string */
+typedef void                    cl_stringlist_t;    /** list of strings */
 
 /** JSON type */
 typedef void                    cl_json_t;

@@ -127,7 +127,7 @@ __PUB_API__ cl_string_t *cl_plugin_API(const cl_plugin_info_t *info)
     return api_to_cstring(api);
 }
 
-__PUB_API__ cl_string_list_t *cl_plugin_functions(const cl_plugin_info_t *info)
+__PUB_API__ cl_stringlist_t *cl_plugin_functions(const cl_plugin_info_t *info)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
 
@@ -147,7 +147,7 @@ __PUB_API__ enum cl_type cl_plugin_function_return_type(const cl_plugin_info_t *
     return api_function_return_type(info, function_name);
 }
 
-__PUB_API__ cl_string_list_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
+__PUB_API__ cl_stringlist_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
     const char *function_name)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
@@ -208,7 +208,7 @@ __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
     va_start(ap, NULL);
     argc -= CL_PLUGIN_CALL_DEF_ARGUMENTS;
     foo = cl_dll_map(pl->functions, search_cplugin_function_s,
-                   (char *)function_name);
+                     (char *)function_name);
 
     if (NULL == foo) {
         cset_errno(CL_OBJECT_NOT_FOUND);

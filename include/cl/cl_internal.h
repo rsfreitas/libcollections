@@ -68,7 +68,7 @@
             return return_value;\
 \
         if (obj_validation == true)\
-            if (validate_object(object, type) == false)\
+            if (typeof_validate_object(object, type) == false)\
                 return return_value;\
     } while (0);
 
@@ -97,7 +97,7 @@
             return return_value;\
 \
         if (obj_validation == true)\
-            if (validate_object_with_offset(object, type, offset) == false)\
+            if (typeof_validate_object_with_offset(object, type, offset) == false)\
                 return return_value;\
     } while (0);
 
@@ -119,7 +119,7 @@
             return;\
 \
         if (obj_validation == true)\
-            if (validate_object(object, type) == false)\
+            if (typeof_validate_object(object, type) == false)\
                 return;\
     } while (0);
 
@@ -128,7 +128,7 @@ void cerrno_clear(void);
 void cset_errno(enum cl_error_code error_code);
 
 /* value.c */
-bool validate_cl_type(enum cl_type type);
+bool cl_object_is_valid(enum cl_type type);
 void cl_object_set_char(cl_object_t *value, char c);
 void cl_object_set_uchar(cl_object_t *value, unsigned char uc);
 void cl_object_set_int(cl_object_t *value, int i);

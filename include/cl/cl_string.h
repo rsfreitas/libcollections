@@ -393,10 +393,10 @@ double cl_string_to_double(const cl_string_t *string);
  * @param [in] string: The cl_string_t object.
  * @param [in] delim: The list of tokens.
  *
- * @return Returns a cl_string_list_t object containing all substrings splitted
+ * @return Returns a cl_stringlist_t object containing all substrings splitted
  *         on success or NULL otherwise
  */
-cl_string_list_t *cl_string_split(const cl_string_t *string, const char *delim);
+cl_stringlist_t *cl_string_split(const cl_string_t *string, const char *delim);
 
 /**
  * @name cl_string_is_number

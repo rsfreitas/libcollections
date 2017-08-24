@@ -68,6 +68,27 @@ int main(int argc, char **argv)
         cl_string_unref(s);
     }
 
+    /* cl_string_split */
+    {
+        cl_stringlist_t *l = NULL;
+        cl_string_t *tmp = NULL;
+        int i;
+
+        s = cl_string_create("one two three four five six seven eight nine ten");
+        l = cl_string_split(s, " ");
+
+        for (i = 0; i < cl_stringlist_size(l); i++) {
+            tmp = cl_stringlist_get(l, i);
+            printf("%d -> %s\n", i, cl_string_valueof(tmp));
+            cl_string_unref(tmp);
+        }
+
+        tmp = cl_stringlist_flat(l, '|');
+        printf("flat: '%s'\n", cl_string_valueof(tmp));
+        cl_string_unref(tmp);
+        cl_stringlist_destroy(l);
+    }
+
     cl_uninit();
 
     return 0;

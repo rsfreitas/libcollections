@@ -60,7 +60,7 @@ static cl_timeout_s *new_cl_timeout_s(unsigned int interval,
     t->dt = dt;
     t->precision = precision;
     t->interval = interval;
-    set_typeof(CL_OBJ_TIMEOUT, t);
+    typeof_set(CL_OBJ_TIMEOUT, t);
 
     return t;
 }

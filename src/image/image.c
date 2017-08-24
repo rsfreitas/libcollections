@@ -79,7 +79,7 @@ static cl_image_s *new_cimage(void)
     i->ref.free = destroy_cimage;
     i->ref.count = 1;
 
-    set_typeof(CL_OBJ_IMAGE, i);
+    typeof_set(CL_OBJ_IMAGE, i);
 
     return i;
 }

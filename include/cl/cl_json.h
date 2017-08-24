@@ -289,12 +289,12 @@ cl_json_t *cl_json_create_float_array(const float *values, int size);
  * @name cl_json_create_string_array
  * @brief Creates an array of object of type CL_JSON_STRING.
  *
- * @param [in] values: The cl_string_list_t containing the values of each element
+ * @param [in] values: The cl_stringlist_t containing the values of each element
  *                     of the array.
  *
  * @return On success returns the created cl_json_t array or NULL otherwise.
  */
-cl_json_t *cl_json_create_string_array(const cl_string_list_t *values);
+cl_json_t *cl_json_create_string_array(const cl_stringlist_t *values);
 
 /**
  * @name cl_json_add_item_to_array

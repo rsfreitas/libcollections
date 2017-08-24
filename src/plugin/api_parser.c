@@ -254,11 +254,11 @@ cl_string_t *api_to_cstring(cl_json_t *api)
     return cl_json_to_cstring(api, true);
 }
 
-cl_string_list_t *api_functions(const cl_plugin_info_t *info)
+cl_stringlist_t *api_functions(const cl_plugin_info_t *info)
 {
     cl_json_t *f, *o, *p;
     int i, t = 0;
-    cl_string_list_t *list = NULL;
+    cl_stringlist_t *list = NULL;
 
     cerrno_clear();
 
@@ -275,7 +275,7 @@ cl_string_list_t *api_functions(const cl_plugin_info_t *info)
     }
 
     t = cl_json_get_array_size(f);
-    list = cl_string_list_create();
+    list = cl_stringlist_create();
 
     for (i = 0; i < t; i++) {
         o = cl_json_get_array_item(f, i);
@@ -286,7 +286,7 @@ cl_string_list_t *api_functions(const cl_plugin_info_t *info)
         }
 
         p = cl_json_get_object_item(o, FUNCTION_NAME);
-        cl_string_list_add(list, cl_json_get_object_value(p));
+        cl_stringlist_add(list, cl_json_get_object_value(p));
     }
 
     return list;
@@ -313,12 +313,12 @@ static cl_json_t *get_function_object(cl_json_t *api, const char *function_name)
     return NULL;
 }
 
-cl_string_list_t *api_function_arguments(const cl_plugin_info_t *info,
+cl_stringlist_t *api_function_arguments(const cl_plugin_info_t *info,
     const char *function_name)
 {
     cl_json_t *foo, *args, *a, *p;
     int i, t = 0;
-    cl_string_list_t *list = NULL;
+    cl_stringlist_t *list = NULL;
 
     foo = get_function_object(info_get_api(info), function_name);
     args = cl_json_get_object_item(foo, FUNCTION_ARGUMENTS);
@@ -327,12 +327,12 @@ cl_string_list_t *api_function_arguments(const cl_plugin_info_t *info,
         return NULL;
 
     t = cl_json_get_array_size(args);
-    list = cl_string_list_create();
+    list = cl_stringlist_create();
 
     for (i = 0; i < t; i++) {
         a = cl_json_get_array_item(args, i);
         p = cl_json_get_object_item(a, ARGUMENT_NAME);
-        cl_string_list_add(list, cl_json_get_object_value(p));
+        cl_stringlist_add(list, cl_json_get_object_value(p));
     }
 
     return list;

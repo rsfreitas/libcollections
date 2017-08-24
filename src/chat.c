@@ -567,7 +567,7 @@ static cl_chat_s *new_chat_s(void)
         return NULL;
     }
 
-    set_typeof(CL_OBJ_CHAT, s);
+    typeof_set(CL_OBJ_CHAT, s);
     s->ref.count = 1;
     s->ref.free = __destroy_chat_s;
 

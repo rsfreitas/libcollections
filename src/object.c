@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <locale.h>
 
 #include "collections.h"
 
@@ -61,7 +62,7 @@ cl_struct_declare(cl_object_s, cl_object_members);
 
 #define cl_object_s        cl_struct(cl_object_s)
 
-bool validate_cl_type(enum cl_type type)
+bool cl_object_is_valid(enum cl_type type)
 {
     if ((type == CL_VOID) ||
         (type == CL_CHAR) ||
@@ -136,7 +137,7 @@ static cl_object_s *new_cl_object_s(enum cl_type type)
     o->ref.free = destroy_cl_object_s;
     o->ref.count = 1;
 
-    set_typeof(CL_OBJ_OBJECT, o);
+    typeof_set(CL_OBJ_OBJECT, o);
 
     return o;
 }
@@ -446,7 +447,7 @@ __PUB_API__ cl_object_t *cl_object_create(enum cl_type type, ...)
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if (validate_cl_type(type) == false)
+    if (cl_object_is_valid(type) == false)
         return NULL;
 
     o = new_cl_object_s(type);
@@ -467,7 +468,7 @@ __PUB_API__ cl_object_t *cl_object_create_empty(enum cl_type type)
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if (validate_cl_type(type) == false)
+    if (cl_object_is_valid(type) == false)
         return NULL;
 
     o = new_cl_object_s(type);
@@ -485,10 +486,10 @@ __PUB_API__ cl_object_t *cl_object_create_with_spec(enum cl_type type,
 
     __clib_function_init__(false, NULL, -1, NULL);
 
-    if (validate_cl_type(type) == false)
+    if (cl_object_is_valid(type) == false)
         return NULL;
 
-    if (validate_object(spec, CL_OBJ_SPEC) == false)
+    if (typeof_validate_object(spec, CL_OBJ_SPEC) == false)
         return NULL;
 
     o = new_cl_object_s(type);
@@ -609,7 +610,7 @@ __PUB_API__ bool cl_object_is_of_type(const cl_object_t *object,
 
     __clib_function_init__(true, object, CL_OBJ_OBJECT, false);
 
-    if (validate_cl_type(type) == false)
+    if (cl_object_is_valid(type) == false)
         return false;
 
     o = cl_object_ref((cl_object_t *)object);
@@ -622,7 +623,7 @@ __PUB_API__ bool cl_object_is_of_type(const cl_object_t *object,
 static cl_string_t *print_object(const cl_object_s *o)
 {
     cl_string_t *s = NULL;
-    char *tmp;
+    char *tmp, *old_locale;
 
     switch (o->type) {
         case CL_VOID:
@@ -654,7 +655,10 @@ static cl_string_t *print_object(const cl_object_s *o)
             break;
 
         case CL_FLOAT:
+            old_locale = setlocale(LC_NUMERIC, NULL);
+            setlocale(LC_NUMERIC, "en_US.UTF-8");
             s = cl_string_create("%.2f", o->f);
+            setlocale(LC_NUMERIC, old_locale);
             break;
 
         case CL_DOUBLE:
@@ -950,8 +954,8 @@ __PUB_API__ bool cl_object_equals(const cl_object_t *ob1, const cl_object_t *ob2
 
     __clib_function_init__(false, NULL, -1, false);
 
-    if ((validate_object(ob1, CL_OBJ_OBJECT) == false) ||
-        (validate_object(ob2, CL_OBJ_OBJECT) == false))
+    if ((typeof_validate_object(ob1, CL_OBJ_OBJECT) == false) ||
+        (typeof_validate_object(ob2, CL_OBJ_OBJECT) == false))
     {
         return false;
     }
@@ -988,8 +992,8 @@ __PUB_API__ int cl_object_compare_to(const cl_object_t *ob1,
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if ((validate_object(ob1, CL_OBJ_OBJECT) == false) ||
-        (validate_object(ob2, CL_OBJ_OBJECT) == false))
+    if ((typeof_validate_object(ob1, CL_OBJ_OBJECT) == false) ||
+        (typeof_validate_object(ob2, CL_OBJ_OBJECT) == false))
     {
         return -1;
     }

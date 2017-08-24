@@ -148,9 +148,9 @@ cl_json_t *api_load(const char *api_data);
 void api_unload(cl_json_t *api);
 struct cplugin_function_s *api_parse(cl_plugin_info_t *info);
 cl_string_t *api_to_cstring(cl_json_t *api);
-cl_string_list_t *api_functions(const cl_plugin_info_t *info);
-cl_string_list_t *api_function_arguments(const cl_plugin_info_t *info,
-                                       const char *function_name);
+cl_stringlist_t *api_functions(const cl_plugin_info_t *info);
+cl_stringlist_t *api_function_arguments(const cl_plugin_info_t *info,
+                                        const char *function_name);
 
 enum cl_type api_function_return_type(const cl_plugin_info_t *info,
                                       const char *function_name);

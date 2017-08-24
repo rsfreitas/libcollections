@@ -54,7 +54,7 @@ cl_struct_declare(cfg_line_s, cfg_line_members);
 /** INI file structure */
 #define cl_cfg_file_members                         \
     cl_struct_member(cl_string_t *, filename)       \
-    cl_struct_member(cl_list_t *, section)          \
+    cl_struct_member(cl_list_t *, block)            \
     cl_struct_member(struct cl_ref_s, ref)
 
 cl_struct_declare(cfg_file_s, cl_cfg_file_members);
@@ -139,15 +139,15 @@ static cfg_line_s *new_cfg_line_s(cl_string_t *name,
     l->child = cl_list_create(cl_cfg_line_unref, NULL, NULL, NULL);
 
     if (type == CFG_LINE_SECTION)
-        object = CL_OBJ_CFG_SECTION;
+        object = CL_OBJ_CFG_BLOCK;
     else
-        object = CL_OBJ_CFG_KEY;
+        object = CL_OBJ_CFG_ENTRY;
 
     /* Reference count */
     l->ref.count = 1;
     l->ref.free = __destroy_cfg_line;
 
-    set_typeof(object, l);
+    typeof_set(object, l);
 
     return l;
 }
@@ -162,8 +162,8 @@ static void destroy_cfg_file_s(const struct cl_ref_s *ref)
     if (file->filename != NULL)
         cl_string_destroy(file->filename);
 
-    if (file->section != NULL)
-        cl_list_destroy(file->section);
+    if (file->block != NULL)
+        cl_list_destroy(file->block);
 
     free(file);
 }
@@ -179,9 +179,9 @@ static cfg_file_s *new_cfg_file_s(const char *filename)
         return NULL;
     }
 
-    set_typeof(CL_OBJ_CFG_FILE, p);
+    typeof_set(CL_OBJ_CFG_FILE, p);
     p->filename = cl_string_create("%s", filename);
-    p->section = cl_list_create(cl_cfg_line_unref, NULL, NULL, NULL);
+    p->block = cl_list_create(cl_cfg_line_unref, NULL, NULL, NULL);
 
     /* Reference count */
     p->ref.count = 1;
@@ -196,7 +196,7 @@ static cfg_file_s *new_cfg_file_s(const char *filename)
  *
  */
 
-static bool is_section(const char *line)
+static bool is_full_block_name(const char *line)
 {
     bool ret = true;
     cl_string_t *p;
@@ -230,7 +230,7 @@ static char get_comment_delim_char(const cl_string_t *s)
 }
 
 static cl_string_t *get_comment(const cl_string_t *s, char delim,
-    cl_string_list_t **list)
+    cl_stringlist_t **list)
 {
     char tmp[2] = {0};
     int list_size = 0;
@@ -242,11 +242,11 @@ static cl_string_t *get_comment(const cl_string_t *s, char delim,
     if (NULL == *list)
         return NULL;
 
-    list_size = cl_string_list_size(*list);
+    list_size = cl_stringlist_size(*list);
 
     if (list_size < 1) {
         /* Never falls here */
-        cl_string_list_destroy(*list);
+        cl_stringlist_destroy(*list);
         return NULL;
     }
 
@@ -254,7 +254,7 @@ static cl_string_t *get_comment(const cl_string_t *s, char delim,
      * @list_size will always be > 1. So the comment will be in the
      * @list_size - 1 index at the list
      */
-    ref = cl_string_list_get(*list, list_size - 1);
+    ref = cl_stringlist_get(*list, list_size - 1);
     comment = cl_string_dup(ref);
     cl_string_unref(ref);
     cl_string_alltrim(comment);
@@ -263,7 +263,7 @@ static cl_string_t *get_comment(const cl_string_t *s, char delim,
 }
 
 static cl_string_t *get_line_content(const cl_string_t *s, char delim,
-    const cl_string_list_t *list)
+    const cl_stringlist_t *list)
 {
     cl_string_t *p = NULL, *content;
     int l;
@@ -271,7 +271,7 @@ static cl_string_t *get_line_content(const cl_string_t *s, char delim,
     if (NULL == list)
         return cl_string_dup(s);
 
-    p = cl_string_list_get(list, 0);
+    p = cl_stringlist_get(list, 0);
 
     if (delim != 0) {
         /* Has only comment */
@@ -292,15 +292,15 @@ static cl_string_t *get_line_content(const cl_string_t *s, char delim,
 
 static cl_string_t *get_data(const cl_string_t *s, int index)
 {
-    cl_string_list_t *l = NULL;
+    cl_stringlist_t *l = NULL;
     cl_string_t *r = NULL, *ref;
 
     l = cl_string_split(s, "=");
-    ref = cl_string_list_get(l, index);
+    ref = cl_stringlist_get(l, index);
     r = cl_string_dup(ref);
     cl_string_unref(ref);
     cl_string_alltrim(r);
-    cl_string_list_destroy(l);
+    cl_stringlist_destroy(l);
 
     return r;
 }
@@ -321,7 +321,7 @@ static cfg_line_s *cvt_line_to_cfg_line(const char *line)
     char cdelim = 0;
     cl_string_t *s = NULL, *comment = NULL, *data = NULL, *name = NULL,
         *value = NULL;
-    cl_string_list_t *list = NULL;
+    cl_stringlist_t *list = NULL;
     cfg_line_s *cline = NULL;
 
     if (!strlen(line)) {
@@ -344,7 +344,7 @@ static cfg_line_s *cvt_line_to_cfg_line(const char *line)
     if (NULL == data)
         goto end_block;
 
-    if (is_section(cl_string_valueof(data))) {
+    if (is_full_block_name(cl_string_valueof(data))) {
         name = cl_string_dup(data);
         line_type |= CFG_LINE_SECTION;
     } else {
@@ -369,7 +369,7 @@ end_block:
         cl_string_unref(data);
 
     if (list != NULL)
-        cl_string_list_destroy(list);
+        cl_stringlist_destroy(list);
 
     if (s != NULL)
         cl_string_unref(s);
@@ -382,7 +382,7 @@ static cfg_file_s *__cfg_load(const char *filename)
     FILE *fp = NULL;
     char *line = NULL;
     cfg_file_s *file = NULL;
-    cfg_line_s *cline = NULL, *section = NULL;
+    cfg_line_s *cline = NULL, *block = NULL;
 
     file = new_cfg_file_s(filename);
 
@@ -410,15 +410,15 @@ static cfg_file_s *__cfg_load(const char *filename)
         }
 
         if ((cline->line_type & CFG_LINE_SECTION) ||
-            ((NULL == section) &&
+            ((NULL == block) &&
              ((cline->line_type & CFG_LINE_EMPTY) ||
               (cline->line_type & CFG_LINE_COMMENT))))
         {
-            cl_list_unshift(file->section, cline, -1);
-            section = cline;
+            cl_list_unshift(file->block, cline, -1);
+            block = cline;
         } else {
-            if (section != NULL)
-                cl_list_unshift(section->child, cline, -1);
+            if (block != NULL)
+                cl_list_unshift(block->child, cline, -1);
         }
 
         free(line);
@@ -434,7 +434,7 @@ end_block:
     return file;
 }
 
-static int search_section(cl_list_node_t *a, void *b)
+static int search_block(cl_list_node_t *a, void *b)
 {
     cfg_line_s *s = (cfg_line_s *)cl_list_node_content(a);
     char *n = (char *)b;
@@ -444,7 +444,7 @@ static int search_section(cl_list_node_t *a, void *b)
     if (!(s->line_type & CFG_LINE_SECTION))
         return 0;
 
-    if (is_section(n) == true)
+    if (is_full_block_name(n) == true)
         p = cl_string_create("%s", n);
     else
         p = cl_string_create("[%s]", n);
@@ -455,7 +455,7 @@ static int search_section(cl_list_node_t *a, void *b)
     return (ret == 0) ? 1 : 0;
 }
 
-static int search_key(cl_list_node_t *a, void *b)
+static int search_entry(cl_list_node_t *a, void *b)
 {
     cfg_line_s *k = (cfg_line_s *)cl_list_node_content(a);
     char *n = (char *)b;
@@ -530,11 +530,11 @@ static cl_string_t *print_cfg(const cfg_file_s *file)
 {
     cl_string_t *s = NULL;
 
-    if (NULL == file->section)
+    if (NULL == file->block)
         return cl_string_create_empty(0);
 
     s = cl_string_create_empty(0);
-    cl_list_map(file->section, write_line_to_file, s);
+    cl_list_map(file->block, write_line_to_file, s);
 
     return s;
 }
@@ -569,7 +569,7 @@ __PUB_API__ cl_cfg_file_t *cl_cfg_create(void)
  */
 __PUB_API__ int cl_cfg_unload(cl_cfg_file_t *file)
 {
-    return cl_cfg_file_unref(file);
+    return cl_cfg_unref(file);
 }
 
 /*
@@ -607,10 +607,10 @@ __PUB_API__ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename)
 }
 
 /*
- * Sets a value to a specific key - section.
+ * Sets a value to a specific entry inside a block.
  */
-__PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
-    const char *key, const char *fmt, ...)
+__PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *block,
+    const char *entry, const char *fmt, ...)
 {
     cfg_file_s *f = (cfg_file_s *)file;
     cfg_line_s *s = NULL, *k = NULL;
@@ -621,7 +621,7 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
 
     __clib_function_init__(true, file, CL_OBJ_CFG_FILE, -1);
 
-    if ((NULL == section) || (NULL == key)) {
+    if ((NULL == block) || (NULL == entry)) {
         cset_errno(CL_NULL_ARG);
         return -1;
     }
@@ -630,20 +630,20 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
     vasprintf(&b, fmt, ap);
     va_end(ap);
 
-    node = cl_list_map(f->section, search_section, (void *)section);
+    node = cl_list_map(f->block, search_block, (void *)block);
 
     if (NULL == node) {
         /*
-         * We create an empty line to keep a distance from one section to
+         * We create an empty line to keep a distance from one block to
          * another
          */
         s = new_cfg_line_s(NULL, NULL, NULL, 0, CFG_LINE_EMPTY);
-        cl_list_unshift(f->section, s, -1);
+        cl_list_unshift(f->block, s, -1);
 
-        if (is_section(section) == true)
-            t = cl_string_create("%s", section);
+        if (is_full_block_name(block) == true)
+            t = cl_string_create("%s", block);
         else
-            t = cl_string_create("[%s]", section);
+            t = cl_string_create("[%s]", block);
 
         s = new_cfg_line_s(t, NULL, NULL, 0, CFG_LINE_SECTION);
         cl_string_unref(t);
@@ -651,7 +651,7 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
         if (NULL == s)
             return -1;
 
-        t = cl_string_create("%s", key);
+        t = cl_string_create("%s", entry);
         k = new_cfg_line_s(t, b, NULL, 0, CFG_LINE_KEY);
         cl_string_unref(t);
 
@@ -661,7 +661,7 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
         }
 
         cl_list_unshift(s->child, k, -1);
-        cl_list_unshift(f->section, s, -1);
+        cl_list_unshift(f->block, s, -1);
 
         goto end_block;
     }
@@ -669,10 +669,10 @@ __PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *section,
     s = cl_list_node_content(node);
     cl_list_node_unref(node);
 
-    node = cl_list_map(s->child, search_key, (void *)key);
+    node = cl_list_map(s->child, search_entry, (void *)entry);
 
     if (NULL == node) {
-        t = cl_string_create("%s", key);
+        t = cl_string_create("%s", entry);
         k = new_cfg_line_s(t, b, NULL, 0, CFG_LINE_KEY);
         cl_string_unref(t);
 
@@ -700,10 +700,10 @@ end_block:
 }
 
 /*
- * Search and get a pointer to a specific section from a cl_cfg_file_t object.
+ * Search and get a pointer to a specific block from a cl_cfg_file_t object.
  */
-__PUB_API__ cl_cfg_section_t *cl_cfg_get_section(const cl_cfg_file_t *file,
-    const char *section)
+__PUB_API__ cl_cfg_block_t *cl_cfg_block(const cl_cfg_file_t *file,
+    const char *block)
 {
     cfg_file_s *f = (cfg_file_s *)file;
     cfg_line_s *l = NULL;
@@ -711,12 +711,12 @@ __PUB_API__ cl_cfg_section_t *cl_cfg_get_section(const cl_cfg_file_t *file,
 
     __clib_function_init__(true, file, CL_OBJ_CFG_FILE, NULL);
 
-    if (NULL == section) {
+    if (NULL == block) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    node = cl_list_map(f->section, search_section, (void *)section);
+    node = cl_list_map(f->block, search_block, (void *)block);
 
     if (NULL == node) {
         cset_errno(CL_OBJECT_NOT_FOUND);
@@ -729,37 +729,37 @@ __PUB_API__ cl_cfg_section_t *cl_cfg_get_section(const cl_cfg_file_t *file,
     return l;
 }
 
-__PUB_API__ cl_cfg_key_t *cl_cfg_get_key(const cl_cfg_file_t *file,
-    const char *section, const char *key)
+__PUB_API__ cl_cfg_entry_t *cl_cfg_entry(const cl_cfg_file_t *file,
+    const char *block, const char *entry)
 {
-    cl_cfg_section_t *s = NULL;
+    cl_cfg_block_t *s = NULL;
 
-    s = cl_cfg_get_section(file, section);
+    s = cl_cfg_block(file, block);
 
     if (NULL == s)
         return NULL;
 
-    return cl_cfg_get_key_from_section(s, key);
+    return cl_cfg_block_entry(s, entry);
 }
 
 /*
- * Search and get a pointer to a specific key from a cl_cfg_section_t object.
+ * Search and get a pointer to a specific entry from a cl_cfg_block_t object.
  */
-__PUB_API__ cl_cfg_key_t *cl_cfg_get_key_from_section(const cl_cfg_section_t *section,
-    const char *key)
+__PUB_API__ cl_cfg_entry_t *cl_cfg_block_entry(const cl_cfg_block_t *block,
+    const char *entry)
 {
-    cfg_line_s *s = (cfg_line_s *)section;
+    cfg_line_s *s = (cfg_line_s *)block;
     cfg_line_s *l = NULL;
     cl_list_node_t *node = NULL;
 
-    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
+    __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, NULL);
 
-    if (NULL == key) {
+    if (NULL == entry) {
         cset_errno(CL_NULL_ARG);
         return NULL;
     }
 
-    node = cl_list_map(s->child, search_key, (void *)key);
+    node = cl_list_map(s->child, search_entry, (void *)entry);
 
     if (NULL == node) {
         cset_errno(CL_OBJECT_NOT_FOUND);
@@ -773,46 +773,46 @@ __PUB_API__ cl_cfg_key_t *cl_cfg_get_key_from_section(const cl_cfg_section_t *se
 }
 
 /*
- * Gets the section name from a cl_cfg_section_t object.
+ * Gets the block name from a cl_cfg_block_t object.
  */
-__PUB_API__ cl_string_t *cl_cfg_section_name(const cl_cfg_section_t *section)
+__PUB_API__ cl_string_t *cl_cfg_block_name(const cl_cfg_block_t *block)
 {
-    cfg_line_s *s = (cfg_line_s *)section;
+    cfg_line_s *s = (cfg_line_s *)block;
 
-    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
+    __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, NULL);
 
     return s->name;
 }
 
 /*
- * Gets the key name from a cl_cfg_key_t object.
+ * Gets the entry name from a cl_cfg_entry_t object.
  */
-__PUB_API__ cl_string_t *cl_cfg_key_name(const cl_cfg_key_t *key)
+__PUB_API__ cl_string_t *cl_cfg_entry_name(const cl_cfg_entry_t *entry)
 {
-    cfg_line_s *k = (cfg_line_s *)key;
+    cfg_line_s *k = (cfg_line_s *)entry;
 
-    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
+    __clib_function_init__(true, entry, CL_OBJ_CFG_ENTRY, NULL);
 
     return k->name;
 }
 
 /*
- * Gets the actual value from a cl_cfg_key_t object.
+ * Gets the actual value from a cl_cfg_entry_t object.
  */
-__PUB_API__ cl_object_t *cl_cfg_key_value(const cl_cfg_key_t *key)
+__PUB_API__ cl_object_t *cl_cfg_entry_value(const cl_cfg_entry_t *entry)
 {
-    cfg_line_s *k = (cfg_line_s *)key;
+    cfg_line_s *k = (cfg_line_s *)entry;
 
-    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
+    __clib_function_init__(true, entry, CL_OBJ_CFG_ENTRY, NULL);
 
     return cl_object_ref(k->value);
 }
 
-__PUB_API__ cl_string_t *cl_cfg_key_comment(const cl_cfg_key_t *key)
+__PUB_API__ cl_string_t *cl_cfg_entry_comment(const cl_cfg_entry_t *entry)
 {
-    cfg_line_s *k = (cfg_line_s *)key;
+    cfg_line_s *k = (cfg_line_s *)entry;
 
-    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
+    __clib_function_init__(true, entry, CL_OBJ_CFG_ENTRY, NULL);
 
     return k->comment;
 }
@@ -827,104 +827,104 @@ __PUB_API__ cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file)
     return s;
 }
 
-static int add_key(cl_list_node_t *a, void *b)
+static int append_entry_name(cl_list_node_t *a, void *b)
 {
-    cfg_line_s *key = (cfg_line_s *)cl_list_node_content(a);
-    cl_string_list_t *keys = (cl_string_list_t *)b;
+    cfg_line_s *entry = (cfg_line_s *)cl_list_node_content(a);
+    cl_stringlist_t *keys = (cl_stringlist_t *)b;
 
-    cl_string_list_add(keys, key->name);
+    cl_stringlist_add(keys, entry->name);
 
     return 0;
 }
 
-__PUB_API__ cl_string_list_t *cl_cfg_get_key_names(const cl_cfg_file_t *file,
-    const char *section)
+__PUB_API__ cl_stringlist_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
+    const char *block)
 {
     cfg_line_s *s;
-    cl_string_list_t *keys;
+    cl_stringlist_t *keys;
 
-    s = cl_cfg_get_section(file, section);
+    s = cl_cfg_block(file, block);
 
     if (NULL == s)
         return NULL;
 
-    keys = cl_string_list_create();
-    cl_list_map(s->child, add_key, keys);
+    keys = cl_stringlist_create();
+    cl_list_map(s->child, append_entry_name, keys);
 
     return keys;
 }
 
-__PUB_API__ cl_string_list_t *cl_cfg_get_key_names_from_section(const cl_cfg_section_t *section)
+__PUB_API__ cl_stringlist_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block)
 {
-    cfg_line_s *s = (cfg_line_s *)section;
-    cl_string_list_t *keys;
+    cfg_line_s *s = (cfg_line_s *)block;
+    cl_stringlist_t *keys;
 
-    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
-    keys = cl_string_list_create();
-    cl_list_map(s->child, add_key, keys);
+    __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, NULL);
+    keys = cl_stringlist_create();
+    cl_list_map(s->child, append_entry_name, keys);
 
     return keys;
 }
 
-static int add_section(cl_list_node_t *a, void *b)
+static int append_block_name(cl_list_node_t *a, void *b)
 {
-    cfg_line_s *section = (cfg_line_s *)cl_list_node_content(a);
-    cl_string_list_t *sections = (cl_string_list_t *)b;
-    cl_string_t *s = cl_string_dup(section->name);
+    cfg_line_s *block = (cfg_line_s *)cl_list_node_content(a);
+    cl_stringlist_t *sections = (cl_stringlist_t *)b;
+    cl_string_t *s = cl_string_dup(block->name);
 
     /* Remove brackets */
     cl_string_dchr(s, '[');
     cl_string_dchr(s, ']');
 
-    cl_string_list_add(sections, s);
+    cl_stringlist_add(sections, s);
     cl_string_unref(s);
 
     return 0;
 }
 
-__PUB_API__ cl_string_list_t *cl_cfg_get_sections(const cl_cfg_file_t *file)
+__PUB_API__ cl_stringlist_t *cl_cfg_all_block_names(const cl_cfg_file_t *file)
 {
     cfg_file_s *f = (cfg_file_s *)file;
-    cl_string_list_t *sections = NULL;
+    cl_stringlist_t *sections = NULL;
 
     __clib_function_init__(true, file, CL_OBJ_CFG_FILE, NULL);
-    sections = cl_string_list_create();
-    cl_list_map(f->section, add_section, sections);
+    sections = cl_stringlist_create();
+    cl_list_map(f->block, append_block_name, sections);
 
     return sections;
 }
 
-__PUB_API__ cl_cfg_key_t *cl_cfg_key_ref(cl_cfg_key_t *key)
+__PUB_API__ cl_cfg_entry_t *cl_cfg_entry_ref(cl_cfg_entry_t *entry)
 {
-    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, NULL);
+    __clib_function_init__(true, entry, CL_OBJ_CFG_ENTRY, NULL);
 
-    return cl_cfg_line_ref(key);
+    return cl_cfg_line_ref(entry);
 }
 
-__PUB_API__ int cl_cfg_key_unref(cl_cfg_key_t *key)
+__PUB_API__ int cl_cfg_entry_unref(cl_cfg_entry_t *entry)
 {
-    __clib_function_init__(true, key, CL_OBJ_CFG_KEY, -1);
-    cl_cfg_line_unref(key);
+    __clib_function_init__(true, entry, CL_OBJ_CFG_ENTRY, -1);
+    cl_cfg_line_unref(entry);
 
     return 0;
 }
 
-__PUB_API__ cl_cfg_section_t *cl_cfg_section_ref(cl_cfg_section_t *section)
+__PUB_API__ cl_cfg_block_t *cl_cfg_block_ref(cl_cfg_block_t *block)
 {
-    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, NULL);
+    __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, NULL);
 
-    return cl_cfg_line_ref(section);
+    return cl_cfg_line_ref(block);
 }
 
-__PUB_API__ int cl_cfg_section_unref(cl_cfg_section_t *section)
+__PUB_API__ int cl_cfg_block_unref(cl_cfg_block_t *block)
 {
-    __clib_function_init__(true, section, CL_OBJ_CFG_SECTION, -1);
-    cl_cfg_line_unref(section);
+    __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, -1);
+    cl_cfg_line_unref(block);
 
     return 0;
 }
 
-__PUB_API__ cl_cfg_file_t *cl_cfg_file_ref(cl_cfg_file_t *file)
+__PUB_API__ cl_cfg_file_t *cl_cfg_ref(cl_cfg_file_t *file)
 {
     cfg_file_s *f = (cfg_file_s *)file;
 
@@ -934,7 +934,7 @@ __PUB_API__ cl_cfg_file_t *cl_cfg_file_ref(cl_cfg_file_t *file)
     return file;
 }
 
-__PUB_API__ int cl_cfg_file_unref(cl_cfg_file_t *file)
+__PUB_API__ int cl_cfg_unref(cl_cfg_file_t *file)
 {
     cfg_file_s *f = (cfg_file_s *)file;
 
@@ -942,5 +942,49 @@ __PUB_API__ int cl_cfg_file_unref(cl_cfg_file_t *file)
     cl_ref_dec(&f->ref);
 
     return 0;
+}
+
+__PUB_API__ int cl_cfg_set_value_comment(cl_cfg_file_t *file,
+    const char *block, const char *entry, const char *fmt, ...)
+{
+    cfg_line_s *cl_key = NULL;
+    va_list ap;
+    char *s = NULL;
+
+    __clib_function_init__(true, file, CL_OBJ_CFG_FILE, -1);
+    cl_key = cl_cfg_entry(file, block, entry);
+
+    if (NULL == cl_key) {
+        cset_errno(CL_VALUE_NOT_FOUND);
+        return -1;
+    }
+
+    va_start(ap, fmt);
+    vasprintf(&s, fmt, ap);
+    va_end(ap);
+
+    if (cl_key->comment != NULL)
+        cl_string_unref(cl_key->comment);
+
+    cl_key->comment = cl_string_create("%s", s);
+    free(s);
+
+    return 0;
+}
+
+__PUB_API__ cl_object_t *cl_cfg_get_value(const cl_cfg_file_t *file,
+    const char *block, const char *entry)
+{
+    cfg_line_s *cl_entry = NULL;
+
+    __clib_function_init__(true, file, CL_OBJ_CFG_FILE, NULL);
+    cl_entry = cl_cfg_entry(file, block, entry);
+
+    if (NULL == cl_entry) {
+        cset_errno(CL_VALUE_NOT_FOUND);
+        return NULL;
+    }
+
+    return cl_cfg_entry_value(cl_entry);
 }
 

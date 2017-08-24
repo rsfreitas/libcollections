@@ -1,6 +1,6 @@
 
 /*
- * Description:
+ * Description: Internal functions to manipulate/check internal library objects.
  *
  * Author: Rodrigo Freitas
  * Created at: Thu Jun  2 09:37:34 2016
@@ -28,7 +28,14 @@
 
 #define LIBID       0xC011EC7105LL
 
-void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset)
+/*
+ * Sets an object as an internal known object, expecting that it may have enough
+ * space to hold this information.
+ *
+ * This function writes this information into the object using an offset to
+ * align it.
+ */
+void typeof_set_with_offset(enum cl_object type, void *p, unsigned int offset)
 {
     struct cl_object_hdr *hdr = p + offset;
 
@@ -39,9 +46,15 @@ void set_typeof_with_offset(enum cl_object type, void *p, unsigned int offset)
     hdr->object = type;
 }
 
-void set_typeof(enum cl_object type, void *p)
+/*
+ * Sets an object as an internal known object, expecting that it may have enough
+ * space to hold this information.
+ *
+ * This function writes this information into the beginning of the object.
+ */
+void typeof_set(enum cl_object type, void *p)
 {
-    set_typeof_with_offset(type, p, 0);
+    typeof_set_with_offset(type, p, 0);
 }
 
 static bool validate_libid(void *p, unsigned int offset)
@@ -70,7 +83,11 @@ static bool validate_typeof(void *p, enum cl_object type, unsigned int offset)
     return true;
 }
 
-bool validate_object_with_offset(const void *p, enum cl_object type,
+/*
+ * Checks if an object is of a specific type, using an offset to try to find the
+ * object information.
+ */
+bool typeof_validate_object_with_offset(const void *p, enum cl_object type,
     unsigned int offset)
 {
     if (NULL == p) {
@@ -91,8 +108,27 @@ bool validate_object_with_offset(const void *p, enum cl_object type,
     return true;
 }
 
-bool validate_object(const void *p, enum cl_object type)
+/*
+ * Checks if an object is of a specific type, assuming that the information
+ * about it is in the beginning.
+ */
+bool typeof_validate_object(const void *p, enum cl_object type)
 {
-    return validate_object_with_offset(p, type, 0);
+    return typeof_validate_object_with_offset(p, type, 0);
+}
+
+/*
+ * A function that tries to find the object type. Always returns an information,
+ * even if it's not an internal known object.
+ */
+enum cl_object typeof_guess_object(const void *ptr)
+{
+    if (NULL == ptr) {
+        cset_errno(CL_NULL_ARG);
+        return CL_OBJ_UNKNOWN;
+    }
+
+    /* TODO */
+    return CL_OBJ_UNKNOWN;
 }
 

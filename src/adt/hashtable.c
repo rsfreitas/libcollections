@@ -253,7 +253,7 @@ static hashtable_s *new_hashtable_s(unsigned int size, bool replace_data,
     h->ref.count = 1;
     h->ref.free = destroy_hashtable_s;
 
-    set_typeof(CL_OBJ_HASHTABLE, h);
+    typeof_set(CL_OBJ_HASHTABLE, h);
 
     return h;
 }

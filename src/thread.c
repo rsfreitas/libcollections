@@ -57,7 +57,7 @@ static cl_thread_s *new_thread_data(void *user_data)
     }
 
     td->user_data = user_data;
-    set_typeof(CL_OBJ_THREAD, td);
+    typeof_set(CL_OBJ_THREAD, td);
 
     return td;
 }
