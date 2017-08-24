@@ -44,7 +44,7 @@ struct cl_data {
     bool                initialized;
     struct cl_ref_s     ref;
 
-#ifdef LINUX
+#ifdef GNU_LINUX
     struct random_data  rd_data;
 #endif
 
@@ -178,7 +178,7 @@ static int __init(const char *arg)
     load_arg(arg);
 
     /* Initialize libc random numbers seed */
-#ifdef LINUX
+#ifdef GNU_LINUX
     initstate_r(time(NULL) + cl_cseed(), __cl_data.state,
                 sizeof(__cl_data.state), &__cl_data.rd_data);
 #else
@@ -274,7 +274,7 @@ char *library_buffer_mime_type(const unsigned char *buffer,
     return ptr;
 }
 
-#ifdef LINUX
+#ifdef GNU_LINUX
 struct random_data *library_random_data(void)
 {
     return &__cl_data.rd_data;

@@ -142,7 +142,7 @@ static void cvt_time(cl_datetime_s *dt, bool UTC)
 
     dt->tzone = cl_string_create("%s", tm.tm_zone);
 
-#ifdef LINUX
+#ifdef GNU_LINUX
     dt->tz_offset = tm.tm_gmtoff;
 #else
     dt->tz_offset = _timezone;

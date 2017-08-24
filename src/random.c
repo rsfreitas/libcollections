@@ -33,7 +33,7 @@ unsigned int cl_cseed(void)
     FILE *f;
     char tmp[64] = {0}, *p;
 
-#ifdef LINUX
+#ifdef GNU_LINUX
     f = popen("cat /proc/sys/kernel/random/uuid | cut -d '-' -f 2", "r");
 #else
     f = popen("cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1",
@@ -79,7 +79,7 @@ __PUB_API__ unsigned int cl_rand(unsigned int random_max)
     defect = num_rand % num_bins;
 
     do {
-#ifdef LINUX
+#ifdef GNU_LINUX
         random_r(library_random_data(), (int32_t *)&x);
 #else
         x = random();

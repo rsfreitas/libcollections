@@ -208,7 +208,7 @@ __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
     va_start(ap, NULL);
     argc -= CL_PLUGIN_CALL_DEF_ARGUMENTS;
     foo = cl_dll_map(pl->functions, search_cplugin_function_s,
-                   (char *)function_name);
+                     (char *)function_name);
 
     if (NULL == foo) {
         cset_errno(CL_OBJECT_NOT_FOUND);

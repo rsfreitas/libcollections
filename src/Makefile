@@ -7,7 +7,7 @@ CC = gcc
 GCCVERSION = 4
 ARCH_TEST := $(shell uname -m)
 GCCVERSION_TEST := $(shell expr `gcc -dumpversion | cut -f1 -d.` \> 4)
-OS := $(shell uname -o | tr '[:lower:]' '[:upper:]')
+OS := $(shell uname -o | tr '[:lower:]' '[:upper:]' | tr '/' '_')
 
 ifeq ($(ARCH_TEST), x86_64)
     ARCH = amd64
@@ -75,7 +75,7 @@ endif
 PLUGIN_LIBS = $(PYTHON_LIBS) $(JAVA_LIBS)
 LIBS = -lpthread -lm -lrt -ldl -lmagic $(PLUGIN_LIBS) $(OPENCV_LIBS)
 
-ifneq ($(OS), LINUX)
+ifneq ($(OS), GNU_LINUX)
     LIBS += -lintl
 endif
 
