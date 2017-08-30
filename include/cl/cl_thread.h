@@ -62,7 +62,8 @@ enum cl_thread_state {
  * @return On success returns a cl_thread_t object or NULL otherwise.
  */
 cl_thread_t *cl_thread_spawn(enum cl_thread_type type,
-                         void *(*start_routine)(cl_thread_t *), void *user_data);
+                             void *(*start_routine)(cl_thread_t *),
+                             void *user_data);
 
 /**
  * @name cl_thread_destroy

@@ -6,7 +6,7 @@ INCLUDEDIR = -I../../include
 CFLAGS = -Wall -O0 -ggdb -DUSE_CL_IMAGEAPI -fgnu89-inline -D_GNU_SOURCE $(INCLUDEDIR)
 
 LIBDIR = -L/usr/local/lib
-LIBS = -lcollections -lopencv_core
+LIBS = -lcollections -lopencv_core -lm
 
 OBJECTS =	\
 	example.o

@@ -59,5 +59,16 @@
  */
 #define cl_tr_noop(string)              string
 
+/**
+ * @name cl_intl
+ * @brief Initializes an application internationalization system.
+ *
+ * @param [in] package: The application name.
+ * @param [in] locale_dir: An alternative directory to the locale file.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_intl(const char *package, const char *locale_dir);
+
 #endif
 

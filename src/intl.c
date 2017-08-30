@@ -46,3 +46,10 @@ int intl_start(const char *package, const char *locale_dir)
     return 0;
 }
 
+__PUB_API__ int cl_intl(const char *package, const char *locale_dir)
+{
+    __clib_function_init__(false, NULL, -1, -1);
+
+    return intl_start(package, locale_dir);
+}
+
