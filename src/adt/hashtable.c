@@ -29,6 +29,7 @@
 
 #include "collections.h"
 
+#define KEY_SIZE                    16
 #define PRIME_NUMBER                131
 #define hashsize(n)                 ((unsigned short int)1 << (n))
 #define hashmask(n)                 (hashsize(n) - 1)
@@ -322,7 +323,7 @@ static int hashkey(const char *key, unsigned int hashtable_size)
 {
     unsigned int old_hash = PRIME_NUMBER, rnd;
 
-    rnd = hash16((unsigned char *)key, 16, old_hash);
+    rnd = hash16((unsigned char *)key, KEY_SIZE, old_hash);
 
     return (rnd % hashtable_size);
 }
@@ -393,6 +394,11 @@ __PUB_API__ void *cl_hashtable_put(cl_hashtable_t *hashtable, const char *key,
         return NULL;
     }
 
+    if (strlen(key) < KEY_SIZE) {
+        cset_errno(CL_INVALID_VALUE);
+        return NULL;
+    }
+
     h = cl_hashtable_ref(hashtable);
     idx = hashkey(key, h->size);
 
@@ -429,6 +435,11 @@ __PUB_API__ void *cl_hashtable_get(cl_hashtable_t *hashtable, const char *key)
         return NULL;
     }
 
+    if (strlen(key) < KEY_SIZE) {
+        cset_errno(CL_INVALID_VALUE);
+        return NULL;
+    }
+
     h = cl_hashtable_ref(hashtable);
     idx = hashkey(key, h->size);
 
@@ -453,6 +464,11 @@ __PUB_API__ int cl_hashtable_delete(cl_hashtable_t *hashtable, const char *key)
 
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    if (strlen(key) < KEY_SIZE) {
+        cset_errno(CL_INVALID_VALUE);
         return -1;
     }
 
@@ -484,6 +500,11 @@ __PUB_API__ bool cl_hashtable_contains_key(cl_hashtable_t *hashtable,
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
         return false;
+    }
+
+    if (strlen(key) < KEY_SIZE) {
+        cset_errno(CL_INVALID_VALUE);
+        return NULL;
     }
 
     h = cl_hashtable_ref(hashtable);

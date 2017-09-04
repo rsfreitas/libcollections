@@ -485,6 +485,7 @@ LIBCOLLECTIONS_0.1 {
         cl_set_instance_as_active;
         cl_seed;
         cl_rand;
+        cl_intl;
     local:
         *;
 };

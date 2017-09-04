@@ -89,6 +89,32 @@ int main(int argc, char **argv)
         cl_stringlist_destroy(l);
     }
 
+    /* cl_string_is_float_number */
+    {
+        s = cl_string_create("5.25");
+        printf("%s: %d\n", __FUNCTION__, cl_string_is_float_number(s));
+        cl_string_unref(s);
+        s = cl_string_create("525");
+        printf("%s: %d\n", __FUNCTION__, cl_string_is_float_number(s));
+        cl_string_unref(s);
+        s = cl_string_create("525a");
+        printf("%s: %d\n", __FUNCTION__, cl_string_is_float_number(s));
+        cl_string_unref(s);
+        s = cl_string_create("");
+        printf("%s: %d\n", __FUNCTION__, cl_string_is_float_number(s));
+        cl_string_unref(s);
+    }
+
+    /* cl_string_dup */
+    {
+        cl_string_t *d = NULL;
+
+        s = cl_string_create("test of string");
+        d = cl_string_dup(s);
+        cl_string_unref(s);
+        cl_string_unref(d);
+    }
+
     cl_uninit();
 
     return 0;
