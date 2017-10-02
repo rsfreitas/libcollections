@@ -49,7 +49,7 @@ static void help(void)
 static void plugin_details(cl_plugin_info_t *info)
 {
     cl_string_t *p, *q;
-    cl_string_list_t *l, *a;
+    cl_stringlist_t *l, *a;
     int i, t = 0, j, k = 0;
     char *name, *arg_name;
 
@@ -63,10 +63,10 @@ static void plugin_details(cl_plugin_info_t *info)
     cl_string_unref(p);
 
     l = cl_plugin_functions(info);
-    t = cl_string_list_size(l);
+    t = cl_stringlist_size(l);
 
     for (i = 0; i < t; i++) {
-        p = cl_string_list_get(l, i);
+        p = cl_stringlist_get(l, i);
         name = (char *)cl_string_valueof(p);
 
         fprintf(stdout, "Function name: %s\n", name);
@@ -83,11 +83,11 @@ static void plugin_details(cl_plugin_info_t *info)
             continue;
         }
 
-        k = cl_string_list_size(a);
+        k = cl_stringlist_size(a);
         fprintf(stdout, "Arguments\n");
 
         for (j = 0; j < k; j++) {
-            q = cl_string_list_get(a, j);
+            q = cl_stringlist_get(a, j);
             arg_name = (char *)cl_string_valueof(q);
             fprintf(stdout, "\tName: %s\n", arg_name);
             fprintf(stdout, "\tType: %d\n",
@@ -96,11 +96,11 @@ static void plugin_details(cl_plugin_info_t *info)
             cl_string_unref(q);
         }
 
-        cl_string_list_destroy(a);
+        cl_stringlist_destroy(a);
         cl_string_unref(p);
     }
 
-    cl_string_list_destroy(l);
+    cl_stringlist_destroy(l);
 }
 
 static void load_and_show_plugin_info(const char *filename)
@@ -174,17 +174,17 @@ static cl_string_t *get_return_as_string(const char *name, cl_object_t *v)
 static void call_functions(cl_plugin_t *cpl)
 {
     cl_plugin_info_t *info;
-    cl_string_list_t *l;
+    cl_stringlist_t *l;
     int i, t;
     cl_string_t *p, *s;
     cl_object_t *ret;
 
     info = cl_plugin_info(cpl);
     l = cl_plugin_functions(info);
-    t = cl_string_list_size(l);
+    t = cl_stringlist_size(l);
 
     for (i = 0; i < t; i++) {
-        p = cl_string_list_get(l, i);
+        p = cl_stringlist_get(l, i);
         ret = cl_plugin_call(cpl, cl_string_valueof(p), NULL);
         s = get_return_as_string(cl_string_valueof(p), ret);
         printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
@@ -193,7 +193,7 @@ static void call_functions(cl_plugin_t *cpl)
         cl_string_unref(p);
     }
 
-    cl_string_list_destroy(l);
+    cl_stringlist_destroy(l);
     cl_plugin_info_unref(info);
 }
 

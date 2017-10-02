@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Rodrigo Freitas"]
 
 [lib]
-name = "plugin"
+name = "rplugin"
 crate-type = ["dylib"]
 
 [dependencies]
