@@ -536,3 +536,46 @@ __PUB_API__ void *cl_dll_peek(void *root)
     return root;
 }
 
+__PUB_API__ void *cl_dll_middle(void *root)
+{
+    struct cl_dll_node *l = root, *p = NULL, *fp = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = l;
+    fp = l;
+
+    while ((fp != NULL) && (fp->next != NULL)) {
+        p = p->next;
+        fp = fp->next->next;
+    }
+
+    return p;
+}
+
+__PUB_API__ void *cl_dll_rotate(void *root, unsigned int n)
+{
+    struct cl_dll_node *p = NULL, *q = NULL, *l = NULL, *r = root;
+    unsigned int size = 0;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    size = cl_dll_size(root);
+
+    if ((n == 0) || (n == size))
+        return root;
+
+    n = (n > size) ? n % size : n;
+    p = cl_dll_at(root, size - n - 1);
+    q = p->next;
+    l = q;
+    q->prev = NULL;
+    p->next = NULL;
+
+    while (q->next)
+        q = q->next;
+
+    q->next = root;
+    r->prev = q;
+
+    return l;
+}
+

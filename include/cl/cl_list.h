@@ -467,5 +467,26 @@ int cl_list_set_filter(const cl_list_t *list,
 int cl_list_set_equals(const cl_list_t *list,
                        int (*equals)(cl_list_node_t *, cl_list_node_t *));
 
+/**
+ * @name cl_list_middle
+ * @brief Gives the element from the middle of the list.
+ *
+ * @param [in] list: The list object.
+ *
+ * @return On success returns the middle element or NULL otherwise.
+ */
+cl_list_node_t *cl_list_middle(const cl_list_t *list);
+
+/**
+ * @name cl_list_rotate
+ * @brief Rotate the list elements by n positions.
+ *
+ * @param [in] list: The list object.
+ * @param [in] n: The number of rotated positions.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_list_rotate(cl_list_t *list, unsigned int n);
+
 #endif
 

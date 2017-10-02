@@ -920,7 +920,6 @@ __PUB_API__ float cl_string_to_float(const cl_string_t *string)
     float v;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, -1);
-
     p = cl_string_ref((cl_string_t *)string);
     errno = 0;
     v = strtof(p->str, &endptr);
@@ -949,7 +948,6 @@ __PUB_API__ double cl_string_to_double(const cl_string_t *string)
     double v;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, -1);
-
     p = cl_string_ref((cl_string_t *)string);
     errno = 0;
     v = strtod(p->str, &endptr);
@@ -999,7 +997,6 @@ __PUB_API__ bool cl_string_is_float_number(const cl_string_t *string)
     bool ret = true;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, false);
-
     value = cl_string_ref((cl_string_t *)string);
     l = cl_string_length(value);
 
@@ -1024,7 +1021,6 @@ __PUB_API__ bool cl_string_is_alphanumeric(const cl_string_t *string)
     bool ret = true;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, false);
-
     value = cl_string_ref((cl_string_t *)string);
     l = cl_string_length(value);
 
@@ -1045,7 +1041,6 @@ __PUB_API__ int cl_string_idchr(cl_string_t *string, unsigned int p)
     int size;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, -1);
-
     s = cl_string_ref(string);
     size = cl_string_length(s);
 
@@ -1067,7 +1062,6 @@ __PUB_API__ int cl_string_dchr(cl_string_t *string, char c)
     int t, p;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, -1);
-
     value = cl_string_ref(string);
     t = cl_string_cchr(value, c);
 
@@ -1135,7 +1129,7 @@ __PUB_API__ bool cl_string_contains(const cl_string_t *string,
 __PUB_API__ int cl_string_count_matches(const cl_string_t *string,
     const char *needle)
 {
-    cl_string_t *sub = NULL, *haystack = cl_string_ref((cl_string_t *)string);;
+    cl_string_t *sub = NULL, *haystack = cl_string_ref((cl_string_t *)string);
     unsigned int count = 0;
 
     __clib_function_init__(true, string, CL_OBJ_STRING, false);
@@ -1188,6 +1182,26 @@ __PUB_API__ int cl_string_update_length(cl_string_t *s)
 
     p = cl_string_ref(s);
     p->size = strlen(p->str);
+    cl_string_unref(p);
+
+    return 0;
+}
+
+__PUB_API__ int cl_string_reverse(cl_string_t *s)
+{
+    cl_string_s *p;
+    unsigned int i, j;
+    char tmp;
+
+    __clib_function_init__(true, s, CL_OBJ_STRING, -1);
+    p = cl_string_ref(s);
+
+    for (i = 0, j = p->size - 1; i < (p->size / 2); i++, j--) {
+        tmp = p->str[i];
+        p->str[i] = p->str[j];
+        p->str[j] = tmp;
+    }
+
     cl_string_unref(p);
 
     return 0;

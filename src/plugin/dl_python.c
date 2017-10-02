@@ -286,7 +286,7 @@ cl_object_t *py_call(void *data __attribute__((unused)),
     struct cplugin_function_s *foo, cl_plugin_t *cpl __attribute__((unused)),
     struct function_argument *args)
 {
-    PyObject *pvalue, *pret, *ptr_arg = NULL;;
+    PyObject *pvalue, *pret, *ptr_arg = NULL;
     PyGILState_STATE gstate;
     cl_object_t *ret;
     cl_string_t *s;

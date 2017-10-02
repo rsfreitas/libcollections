@@ -234,6 +234,9 @@ int cglist_set_filter(const void *list, enum cl_object object,
 int cglist_set_equals(const void *list, enum cl_object object,
                       int (*equals)(void *, void *));
 
+void *cglist_middle(const void *list, enum cl_object object);
+int cglist_rotate(void *list, enum cl_object object, unsigned int n);
+
 /* random.c */
 unsigned int cl_cseed(void);
 

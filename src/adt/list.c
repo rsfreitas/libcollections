@@ -205,3 +205,13 @@ __PUB_API__ int cl_list_set_equals(const cl_list_t *list,
     return cglist_set_equals((cl_list_t *)list, CL_OBJ_LIST, equals);
 }
 
+__PUB_API__ cl_list_node_t *cl_list_middle(const cl_list_t *list)
+{
+    return (cl_list_node_t *)cglist_middle((cl_list_t *)list, CL_OBJ_LIST);
+}
+
+__PUB_API__ int cl_list_rotate(cl_list_t *list, unsigned int n)
+{
+    return cglist_rotate(list, CL_OBJ_LIST, n);
+}
+

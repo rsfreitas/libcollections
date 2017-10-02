@@ -30,6 +30,8 @@
 
 #include <collections.h>
 
+#define LIST_SIZE           9
+
 struct node_example {
     int x;
     int y;
@@ -104,20 +106,33 @@ static int print_node(cl_list_node_t *node, void *data)
 int main(void)
 {
     cl_list_t *list = NULL, *lfilter = NULL;
+    cl_list_node_t *node = NULL;
     int i, limit = 40;
-    unsigned int n;
+    unsigned int n, k = 11;
     struct node_example e = { 42, 43 };
 
     cl_init(NULL);
     list = cl_list_create(destroy_node_example, compare_node_example,
                           filter_node_example, equals_node_example);
 
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < LIST_SIZE; i++) {
         n = cl_rand(100);
         cl_list_push(list, new_node_example(n, n + 1), -1);
     }
 
     printf("List size = %d\n", cl_list_size(list));
+    cl_list_map(list, print_node, NULL);
+
+    node = cl_list_middle(list);
+
+    if (node != NULL) {
+        printf("Middle element: ");
+        print_node(node, NULL);
+    } else
+        printf("Middle not found\n");
+
+    printf("Rotate list by: %d\n", k);
+    cl_list_rotate(list, k);
     cl_list_map(list, print_node, NULL);
 
     printf("Sorted list\n");

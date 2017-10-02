@@ -123,6 +123,8 @@ LIBCOLLECTIONS_0.1 {
         cl_dll_indexof;
         cl_dll_last_indexof;
         cl_dll_peek;
+        cl_dll_middle;
+        cl_dll_rotate;
         cl_event_init;
         cl_event_condition_register;
         cl_event_condition_unregister;
@@ -216,6 +218,7 @@ LIBCOLLECTIONS_0.1 {
         cl_string_idchr;
         cl_string_set_content;
         cl_string_update_length;
+        cl_string_reverse;
         cl_stringlist_add;
         cl_stringlist_create;
         cl_stringlist_destroy;
@@ -307,6 +310,8 @@ LIBCOLLECTIONS_0.1 {
         cl_list_set_compare_to;
         cl_list_set_filter;
         cl_list_set_equals;
+        cl_list_middle;
+        cl_list_rotate;
         cl_image_ref;
         cl_image_unref;
         cl_image_create;
