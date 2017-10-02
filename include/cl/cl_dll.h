@@ -303,5 +303,26 @@ int cl_dll_last_indexof(void *root, void *n, int (*foo)(void *, void *));
  */
 void *cl_dll_peek(void *root);
 
+/**
+ * @name cl_dll_middle
+ * @brief Gives the element from the middle of the list.
+ *
+ * @param [in] root: The head of the list.
+ *
+ * @return On success returns the middle element or NULL otherwise.
+ */
+void *cl_dll_middle(void *root);
+
+/**
+ * @name cl_dll_rotate
+ * @brief Rotate the list elements by n positions.
+ *
+ * @param [in] root: The head of the list.
+ * @param [in] n: The number of rotated positions.
+ *
+ * @return On success returns the updated list or NULL otherwise.
+ */
+void *cl_dll_rotate(void *root, unsigned int n);
+
 #endif
 

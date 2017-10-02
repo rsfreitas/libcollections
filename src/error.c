@@ -29,9 +29,6 @@
 
 #include "collections.h"
 
-static pthread_key_t cerrno_key;
-static pthread_once_t cerrno_once = PTHREAD_ONCE_INIT;
-
 static const char *__cdescriptions[] = {
     cl_tr_noop("Ok"),
     cl_tr_noop("Invalid argument"),
@@ -93,38 +90,33 @@ static const char *__cdescriptions[] = {
 
 static const char *__cunknown_error = cl_tr_noop("Unknown error");
 
-static void cerrno_free(void *ptr)
-{
-    if (ptr != NULL)
-        free(ptr);
-}
-
-static void cerrno_init(void)
-{
-    pthread_key_create(&cerrno_key, cerrno_free);
-}
-
 /**
  * @name cl_errno_storage
  * @brief Gets a pointer to the global thread specific error variable.
  *
+ * @param [in,out] storage: The previously declared error storage.
+ *
  * @return Returns a pointer to the global error variable.
  */
-__PUB_API__ cl_errno *cl_errno_storage(void)
+__PUB_API__ cl_errno *cl_errno_storage(struct cl_error_storage *storage)
 {
     cl_errno *error = NULL;
 
     /*
      * XXX: We don't check library initialization here since a call to this
      *      function is usually done in global variables.
+     *
+     *      Another important note is that one must declare the @storage
+     *      argument using the library cl_error_storage_declare macro.
+     *      Otherwise the init_routine to pthread_once won't exist.
      */
 
-    pthread_once(&cerrno_once, cerrno_init);
-    error = pthread_getspecific(cerrno_key);
+    pthread_once(&storage->once, storage->init_routine);
+    error = pthread_getspecific(storage->key);
 
     if (!error) {
         error = malloc(sizeof(*error));
-        pthread_setspecific(cerrno_key, error);
+        pthread_setspecific(storage->key, error);
     }
 
     return error;
@@ -152,7 +144,9 @@ __PUB_API__ void cl_exit(void)
 #endif
 }
 
-#define __cerrno      (*cl_errno_storage())
+/* Our error storage */
+cl_error_storage_declare(__storage__)
+#define __cerrno        (*cl_errno_storage(&__storage__))
 
 /* TODO: Rename this */
 void cerrno_clear(void)

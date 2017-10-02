@@ -540,5 +540,15 @@ int cl_string_set_content(cl_string_t *s, const char *content);
  */
 int cl_string_update_length(cl_string_t *s);
 
+/**
+ * @name cl_string_reverse
+ * @brief Reverses a string.
+ *
+ * @param [in/out] s: The cl_string_t object
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_string_reverse(cl_string_t *s);
+
 #endif
 

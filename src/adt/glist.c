@@ -797,3 +797,22 @@ int cglist_set_equals(const void *list, enum cl_object object,
     return 0;
 }
 
+void *cglist_middle(const void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    return cl_dll_middle(l->list);
+}
+
+int cglist_rotate(void *list, enum cl_object object, unsigned int n)
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, -1);
+    l->list = cl_dll_rotate(l->list, n);
+
+    return 0;
+}
+

@@ -115,6 +115,17 @@ int main(int argc, char **argv)
         cl_string_unref(d);
     }
 
+    /* cl_string_reverse */
+    {
+        s = cl_string_create("This is a very long string just used to test, "
+                             "the reverse algorithm");
+
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        cl_string_reverse(s);
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        cl_string_unref(s);
+    }
+
     cl_uninit();
 
     return 0;

@@ -76,7 +76,7 @@ enum cl_error_code {
     CL_WRONG_TYPE,
     CL_SET_FAILED,
     CL_INVALID_VALUE,
-    CL_FILE_NOT_FOUND,
+    CL_FILE_NOT_FOUND,                          // 40
     CL_DLOPEN,
     CL_DLCLOSE,
     CL_VALUE_NOT_FOUND,
@@ -86,7 +86,7 @@ enum cl_error_code {
     CL_PY_IMPORT_FAILED,
     CL_PY_GET_DICT_FAILED,
     CL_CVT_DATA_FAILED,
-    CL_LIB_WAS_NOT_STARTED,
+    CL_LIB_WAS_NOT_STARTED,                     // 50
     CL_MKDIR_FAILED,
     CL_HASHTABLE_COLLISION,
     CL_UNSUPPORTED_RAW_IMAGE,
@@ -96,13 +96,45 @@ enum cl_error_code {
     CL_MAX_ERROR_CODE
 };
 
+struct cl_error_storage {
+    pthread_key_t   key;
+    pthread_once_t  once;
+    void            (*init_routine)(void);
+};
+
+/**
+ * @name cl_error_storage_declare
+ * @brief A macro to declare the error storage to hold the error from a library
+ *        or an application.
+ *
+ * This storage will be thread independent.
+ */
+#define cl_error_storage_declare(storage)               \
+    static void __errno_free(void *ptr) {               \
+        if (ptr != NULL)                                \
+            free(ptr);                                  \
+    }                                                   \
+                                                        \
+    static void __errno_storage_init(void);             \
+                                                        \
+    static struct cl_error_storage storage = {          \
+        .once = PTHREAD_ONCE_INIT,                      \
+        .init_routine = __errno_storage_init,           \
+    };                                                  \
+                                                        \
+    static void __errno_storage_init(void) {            \
+        pthread_key_create(&storage.key, __errno_free); \
+    }
+
 /**
  * @name cl_errno_storage
  * @brief Gets a pointer to the global thread specific error variable.
  *
+ * @param [in,out] storage: The previously declared error storage.
+ *
  * @return Returns a pointer to the global error variable.
  */
-cl_errno *cl_errno_storage(void);
+cl_errno *cl_errno_storage(struct cl_error_storage *storage);
 
 /**
  * @name cl_exit
