@@ -1,5 +1,5 @@
 // A little Go plugin example
-package main
+package plugin
 
 import "C"
 import (
@@ -151,8 +151,4 @@ func foo_args(args *C.char) {
 	}
 
 	fmt.Println(dat)
-}
-
-func main() {
-	// noop
 }

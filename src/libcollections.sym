@@ -166,6 +166,7 @@ LIBCOLLECTIONS_0.1 {
         cl_json_replace_item_in_object;
         cl_json_to_cstring;
         cl_json_to_string;
+        cl_json_type_to_string;
         cl_spec_create;
         cl_spec_destroy;
         cl_spec_validate_va;

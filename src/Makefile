@@ -46,7 +46,7 @@ ifeq ($(CL_IMAGEAPI), 1)
     OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui \
 		  -lfreetype -ljpeg -lpng -ltiff -lswscale -ljasper
 
-    IMAGES = -DUSE_CL_IMAGEAPI
+    IMAGES = -DCL_USE_IMAGEAPI
     INCLUDEDIR += -I/usr/include/freetype2
     IMAGE_SOURCES := $(wildcard $(IMAGE_PATH)/*.c)
     IMAGE_OBJS = $(IMAGE_SOURCES:.c=.o)

@@ -45,6 +45,6 @@ Some options may be used while compiling to turn some features on:
 * If one is using a gcc 5 compiler, the linked target must use the option
 **-fgnu89-inline**.
 
-* If the image API needs to be used by a dependency the **USE\_CL\_IMAGEAPI**
+* If the image API needs to be used by a dependency the **CL\_USE\_IMAGEAPI**
 must be used while including the library's main header.
 

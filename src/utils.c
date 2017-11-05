@@ -151,3 +151,25 @@ char *file_extension(const char *pathname)
     return strdup(ext + 1);
 }
 
+/**
+ * @name cl_exit
+ * @brief Terminate calling thread.
+ *
+ * This function must be called at the end of main function if the user wants no
+ * memory leak errors reported by the valgrind tool.
+ */
+__PUB_API__ void cl_exit(void)
+{
+    if (library_initialized() == false)
+        return;
+
+    if (dl_is_plugin_enabled(CL_PLUGIN_JAVA)) {
+        /* Does nothing here. It hangs if pthread_exit is called */
+        return;
+    }
+
+#ifndef CL_USE_IMAGEAPI
+    pthread_exit(NULL);
+#endif
+}
+

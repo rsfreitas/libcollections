@@ -3,7 +3,7 @@ CC = gcc
 TARGET = image
 
 INCLUDEDIR = -I../../include
-CFLAGS = -Wall -O0 -ggdb -DUSE_CL_IMAGEAPI -fgnu89-inline -D_GNU_SOURCE $(INCLUDEDIR)
+CFLAGS = -Wall -O0 -ggdb -DCL_USE_IMAGEAPI -fgnu89-inline -D_GNU_SOURCE $(INCLUDEDIR)
 
 LIBDIR = -L/usr/local/lib
 LIBS = -lcollections -lopencv_core

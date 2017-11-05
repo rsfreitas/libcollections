@@ -1637,3 +1637,34 @@ __PUB_API__ char *cl_json_to_string(const cl_json_t *j, bool friendly_output)
     return p;
 }
 
+__PUB_API__ const char *cl_json_type_to_string(enum cl_json_type type)
+{
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    switch (type) {
+        case CL_JSON_STRING:
+            return "string";
+
+        case CL_JSON_NUMBER:
+            return "number";
+
+        case CL_JSON_NUMBER_FLOAT:
+            return "number-float";
+
+        case CL_JSON_OBJECT:
+            return "object";
+
+        case CL_JSON_ARRAY:
+            return "array";
+
+        case CL_JSON_TRUE:
+        case CL_JSON_FALSE:
+            return "boolean";
+
+        case CL_JSON_NULL:
+            return "null";
+    }
+
+    return NULL;
+}
+
