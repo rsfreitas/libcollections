@@ -190,12 +190,9 @@ __PUB_API__ enum cl_type cl_plugin_function_arg_type(const cl_plugin_info_t *inf
  * -- PLUGIN MANIPULATION
  */
 
-__PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
-    const char *function_name, ...)
+static cl_object_t *plugin_call(int argc, cplugin_s *pl,
+    struct cplugin_function_s *foo, va_list ap)
 {
-    cplugin_s *pl = (cplugin_s *)cpl;
-    struct cplugin_function_s *foo = NULL;
-    va_list ap;
     int fargc = 0;
     cl_object_t *cplv = NULL;
     struct function_argument args = {
@@ -203,29 +200,21 @@ __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
         .ptr = NULL
     };
 
-    __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, NULL);
-
-    va_start(ap, NULL);
-    argc -= CL_PLUGIN_CALL_DEF_ARGUMENTS;
-    foo = cl_dll_map(pl->functions, search_cplugin_function_s,
-                     (char *)function_name);
-
-    if (NULL == foo) {
-        cset_errno(CL_OBJECT_NOT_FOUND);
-        return NULL;
-    }
-
     /* Checks if the arguments are right */
     if (foo->arg_mode != CL_PLUGIN_ARGS_VOID) {
-        fargc = cl_dll_size(foo->args);
+        if (foo->args != NULL) {
+            fargc = cl_dll_size(foo->args);
+            argc -= CL_PLUGIN_CALL_DEF_ARGUMENTS;
 
-        if ((argc / 2) != fargc) {
-            cset_errno(CL_INVALID_VALUE);
-            return NULL;
-        }
+            if ((argc / CL_CALL_USER_ARGUMENT_INFO) != fargc) {
+                cset_errno(CL_INVALID_VALUE);
+                return NULL;
+            }
+        } else
+            argc -= CL_PLUGIN_FOREIGN_CALL_DEF_ARGUMENTS;
 
         /* Set up arguments value */
-        if (adjust_arguments(foo, &args, argc, ap) < 0)
+        if (adjust_arguments(foo, argc, ap, &args) < 0)
             return NULL;
     }
 
@@ -247,6 +236,53 @@ __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
         cl_object_destroy(cplv);
         cplv = NULL;
     }
+
+    return cplv;
+}
+
+__PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
+    const char *function_name, ...)
+{
+    cplugin_s *pl = (cplugin_s *)cpl;
+    struct cplugin_function_s *foo = NULL;
+    va_list ap;
+
+    __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, NULL);
+    va_start(ap, NULL);
+    foo = cl_dll_map(pl->functions, search_cplugin_function_s,
+                     (char *)function_name);
+
+    if (NULL == foo) {
+        cset_errno(CL_OBJECT_NOT_FOUND);
+        return NULL;
+    }
+
+    return plugin_call(argc, cpl, foo, ap);
+}
+
+__PUB_API__ cl_object_t *cl_plugin_foreign_call_ex(int argc, cl_plugin_t *cpl,
+    const char *function_name, enum cl_type return_type,
+    enum cl_plugin_arg_mode arg_mode, ...)
+{
+    struct cplugin_function_s *foo = NULL;
+    cl_object_t *cplv = NULL;
+    va_list ap;
+
+    __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, NULL);
+    va_start(ap, NULL);
+    foo = dl_load_foreign_function(cpl, function_name, return_type, arg_mode);
+
+    if (NULL == foo) {
+        cset_errno(CL_OBJECT_NOT_FOUND);
+        return NULL;
+    }
+
+    cplv = plugin_call(argc, cpl, foo, ap);
+    va_end(ap);
+
+    /* Release the loaded function */
+    if (foo != NULL)
+        destroy_cplugin_function_s(foo);
 
     return cplv;
 }

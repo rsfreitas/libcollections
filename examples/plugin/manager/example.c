@@ -287,6 +287,21 @@ int main(int argc, char **argv)
         cl_object_unref(ret);*/
     }
 
+    ret = cl_plugin_foreign_call(cpl, "outside_api", CL_VOID, CL_PLUGIN_ARGS_VOID, NULL);
+
+    if (NULL == ret)
+        printf("outside call: %s\n", cl_strerror(cl_get_last_error()));
+
+    ret = cl_plugin_foreign_call(cpl, "another_outside_api", CL_INT,
+                                 CL_PLUGIN_ARGS_COMMON, "arg1", CL_INT, 9981, NULL);
+
+    if (NULL == ret)
+        printf("another outside call: %s\n", cl_strerror(cl_get_last_error()));
+    else {
+        printf("return: %d\n", CL_OBJECT_AS_INT(ret));
+        cl_object_unref(ret);
+    }
+
     cl_plugin_unload(cpl);
 
     if (filename != NULL)
@@ -295,7 +310,7 @@ int main(int argc, char **argv)
     cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    //cl_exit();
+    cl_exit();
 
     return 0;
 }

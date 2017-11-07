@@ -203,3 +203,20 @@ CL_PLUGIN_OBJECT_ARGS_ONLY(void, foo_args)
     CL_PLUGIN_UNLOAD_ARGUMENTS();
 }
 
+CL_PLUGIN_OBJECT_VOID(void, outside_api)
+{
+    printf("%s\n", __FUNCTION__);
+}
+
+CL_PLUGIN_OBJECT_ARGS_ONLY(int, another_outside_api)
+{
+    CL_PLUGIN_LOAD_ARGUMENTS();
+
+    printf("%s\n", __FUNCTION__);
+    printf("Argument 'arg1': %d\n", CL_PLUGIN_ARGUMENT_INT("arg1"));
+
+    CL_PLUGIN_UNLOAD_ARGUMENTS();
+
+    return 42;
+}
+

@@ -43,8 +43,25 @@
 
 /** Defines */
 
-/* Default number of arguments to 'cl_plugin_call_ex' function */
-#define CL_PLUGIN_CALL_DEF_ARGUMENTS          3
+/* Default number of arguments to functions that calls API or foreign functions */
+#define CL_PLUGIN_CALL_DEF_ARGUMENTS            3
+#define CL_PLUGIN_FOREIGN_CALL_DEF_ARGUMENTS    5
+
+/*
+ * Number of informations of arguments passed by the user while calling a API
+ * or a foreign function.
+ *
+ * As a API call the user passes:
+ *  1 - The argument name
+ *  2 - The argument value
+ *
+ * As a foreign call the user passes:
+ *  1 - The argument name
+ *  2 - The argument type
+ *  3 - The argument value
+ */
+#define CL_CALL_USER_ARGUMENT_INFO              2
+#define CL_FOREIGN_CALL_USER_ARGUMENT_INFO      3
 
 enum cl_plugin_info {
     CL_PLUGIN_INFO_NAME,
@@ -71,12 +88,10 @@ struct dl_plugin_driver {
     void                *(*library_init)(void);
     void                (*library_uninit)(void *);
     cl_plugin_info_t    *(*load_info)(void *, void *);
-    int                 (*load_functions)(void *,
-                                          struct cplugin_function_s *,
+    int                 (*load_functions)(void *, struct cplugin_function_s *,
                                           void *);
 
-    void                (*unload_functions)(void *,
-                                            struct cplugin_function_s *,
+    void                (*unload_functions)(void *, struct cplugin_function_s *,
                                             void *);
 
     void                *(*open)(void *, const char *);
@@ -84,11 +99,10 @@ struct dl_plugin_driver {
     cl_object_t         *(*call)(void *, struct cplugin_function_s *,
                                  cl_plugin_t *, struct function_argument *);
 
-    int                 (*plugin_startup)(void *, void *,
-                                          cl_plugin_info_t *);
-
-    int                 (*plugin_shutdown)(void *, void *,
-                                           cl_plugin_info_t *);
+    int                 (*plugin_startup)(void *, void *, cl_plugin_info_t *);
+    int                 (*plugin_shutdown)(void *, void *, cl_plugin_info_t *);
+    int                 (*load_foreign_function)(void *, void *,
+                                                 struct cplugin_function_s *);
 
     /* Plugin driver custom data */
     void                *data;
@@ -163,8 +177,8 @@ enum cl_type api_function_arg_type(const cl_plugin_info_t *info,
                                    const char *argument_name);
 
 /* call.c */
-int adjust_arguments(struct cplugin_function_s *foo,
-                     struct function_argument *args, int argc, va_list ap);
+int adjust_arguments(const struct cplugin_function_s *foo, int argc, va_list ap,
+                     struct function_argument *args);
 
 /* dl.c */
 void dl_enable_plugin_types(enum cl_plugin_type types);
@@ -183,8 +197,10 @@ int dl_plugin_shutdown(cplugin_s *cpl);
 int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
                       cl_plugin_info_t *info);
 
-/* dl_java.c */
-cl_string_t *type_to_jni_type(enum cl_type type);
+struct cplugin_function_s *dl_load_foreign_function(cplugin_s *cpl,
+                                                    const char *name,
+                                                    enum cl_type return_type,
+                                                    enum cl_plugin_arg_mode arg_mode);
 
 /* info.c */
 cl_plugin_info_t *info_ref(cl_plugin_info_t *info);
@@ -202,7 +218,7 @@ cl_plugin_info_t *info_create_from_data(const char *name, const char *version,
 void info_set_custom_data(cl_plugin_info_t *info, void *ptr);
 void *info_get_custom_data(cl_plugin_info_t *info);
 
-/* plugin_misc.c */
+/* pl_misc.c */
 struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type);
 void destroy_cplugin_fdata_s(void *a);
 cplugin_s *new_cplugin_s(void);
@@ -221,6 +237,7 @@ void destroy_cplugin_list_s(struct cplugin_list_s *l);
 
 struct cplugin_entry_s *new_cplugin_entry_s(void);
 void destroy_cplugin_entry_s(struct cplugin_entry_s *e);
+void destroy_cplugin_function_s(void *a);
 
 #endif
 

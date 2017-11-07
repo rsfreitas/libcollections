@@ -53,39 +53,41 @@ static struct dl_plugin_driver __dl_driver[] = {
 
 #ifdef PLUGIN_ELF
     {
-        .type               = CL_PLUGIN_ELF,
-        .enabled            = true,
-        .plugin_test        = elf_plugin_test,
-        .library_init       = elf_library_init,
-        .library_uninit     = elf_library_uninit,
-        .load_info          = elf_load_info,
-        .load_functions     = elf_load_functions,
-        .unload_functions   = NULL,
-        .open               = elf_open,
-        .close              = elf_close,
-        .call               = elf_call,
-        .plugin_startup     = elf_plugin_startup,
-        .plugin_shutdown    = elf_plugin_shutdown,
-        .data               = NULL,
+        .type                   = CL_PLUGIN_ELF,
+        .enabled                = true,
+        .plugin_test            = elf_plugin_test,
+        .library_init           = elf_library_init,
+        .library_uninit         = elf_library_uninit,
+        .load_info              = elf_load_info,
+        .load_functions         = elf_load_functions,
+        .unload_functions       = NULL,
+        .open                   = elf_open,
+        .close                  = elf_close,
+        .call                   = elf_call,
+        .plugin_startup         = elf_plugin_startup,
+        .plugin_shutdown        = elf_plugin_shutdown,
+        .load_foreign_function  = elf_load_foreign_function,
+        .data                   = NULL,
     },
 #endif
 
 #ifdef PLUGIN_PYTHON
     {
-        .type               = CL_PLUGIN_PYTHON,
-        .enabled            = true,
-        .plugin_test        = py_plugin_test,
-        .library_init       = py_library_init,
-        .library_uninit     = py_library_uninit,
-        .load_info          = py_load_info,
-        .load_functions     = py_load_functions,
-        .unload_functions   = py_unload_functions,
-        .open               = py_open,
-        .close              = py_close,
-        .call               = py_call,
-        .plugin_startup     = py_plugin_startup,
-        .plugin_shutdown    = py_plugin_shutdown,
-        .data               = NULL,
+        .type                   = CL_PLUGIN_PYTHON,
+        .enabled                = true,
+        .plugin_test            = py_plugin_test,
+        .library_init           = py_library_init,
+        .library_uninit         = py_library_uninit,
+        .load_info              = py_load_info,
+        .load_functions         = py_load_functions,
+        .unload_functions       = py_unload_functions,
+        .open                   = py_open,
+        .close                  = py_close,
+        .call                   = py_call,
+        .plugin_startup         = py_plugin_startup,
+        .plugin_shutdown        = py_plugin_shutdown,
+        .load_foreign_function  = NULL,
+        .data                   = NULL,
     },
 #endif
 
@@ -95,20 +97,21 @@ static struct dl_plugin_driver __dl_driver[] = {
  */
 #ifdef PLUGIN_JAVA
     {
-        .type               = CL_PLUGIN_JAVA,
-        .enabled            = true,
-        .plugin_test        = jni_plugin_test,
-        .library_init       = jni_library_init,
-        .library_uninit     = jni_library_uninit,
-        .load_info          = jni_load_info,
-        .load_functions     = jni_load_functions,
-        .unload_functions   = NULL,
-        .open               = jni_open,
-        .close              = jni_close,
-        .call               = jni_call,
-        .plugin_startup     = jni_plugin_startup,
-        .plugin_shutdown    = jni_plugin_shutdown,
-        .data               = NULL,
+        .type                   = CL_PLUGIN_JAVA,
+        .enabled                = true,
+        .plugin_test            = jni_plugin_test,
+        .library_init           = jni_library_init,
+        .library_uninit         = jni_library_uninit,
+        .load_info              = jni_load_info,
+        .load_functions         = jni_load_functions,
+        .unload_functions       = NULL,
+        .open                   = jni_open,
+        .close                  = jni_close,
+        .call                   = jni_call,
+        .plugin_startup         = jni_plugin_startup,
+        .plugin_shutdown        = jni_plugin_shutdown,
+        .load_foreign_function  = NULL,
+        .data                   = NULL,
     }
 #endif
 };
@@ -368,5 +371,30 @@ cl_object_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo,
     drv = cpl->dl;
 
     return (drv->call)(drv->data, foo, cpl, args);
+}
+
+struct cplugin_function_s *dl_load_foreign_function(cplugin_s *cpl,
+    const char *name, enum cl_type return_type, enum cl_plugin_arg_mode arg_mode)
+{
+    struct dl_plugin_driver *drv = NULL;
+    struct cplugin_function_s *foo = NULL;
+
+    if ((NULL == cpl) || (NULL == cpl->dl))
+        return NULL;
+
+    drv = cpl->dl;
+    foo = new_cplugin_function_s(name, return_type, arg_mode, NULL);
+
+    if (NULL == foo)
+        return NULL;
+
+    if ((drv->load_foreign_function != NULL) &&
+        ((drv->load_foreign_function)(drv->data, cpl->handle, foo) < 0))
+    {
+        destroy_cplugin_function_s(foo);
+        return NULL;
+    }
+
+    return foo;
 }
 

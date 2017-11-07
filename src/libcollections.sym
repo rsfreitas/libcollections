@@ -274,6 +274,7 @@ LIBCOLLECTIONS_0.1 {
         cl_plugin_function_arg_mode;
         cl_plugin_function_arg_type;
         cl_plugin_call_ex;
+        cl_plugin_foreign_call_ex;
         cl_log_bprint;
         cl_log_close;
         cl_log_open;
