@@ -78,13 +78,18 @@ struct cplugin_function_s *new_cplugin_function_s(const char *name,
 
     f->name = strdup(name);
     f->return_value = return_value;
-    f->args = args;
     f->arg_mode = arg_mode;
+
+    /*
+     * If @f->args stays NULL for the @f lifetime, we're dealing with a foreign
+     * function.
+     */
+    f->args = args;
 
     return f;
 }
 
-static void destroy_cplugin_function_s(void *a)
+void destroy_cplugin_function_s(void *a)
 {
     struct cplugin_function_s *f = (struct cplugin_function_s *)a;
 

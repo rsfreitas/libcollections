@@ -38,20 +38,29 @@ __PUB_API__ unsigned char *cl_fload(const char *filename, unsigned int *bsize)
     unsigned char *b=NULL;
     size_t sread = 0;
 
-    if (library_initialized() == false)
-        return NULL;
+    __clib_function_init__(false, NULL, -1, NULL);
 
-    if (stat(filename, &info) < 0)
+    if (NULL == filename) {
+        cset_errno(CL_NULL_ARG);
         return NULL;
+    }
+
+    if (stat(filename, &info) < 0) {
+        cset_errno(CL_FILE_NOT_FOUND);
+        return NULL;
+    }
 
     b = calloc(1, info.st_size + 1);
 
-    if (NULL == b)
+    if (NULL == b) {
+        cset_errno(CL_NO_MEM);
         return NULL;
+    }
 
     f = fopen(filename, "r");
 
     if (NULL == f) {
+        cset_errno(CL_FILE_OPEN_ERROR);
         free(b);
         return NULL;
     }
@@ -59,8 +68,11 @@ __PUB_API__ unsigned char *cl_fload(const char *filename, unsigned int *bsize)
     sread = fread(b, 1, info.st_size, f);
     fclose(f);
 
-    if ((off_t)sread != info.st_size)
+    if ((off_t)sread != info.st_size) {
+        cset_errno(CL_INVALID_FILE_SIZE);
+        free(b);
         return NULL;
+    }
 
     *bsize = info.st_size;
 

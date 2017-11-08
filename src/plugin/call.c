@@ -29,36 +29,54 @@
 #include "collections.h"
 #include "plugin.h"
 
-int adjust_arguments(struct cplugin_function_s *foo,
-    struct function_argument *args, int argc, va_list ap)
+int adjust_arguments(const struct cplugin_function_s *foo, int argc, va_list ap,
+    struct function_argument *args)
 {
     struct cplugin_fdata_s *arg = NULL;
     char *arg_name;
     cl_string_t *p;
     cl_json_t *node = NULL, *jargs = NULL;
     void *ptr;
-    int i = 0;
+    int i = 0, user_argument_info;
     bool b;
     enum cl_json_type type;
+    enum cl_type arg_type;
 
     jargs = cl_json_create_object();
+    user_argument_info = (foo->args != NULL) ? CL_CALL_USER_ARGUMENT_INFO
+                                             : CL_FOREIGN_CALL_USER_ARGUMENT_INFO;
 
-    for (i = 0; i < argc; i += 2) {
+    for (i = 0; i < argc; i += user_argument_info) {
         arg_name = va_arg(ap, char *);
 
-        /*
-         * Search for the structure that contains the value passed as
-         * argument by its own argument name informed by the user at the
-         * moment of function call.
-         *
-         * Example: call("arg_name", value, "arg_name", value);
-         */
-        arg = cl_dll_map(foo->args, search_cplugin_fdata_s, arg_name);
+        /* Are we parsing a foreign function or one belonging our API? */
+        if (foo->args != NULL) {
+            /*
+             * Search for the structure that contains the value passed as
+             * argument by its own argument name informed by the user at the
+             * moment of function call.
+             *
+             * Example: call("arg_name", value, "arg_name", value);
+             */
+            arg = cl_dll_map(foo->args, search_cplugin_fdata_s, arg_name);
 
-        if (NULL == arg)
-            return -1;
+            if (NULL == arg)
+                return -1;
 
-        switch (arg->type) {
+            arg_type = arg->type;
+        } else {
+            /*
+             * As a foreign function we know the argument type by looking
+             * directly into them. In this case a foreign function call must
+             * be done like this:
+             *
+             * foreign_call("arg_name", arg_type, value, "arg_name", arg_type,
+             *              value);
+             */
+            arg_type = (enum cl_type)va_arg(ap, int);
+        }
+
+        switch (arg_type) {
             case CL_CHAR:
                 node = cl_json_create_node(CL_JSON_STRING, "%c",
                                            (char)va_arg(ap, int));
@@ -149,7 +167,7 @@ int adjust_arguments(struct cplugin_function_s *foo,
 
             case CL_STRING:
             case CL_CSTRING:
-                if (arg->type == CL_STRING)
+                if (arg_type == CL_STRING)
                     p = cl_string_create("%s", va_arg(ap, char *));
                 else
                     p = (cl_string_t *)va_arg(ap, void *);

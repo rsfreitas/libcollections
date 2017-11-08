@@ -599,7 +599,9 @@ __PUB_API__ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename)
         return -1;
     }
 
-    fprintf(fp, "%s", cl_string_valueof(s));
+    if (cl_string_isempty(s) == false)
+        fprintf(fp, "%s", cl_string_valueof(s));
+
     cl_string_destroy(s);
     fclose(fp);
 

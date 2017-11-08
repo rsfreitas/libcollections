@@ -47,6 +47,8 @@ cl_object_t* elf_call(void *data, struct cplugin_function_s *foo,
 int elf_plugin_startup(void *data, void *handle, cl_plugin_info_t *info);
 int elf_plugin_shutdown(void *data, void *handle, cl_plugin_info_t *info);
 bool elf_plugin_test(const cl_string_t *mime);
+int elf_load_foreign_function(void *data, void *handle,
+                              struct cplugin_function_s *foo);
 
 #endif
 

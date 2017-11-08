@@ -85,7 +85,8 @@ static const char *__cdescriptions[] = {
     cl_tr_noop("A collision inside the hashtable just happened"),
     cl_tr_noop("Unsupported RAW image"),
     cl_tr_noop("Unable to load image"),
-    cl_tr_noop("Unable to create temporary internal image")
+    cl_tr_noop("Unable to create temporary internal image"),
+    cl_tr_noop("Invalid read file size")
 };
 
 static const char *__cunknown_error = cl_tr_noop("Unknown error");
@@ -115,49 +116,35 @@ __PUB_API__ cl_errno *cl_errno_storage(struct cl_error_storage *storage)
     error = pthread_getspecific(storage->key);
 
     if (!error) {
-        error = malloc(sizeof(*error));
+        error = calloc(1, storage->storage_size);
         pthread_setspecific(storage->key, error);
     }
 
     return error;
 }
 
-/**
- * @name cl_exit
- * @brief Terminate calling thread.
- *
- * This function must be called at the end of main function if the user wants no
- * memory leak errors reported by the valgrind tool.
- */
-__PUB_API__ void cl_exit(void)
-{
-    if (library_initialized() == false)
-        return;
-
-    if (dl_is_plugin_enabled(CL_PLUGIN_JAVA)) {
-        /* Does nothing here. It hangs if pthread_exit is called */
-        return;
-    }
-
-#ifndef USE_CL_IMAGEAPI
-    pthread_exit(NULL);
-#endif
-}
-
 /* Our error storage */
-cl_error_storage_declare(__storage__)
-#define __cerrno        (*cl_errno_storage(&__storage__))
+struct error_storage {
+    int error;
+};
+
+cl_error_storage_declare(__storage__, sizeof(struct error_storage))
+#define __cerrno        (cl_errno_storage(&__storage__))
 
 /* TODO: Rename this */
 void cerrno_clear(void)
 {
-    __cerrno = CL_NO_ERROR;
+    struct error_storage *e = __cerrno;
+
+    e->error = CL_NO_ERROR;
 }
 
 /* TODO: Rename this */
 void cset_errno(enum cl_error_code error_code)
 {
-    __cerrno = error_code;
+    struct error_storage *e = __cerrno;
+
+    e->error = error_code;
 }
 
 /*
@@ -165,7 +152,9 @@ void cset_errno(enum cl_error_code error_code)
  */
 __PUB_API__ enum cl_error_code cl_get_last_error(void)
 {
-    return __cerrno;
+    struct error_storage *e = __cerrno;
+
+    return e->error;
 }
 
 /*

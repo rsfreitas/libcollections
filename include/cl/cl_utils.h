@@ -75,5 +75,14 @@ char *cl_version(void);
  */
 cl_string_t *cl_type_to_cstring(enum cl_type value);
 
+/**
+ * @name cl_exit
+ * @brief Terminate calling thread.
+ *
+ * This function be must called at the end of main function if the user wants no
+ * memory leak errors reported by the valgrind tool.
+ */
+void cl_exit(void);
+
 #endif
 

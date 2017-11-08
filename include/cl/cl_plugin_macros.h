@@ -61,6 +61,16 @@
     cl_plugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
                       cpl, function_name, ## arg)
 
+/*
+ * Macro to make the call to an exported plugin function which was not declared
+ * inside the exported API. It is responsible to inform the correct number of
+ * arguments is passed to the @argc argument from 'cl_plugin_foreign_call_ex'
+ * function.
+ */
+#define cl_plugin_foreign_call(cpl, function_name, return_type, arg_mode, arg...)  \
+    cl_plugin_foreign_call_ex(CL_PP_NARG(cpl, function_name, return_type, arg_mode, ## arg), \
+                              cpl, function_name, return_type, arg_mode, ## arg)
+
 /**
  * Macros to define exported plugin functions:
  */

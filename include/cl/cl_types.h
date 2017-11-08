@@ -119,7 +119,7 @@ enum cl_type {
     sizeof(unsigned long long) + sizeof(unsigned long long)
 
 /** error type */
-typedef int                     cl_errno;
+typedef void                    cl_errno;
 
 /** config types */
 typedef void                    cl_cfg_file_t;      /** config file */

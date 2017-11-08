@@ -429,5 +429,16 @@ char *cl_json_to_string(const cl_json_t *j, bool friendly_output);
 int cl_json_delete_item_from_array_by_name(const cl_json_t *array,
                                            const char *name);
 
+/**
+ * @name cl_json_type_to_string
+ * @brief Gives a string represetantion of a json node type.
+ *
+ * @param [in] type: The JSON node type.
+ *
+ * @return On success returns a string representing the JSON node type or NULL
+ *         otherwise.
+ */
+const char *cl_json_type_to_string(enum cl_json_type type);
+
 #endif
 

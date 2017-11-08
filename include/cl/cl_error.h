@@ -33,6 +33,10 @@
 # endif
 #endif
 
+#ifndef _PTHREAD_H
+# include <pthread.h>
+#endif
+
 /** Error codes from all internal APIs */
 enum cl_error_code {
     CL_NO_ERROR = 0,
@@ -92,58 +96,10 @@ enum cl_error_code {
     CL_UNSUPPORTED_RAW_IMAGE,
     CL_UNABLE_TO_LOAD_IMAGE,
     CL_UNABLE_TO_CREATE_TMP_IMAGE,
+    CL_INVALID_FILE_SIZE,
 
     CL_MAX_ERROR_CODE
 };
-
-struct cl_error_storage {
-    pthread_key_t   key;
-    pthread_once_t  once;
-    void            (*init_routine)(void);
-};
-
-/**
- * @name cl_error_storage_declare
- * @brief A macro to declare the error storage to hold the error from a library
- *        or an application.
- *
- * This storage will be thread independent.
- */
-#define cl_error_storage_declare(storage)               \
-    static void __errno_free(void *ptr) {               \
-        if (ptr != NULL)                                \
-            free(ptr);                                  \
-    }                                                   \
-                                                        \
-    static void __errno_storage_init(void);             \
-                                                        \
-    static struct cl_error_storage storage = {          \
-        .once = PTHREAD_ONCE_INIT,                      \
-        .init_routine = __errno_storage_init,           \
-    };                                                  \
-                                                        \
-    static void __errno_storage_init(void) {            \
-        pthread_key_create(&storage.key, __errno_free); \
-    }
-
-/**
- * @name cl_errno_storage
- * @brief Gets a pointer to the global thread specific error variable.
- *
- * @param [in,out] storage: The previously declared error storage.
- *
- * @return Returns a pointer to the global error variable.
- */
-cl_errno *cl_errno_storage(struct cl_error_storage *storage);
-
-/**
- * @name cl_exit
- * @brief Terminate calling thread.
- *
- * This function be must called at the end of main function if the user wants no
- * memory leak errors reported by the valgrind tool.
- */
-void cl_exit(void);
 
 /**
  * @name cl_get_last_error
@@ -162,6 +118,59 @@ enum cl_error_code cl_get_last_error(void);
  * @return Returns the text corresponding the error code.
  */
 const char *cl_strerror(enum cl_error_code error_code);
+
+/**
+ * A structure to hold the library internal error handling and to provide
+ * other libraries the same behaviour.
+ *
+ * Although it is "public" here one should not access its members.
+ */
+struct cl_error_storage {
+    pthread_key_t   key;
+    pthread_once_t  once;
+    void            (*init_routine)(void);
+    unsigned int    storage_size;
+};
+
+/**
+ * @name cl_error_storage_declare
+ * @brief A macro to declare the error storage to hold the error from a library
+ *        or an application.
+ *
+ * @param [in]: The storage internal name to be created.
+ * @param [in] size: If it's greater than 0, this will be the
+ *                   error storage size, allowing one to store
+ *                   any kind of data.
+ *
+ * This storage will be thread independent.
+ */
+#define cl_error_storage_declare(storage, size)         \
+    static void __errno_free(void *ptr) {               \
+        if (ptr != NULL)                                \
+            free(ptr);                                  \
+    }                                                   \
+                                                        \
+    static void __errno_storage_init(void);             \
+                                                        \
+    static struct cl_error_storage storage = {          \
+        .once = PTHREAD_ONCE_INIT,                      \
+        .init_routine = __errno_storage_init,           \
+        .storage_size = size,                           \
+    };                                                  \
+                                                        \
+    static void __errno_storage_init(void) {            \
+        pthread_key_create(&storage.key, __errno_free); \
+    }
+
+/**
+ * @name cl_errno_storage
+ * @brief Gets a pointer to the global thread specific error variable.
+ *
+ * @param [in,out] storage: The previously declared error storage.
+ *
+ * @return Returns a pointer to the global error variable.
+ */
+cl_errno *cl_errno_storage(struct cl_error_storage *storage);
 
 #endif
 

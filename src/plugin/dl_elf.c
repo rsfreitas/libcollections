@@ -943,3 +943,16 @@ bool elf_plugin_test(const cl_string_t *mime)
     return ret;
 }
 
+int elf_load_foreign_function(void *data __attribute__((unused)), void *handle,
+    struct cplugin_function_s *foo)
+{
+    char *error = NULL;
+
+    foo->symbol = dlsym(handle, foo->name);
+
+    if ((error = dlerror()) != NULL)
+        return -1;
+
+    return 0;
+}
+
