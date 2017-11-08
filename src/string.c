@@ -658,7 +658,7 @@ __PUB_API__ bool cl_string_isempty(const cl_string_t *string)
     __clib_function_init__(true, string, CL_OBJ_STRING, false);
 
     p = cl_string_ref((cl_string_t *)string);
-    b = (cl_string_length(p) > 0) ? true : false;
+    b = (cl_string_length(p) > 0) ? false : true;
     cl_string_unref(p);
 
     return b;
