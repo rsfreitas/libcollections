@@ -147,7 +147,8 @@ int cl_log_vprintf(cl_log_t *log, enum cl_log_level level, const char *fmt,
  *
  * @return On success returns 0 or -1 otherwise.
  */
-int cl_log_printf(cl_log_t *log, enum cl_log_level level, const char *fmt, ...);
+int cl_log_printf(cl_log_t *log, enum cl_log_level level, const char *fmt, ...)
+                  __attribute__((format(printf, 3, 4)));
 
 /**
  * @name cl_log_bprint

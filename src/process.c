@@ -291,7 +291,7 @@ static char *instance_name(pid_t pid)
     return app_name;
 }
 
-__PUB_API__ bool cl_instance_active(const char *name)
+__PUB_API__ bool cl_instance_active(const char *filename, const char *instance)
 {
     pid_t pid;
     char *we = NULL;
@@ -299,10 +299,10 @@ __PUB_API__ bool cl_instance_active(const char *name)
 
     __clib_function_init__(false, NULL, -1, -1);
 
-    if (NULL == name)
-        name = library_package_name();
+    if (NULL == filename)
+        filename = library_package_name();
 
-    pid = read_instance_file(name);
+    pid = read_instance_file(filename);
 
     /* Instance file not found */
     if (pid == 0)
@@ -314,7 +314,10 @@ __PUB_API__ bool cl_instance_active(const char *name)
     if (NULL == we)
         return false;
 
-    b = (strcmp(name, we) == 0) ? true : false;
+    if (NULL == instance)
+        instance = library_package_name();
+
+    b = (strcmp(instance , we) == 0) ? true : false;
     free(we);
 
     return b;
