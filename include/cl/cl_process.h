@@ -91,11 +91,14 @@ int cl_trap(int signum, void (*f)(int));
  *
  * If \a name is NULL we check ourselves.
  *
- * @param [in] name: The instance name.
+ * In most cases \a filename and \a instance_name will be the same.
+ *
+ * @param [in] filename: The instance file name, without extension.
+ * @param [in] instance_name: The instance name.
  *
  * @return In case the instance is active returns true otherwise returns false.
  */
-bool cl_instance_active(const char *name);
+bool cl_instance_active(const char *filename, const char *instance_name);
 
 /**
  * @name cl_set_instance_as_active
