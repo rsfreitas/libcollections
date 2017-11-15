@@ -44,6 +44,13 @@
  * by the library or a JSON string with the configuration. If it is NULL, some
  * default values will be used.
  *
+ * The supported JSON must look like this:
+ *
+ * {
+ *      "package": string,      // The application name.
+ *      "locale_dir": string    // The root directory of translation files.
+ * }
+ *
  * @param [in] arg: The library configuration or a file name with the
  *                  configuration.
  *

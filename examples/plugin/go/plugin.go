@@ -1,5 +1,5 @@
 // A little Go plugin example
-package plugin
+package main
 
 import "C"
 import (
@@ -151,4 +151,11 @@ func foo_args(args *C.char) {
 	}
 
 	fmt.Println(dat)
+}
+
+func main() {
+	//
+	// We need the main function otherwise the ELF shared object created will be
+	// in the wrong format, as a AR (archive) file and not a ELF shared object.
+	//
 }
