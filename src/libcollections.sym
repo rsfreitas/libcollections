@@ -232,6 +232,7 @@ LIBCOLLECTIONS_0.1 {
         cl_thread_wait_startup;
         cl_thread_destroy;
         cl_thread_spawn;
+        cl_thread_force_finish;
         cl_timer_set_state;
         cl_timer_get_timer;
         cl_timer_update_interval;
