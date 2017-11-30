@@ -108,5 +108,18 @@ cl_string_t *cl_stringlist_flat(const cl_stringlist_t *l, const char delimiter);
  */
 cl_stringlist_t *cl_stringlist_dup(const cl_stringlist_t *list);
 
+/**
+ * @name cl_string_contains
+ * @brief Searches for a string inside a string list.
+ *
+ * @param [in] list: The cl_stringlist_t object.
+ * @param [in] needle: The wanted.
+ *
+ * @param Returns true if \a needle is found inside the list or false
+ *        otherwise.
+ */
+bool cl_stringlist_contains(const cl_stringlist_t *list,
+                            const cl_string_t *needle);
+
 #endif
 

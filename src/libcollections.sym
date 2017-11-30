@@ -220,6 +220,8 @@ LIBCOLLECTIONS_0.1 {
         cl_string_set_content;
         cl_string_update_length;
         cl_string_reverse;
+        cl_string_truncate;
+        cl_string_slice;
         cl_stringlist_add;
         cl_stringlist_create;
         cl_stringlist_destroy;
@@ -227,6 +229,7 @@ LIBCOLLECTIONS_0.1 {
         cl_stringlist_size;
         cl_stringlist_flat;
         cl_stringlist_dup;
+        cl_stringlist_contains;
         cl_thread_get_user_data;
         cl_thread_set_state;
         cl_thread_wait_startup;
@@ -259,6 +262,8 @@ LIBCOLLECTIONS_0.1 {
         cl_object_ref;
         cl_object_unref;
         cl_object_dup;
+        cl_object_equals;
+        cl_object_compare_to;
         cl_plugin_load;
         cl_plugin_unload;
         cl_plugin_info;

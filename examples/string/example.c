@@ -87,6 +87,7 @@ int main(int argc, char **argv)
         printf("flat: '%s'\n", cl_string_valueof(tmp));
         cl_string_unref(tmp);
         cl_stringlist_destroy(l);
+        cl_string_unref(s);
     }
 
     /* cl_string_is_float_number */
@@ -123,6 +124,29 @@ int main(int argc, char **argv)
         printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
         cl_string_reverse(s);
         printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        cl_string_unref(s);
+    }
+
+    /* cl_string_truncate */
+    {
+        s = cl_string_create("Ok, this is going to be truncated...");
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        cl_string_truncate(s, -1);
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        cl_string_truncate(s, -15);
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        cl_string_unref(s);
+    }
+
+    /* cl_string_slice */
+    {
+        cl_string_t *d = NULL;
+
+        s = cl_string_create("This is only a test");
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
+        d = cl_string_slice(s, 2, 13);
+        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(d));
+        cl_string_unref(d);
         cl_string_unref(s);
     }
 

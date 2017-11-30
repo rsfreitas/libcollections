@@ -1295,6 +1295,7 @@ __PUB_API__ int cl_json_replace_item_in_object(cl_json_t *root,
         if (cl_string_cmp(n->name, tmp) == 0) {
             cl_json_delete(n);
             n = new_item;
+            n->name = tmp;
         }
 
         p = cl_dll_unshift(p, n);
