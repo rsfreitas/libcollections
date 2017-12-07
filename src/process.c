@@ -176,7 +176,7 @@ __PUB_API__ int cl_trap(int signum, void (*f)(int))
     __clib_function_init__(false, NULL, -1, -1);
 
     memset(&s, 0, sizeof(struct sigaction));
-    s.sa_handler = f;
+    s.sa_handler = (f != NULL) ? f : SIG_IGN;
 
     if (sigaction(signum, &s, NULL) != 0)
         return -1;

@@ -71,7 +71,7 @@ void cl_msleep(long mseconds);
  * @brief Trap signals.
  *
  * Defines a function to be called when an application receives a specific
- * signal.
+ * signal or if \a f is NULL the signal will be blocked.
  *
  * @param [in] signum: The signal number.
  * @param [in] f: The function which will be called when a signal occurs.
