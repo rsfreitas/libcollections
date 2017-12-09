@@ -101,6 +101,13 @@ __PUB_API__ int cl_thread_set_state(cl_thread_t *t, enum cl_thread_state state)
 
     td->sdata.state = state;
 
+    /*
+     * We know that this function is called from inside the thread so we
+     * enable cancel-state of it.
+     */
+    if (state == CL_THREAD_ST_INITIALIZED)
+        pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+
     return 0;
 }
 
@@ -159,5 +166,15 @@ __PUB_API__ cl_thread_t *cl_thread_spawn(enum cl_thread_type type,
     }
 
     return td;
+}
+
+__PUB_API__ int cl_thread_force_finish(cl_thread_t *t)
+{
+    cl_thread_s *td = (cl_thread_s *)t;
+
+    __clib_function_init__(true, t, CL_OBJ_THREAD, -1);
+    pthread_cancel(td->thread_id);
+
+    return 0;
 }
 

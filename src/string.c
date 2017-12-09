@@ -1207,3 +1207,66 @@ __PUB_API__ int cl_string_reverse(cl_string_t *s)
     return 0;
 }
 
+__PUB_API__ int cl_string_truncate(cl_string_t *s, int index)
+{
+    cl_string_s *p = NULL;
+    int error, ret = 0;
+
+    __clib_function_init__(true, s, CL_OBJ_STRING, -1);
+    p = cl_string_ref(s);
+
+    if (abs(index) == (int)p->size)
+        goto end_block;
+    else if (abs(index) > (int)p->size) {
+        cset_errno(CL_INVALID_VALUE);
+        ret = -1;
+        goto end_block;
+    }
+
+    if (index > 0)
+        p->str[index] = '\0';
+    else
+        p->str[p->size - abs(index)] = '\0';
+
+    p->size = strlen(p->str);
+
+end_block:
+    error = cl_get_last_error();
+    cl_string_unref(p);
+    cset_errno(error);
+
+    return ret;
+}
+
+__PUB_API__ cl_string_t *cl_string_slice(const cl_string_t *s,
+    unsigned int start, int end)
+{
+    cl_string_s *p = NULL, *ret = NULL;
+    unsigned int l = 0;
+    int error;
+
+    __clib_function_init__(true, s, CL_OBJ_STRING, NULL);
+    p = cl_string_ref((cl_string_s *)s);
+
+    if ((start > p->size) || ((abs(end) > (int)p->size))) {
+        cset_errno(CL_INVALID_VALUE);
+        goto end_block;
+    }
+
+    if (end < 0)
+        l = p->size - (start + abs(end));
+    else
+        l = p->size - (start + (p->size - end));
+
+    ret = cl_string_create_empty(l + 1);
+    memcpy(ret->str, &p->str[start], l);
+    ret->size = strlen(ret->str);
+
+end_block:
+    error = cl_get_last_error();
+    cl_string_unref(p);
+    cset_errno(error);
+
+    return ret;
+}
+

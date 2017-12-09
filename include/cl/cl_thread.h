@@ -53,7 +53,6 @@ enum cl_thread_state {
  * @brief Creates a new thread.
  *
  * This function creates a new thread to execute the \a start_routine function.
- * It uses 'pthread' functions inside.
  *
  * @param [in] type: The thread type.
  * @param [in] start_routine: The function which will be executed.
@@ -110,6 +109,16 @@ int cl_thread_set_state(cl_thread_t *t, enum cl_thread_state state);
  *         NULL otherwise.
  */
 void *cl_thread_get_user_data(cl_thread_t *arg);
+
+/**
+ * @name cl_thread_force_finish
+ * @brief Forces a thread to finish itself.
+ *
+ * @param [in] t: The cl_thread_t object.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_thread_force_finish(cl_thread_t *t);
 
 #endif
 

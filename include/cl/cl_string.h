@@ -544,11 +544,39 @@ int cl_string_update_length(cl_string_t *s);
  * @name cl_string_reverse
  * @brief Reverses a string.
  *
- * @param [in/out] s: The cl_string_t object
+ * @param [in,out] s: The cl_string_t object
  *
  * @return On success returns 0 or -1 otherwise.
  */
 int cl_string_reverse(cl_string_t *s);
+
+/**
+ * @name cl_string_truncate
+ * @brief Truncates a string at a specific position.
+ *
+ * Is possible to truncate from the end to the beginning by using a negative
+ * value in \a index.
+ *
+ * @param [in,out] s: The cl_string_t object.
+ * @param [in] index: The truncation position.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_string_truncate(cl_string_t *s, int index);
+
+/**
+ * @name cl_string_slice
+ * @brief Gives parts of a string.
+ *
+ * @param [in] s: The cl_string_t object.
+ * @param [in] start: The index position at the beginning of the original string.
+ * @param [in] end: The desired index position corresponding to the end of the
+ *                  original string.
+ *
+ * @return On success returns a new cl_string_t object with the desired slice
+ *         or NULL otherwise.
+ */
+cl_string_t *cl_string_slice(const cl_string_t *s, unsigned int start, int end);
 
 #endif
 

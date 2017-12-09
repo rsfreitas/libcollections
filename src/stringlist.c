@@ -182,6 +182,10 @@ __PUB_API__ cl_string_t *cl_stringlist_flat(const cl_stringlist_t *l,
         }
     }
 
+    /* Removes the last delimiter */
+    if (s != NULL)
+        cl_string_truncate(s, -1);
+
     return s;
 }
 
@@ -208,5 +212,28 @@ __PUB_API__ cl_stringlist_t *cl_stringlist_dup(const cl_stringlist_t *list)
     }
 
     return new;
+}
+
+__PUB_API__ bool cl_stringlist_contains(const cl_stringlist_t *list,
+    const cl_string_t *needle)
+{
+    int i, t;
+    cl_string_t *s = NULL;
+
+    __clib_function_init__(true, list, CL_OBJ_STRINGLIST, false);
+    t = cl_stringlist_size(list);
+
+    for (i = 0; i < t; i++) {
+        s = cl_stringlist_get(list, i);
+
+        if (cl_string_cmp(s, needle) == 0) {
+            cl_string_unref(s);
+            return true;
+        }
+
+        cl_string_unref(s);
+    }
+
+    return false;
 }
 

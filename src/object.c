@@ -889,8 +889,15 @@ __PUB_API__ int cl_object_get(const cl_object_t *object, const char *fmt, ...)
                 break;
 
             case 'z':
-                if (get_object_check(object, CL_CSTRING) < 0)
+                /*
+                 * If we're also holding a CL_STRING we can continue and
+                 * return it.
+                 */
+                if ((get_object_check(object, CL_CSTRING) < 0) &&
+                    (get_object_check(object, CL_STRING) < 0))
+                {
                     goto end_block;
+                }
 
                 pp = va_arg(ap, void **);
                 s = cl_string_ref(o->s);
@@ -948,9 +955,94 @@ __PUB_API__ int cl_object_set_equals(cl_object_t *object,
     return 0;
 }
 
+static bool object_equals(const cl_object_s *o1, const cl_object_s *o2)
+{
+    bool ret = false;
+
+    switch (o1->type) {
+        case CL_VOID:
+            /* noop */
+            break;
+
+        case CL_POINTER:
+            if (NULL == o1->equals) {
+                cset_errno(CL_NULL_DATA);
+                return false;
+            }
+
+            ret = (o1->equals)((cl_object_t *)o2);
+            break;
+
+        case CL_CHAR:
+            ret = (o1->c == o2->c);
+            break;
+
+        case CL_UCHAR:
+            ret = (o1->uc == o2->uc);
+            break;
+
+        case CL_INT:
+            ret = (o1->i == o2->i);
+            break;
+
+        case CL_UINT:
+            ret = (o1->ui == o2->ui);
+            break;
+
+        case CL_SINT:
+            ret = (o1->si == o2->si);
+            break;
+
+        case CL_USINT:
+            ret = (o1->usi == o2->usi);
+            break;
+
+        case CL_FLOAT:
+            ret = (o1->f == o2->f);
+            break;
+
+        case CL_DOUBLE:
+            ret = (o1->d == o2->d);
+            break;
+
+        case CL_LONG:
+            ret = (o1->l == o2->l);
+            break;
+
+        case CL_ULONG:
+            ret = (o1->ul == o2->ul);
+            break;
+
+        case CL_LLONG:
+            ret = (o1->ll == o2->ll);
+            break;
+
+        case CL_ULLONG:
+            ret = (o1->ull == o2->ull);
+            break;
+
+        case CL_CSTRING:
+        case CL_STRING:
+            if (strcmp(cl_string_valueof(o1->s),
+                       cl_string_valueof(o2->s)) == 0)
+            {
+                ret = true;
+            }
+
+            break;
+
+        case CL_BOOLEAN:
+            ret = (o1->b == o2->b);
+            break;
+    }
+
+    return ret;
+}
+
 __PUB_API__ bool cl_object_equals(const cl_object_t *ob1, const cl_object_t *ob2)
 {
-    cl_object_s *v = (cl_object_s *)ob1;
+    cl_object_s *v1 = (cl_object_s *)ob1,
+                *v2 = (cl_object_s *)ob2;
 
     __clib_function_init__(false, NULL, -1, false);
 
@@ -960,12 +1052,13 @@ __PUB_API__ bool cl_object_equals(const cl_object_t *ob1, const cl_object_t *ob2
         return false;
     }
 
-    if (NULL == v->equals) {
-        cset_errno(CL_NULL_DATA);
+    /* We can compare only objects of the same type */
+    if (v1->type != v2->type) {
+        cset_errno(CL_INVALID_VALUE);
         return false;
     }
 
-    return (v->equals)((cl_object_t *)ob2);
+    return object_equals(v1, v2);
 }
 
 __PUB_API__ int cl_object_set_compare_to(cl_object_t *object,
@@ -985,10 +1078,91 @@ __PUB_API__ int cl_object_set_compare_to(cl_object_t *object,
     return 0;
 }
 
+static int object_compare_to(const cl_object_s *o1, const cl_object_s *o2)
+{
+    int ret = -1;
+
+    switch (o1->type) {
+        case CL_VOID:
+            /* noop */
+            break;
+
+        case CL_POINTER:
+            if (NULL == o1->compare_to) {
+                cset_errno(CL_NULL_DATA);
+                return -1;
+            }
+
+            ret = (o1->compare_to)((cl_object_t *)o2);
+            break;
+
+        case CL_CHAR:
+            ret = o1->c - o2->c;
+            break;
+
+        case CL_UCHAR:
+            ret = o1->uc - o2->uc;
+            break;
+
+        case CL_INT:
+            ret = o1->i - o2->i;
+            break;
+
+        case CL_UINT:
+            ret = o1->ui - o2->ui;
+            break;
+
+        case CL_SINT:
+            ret = o1->si - o2->si;
+            break;
+
+        case CL_USINT:
+            ret = o1->usi - o2->usi;
+            break;
+
+        case CL_FLOAT:
+            ret = o1->f - o2->f;
+            break;
+
+        case CL_DOUBLE:
+            ret = o1->d - o2->d;
+            break;
+
+        case CL_LONG:
+            ret = o1->l - o2->l;
+            break;
+
+        case CL_ULONG:
+            ret = o1->ul - o2->ul;
+            break;
+
+        case CL_LLONG:
+            ret = o1->ll - o2->ll;
+            break;
+
+        case CL_ULLONG:
+            ret = o1->ull - o2->ull;
+            break;
+
+        case CL_CSTRING:
+        case CL_STRING:
+            ret = cl_string_cmp(o1->s, o2->s);
+            break;
+
+        case CL_BOOLEAN:
+            /* We can't compare booleans like this */
+            cset_errno(CL_INVALID_VALUE);
+            break;
+    }
+
+    return ((ret < 0) ? -1 : ((ret > 0) ? ret : 0));
+}
+
 __PUB_API__ int cl_object_compare_to(const cl_object_t *ob1,
     const cl_object_t *ob2)
 {
-    cl_object_s *v = (cl_object_s *)ob1;
+    cl_object_s *v1 = (cl_object_s *)ob1,
+                *v2 = (cl_object_s *)ob2;;
 
     __clib_function_init__(false, NULL, -1, -1);
 
@@ -998,12 +1172,13 @@ __PUB_API__ int cl_object_compare_to(const cl_object_t *ob1,
         return -1;
     }
 
-    if (NULL == v->compare_to) {
-        cset_errno(CL_NULL_DATA);
-        return -1;
+    /* We can compare only objects of the same type */
+    if (v1->type != v2->type) {
+        cset_errno(CL_INVALID_VALUE);
+        return false;
     }
 
-    return (v->compare_to)((cl_object_t *)ob2);
+    return object_compare_to(v1, v2);
 }
 
 static void dup_object_content(cl_object_s *new, const cl_object_s *object)
@@ -1074,7 +1249,6 @@ static void dup_object_content(cl_object_s *new, const cl_object_s *object)
             cl_object_set(new, CL_OBJECT_AS_BOOLEAN(object));
             break;
     }
-
 }
 
 static void dup_object_events(cl_object_s *new, const cl_object_s *object)

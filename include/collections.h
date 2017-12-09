@@ -29,8 +29,8 @@
 
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
-# define MINOR_VERSION          1
-# define BUILD                  39
+# define MINOR_VERSION          0
+# define BUILD                  42
 #endif
 
 #ifdef __cplusplus
