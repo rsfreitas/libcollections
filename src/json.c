@@ -380,11 +380,16 @@ static const char *parse_number(cl_json_s *j, const char *num)
 
     num = get_number(num, &n);
     num = get_float_part(num, &n, &scale, &type);
-    num = get_exponent_notation(num, &sign_subscale, &subscale);
 
-    n = sign * n * pow(10.0, (scale + subscale * sign_subscale));
+    if (type == CL_JSON_NUMBER_FLOAT) {
+        num = get_exponent_notation(num, &sign_subscale, &subscale);
+        n = sign * n * pow(10.0, (scale + subscale * sign_subscale));
+        j->value = cl_string_create("%f", n);
+    } else {
+        n = sign * n;
+        j->value = cl_string_create("%d", (int)n);
+    }
 
-    j->value = cl_string_create("%f", n);
     j->type = type;
 
     return num;

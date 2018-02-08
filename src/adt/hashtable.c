@@ -321,9 +321,13 @@ static unsigned short int hash16(unsigned char *k, unsigned int length,
 
 static int hashkey(const char *key, unsigned int hashtable_size)
 {
-    unsigned int old_hash = PRIME_NUMBER, rnd;
+    unsigned int old_hash = PRIME_NUMBER, rnd, length = KEY_SIZE;
+    size_t l_key = strlen(key);
 
-    rnd = hash16((unsigned char *)key, KEY_SIZE, old_hash);
+    if (l_key > KEY_SIZE)
+        length = l_key;
+
+    rnd = hash16((unsigned char *)key, length, old_hash);
 
     return (rnd % hashtable_size);
 }

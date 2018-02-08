@@ -844,7 +844,7 @@ __PUB_API__ int cl_string_to_int(const cl_string_t *string)
         return -1;
     }
 
-    if (endptr == p->str) {
+    if ((endptr == p->str) || (*endptr != '\0')) {
         cl_string_unref(p);
         cset_errno(CL_NOT_A_NUMBER);
         return -1;
