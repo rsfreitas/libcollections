@@ -30,56 +30,56 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          0
-# define BUILD                  43
+# define RELEASE                44
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <cl/cl_types.h>
-#include <cl/cl_cfg.h>
-#include <cl/cl_chat.h>
-#include <cl/cl_counter.h>
-#include <cl/cl_cqueue.h>
-#include <cl/cl_cstack.h>
-#include <cl/cl_datetime.h>
-#include <cl/cl_dir.h>
-#include <cl/cl_dll.h>
-#include <cl/cl_error.h>
-#include <cl/cl_event.h>
-#include <cl/cl_file.h>
-#include <cl/cl_hashtable.h>
+#include <api/types.h>
+#include <api/cfg.h>
+#include <api/chat.h>
+#include <api/counter.h>
+#include <api/cqueue.h>
+#include <api/cstack.h>
+#include <api/datetime.h>
+#include <api/dir.h>
+#include <api/dll.h>
+#include <api/error.h>
+#include <api/event.h>
+#include <api/file.h>
+#include <api/hashtable.h>
 
 #ifdef CL_USE_IMAGEAPI
-# include <cl/cl_image.h>
+# include <api/image.h>
 #endif
 
-#include <cl/cl_init.h>
-#include <cl/cl_intl.h>
-#include <cl/cl_io.h>
-#include <cl/cl_json.h>
-#include <cl/cl_list.h>
-#include <cl/cl_log.h>
-#include <cl/cl_mem.h>
-#include <cl/cl_object.h>
-#include <cl/cl_queue.h>
-#include <cl/cl_plugin_macros.h>
-#include <cl/cl_plugin.h>
-#include <cl/cl_process.h>
-#include <cl/cl_random.h>
-#include <cl/cl_ref.h>
-#include <cl/cl_specs.h>
-#include <cl/cl_stack.h>
-#include <cl/cl_string.h>
-#include <cl/cl_stringlist.h>
-#include <cl/cl_thread.h>
-#include <cl/cl_timeout.h>
-#include <cl/cl_timer.h>
-#include <cl/cl_utils.h>
+#include <api/init.h>
+#include <api/intl.h>
+#include <api/io.h>
+#include <api/json.h>
+#include <api/list.h>
+#include <api/log.h>
+#include <api/mem.h>
+#include <api/object.h>
+#include <api/queue.h>
+#include <api/plugin_macros.h>
+#include <api/plugin.h>
+#include <api/process.h>
+#include <api/random.h>
+#include <api/ref.h>
+#include <api/specs.h>
+#include <api/stack.h>
+#include <api/string.h>
+#include <api/stringlist.h>
+#include <api/thread.h>
+#include <api/timeout.h>
+#include <api/timer.h>
+#include <api/utils.h>
 
 #ifdef LIBCOLLECTIONS_COMPILE
-# include <cl/cl_internal.h>
+# include <internal/internal.h>
 #endif
 
 #ifdef __cplusplus

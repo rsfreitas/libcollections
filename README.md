@@ -6,7 +6,12 @@ A C library with some generic collections, strings and a few more...
 
 LGPLv2
 
-## Contents
+## Overview
+
+This library is intended to provide features to C applications and
+ease their development.
+
+### Features
 
 * INI configuration
 * JSON parser
@@ -29,18 +34,26 @@ LGPLv2
 * libfreetype
 * libswscale
 
-## Important
+## Compiling
 
-* To compile the library you run the _make_ command. This will build the library
-with plugin support (ELF format only). _sudo make install_ will install the
-library in your environment to be used and *sudo make dev\_install* will install
-all necessary header files to compile an application with libcollections.
+In order to compile the project you must have at least the following programs
+installed;
 
-Some options may be used while compiling to turn some features on:
+* C compiler
+* CMake, at least version 2.8
 
- * CL\_IMAGEAPI=1: to export the image API
- * PYPLUGIN=1: to support Python plugins
- * JAVAPLUGIN=1: to support Java plugins
+After installing them you can compile the project using the commands:
+
+* mkdir build
+* cd build
+* cmake ..
+* make
+
+Some options are available to enable or disable some features:
+
+ * IMAGE: to enable/disable image API.
+ * PYPLUGIN: to enable/disable Python plugin support.
+ * JAVAPLUGIN: to enable/disable Java plugin support.
 
 * If one is using a gcc 5 compiler, the linked target must use the option
 **-fgnu89-inline**.
