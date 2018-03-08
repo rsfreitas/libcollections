@@ -336,7 +336,7 @@ __PUB_API__ cl_plugin_t *cl_plugin_load(const char *pathname)
 
     /*
      * Look for the real plugin exported functions (internal API) and point
-     * to them so they can be called.
+     * to them so they can be called later.
      */
     if (dl_load_functions(pdriver, flist, handle) < 0)
         goto error_block;

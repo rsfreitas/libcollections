@@ -30,6 +30,12 @@
 
 #include <collections.h>
 
+struct test_ptr {
+    int x;
+    int y;
+    int z;
+};
+
 static void help(void)
 {
     fprintf(stdout, "Usage: plugin-manager [OPTIONS]\n");
@@ -302,6 +308,23 @@ int main(int argc, char **argv)
         cl_object_unref(ret);
     }
 
+    struct test_ptr pp = {
+        .x = 1000,
+        .y = 42,
+        .z = 99,
+    };
+
+    printf("Address in the manager: %p\n", &pp);
+    ret = cl_plugin_foreign_call(cpl, "foo_pointer", CL_VOID,
+                                 CL_PLUGIN_ARGS_POINTER, "ptr", CL_POINTER, &pp, NULL);
+
+    if (NULL == ret)
+        printf("another outside call foo_pointer: %s\n", cl_strerror(cl_get_last_error()));
+    else {
+        printf("return: %d\n", CL_OBJECT_AS_INT(ret));
+        cl_object_unref(ret);
+    }
+
     cl_plugin_unload(cpl);
 
     if (filename != NULL)
@@ -310,7 +333,7 @@ int main(int argc, char **argv)
     cl_uninit();
 
     /* This makes valgrind report no memory leaks. */
-    cl_exit();
+//    cl_exit();
 
     return 0;
 }

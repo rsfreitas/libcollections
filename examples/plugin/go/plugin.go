@@ -5,6 +5,7 @@ import "C"
 import (
 	"encoding/json"
 	"fmt"
+	"unsafe"
 )
 
 //export plugin_name
@@ -153,9 +154,15 @@ func foo_args(args *C.char) {
 	fmt.Println(dat)
 }
 
+//export foo_pointer
+func foo_pointer(args unsafe.Pointer) {
+	fmt.Printf("Addres is %p\n", args)
+	fmt.Println("We're here...")
+}
+
 func main() {
 	//
 	// We need the main function otherwise the ELF shared object created will be
-	// in the wrong format, as a AR (archive) file and not a ELF shared object.
+	// in the wrong format, as an AR (archive) file and not an ELF shared object.
 	//
 }

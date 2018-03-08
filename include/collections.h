@@ -37,49 +37,49 @@
 extern "C" {
 #endif
 
-#include <api/types.h>
-#include <api/cfg.h>
-#include <api/chat.h>
-#include <api/counter.h>
-#include <api/cqueue.h>
-#include <api/cstack.h>
-#include <api/datetime.h>
-#include <api/dir.h>
-#include <api/dll.h>
-#include <api/error.h>
-#include <api/event.h>
-#include <api/file.h>
-#include <api/hashtable.h>
+#include "api/types.h"
+#include "api/cfg.h"
+#include "api/chat.h"
+#include "api/counter.h"
+#include "api/cqueue.h"
+#include "api/cstack.h"
+#include "api/datetime.h"
+#include "api/dir.h"
+#include "api/dll.h"
+#include "api/error.h"
+#include "api/event.h"
+#include "api/file.h"
+#include "api/hashtable.h"
 
 #ifdef CL_USE_IMAGEAPI
-# include <api/image.h>
+# include "api/image.h"
 #endif
 
-#include <api/init.h>
-#include <api/intl.h>
-#include <api/io.h>
-#include <api/json.h>
-#include <api/list.h>
-#include <api/log.h>
-#include <api/mem.h>
-#include <api/object.h>
-#include <api/queue.h>
-#include <api/plugin_macros.h>
-#include <api/plugin.h>
-#include <api/process.h>
-#include <api/random.h>
-#include <api/ref.h>
-#include <api/specs.h>
-#include <api/stack.h>
-#include <api/string.h>
-#include <api/stringlist.h>
-#include <api/thread.h>
-#include <api/timeout.h>
-#include <api/timer.h>
-#include <api/utils.h>
+#include "api/init.h"
+#include "api/intl.h"
+#include "api/io.h"
+#include "api/json.h"
+#include "api/list.h"
+#include "api/log.h"
+#include "api/mem.h"
+#include "api/object.h"
+#include "api/queue.h"
+#include "api/plugin_macros.h"
+#include "api/plugin.h"
+#include "api/process.h"
+#include "api/random.h"
+#include "api/ref.h"
+#include "api/specs.h"
+#include "api/stack.h"
+#include "api/string.h"
+#include "api/stringlist.h"
+#include "api/thread.h"
+#include "api/timeout.h"
+#include "api/timer.h"
+#include "api/utils.h"
 
 #ifdef LIBCOLLECTIONS_COMPILE
-# include <internal/internal.h>
+# include "internal/internal.h"
 #endif
 
 #ifdef __cplusplus

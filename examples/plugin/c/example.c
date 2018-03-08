@@ -29,6 +29,12 @@
 
 #include <collections.h>
 
+struct ptr_arg {
+    int a;
+    int b;
+    int c;
+};
+
 #define API     "{\
     \"API\": [\
         { \"name\": \"foo_int\", \"return_type\": \"int\" },\
@@ -218,5 +224,13 @@ CL_PLUGIN_OBJECT_ARGS_ONLY(int, another_outside_api)
     CL_PLUGIN_UNLOAD_ARGUMENTS();
 
     return 42;
+}
+
+CL_PLUGIN_OBJECT_PTR_ONLY(void, foo_pointer)
+{
+    struct ptr_arg *ptr2 = CL_PLUGIN_PTR_ARGUMENT();
+
+    printf("%s: a=%d, b=%d, c=%d\n", __FUNCTION__,
+            ptr2->a, ptr2->b, ptr2->c);
 }
 
