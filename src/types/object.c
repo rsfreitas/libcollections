@@ -462,6 +462,25 @@ __PUB_API__ cl_object_t *cl_object_create(enum cl_type type, ...)
     return o;
 }
 
+__PUB_API__ cl_object_t *cl_object_vcreate(enum cl_type type, va_list ap)
+{
+    cl_object_s *o = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (cl_object_is_valid(type) == false)
+        return NULL;
+
+    o = new_cl_object_s(type);
+
+    if (NULL == o)
+        return NULL;
+
+    set_cl_object_object(o, ap);
+
+    return o;
+}
+
 __PUB_API__ cl_object_t *cl_object_create_empty(enum cl_type type)
 {
     cl_object_s *o = NULL;

@@ -32,40 +32,6 @@
 
 using namespace std;
 
-#define API     "{\
-    \"API\": [\
-        { \"name\": \"foo_int\", \"return_type\": \"int\" },\
-        { \"name\": \"foo_uint\", \"return_type\": \"uint\" },\
-        { \"name\": \"foo_char\", \"return_type\": \"char\" },\
-        { \"name\": \"foo_uchar\", \"return_type\": \"uchar\" },\
-        { \"name\": \"foo_sint\", \"return_type\": \"sint\" },\
-        { \"name\": \"foo_usint\", \"return_type\": \"usint\" },\
-        { \"name\": \"foo_float\", \"return_type\": \"float\" },\
-        { \"name\": \"foo_double\", \"return_type\": \"double\" },\
-        { \"name\": \"foo_long\", \"return_type\": \"long\" },\
-        { \"name\": \"foo_ulong\", \"return_type\": \"ulong\" },\
-        { \"name\": \"foo_llong\", \"return_type\": \"llong\" },\
-        { \"name\": \"foo_ullong\", \"return_type\": \"ullong\" },\
-        { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" },\
-        { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
-            { \"name\": \"arg1\", \"type\": \"int\" },\
-            { \"name\": \"arg2\", \"type\": \"uint\" },\
-            { \"name\": \"arg3\", \"type\": \"sint\" },\
-            { \"name\": \"arg4\", \"type\": \"usint\" },\
-            { \"name\": \"arg5\", \"type\": \"char\" },\
-            { \"name\": \"arg6\", \"type\": \"uchar\" },\
-            { \"name\": \"arg7\", \"type\": \"float\" },\
-            { \"name\": \"arg8\", \"type\": \"double\" },\
-            { \"name\": \"arg9\", \"type\": \"long\" },\
-            { \"name\": \"arg10\", \"type\": \"ulong\" },\
-            { \"name\": \"arg11\", \"type\": \"llong\" },\
-            { \"name\": \"arg12\", \"type\": \"ullong\" },\
-            { \"name\": \"arg13\", \"type\": \"boolean\" },\
-            { \"name\": \"arg14\", \"type\": \"string\" }\
-            ] }\
-    ]\
-}"
-
 CL_PLUGIN_INIT()
 {
     cout << "Pass through " << __FUNCTION__ << endl;
@@ -78,92 +44,104 @@ CL_PLUGIN_UNINIT()
 }
 
 CL_PLUGIN_SET_INFO(
-    cpp_plugin,
+    "cpp-plugin",
     "0.1",
     "Rodrigo Freitas",
-    "C++ plugin example",
-    API
+    "C++ plugin example"
 )
 
-CL_PLUGIN_OBJECT_VOID(int, foo_int)
+CL_PLUGIN_FUNCTION(int, foo_int)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 42;
 }
 
-CL_PLUGIN_OBJECT_VOID(unsigned int, foo_uint)
+CL_PLUGIN_FUNCTION(unsigned int, foo_uint)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 420;
 }
 
-CL_PLUGIN_OBJECT_VOID(short int, foo_sint)
+CL_PLUGIN_FUNCTION(short int, foo_sint)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 421;
 }
 
-CL_PLUGIN_OBJECT_VOID(unsigned short int, foo_usint)
+CL_PLUGIN_FUNCTION(unsigned short int, foo_usint)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 4201;
 }
 
-CL_PLUGIN_OBJECT_VOID(char, foo_char)
+CL_PLUGIN_FUNCTION(char, foo_char)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 'a';
 }
 
-CL_PLUGIN_OBJECT_VOID(unsigned char, foo_uchar)
+CL_PLUGIN_FUNCTION(unsigned char, foo_uchar)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 230;
 }
 
-CL_PLUGIN_OBJECT_VOID(float, foo_float)
+CL_PLUGIN_FUNCTION(float, foo_float)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 42.5f;
 }
 
-CL_PLUGIN_OBJECT_VOID(double, foo_double)
+CL_PLUGIN_FUNCTION(double, foo_double)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 4.2;
 }
 
-CL_PLUGIN_OBJECT_VOID(bool, foo_boolean)
+CL_PLUGIN_FUNCTION(bool, foo_boolean)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return true;
 }
 
-CL_PLUGIN_OBJECT_VOID(long, foo_long)
+CL_PLUGIN_FUNCTION(long, foo_long)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 42000;
 }
 
-CL_PLUGIN_OBJECT_VOID(unsigned long, foo_ulong)
+CL_PLUGIN_FUNCTION(unsigned long, foo_ulong)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 420001;
 }
 
-CL_PLUGIN_OBJECT_VOID(long long, foo_llong)
+CL_PLUGIN_FUNCTION(long long, foo_llong)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 420009;
 }
 
-CL_PLUGIN_OBJECT_VOID(unsigned long long, foo_ullong)
+CL_PLUGIN_FUNCTION(unsigned long long, foo_ullong)
 {
+    CL_PLUGIN_IGNORE_ARGUMENTS();
     cout << __FUNCTION__ << endl;
     return 4200019;
 }
 
-CL_PLUGIN_OBJECT_ARGS_ONLY(void, foo_args)
+/*CL_PLUGIN_OBJECT_ARGS_ONLY(void, foo_args)
 {
 
     CL_PLUGIN_LOAD_ARGUMENTS();
@@ -184,5 +162,5 @@ CL_PLUGIN_OBJECT_ARGS_ONLY(void, foo_args)
     cout << "arg14 value: " << CL_PLUGIN_ARGUMENT_STRING("arg14") << endl;
 
     CL_PLUGIN_UNLOAD_ARGUMENTS();
-}
+}*/
 

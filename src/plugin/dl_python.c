@@ -163,7 +163,6 @@ cl_plugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
         { "get_version",        NULL },
         { "get_author",         NULL },
         { "get_description",    NULL },
-        { "get_api",            NULL },
         { "get_startup",        NULL },
         { "get_shutdown",       NULL }
     };
@@ -198,8 +197,7 @@ cl_plugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
     info = info_create_from_data(pyinfo[0].return_value,
                                  pyinfo[1].return_value,
                                  pyinfo[2].return_value,
-                                 pyinfo[3].return_value,
-                                 pyinfo[4].return_value);
+                                 pyinfo[3].return_value);
 
     if (info != NULL)
         set_custom_plugin_info(info, pyinfo[5].return_value,

@@ -8,5 +8,5 @@ name = "rplugin"
 crate-type = ["dylib"]
 
 [dependencies]
-rcollections = { path = "../../../rust/rcollections", version = "0.1" }
+rcollections = { path = "../../../src/rust/rcollections", version = "0.1" }
 libc = "0.2.0"

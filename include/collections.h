@@ -30,7 +30,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          0
-# define RELEASE                44
+# define RELEASE                45
 #endif
 
 #ifdef __cplusplus

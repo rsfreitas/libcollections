@@ -31,10 +31,6 @@
 #include "collections.h"
 #include "plugin.h"
 
-/*
- * -- PLUGIN INFORMATION API
- */
-
 __PUB_API__ cl_plugin_info_t *cl_plugin_info(const cl_plugin_t *cpl)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
@@ -114,118 +110,12 @@ __PUB_API__ const char *cl_plugin_description(const cl_plugin_info_t *info)
     return info_get_description(info);
 }
 
-__PUB_API__ cl_string_t *cl_plugin_API(const cl_plugin_info_t *info)
+static cl_object_t *plugin_call(cplugin_s *pl, struct cplugin_function_s *foo)
 {
-    cl_json_t *api;
-
-    __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
-    api = info_get_api(info);
-
-    if (NULL == api)
-        return NULL;
-
-    return api_to_cstring(api);
-}
-
-__PUB_API__ cl_stringlist_t *cl_plugin_functions(const cl_plugin_info_t *info)
-{
-    __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
-
-    return api_functions(info);
-}
-
-__PUB_API__ enum cl_type cl_plugin_function_return_type(const cl_plugin_info_t *info,
-    const char *function_name)
-{
-    __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, -1);
-
-    if (NULL == function_name) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    return api_function_return_type(info, function_name);
-}
-
-__PUB_API__ cl_stringlist_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
-    const char *function_name)
-{
-    __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
-
-    if (NULL == function_name) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    return api_function_arguments(info, function_name);
-}
-
-__PUB_API__ enum cl_plugin_arg_mode cl_plugin_function_arg_mode(const cl_plugin_info_t *info,
-    const char *function_name)
-{
-    __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, -1);
-
-    if (NULL == function_name) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    return api_function_arg_mode(info, function_name);
-}
-
-__PUB_API__ enum cl_type cl_plugin_function_arg_type(const cl_plugin_info_t *info,
-    const char *function_name, const char *argument_name)
-{
-    __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, -1);
-
-    if ((NULL == function_name) || (NULL == argument_name)) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    return api_function_arg_type(info, function_name, argument_name);
-}
-
-/*
- * -- PLUGIN MANIPULATION
- */
-
-static cl_object_t *plugin_call(int argc, cplugin_s *pl,
-    struct cplugin_function_s *foo, va_list ap)
-{
-    int fargc = 0;
     cl_object_t *cplv = NULL;
-    struct function_argument args = {
-        .jargs = NULL,
-        .ptr = NULL
-    };
-
-    /* Checks if the arguments are right */
-    if (foo->arg_mode != CL_PLUGIN_ARGS_VOID) {
-        if (foo->args != NULL) {
-            fargc = cl_dll_size(foo->args);
-            argc -= CL_PLUGIN_CALL_DEF_ARGUMENTS;
-
-            if ((argc / CL_CALL_USER_ARGUMENT_INFO) != fargc) {
-                cset_errno(CL_INVALID_VALUE);
-                return NULL;
-            }
-        } else
-            argc -= CL_PLUGIN_FOREIGN_CALL_DEF_ARGUMENTS;
-
-        /* Set up arguments value */
-        if (adjust_arguments(foo, argc, ap, &args) < 0)
-            return NULL;
-    }
 
     /* Call the function */
-    cplv = dl_call(pl, foo, &args);
-
-    /* Unload arguments */
-    if (foo->arg_mode != CL_PLUGIN_ARGS_VOID) {
-        if (args.jargs != NULL)
-            free(args.jargs);
-    }
+    cplv = dl_call(pl, foo);
 
     if ((NULL == cplv) && (foo->return_value != CL_VOID))
         /* It's an error? */
@@ -241,28 +131,7 @@ static cl_object_t *plugin_call(int argc, cplugin_s *pl,
 }
 
 __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
-    const char *function_name, ...)
-{
-    cplugin_s *pl = (cplugin_s *)cpl;
-    struct cplugin_function_s *foo = NULL;
-    va_list ap;
-
-    __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, NULL);
-    va_start(ap, NULL);
-    foo = cl_dll_map(pl->functions, search_cplugin_function_s,
-                     (char *)function_name);
-
-    if (NULL == foo) {
-        cset_errno(CL_OBJECT_NOT_FOUND);
-        return NULL;
-    }
-
-    return plugin_call(argc, cpl, foo, ap);
-}
-
-__PUB_API__ cl_object_t *cl_plugin_foreign_call_ex(int argc, cl_plugin_t *cpl,
-    const char *function_name, enum cl_type return_type,
-    enum cl_plugin_arg_mode arg_mode, ...)
+    const char *function_name, enum cl_type return_type, ...)
 {
     struct cplugin_function_s *foo = NULL;
     cl_object_t *cplv = NULL;
@@ -270,14 +139,17 @@ __PUB_API__ cl_object_t *cl_plugin_foreign_call_ex(int argc, cl_plugin_t *cpl,
 
     __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, NULL);
     va_start(ap, NULL);
-    foo = dl_load_foreign_function(cpl, function_name, return_type, arg_mode);
+
+    /* We remove our permanent arguments here */
+    argc -= CL_PLUGIN_FOREIGN_CALL_DEF_ARGUMENTS;
+    foo = dl_load_function(cpl, function_name, return_type, argc, ap);
 
     if (NULL == foo) {
         cset_errno(CL_OBJECT_NOT_FOUND);
         return NULL;
     }
 
-    cplv = plugin_call(argc, cpl, foo, ap);
+    cplv = plugin_call(cpl, foo);
     va_end(ap);
 
     /* Release the loaded function */
@@ -328,19 +200,6 @@ __PUB_API__ cl_plugin_t *cl_plugin_load(const char *pathname)
     if (NULL == info)
         goto error_block;
 
-    /* Transform the JSON API into a list of functions and arguments */
-    flist = api_parse(info);
-
-    if (NULL == flist)
-        goto error_block;
-
-    /*
-     * Look for the real plugin exported functions (internal API) and point
-     * to them so they can be called later.
-     */
-    if (dl_load_functions(pdriver, flist, handle) < 0)
-        goto error_block;
-
     /* Runs the plugin initialization function */
     if (dl_plugin_startup(pdriver, handle, info))
         goto error_block;
@@ -352,7 +211,6 @@ __PUB_API__ cl_plugin_t *cl_plugin_load(const char *pathname)
 
     cpl->dl = pdriver;
     cpl->handle = handle;
-    cpl->functions = flist;
     cpl->info = info;
 
     return cpl;
@@ -384,8 +242,6 @@ __PUB_API__ int cl_plugin_unload(cl_plugin_t *cpl)
         return -1;
     }
 
-    dl_unload_functions(cpl);
-
     if (pl->handle != NULL)
         dl_close(pl->dl, pl->handle);
 
@@ -395,9 +251,239 @@ __PUB_API__ int cl_plugin_unload(cl_plugin_t *cpl)
     return 0;
 }
 
-__PUB_API__ void cl_plugin_set_supported_types(enum cl_plugin_type types)
+__PUB_API__ bool cl_plugin_function_exists(cl_plugin_t *cpl,
+    const char *function_name)
 {
-    __clib_function_init_ex2__(false, NULL, -1);
-    dl_enable_plugin_types(types);
+    return false;
+    // TODO
+}
+
+__PUB_API__ char cl_plugin_argument_char(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return -1;
+
+    return CL_OBJECT_AS_CHAR(value);
+}
+
+__PUB_API__ unsigned char cl_plugin_argument_uchar(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, 0);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return 0;
+
+    return CL_OBJECT_AS_UCHAR(value);
+}
+
+__PUB_API__ int cl_plugin_argument_int(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return -1;
+
+    return CL_OBJECT_AS_INT(value);
+}
+
+__PUB_API__ unsigned int cl_plugin_argument_uint(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, 0);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return 0;
+
+    return CL_OBJECT_AS_UINT(value);
+}
+
+__PUB_API__ short int cl_plugin_argument_sint(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return -1;
+
+    return CL_OBJECT_AS_SINT(value);
+}
+
+__PUB_API__ unsigned short int cl_plugin_argument_usint(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, 0);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return 0;
+
+    return CL_OBJECT_AS_USINT(value);
+}
+
+__PUB_API__ long cl_plugin_argument_long(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return -1;
+
+    return CL_OBJECT_AS_LONG(value);
+}
+
+__PUB_API__ unsigned long cl_plugin_argument_ulong(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, 0);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return 0;
+
+    return CL_OBJECT_AS_ULONG(value);
+}
+
+__PUB_API__ long long cl_plugin_argument_llong(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return -1;
+
+    return CL_OBJECT_AS_LLONG(value);
+}
+
+__PUB_API__ unsigned long long cl_plugin_argument_ullong(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, 0);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return 0;
+
+    return CL_OBJECT_AS_ULLONG(value);
+}
+
+__PUB_API__ float cl_plugin_argument_float(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return -1;
+
+    return CL_OBJECT_AS_FLOAT(value);
+}
+
+__PUB_API__ double cl_plugin_argument_double(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return 0;
+
+    return CL_OBJECT_AS_DOUBLE(value);
+}
+
+__PUB_API__ bool cl_plugin_argument_bool(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, false);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return false;
+
+    return CL_OBJECT_AS_BOOLEAN(value);
+}
+
+__PUB_API__ char *cl_plugin_argument_string(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, NULL);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return NULL;
+
+    return CL_OBJECT_AS_STRING(value);
+}
+
+__PUB_API__ cl_string_t *cl_plugin_argument_cstring(const cl_plugin_arg_t *args,
+    const char *argument_name)
+{
+    cl_object_t *value = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, NULL);
+    value = cl_hashtable_get(args, argument_name);
+
+    if (NULL == value)
+        return NULL;
+
+    return CL_OBJECT_AS_CSTRING(value);
+}
+
+__PUB_API__ int cl_plugin_argument_pointer(const cl_plugin_arg_t *args,
+    const char *argument_name, void **ptr)
+{
+    cl_object_t *value = NULL;
+    void *tmp = NULL;
+
+    __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
+    value = cl_hashtable_get(args, argument_name);
+    printf("%s: Search for '%s'\n", __FUNCTION__, argument_name);
+
+    if (NULL == value)
+        return -1;
+
+    tmp = CL_OBJECT_AS_POINTER(value);
+    *ptr = tmp;
+
+    return 0;
 }
 

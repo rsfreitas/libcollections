@@ -1,7 +1,7 @@
 
 OUTCLASSPATH = out/
 JAVAC = javac
-JAR_FILE = ../bin/cplugin.jar
+JAR_FILE = bin/cplugin.jar
 DEST_DIR = /usr/local/lib
 
 JAVA_OBJS = \

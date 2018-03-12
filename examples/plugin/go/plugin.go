@@ -6,7 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"unsafe"
+
+	"collections/pkg/collections"
 )
+
+//
+// Mandatory plugin functions
+//
 
 //export plugin_name
 func plugin_name() *C.char {
@@ -29,41 +35,9 @@ func plugin_description() *C.char {
 	return C.CString("Go plugin example")
 }
 
-//export plugin_api
-func plugin_api() *C.char {
-	return C.CString("{ \"API\":[ " +
-		" { \"name\": \"foo_int\", \"return_type\": \"int\" }," +
-		" { \"name\": \"foo_uint\", \"return_type\": \"uint\" }," +
-		" { \"name\": \"foo_char\", \"return_type\": \"char\" }," +
-		" { \"name\": \"foo_uchar\", \"return_type\": \"uchar\" }," +
-		" { \"name\": \"foo_sint\", \"return_type\": \"sint\" }," +
-		" { \"name\": \"foo_usint\", \"return_type\": \"usint\" }," +
-		" { \"name\": \"foo_float\", \"return_type\": \"float\" }," +
-		" { \"name\": \"foo_double\", \"return_type\": \"double\" }," +
-		" { \"name\": \"foo_long\", \"return_type\": \"long\" }," +
-		" { \"name\": \"foo_ulong\", \"return_type\": \"ulong\" }," +
-		" { \"name\": \"foo_llong\", \"return_type\": \"llong\" }," +
-		" { \"name\": \"foo_ullong\", \"return_type\": \"ullong\" }," +
-		" { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" }," +
-		" { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [" +
-		" { \"name\": \"arg1\", \"type\": \"int\" }," +
-		" { \"name\": \"arg2\", \"type\": \"uint\" }," +
-		" { \"name\": \"arg3\", \"type\": \"sint\" }," +
-		" { \"name\": \"arg4\", \"type\": \"usint\" }," +
-		" { \"name\": \"arg5\", \"type\": \"char\" }," +
-		" { \"name\": \"arg6\", \"type\": \"uchar\" }," +
-		" { \"name\": \"arg7\", \"type\": \"float\" }," +
-		" { \"name\": \"arg8\", \"type\": \"double\" }," +
-		" { \"name\": \"arg9\", \"type\": \"long\" }," +
-		" { \"name\": \"arg10\", \"type\": \"ulong\" }," +
-		" { \"name\": \"arg11\", \"type\": \"llong\" }," +
-		" { \"name\": \"arg12\", \"type\": \"ullong\" }," +
-		" { \"name\": \"arg13\", \"type\": \"boolean\" }," +
-		" { \"name\": \"arg14\", \"type\": \"string\" }" +
-		" ] } " +
-		"]" +
-		"}")
-}
+//
+// Startup and shutdown
+//
 
 //export plugin_init
 func plugin_init() int {
@@ -75,6 +49,10 @@ func plugin_init() int {
 func plugin_uninit() {
 	fmt.Println("And at the end...")
 }
+
+//
+// Plugin functions
+//
 
 //export foo_int
 func foo_int() int {
@@ -88,7 +66,7 @@ func foo_uint() uint {
 
 //export foo_char
 func foo_char() byte {
-	return 'a'
+	return 'b'
 }
 
 //export foo_uchar
@@ -158,6 +136,21 @@ func foo_args(args *C.char) {
 func foo_pointer(args unsafe.Pointer) {
 	fmt.Printf("Addres is %p\n", args)
 	fmt.Println("We're here...")
+}
+
+//export another_outside_api
+func another_outside_api(args unsafe.Pointer) int {
+	arguments, err := collections.LoadArguments(args)
+
+	if err != nil {
+		fmt.Println(err)
+		return -1
+	}
+
+	arg1 := arguments.Int("arg1")
+	fmt.Println(arg1)
+
+	return 412
 }
 
 func main() {

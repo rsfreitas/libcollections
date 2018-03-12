@@ -30,42 +30,66 @@
 #include "collections.h"
 #include "plugin.h"
 
-struct cplugin_fdata_s *new_cplugin_fdata_s(const char *name, enum cl_type type)
+void destroy_arg_type(const struct cl_ref_s *ref)
 {
-    struct cplugin_fdata_s *f = NULL;
+    struct cl_arg_type *arg = cl_container_of(ref, struct cl_arg_type, ref);
 
-    f = calloc(1, sizeof(struct cplugin_fdata_s));
-
-    if (NULL == f) {
-        cset_errno(CL_NO_MEM);
-        return NULL;
-    }
-
-    if (name != NULL)
-        f->name = strdup(name);
-
-    f->type = type;
-    typeof_set_with_offset(CL_OBJ_PLUGIN_ARG, f, CL_PLUGIN_ARG_OBJECT_OFFSET);
-
-    return f;
-}
-
-void destroy_cplugin_fdata_s(void *a)
-{
-    struct cplugin_fdata_s *fdata = (struct cplugin_fdata_s *)a;
-
-    if (NULL == fdata)
+    if (NULL == arg)
         return;
 
-    if (fdata->name != NULL)
-        free(fdata->name);
+    free(arg);
+}
 
-    free(fdata);
+struct cl_arg_type *new_arg_type(enum cl_type type)
+{
+    struct cl_arg_type *arg = NULL;
+
+    arg = calloc(1, sizeof(struct cl_arg_type));
+
+    if (NULL == arg)
+        return NULL;
+
+    arg->type = type;
+    arg->ref.count = 1;
+    arg->ref.free = destroy_arg_type;
+
+    return arg;
+}
+
+static void unref_arg_type(void *ptr)
+{
+    struct cl_arg_type *arg = (struct cl_arg_type *)ptr;
+
+    if (NULL == arg)
+        return;
+
+    cl_ref_dec(&arg->ref);
+}
+
+void destroy_cplugin_function_s(void *a)
+{
+    struct cplugin_function_s *f = (struct cplugin_function_s *)a;
+
+    if (f->arguments != NULL)
+        cl_hashtable_uninit(f->arguments);
+
+    cl_list_destroy(f->arg_types);
+    free(f->name);
+    free(f);
+}
+
+static void release_argument(void *ptr)
+{
+    cl_object_t *arg = (cl_object_t *)ptr;
+
+    if (NULL == ptr)
+        return;
+
+    cl_object_unref(arg);
 }
 
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
-    enum cl_type return_value, enum cl_plugin_arg_mode arg_mode,
-    struct cplugin_fdata_s *args)
+    enum cl_type return_value)
 {
     struct cplugin_function_s *f = NULL;
 
@@ -76,28 +100,12 @@ struct cplugin_function_s *new_cplugin_function_s(const char *name,
         return NULL;
     }
 
+    f->arguments = cl_hashtable_init(MAX_ARGUMENTS, false, NULL, release_argument);
+    f->arg_types = cl_list_create(unref_arg_type, NULL, NULL, NULL);
     f->name = strdup(name);
     f->return_value = return_value;
-    f->arg_mode = arg_mode;
-
-    /*
-     * If @f->args stays NULL for the @f lifetime, we're dealing with a foreign
-     * function.
-     */
-    f->args = args;
 
     return f;
-}
-
-void destroy_cplugin_function_s(void *a)
-{
-    struct cplugin_function_s *f = (struct cplugin_function_s *)a;
-
-    if (f->args != NULL)
-        cl_dll_free(f->args, destroy_cplugin_fdata_s);
-
-    free(f->name);
-    free(f);
 }
 
 void destroy_cplugin_function_s_list(struct cplugin_function_s *flist)
@@ -116,7 +124,6 @@ cplugin_s *new_cplugin_s(void)
         return NULL;
     }
 
-    p->functions = NULL;
     typeof_set(CL_OBJ_PLUGIN, p);
 
     return p;
@@ -129,43 +136,10 @@ int destroy_cplugin_s(cplugin_s *cpl)
         return -1;
     }
 
-    if (cpl->functions != NULL)
-        cl_dll_free(cpl->functions, destroy_cplugin_function_s);
-
     /* Need to free the info struct of the plugin. */
     info_unref(cpl->info);
 
     free(cpl);
-
-    return 0;
-}
-
-/*
- * Compares if a specific struct 'struct cplugin_function_s' matches a
- * function name indicated in @b.
- */
-int search_cplugin_function_s(void *a, void *b)
-{
-    struct cplugin_function_s *f = (struct cplugin_function_s *)a;
-    char *function_name = (char *)b;
-
-    if (strcmp(f->name, function_name) == 0)
-        return 1;
-
-    return 0;
-}
-
-/*
- * Compares if a specific struct 'struct cplugin_fdata_s' matches an argument
- * name indicated in @b.
- */
-int search_cplugin_fdata_s(void *a, void *b)
-{
-    struct cplugin_fdata_s *arg = (struct cplugin_fdata_s *)a;
-    char *arg_name = (char *)b;
-
-    if (strcmp(arg->name, arg_name) == 0)
-        return 1;
 
     return 0;
 }

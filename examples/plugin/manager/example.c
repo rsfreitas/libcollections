@@ -54,59 +54,10 @@ static void help(void)
 
 static void plugin_details(cl_plugin_info_t *info)
 {
-    cl_string_t *p, *q;
-    cl_stringlist_t *l, *a;
-    int i, t = 0, j, k = 0;
-    char *name, *arg_name;
-
     fprintf(stdout, "Name: %s\n", cl_plugin_name(info));
     fprintf(stdout, "Author: %s\n", cl_plugin_author(info));
     fprintf(stdout, "Version: %s\n", cl_plugin_version(info));
     fprintf(stdout, "Description: %s\n", cl_plugin_description(info));
-
-    p = cl_plugin_API(info);
-    fprintf(stdout, "API: %s\n", cl_string_valueof(p));
-    cl_string_unref(p);
-
-    l = cl_plugin_functions(info);
-    t = cl_stringlist_size(l);
-
-    for (i = 0; i < t; i++) {
-        p = cl_stringlist_get(l, i);
-        name = (char *)cl_string_valueof(p);
-
-        fprintf(stdout, "Function name: %s\n", name);
-        fprintf(stdout, "Return type: %d\n",
-                cl_plugin_function_return_type(info, name));
-
-        fprintf(stdout, "Argument mode: %d\n",
-                cl_plugin_function_arg_mode(info, name));
-
-        a = cl_plugin_function_arguments(info, name);
-
-        if (NULL == a) {
-            cl_string_unref(p);
-            continue;
-        }
-
-        k = cl_stringlist_size(a);
-        fprintf(stdout, "Arguments\n");
-
-        for (j = 0; j < k; j++) {
-            q = cl_stringlist_get(a, j);
-            arg_name = (char *)cl_string_valueof(q);
-            fprintf(stdout, "\tName: %s\n", arg_name);
-            fprintf(stdout, "\tType: %d\n",
-                    cl_plugin_function_arg_type(info, name, arg_name));
-
-            cl_string_unref(q);
-        }
-
-        cl_stringlist_destroy(a);
-        cl_string_unref(p);
-    }
-
-    cl_stringlist_destroy(l);
 }
 
 static void load_and_show_plugin_info(const char *filename)
@@ -137,9 +88,9 @@ static void show_plugin_info(cl_plugin_t *cpl)
     cl_plugin_info_unref(info);
 }
 
-static cl_string_t *get_return_as_string(const char *name, cl_object_t *v)
+static cl_string_t *get_return_as_string(cl_object_t *v)
 {
-    cl_string_t *s = cl_string_create("%s return value: ", name);
+    cl_string_t *s = cl_string_create_empty(0);
     char *tmp;
 
     if (CL_OBJECT_ischar(v))
@@ -179,28 +130,44 @@ static cl_string_t *get_return_as_string(const char *name, cl_object_t *v)
 
 static void call_functions(cl_plugin_t *cpl)
 {
-    cl_plugin_info_t *info;
-    cl_stringlist_t *l;
-    int i, t;
-    cl_string_t *p, *s;
-    cl_object_t *ret;
+    struct foo {
+        char *name;
+        enum cl_type return_type;
+    };
 
-    info = cl_plugin_info(cpl);
-    l = cl_plugin_functions(info);
-    t = cl_stringlist_size(l);
+    cl_object_t *ret = NULL;
+    cl_string_t *s = NULL;
+    int i, t;
+    struct foo f[] = {
+        { "foo_int", CL_INT },
+        { "foo_uint", CL_UINT },
+        { "foo_char", CL_CHAR },
+        { "foo_uchar", CL_UCHAR },
+        { "foo_sint", CL_SINT },
+        { "foo_usint", CL_USINT },
+        { "foo_float", CL_FLOAT },
+        { "foo_double", CL_DOUBLE },
+        { "foo_long", CL_LONG },
+        { "foo_ulong", CL_ULONG },
+        { "foo_llong", CL_LLONG },
+        { "foo_ullong", CL_ULLONG },
+        { "foo_boolean", CL_BOOLEAN }
+    };
+
+    t = sizeof(f) / sizeof(f[0]);
 
     for (i = 0; i < t; i++) {
-        p = cl_stringlist_get(l, i);
-        ret = cl_plugin_call(cpl, cl_string_valueof(p), NULL);
-        s = get_return_as_string(cl_string_valueof(p), ret);
-        printf("%s: %s\n", __FUNCTION__, cl_string_valueof(s));
-        cl_string_unref(s);
-        cl_object_unref(ret);
-        cl_string_unref(p);
-    }
+        ret = cl_plugin_call(cpl, f[i].name, f[i].return_type,
+                             NULL);
 
-    cl_stringlist_destroy(l);
-    cl_plugin_info_unref(info);
+        if (ret != NULL) {
+            s = get_return_as_string(ret);
+            printf("%s => %s\n", f[i].name, cl_string_valueof(s));
+            cl_string_unref(s);
+            cl_object_unref(ret);
+        } else
+            printf("%s => %s\n", f[i].name, cl_strerror(cl_get_last_error()));
+    }
 }
 
 int main(int argc, char **argv)
@@ -265,7 +232,7 @@ int main(int argc, char **argv)
     for (i = 0; i < run; i++) {
         call_functions(cpl);
 
-        cl_plugin_call(cpl, "foo_args",
+/*        cl_plugin_call(cpl, "foo_args",
                      "arg1", 20,
                      "arg2", 21,
                      "arg3", 22,
@@ -282,7 +249,7 @@ int main(int argc, char **argv)
                      "arg14", "Sample text",
                      NULL);
 
-/*        ret = cl_plugin_call(cpl, "foo_class", "data", "Hi, I'm a class data...",
+        ret = cl_plugin_call(cpl, "foo_class", "data", "Hi, I'm a class data...",
                            NULL);
 
         printf("Type of return: %d\n", cl_object_type(ret));
@@ -293,13 +260,13 @@ int main(int argc, char **argv)
         cl_object_unref(ret);*/
     }
 
-    ret = cl_plugin_foreign_call(cpl, "outside_api", CL_VOID, CL_PLUGIN_ARGS_VOID, NULL);
+    ret = cl_plugin_call(cpl, "outside_api", CL_VOID, NULL);
 
     if (NULL == ret)
         printf("outside call: %s\n", cl_strerror(cl_get_last_error()));
 
-    ret = cl_plugin_foreign_call(cpl, "another_outside_api", CL_INT,
-                                 CL_PLUGIN_ARGS_COMMON, "arg1", CL_INT, 9981, NULL);
+    ret = cl_plugin_call(cpl, "another_outside_api", CL_INT,
+                         "arg1", CL_INT, 9981, NULL);
 
     if (NULL == ret)
         printf("another outside call: %s\n", cl_strerror(cl_get_last_error()));
@@ -315,12 +282,13 @@ int main(int argc, char **argv)
     };
 
     printf("Address in the manager: %p\n", &pp);
-    ret = cl_plugin_foreign_call(cpl, "foo_pointer", CL_VOID,
-                                 CL_PLUGIN_ARGS_POINTER, "ptr", CL_POINTER, &pp, NULL);
+    ret = cl_plugin_call(cpl, "foo_pointer", CL_VOID,
+                         "ptr", CL_POINTER, false, &pp, sizeof(struct test_ptr), NULL, NULL);
 
-    if (NULL == ret)
-        printf("another outside call foo_pointer: %s\n", cl_strerror(cl_get_last_error()));
-    else {
+    if (NULL == ret) {
+        printf("another outside call foo_pointer: %s\n",
+               cl_strerror(cl_get_last_error()));
+    } else {
         printf("return: %d\n", CL_OBJECT_AS_INT(ret));
         cl_object_unref(ret);
     }

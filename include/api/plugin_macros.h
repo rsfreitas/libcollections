@@ -57,104 +57,15 @@
  * number of arguments is passed to the @argc argument from 'cl_plugin_call_ex'
  * function.
  */
-#define cl_plugin_call(cpl, function_name, arg...)   \
-    cl_plugin_call_ex(CL_PP_NARG(cpl, function_name, ## arg), \
-                      cpl, function_name, ## arg)
-
-/*
- * Macro to make the call to an exported plugin function which was not declared
- * inside the exported API. It is responsible to inform the correct number of
- * arguments is passed to the @argc argument from 'cl_plugin_foreign_call_ex'
- * function.
- */
-#define cl_plugin_foreign_call(cpl, function_name, return_type, arg_mode, arg...)  \
-    cl_plugin_foreign_call_ex(CL_PP_NARG(cpl, function_name, return_type, arg_mode, ## arg), \
-                              cpl, function_name, return_type, arg_mode, ## arg)
+#define cl_plugin_call(cpl, function_name, return_type, arg...)  \
+    cl_plugin_call_ex(CL_PP_NARG(cpl, function_name, return_type, ## arg), \
+                      cpl, function_name, return_type, ## arg)
 
 /**
- * Macros to define exported plugin functions:
+ * Macro to define exported plugin functions:
  */
-/* Without arguments */
-#define CL_PLUGIN_OBJECT_VOID(return_type, foo)       \
-    CL_PLUGIN_EXTERN_C() return_type CL_PLUGIN_FNEXPORT foo(void)
-
-/* With only a pointer as argument */
-#define CL_PLUGIN_OBJECT_PTR_ONLY(return_type, foo)   \
-    CL_PLUGIN_EXTERN_C() return_type CL_PLUGIN_FNEXPORT foo(void *ptr)
-
-/* With arguments different of a pointer as argument */
-#define CL_PLUGIN_OBJECT_ARGS_ONLY(return_type, foo)   \
-    CL_PLUGIN_EXTERN_C() return_type CL_PLUGIN_FNEXPORT foo(const char *args)
-
-/* With mixed arguments, pointer and others */
-#define CL_PLUGIN_OBJECT_ARGS_AND_PTR(return_type, foo)   \
-    CL_PLUGIN_EXTERN_C() return_type CL_PLUGIN_FNEXPORT foo(const char *args, void *ptr)
-
-/*
- * Macro to get the pointer argument received from an exported plugin
- * function.
- */
-#define CL_PLUGIN_PTR_ARGUMENT()                  \
-    ptr
-
-/*
- * Macro to load all arguments, except a pointer, into a JSON structure
- * to easy the extraction of all others.
- */
-#define CL_PLUGIN_LOAD_ARGUMENTS()                \
-    cl_json_t *___jargs = cl_json_parse_string(args)
-
-/*
- * Macro to release the JSON structure of the exported plugin function
- * arguments.
- */
-#define CL_PLUGIN_UNLOAD_ARGUMENTS()              \
-    cl_json_delete(___jargs)
-
-/*
- * Macros to get arguments inside an exported plugin function.
- */
-#define CL_PLUGIN_ARGUMENT_CHAR(arg_name)          \
-    ({ char __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = cl_string_at(___value, 0); __x; })
-
-#define CL_PLUGIN_ARGUMENT_UCHAR(arg_name)          \
-    ({ unsigned char __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = (unsigned char)cl_string_at(___value, 0); __x; })
-
-#define CL_PLUGIN_ARGUMENT_INT(arg_name)          \
-    ({ int __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = cl_string_to_int(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_UINT(arg_name)         \
-    ({ unsigned int __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = (unsigned int)cl_string_to_int(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_SINT(arg_name)          \
-    ({ short int __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = (short int)cl_string_to_int(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_USINT(arg_name)        \
-    ({ unsigned short int __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = (unsigned short int)cl_string_to_int(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_LONG(arg_name)          \
-    ({ long __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = cl_string_to_long(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_ULONG(arg_name)        \
-    ({ unsigned long __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = (unsigned long)cl_string_to_long(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_LLONG(arg_name)        \
-    ({ long long __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = cl_string_to_long_long(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_ULLONG(arg_name)       \
-    ({ unsigned long long __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = (unsigned long long)cl_string_to_long_long(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_FLOAT(arg_name)        \
-    ({ float __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = cl_string_to_float(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_DOUBLE(arg_name)       \
-    ({ double __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = cl_string_to_double(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_STRING(arg_name)       \
-    ({ char *__x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = (char *)cl_string_valueof(___value); __x; })
-
-#define CL_PLUGIN_ARGUMENT_BOOL(arg_name)          \
-    ({ bool __x; cl_json_t *___node = cl_json_get_object_item(___jargs, arg_name); cl_string_t *___value = cl_json_get_object_value(___node); __x = cl_string_to_int(___value); __x; })
+#define CL_PLUGIN_FUNCTION(return_type, name)       \
+    CL_PLUGIN_EXTERN_C() return_type CL_PLUGIN_FNEXPORT name(void *args)
 
 /**
  * Macros to mandatory plugin functions.
@@ -176,10 +87,6 @@
  *
  * Prototype: const char *plugin_author(void);
  *
- * - plugin_api
- *
- * Prototype: const char *plugin_api(void);
- *
  * - plugin_description
  *
  * Prototype: const char *plugin_description(void);
@@ -188,9 +95,9 @@
 /*
  * Plugin mandatory informations.
  */
-#define CL_PLUGIN_SET_INFO(name, version, author, description, api) \
+#define CL_PLUGIN_SET_INFO(name, version, author, description) \
     CL_PLUGIN_EXTERN_C() const char CL_PLUGIN_FNEXPORT *plugin_name(void) {\
-        return #name;\
+        return name;\
     }\
 \
     CL_PLUGIN_EXTERN_C() const char CL_PLUGIN_FNEXPORT *plugin_version(void) {\
@@ -199,10 +106,6 @@
 \
     CL_PLUGIN_EXTERN_C() const char CL_PLUGIN_FNEXPORT *plugin_author(void) {\
         return author;\
-    }\
-\
-    CL_PLUGIN_EXTERN_C() const char CL_PLUGIN_FNEXPORT *plugin_api(void) {\
-        return api;\
     }\
 \
     CL_PLUGIN_EXTERN_C() const char CL_PLUGIN_FNEXPORT *plugin_description(void) {\
@@ -216,6 +119,13 @@
 /* Plugin uninit function */
 #define CL_PLUGIN_UNINIT()    \
     CL_PLUGIN_EXTERN_C() void CL_PLUGIN_FNEXPORT plugin_uninit(void)
+
+/*
+ * When a plugin function receives no argument (a void one) this should be used
+ * to avoid compilation warnings.
+ */
+#define CL_PLUGIN_IGNORE_ARGUMENTS()    \
+    (void)args
 
 #endif
 

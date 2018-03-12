@@ -37,9 +37,12 @@
  * @name cl_object_create
  * @brief Creates a new cl_object_t object.
  *
- * If object is of CL_OBJECT_VOIDP type the variadic arguments should be
- * the binary content and its size. The variadic arguments should end with
- * NULL.
+ * If the object is of a CL_POINTER type, the variadic arguments should be
+ * a flag pointing if data will be internally duplicated, the binary data,
+ * its size and a function to release this data. In case this dup flag is
+ * false, the object content will live as long the source lives.
+ *
+ * For every type of object the variadic arguments should end with NULL.
  *
  * @param [in] type: The object type of the new object.
  * @param [in] ...: The item object.
@@ -47,6 +50,20 @@
  * @return On success returns a cl_object_t object or NULL othewise.
  */
 cl_object_t *cl_object_create(enum cl_type type, ...);
+
+/**
+ * @name cl_object_vcreate
+ * @brief Creates a new cl_object_object.
+ *
+ * This functions is similar to the cl_object_create except that it takes a
+ * va_list argument instead of the original variadic ones.
+ *
+ * @param [in] type: The object type of the new object.
+ * @param [in] ap: The item object.
+ *
+ * @return On success returns a cl_object_t object or NULL othewise.
+ */
+cl_object_t *cl_object_vcreate(enum cl_type type, va_list ap);
 
 /**
  * @name cl_object_create_empty

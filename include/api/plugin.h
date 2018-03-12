@@ -1,6 +1,4 @@
 
-// FIXME: IMPROVE JSON API
-
 /*
  * Description:
  * Author: Rodrigo Freitas
@@ -37,16 +35,9 @@
 /** Plugin supported languages */
 enum cl_plugin_type {
     CL_PLUGIN_UNKNOWN = 0,
-    CL_PLUGIN_ELF     = (1 << 0),         /* C, C++, Rust and Go */
+    CL_PLUGIN_ELF     = (1 << 0),   /* C, C++, Rust and Go */
     CL_PLUGIN_PYTHON  = (1 << 1),
     CL_PLUGIN_JAVA    = (1 << 2)
-};
-
-/** Functions argument mode */
-enum cl_plugin_arg_mode {
-    CL_PLUGIN_ARGS_VOID               = 0,
-    CL_PLUGIN_ARGS_COMMON             = (1 << 0),
-    CL_PLUGIN_ARGS_POINTER            = (1 << 1)
 };
 
 /**
@@ -161,121 +152,6 @@ const char *cl_plugin_author(const cl_plugin_info_t *info);
 const char *cl_plugin_description(const cl_plugin_info_t *info);
 
 /**
- * @name cl_plugin_API
- * @brief Gets the plugin API.
- *
- * @param [in] info: The plugin info object.
- *
- * @return On success returns a cl_string_t with the internal plugin API in its
- *         original JSON format or NULL otherwise.
- */
-cl_string_t *cl_plugin_API(const cl_plugin_info_t *info);
-
-/**
- * @name cl_plugin_functions
- * @brief Gets the plugin exported function names.
- *
- * @param [in] info: The plugin info object.
- *
- * @return On success returns a cl_stringlist_t object with all the exported
- *         function names from the plugin or NULL otherwise.
- */
-cl_stringlist_t *cl_plugin_functions(const cl_plugin_info_t *info);
-
-/**
- * @name cl_plugin_function_return_type
- * @brief Gets the return type from an exported function.
- *
- * @param [in] info: The plugin info object.
- * @param [in] function_name: The name of the function which will be sought.
- *
- * @return On success return the return type (as a number) from the requested
- *         function or -1 otherwise.
- */
-enum cl_type cl_plugin_function_return_type(const cl_plugin_info_t *info,
-                                            const char *function_name);
-
-/**
- * @name cl_plugin_function_arguments
- * @brief Gets the argument names from an exported function.
- *
- * @param [in] info: The plugin info object.
- * @param [in] function_name: The name of the function which will be sought.
- *
- * @return On success returns a cl_stringlist_t object with all the argument
- *         names from the requested function or NULL otherwise.
- */
-cl_stringlist_t *cl_plugin_function_arguments(const cl_plugin_info_t *info,
-                                              const char *function_name);
-
-/**
- * @name cl_plugin_function_arg_mode
- * @brief Gets the argument mode from an exported function.
- *
- * @param [in] info: The plugin info object.
- * @param [in] function_name: The name of the function which will be sought.
- *
- * @return On success returns the argument mode (as a number) from the requested
- *         function or -1 otherwise.
- */
-enum cl_plugin_arg_mode cl_plugin_function_arg_mode(const cl_plugin_info_t *info,
-                                                    const char *function_name);
-
-/**
- * @name cl_plugin_function_arg_type
- * @brief Gets the argument type from a specific argument from an exported
- *        function.
- *
- * @param [in] info: The plugin info object.
- * @param [in] function_name: The name of the function which will be sought.
- * @param [in] argument_name: The argument name which will be sought.
- *
- * @return On success returns the argument type (as a number) from the
- *         requested function or -1 otherwise.
- */
-enum cl_type cl_plugin_function_arg_type(const cl_plugin_info_t *info,
-                                         const char *function_name,
-                                         const char *argument_name);
-
-/**
- * @name cl_plugin_call_ex
- * @brief Makes a call to a function inside a plugin.
- *
- * This function is responsible for making the call of a function inside a
- * plugin. Its arguments are inserted into a list so they can be accessed
- * inside of it.
- *
- * The called function arguments must be passed according with the type
- * defined on the plugin API.
- *
- * To the case of a function with the CL_PLUGIN_ARG_FIXED arguments type,
- * they must be passed this way: "argument_name", object, "argument_name",
- * "value", NULL. Such as:
- *
- * cl_plugin_call_ex(7, cpl, "foo", "arg1", value, "arg2", value, NULL);
- *
- * To the case of CL_PLUGIN_ARG_VAR arguments type, they must be passed in
- * this way: "argument_name", type, object, "argument_name", type, object,
- * NULL. Such as:
- *
- * cl_plugin_call_ex(9, cpl, "foo", "arg1", type, value, "arg2", type, value,
- *                   NULL);
- *
- * It is recomended to use cl_plugin_call macro instead of a direct call to
- * this function.
- *
- * @param [in] argc: The total number of arguments passed to the function.
- * @param [in] cpl: The cl_plugin_t object from the loaded plugin.
- * @param [in] function_name: The function name which will be called.
- * @param [in] ...: Function arguments.
- *
- * @return On success returns a cl_object_t with the called function return
- *         object or NULL otherwise.
- */
-cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
-                               const char *function_name, ...);
-
-/**
  * @name cl_plugin_set_supported_types
  * @brief Enables plugin supported by an application.
  *
@@ -283,41 +159,232 @@ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
  *
  * @param [in] types: A bitfield with all supported plugin types.
  */
-void cl_plugin_set_supported_types(enum cl_plugin_type types);
+//void cl_plugin_set_supported_types(enum cl_plugin_type types);
 
 /**
- * @name cl_plugin_foreign_call_ex
+ * @name cl_plugin_call_ex
  * @brief Makes a call to a function inside a plugin.
  *
- * This function is extremely similar to cl_plugin_call_ex except that it
- * provides a mechanism to call a function which was not declared inside
- * the API.
+ * This function is responsible for making the call of a function inside a
+ * plugin. Which is made like this:
  *
- * Therefore, since we don't know some important informations about it,
- * as its return value type and its arguments, these must be passed
- * together. Example for a function returning a void value with one
- * argument:
+ * cl_plugin_call(cpl, "foo", CL_VOID, "arg1", CL_INT, 42,
+ *                                     "arg2", CL_STRING, "bar",
+ *                                     NULL);
  *
- * cl_plugin_foreign_call_ex(8, cpl, "foo", CL_VOID, CL_PLUGIN_ARGS_COMMON,
- *                           "argument", CL_INT, 42, NULL);
+ * Notice that, every argument must have at least 3 variables, one representing
+ * its name, the other its type and the third one its value. These arguments
+ * passing should follow the same arguments passing to the function
+ * cl_object_set, from the cl_object_t's API.
  *
- * It is recomended to use cl_plugin_foreign_call macro instead of a direct call
- * to this function.
+ * It is recomended to use cl_plugin_call macro instead of a direct call
+ * to this function, since you need to know the exactly number of arguments
+ * to pass in @argc and the macro already will do this for you.
  *
  * @param [in] argc: The total number of arguments passed to the function.
  * @param [in] cpl: The cl_plugin_t object from the loaded plugin.
  * @param [in] function_name: The function name which will be called.
  * @param [in] return_type: The function return type.
- * @param [in] arg_mode: The function arguments mode.
  * @param [in] ...: Function arguments.
  *
  * @return On success returns a cl_object_t with the called function return
  *         object or NULL otherwise.
  */
-cl_object_t *cl_plugin_foreign_call_ex(int argc, cl_plugin_t *cpl,
-                                       const char *function_name,
-                                       enum cl_type return_type,
-                                       enum cl_plugin_arg_mode arg_mode, ...);
+cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
+                               const char *function_name,
+                               enum cl_type return_type, ...);
+
+/**
+ * @name cl_plugin_argument_char
+ * @brief Gets a char argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+char cl_plugin_argument_char(const cl_plugin_arg_t *args,
+                             const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_uchar
+ * @brief Gets an unsigned char argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+unsigned char cl_plugin_argument_uchar(const cl_plugin_arg_t *args,
+                                       const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_int
+ * @brief Gets an int argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+int cl_plugin_argument_int(const cl_plugin_arg_t *args,
+                           const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_uint
+ * @brief Gets an unsigned int argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+unsigned int cl_plugin_argument_uint(const cl_plugin_arg_t *args,
+                                     const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_sint
+ * @brief Gets a short int argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+short int cl_plugin_argument_sint(const cl_plugin_arg_t *args,
+                                  const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_usint
+ * @brief Gets an unsigned short int argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+unsigned short int cl_plugin_argument_usint(const cl_plugin_arg_t *args,
+                                            const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_long
+ * @brief Gets a long argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+long cl_plugin_argument_long(const cl_plugin_arg_t *args,
+                             const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_ulong
+ * @brief Gets an unsigned long argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+unsigned long cl_plugin_argument_ulong(const cl_plugin_arg_t *args,
+                                       const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_llong
+ * @brief Gets a long long argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+long long cl_plugin_argument_llong(const cl_plugin_arg_t *args,
+                                   const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_ullong
+ * @brief Gets an unsigned long long argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+unsigned long long cl_plugin_argument_ullong(const cl_plugin_arg_t *args,
+                                             const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_float
+ * @brief Gets a float argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+float cl_plugin_argument_float(const cl_plugin_arg_t *args,
+                               const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_double
+ * @brief Gets a double argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+double cl_plugin_argument_double(const cl_plugin_arg_t *args,
+                                 const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_bool
+ * @brief Gets a bool argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+bool cl_plugin_argument_bool(const cl_plugin_arg_t *args,
+                             const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_string
+ * @brief Gets a string (char *) argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+char *cl_plugin_argument_string(const cl_plugin_arg_t *args,
+                                const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_cstring
+ * @brief Gets a cl_string_t argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+cl_string_t *cl_plugin_argument_cstring(const cl_plugin_arg_t *args,
+                                        const char *argument_name);
+
+/**
+ * @name cl_plugin_argument_pointer
+ * @brief Gets a pointer argument from within a plugin function.
+ *
+ * @param [in] args: The arguments received in the function.
+ * @param [in] argument_name: The desired argument name.
+ *
+ * @return On success returns the required argument value or -1 otherwise.
+ */
+int cl_plugin_argument_pointer(const cl_plugin_arg_t *args,
+                               const char *argument_name, void **ptr);
 
 #endif
 

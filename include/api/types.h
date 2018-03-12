@@ -166,6 +166,7 @@ typedef void                    cl_counter_t;
 /** plugin types */
 typedef void                    cl_plugin_t;
 typedef void                    cl_plugin_info_t;
+typedef void                    cl_plugin_arg_t;
 
 /** log type */
 typedef void                    cl_log_t;

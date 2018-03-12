@@ -36,7 +36,6 @@
     cl_struct_member(char *, version)       \
     cl_struct_member(char *, author)        \
     cl_struct_member(char *, description)   \
-    cl_struct_member(cl_json_t *, api)      \
     cl_struct_member(void *, data)          \
     cl_struct_member(struct cl_ref_s, ref)
 
@@ -50,9 +49,6 @@ static void __destroy_info_s(const struct cl_ref_s *ref)
 
     if (NULL == info)
         return;
-
-    if (info->api != NULL)
-        api_unload(info->api);
 
     free(info->author);
     free(info->description);
@@ -77,7 +73,6 @@ static cinfo_s *new_info_s(const char *name, const char *version,
     i->version = strdup(version);
     i->description = strdup(description);
     i->author = strdup(author);
-    i->api = NULL;
     i->data = NULL;
 
     i->ref.count = 1;
@@ -111,8 +106,7 @@ void info_unref(cl_plugin_info_t *info)
 }
 
 cl_plugin_info_t *info_create_from_data(const char *name,
-    const char *version, const char *author, const char *description,
-    const char *api)
+    const char *version, const char *author, const char *description)
 {
     cinfo_s *info = NULL;
 
@@ -121,24 +115,7 @@ cl_plugin_info_t *info_create_from_data(const char *name,
     if (NULL == info)
         return NULL;
 
-    info->api = api_load(api);
-
-    if (NULL == info->api) {
-        info_unref((cl_plugin_info_t *)info);
-        return NULL;
-    }
-
     return (cl_plugin_info_t *)info;
-}
-
-cl_json_t *info_get_api(const cl_plugin_info_t *info)
-{
-    cinfo_s *i = (cinfo_s *)info;
-
-    if (NULL == i)
-        return NULL;
-
-    return i->api;
 }
 
 char *info_get_name(const cl_plugin_info_t *info)

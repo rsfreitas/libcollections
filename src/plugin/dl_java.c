@@ -134,8 +134,7 @@ cl_plugin_info_t *jni_load_info(void *data, void *handle)
         { "getName",        "()Ljava/lang/String;",  NULL },
         { "getVersion",     "()Ljava/lang/String;",  NULL },
         { "getAuthor",      "()Ljava/lang/String;",  NULL },
-        { "getDescription", "()Ljava/lang/String;",  NULL },
-        { "getAPI",         "()Ljava/lang/String;",  NULL }
+        { "getDescription", "()Ljava/lang/String;",  NULL }
     };
 
     t = sizeof(emethods) / sizeof(emethods[0]);
@@ -158,8 +157,7 @@ cl_plugin_info_t *jni_load_info(void *data, void *handle)
     }
 
     info = info_create_from_data(emethods[0].data, emethods[1].data,
-                                 emethods[2].data, emethods[3].data,
-                                 emethods[4].data);
+                                 emethods[2].data, emethods[3].data);
 
     if (info != NULL)
         set_custom_plugin_info(info, obj);
@@ -796,5 +794,10 @@ bool jni_plugin_test(const cl_string_t *mime)
     cl_string_unref(p);
 
     return ret;
+}
+
+int jni_load_foreign_function(void *data, void *handle,
+    struct cplugin_function_s *foo)
+{
 }
 

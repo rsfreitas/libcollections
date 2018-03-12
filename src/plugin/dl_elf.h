@@ -36,19 +36,15 @@
 void *elf_library_init(void);
 void elf_library_uninit(void *data);
 cl_plugin_info_t *elf_load_info(void *data, void *handle);
-int elf_load_functions(void *data, struct cplugin_function_s *flist,
-                       void *handle);
-
 void *elf_open(void *data, const char *pathname);
 int elf_close(void *data, void *handle);
 cl_object_t* elf_call(void *data, struct cplugin_function_s *foo,
-                      cl_plugin_t *cpl, struct function_argument *args);
+                      cl_plugin_t *cpl);
 
 int elf_plugin_startup(void *data, void *handle, cl_plugin_info_t *info);
 int elf_plugin_shutdown(void *data, void *handle, cl_plugin_info_t *info);
 bool elf_plugin_test(const cl_string_t *mime);
-int elf_load_foreign_function(void *data, void *handle,
-                              struct cplugin_function_s *foo);
+int elf_load_function(void *data, void *handle, struct cplugin_function_s *foo);
 
 #endif
 
