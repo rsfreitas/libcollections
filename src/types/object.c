@@ -105,7 +105,9 @@ static void destroy_cl_object_s(const struct cl_ref_s *ref)
     if (NULL == o)
         return;
 
-    if (((o->type == CL_CSTRING) || (o->type == CL_STRING)) && (o->s != NULL))
+    // FIXME: Test here
+    //if (((o->type == CL_CSTRING) || (o->type == CL_STRING)) && (o->s != NULL))
+    if (o->s != NULL)
         cl_string_unref(o->s);
 
     if (o->dup_data == true)
@@ -150,6 +152,7 @@ void cl_object_set_char(cl_object_t *object, char c)
         return;
 
     v->c = c;
+    v->type = CL_CHAR;
 }
 
 void cl_object_set_uchar(cl_object_t *object, unsigned char uc)
@@ -160,6 +163,7 @@ void cl_object_set_uchar(cl_object_t *object, unsigned char uc)
         return;
 
     v->uc = uc;
+    v->type = CL_UCHAR;
 }
 
 void cl_object_set_int(cl_object_t *object, int i)
@@ -170,6 +174,7 @@ void cl_object_set_int(cl_object_t *object, int i)
         return;
 
     v->i = i;
+    v->type = CL_INT;
 }
 
 void cl_object_set_uint(cl_object_t *object, unsigned int ui)
@@ -180,6 +185,7 @@ void cl_object_set_uint(cl_object_t *object, unsigned int ui)
         return;
 
     v->ui = ui;
+    v->type = CL_UINT;
 }
 
 void cl_object_set_sint(cl_object_t *object, short int si)
@@ -190,6 +196,7 @@ void cl_object_set_sint(cl_object_t *object, short int si)
         return;
 
     v->si = si;
+    v->type = CL_SINT;
 }
 
 void cl_object_set_usint(cl_object_t *object, unsigned short int usi)
@@ -200,6 +207,7 @@ void cl_object_set_usint(cl_object_t *object, unsigned short int usi)
         return;
 
     v->usi = usi;
+    v->type = CL_USINT;
 }
 
 void cl_object_set_float(cl_object_t *object, float f)
@@ -210,6 +218,7 @@ void cl_object_set_float(cl_object_t *object, float f)
         return;
 
     v->f = f;
+    v->type = CL_FLOAT;
 }
 
 void cl_object_set_double(cl_object_t *object, double d)
@@ -220,6 +229,7 @@ void cl_object_set_double(cl_object_t *object, double d)
         return;
 
     v->d = d;
+    v->type = CL_DOUBLE;
 }
 
 void cl_object_set_long(cl_object_t *object, long l)
@@ -230,6 +240,7 @@ void cl_object_set_long(cl_object_t *object, long l)
         return;
 
     v->l = l;
+    v->type = CL_LONG;
 }
 
 void cl_object_set_ulong(cl_object_t *object, unsigned long ul)
@@ -240,6 +251,7 @@ void cl_object_set_ulong(cl_object_t *object, unsigned long ul)
         return;
 
     v->ul = ul;
+    v->type = CL_ULONG;
 }
 
 void cl_object_set_llong(cl_object_t *object, long long ll)
@@ -250,6 +262,7 @@ void cl_object_set_llong(cl_object_t *object, long long ll)
         return;
 
     v->ll = ll;
+    v->type = CL_LLONG;
 }
 
 void cl_object_set_ullong(cl_object_t *object, unsigned long long ull)
@@ -260,6 +273,7 @@ void cl_object_set_ullong(cl_object_t *object, unsigned long long ull)
         return;
 
     v->ull = ull;
+    v->type = CL_ULLONG;
 }
 
 void cl_object_set_boolean(cl_object_t *object, bool b)
@@ -270,6 +284,7 @@ void cl_object_set_boolean(cl_object_t *object, bool b)
         return;
 
     v->b = b;
+    v->type = CL_BOOLEAN;
 }
 
 void cl_object_set_cstring(cl_object_t *object, cl_string_t *s)
@@ -283,6 +298,7 @@ void cl_object_set_cstring(cl_object_t *object, cl_string_t *s)
         cl_string_unref(v->s);
 
     v->s = cl_string_ref(s);
+    v->type = CL_CSTRING;
 }
 
 void cl_object_set_string(cl_object_t *object, char *s)
@@ -296,6 +312,7 @@ void cl_object_set_string(cl_object_t *object, char *s)
         cl_string_unref(v->s);
 
     v->s = cl_string_create("%s", s);
+    v->type = CL_STRING;
 }
 
 void cl_object_set_pointer(cl_object_t *object, bool dup_data, void *data,
@@ -322,6 +339,8 @@ void cl_object_set_pointer(cl_object_t *object, bool dup_data, void *data,
 
     if (free_object != NULL)
         v->free_object = free_object;
+
+    v->type = CL_POINTER;
 }
 
 static void set_cl_object_object(cl_object_s *o, va_list ap)
@@ -438,6 +457,11 @@ __PUB_API__ int cl_object_set(cl_object_t *object, ...)
     va_end(ap);
 
     return 0;
+}
+
+__PUB_API__ int cl_object_set_ex(cl_object_t *object, const char *content)
+{
+    return cl_object_set(object, CL_STRING, content);
 }
 
 __PUB_API__ cl_object_t *cl_object_create(enum cl_type type, ...)

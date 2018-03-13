@@ -161,7 +161,6 @@ __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
 
 __PUB_API__ cl_plugin_t *cl_plugin_load(const char *pathname)
 {
-    struct cplugin_function_s *flist = NULL;
     cplugin_s *cpl = NULL;
     cl_plugin_info_t *info = NULL;
     void *handle = NULL;
@@ -222,9 +221,6 @@ error_block:
     if (handle != NULL)
         dl_close(pdriver, handle);
 
-    if (flist != NULL)
-        destroy_cplugin_function_s_list(flist);
-
     cset_errno(error);
 
     return NULL;
@@ -251,14 +247,7 @@ __PUB_API__ int cl_plugin_unload(cl_plugin_t *cpl)
     return 0;
 }
 
-__PUB_API__ bool cl_plugin_function_exists(cl_plugin_t *cpl,
-    const char *function_name)
-{
-    return false;
-    // TODO
-}
-
-__PUB_API__ char cl_plugin_argument_char(const cl_plugin_arg_t *args,
+__PUB_API__ char cl_plugin_argument_char(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -272,7 +261,7 @@ __PUB_API__ char cl_plugin_argument_char(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_CHAR(value);
 }
 
-__PUB_API__ unsigned char cl_plugin_argument_uchar(const cl_plugin_arg_t *args,
+__PUB_API__ unsigned char cl_plugin_argument_uchar(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -286,7 +275,7 @@ __PUB_API__ unsigned char cl_plugin_argument_uchar(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_UCHAR(value);
 }
 
-__PUB_API__ int cl_plugin_argument_int(const cl_plugin_arg_t *args,
+__PUB_API__ int cl_plugin_argument_int(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -300,7 +289,7 @@ __PUB_API__ int cl_plugin_argument_int(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_INT(value);
 }
 
-__PUB_API__ unsigned int cl_plugin_argument_uint(const cl_plugin_arg_t *args,
+__PUB_API__ unsigned int cl_plugin_argument_uint(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -314,7 +303,7 @@ __PUB_API__ unsigned int cl_plugin_argument_uint(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_UINT(value);
 }
 
-__PUB_API__ short int cl_plugin_argument_sint(const cl_plugin_arg_t *args,
+__PUB_API__ short int cl_plugin_argument_sint(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -328,7 +317,7 @@ __PUB_API__ short int cl_plugin_argument_sint(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_SINT(value);
 }
 
-__PUB_API__ unsigned short int cl_plugin_argument_usint(const cl_plugin_arg_t *args,
+__PUB_API__ unsigned short int cl_plugin_argument_usint(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -342,7 +331,7 @@ __PUB_API__ unsigned short int cl_plugin_argument_usint(const cl_plugin_arg_t *a
     return CL_OBJECT_AS_USINT(value);
 }
 
-__PUB_API__ long cl_plugin_argument_long(const cl_plugin_arg_t *args,
+__PUB_API__ long cl_plugin_argument_long(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -356,7 +345,7 @@ __PUB_API__ long cl_plugin_argument_long(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_LONG(value);
 }
 
-__PUB_API__ unsigned long cl_plugin_argument_ulong(const cl_plugin_arg_t *args,
+__PUB_API__ unsigned long cl_plugin_argument_ulong(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -370,7 +359,7 @@ __PUB_API__ unsigned long cl_plugin_argument_ulong(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_ULONG(value);
 }
 
-__PUB_API__ long long cl_plugin_argument_llong(const cl_plugin_arg_t *args,
+__PUB_API__ long long cl_plugin_argument_llong(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -384,7 +373,7 @@ __PUB_API__ long long cl_plugin_argument_llong(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_LLONG(value);
 }
 
-__PUB_API__ unsigned long long cl_plugin_argument_ullong(const cl_plugin_arg_t *args,
+__PUB_API__ unsigned long long cl_plugin_argument_ullong(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -398,7 +387,7 @@ __PUB_API__ unsigned long long cl_plugin_argument_ullong(const cl_plugin_arg_t *
     return CL_OBJECT_AS_ULLONG(value);
 }
 
-__PUB_API__ float cl_plugin_argument_float(const cl_plugin_arg_t *args,
+__PUB_API__ float cl_plugin_argument_float(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -412,7 +401,7 @@ __PUB_API__ float cl_plugin_argument_float(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_FLOAT(value);
 }
 
-__PUB_API__ double cl_plugin_argument_double(const cl_plugin_arg_t *args,
+__PUB_API__ double cl_plugin_argument_double(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -426,7 +415,7 @@ __PUB_API__ double cl_plugin_argument_double(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_DOUBLE(value);
 }
 
-__PUB_API__ bool cl_plugin_argument_bool(const cl_plugin_arg_t *args,
+__PUB_API__ bool cl_plugin_argument_bool(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -440,7 +429,7 @@ __PUB_API__ bool cl_plugin_argument_bool(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_BOOLEAN(value);
 }
 
-__PUB_API__ char *cl_plugin_argument_string(const cl_plugin_arg_t *args,
+__PUB_API__ char *cl_plugin_argument_string(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -454,7 +443,7 @@ __PUB_API__ char *cl_plugin_argument_string(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_STRING(value);
 }
 
-__PUB_API__ cl_string_t *cl_plugin_argument_cstring(const cl_plugin_arg_t *args,
+__PUB_API__ cl_string_t *cl_plugin_argument_cstring(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -468,7 +457,7 @@ __PUB_API__ cl_string_t *cl_plugin_argument_cstring(const cl_plugin_arg_t *args,
     return CL_OBJECT_AS_CSTRING(value);
 }
 
-__PUB_API__ int cl_plugin_argument_pointer(const cl_plugin_arg_t *args,
+__PUB_API__ int cl_plugin_argument_pointer(cl_plugin_arg_t *args,
     const char *argument_name, void **ptr)
 {
     cl_object_t *value = NULL;
@@ -476,13 +465,32 @@ __PUB_API__ int cl_plugin_argument_pointer(const cl_plugin_arg_t *args,
 
     __clib_function_init__(true, args, CL_OBJ_HASHTABLE, -1);
     value = cl_hashtable_get(args, argument_name);
-    printf("%s: Search for '%s'\n", __FUNCTION__, argument_name);
 
     if (NULL == value)
         return -1;
 
     tmp = CL_OBJECT_AS_POINTER(value);
     *ptr = tmp;
+
+    return 0;
+}
+
+__PUB_API__ cl_plugin_t *cl_plugin_ref(cl_plugin_t *cpl)
+{
+    cplugin_s *pl = (cplugin_s *)cpl;
+
+    __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, NULL);
+    cl_ref_inc(&pl->ref);
+
+    return cpl;
+}
+
+__PUB_API__ int cl_plugin_unref(cl_plugin_t *cpl)
+{
+    cplugin_s *pl = (cplugin_s *)cpl;
+
+    __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, -1);
+    cl_ref_dec(&pl->ref);
 
     return 0;
 }

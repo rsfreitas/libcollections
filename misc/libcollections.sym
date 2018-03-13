@@ -10,6 +10,7 @@ LIBCOLLECTIONS_0.1 {
         cl_cfg_unref;
         cl_cfg_to_cstring;
         cl_cfg_set_value;
+        cl_cfg_set_value_ex;
         cl_cfg_set_value_comment;
         cl_cfg_get_value;
         cl_cfg_all_block_names;
@@ -250,6 +251,7 @@ LIBCOLLECTIONS_0.1 {
         cl_timer_disarm;
         cl_timer_arm;
         cl_object_set;
+        cl_object_set_ex;
         cl_object_create;
         cl_object_create_with_spec;
         cl_object_destroy;
@@ -290,6 +292,8 @@ LIBCOLLECTIONS_0.1 {
         cl_plugin_argument_cstring;
         cl_plugin_argument_bool;
         cl_plugin_argument_pointer;
+        cl_plugin_ref;
+        cl_plugin_unref;
         cl_log_bprint;
         cl_log_close;
         cl_log_open;

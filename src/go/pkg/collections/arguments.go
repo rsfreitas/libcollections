@@ -1,5 +1,5 @@
 //
-// Description: Functions to load (plugin public) function arguments.
+// Description: Functions to handle (plugin public) function arguments.
 // Author: Rodrigo Freitas
 // Created at: Seg Mar 12 16:40:39 -03 2018
 //
@@ -13,6 +13,8 @@ package collections
 */
 import "C"
 import (
+	"errors"
+	"fmt"
 	"unsafe"
 )
 
@@ -23,11 +25,17 @@ type ClPluginArguments struct {
 }
 
 // Int loads an argument of name argumentName and returns it as an int value.
-func (a *ClPluginArguments) Int(argumentName string) int {
+func (a *ClPluginArguments) Int(argumentName string) (int, error) {
 	cs := C.CString(argumentName)
 	defer C.free(unsafe.Pointer(cs))
 
-	return int(C.cl_plugin_argument_int(a.arguments, cs))
+	i := int(C.cl_plugin_argument_int(a.arguments, cs))
+
+	if C.cl_get_last_error() != 0 {
+		return 0, errors.New(fmt.Sprintf("error loading argument '%s'", argumentName))
+	}
+
+	return i, nil
 }
 
 // UInt loads an argument of name argumentName and returns it as an uint value.
@@ -124,14 +132,28 @@ func (a *ClPluginArguments) Pointer(argumentName string) unsafe.Pointer {
 	defer C.free(unsafe.Pointer(cs))
 
 	var ptr unsafe.Pointer
-	_, err := C.cl_plugin_argument_pointer(a.arguments, cs, &ptr)
+	C.cl_plugin_argument_pointer(a.arguments, cs, &ptr)
 
-	//FIXME: Correctly check error here...
-	if err != nil {
+	if C.cl_get_last_error() != 0 {
 		return nil
 	}
 
 	return ptr
+}
+
+func (a *ClPluginArguments) String(argumentName string) (string, error) {
+	cs := C.CString(argumentName)
+	defer C.free(unsafe.Pointer(cs))
+
+	s := C.cl_plugin_argument_string(a.data.cs)
+
+	if C.cl_get_last_error() != 0 {
+		return 0, errors.New(fmt.Sprintf("error loading argument '%s'", argumentName))
+	}
+
+	defer C.free(unsafe.Pointer(s))
+
+	return C.GoString(s), nil
 }
 
 // LoadsArguments is responsible to load the arguments received by a plugin

@@ -701,6 +701,12 @@ end_block:
     return 0;
 }
 
+__PUB_API__ int cl_cfg_set_value_ex(cl_cfg_file_t *file, const char *block,
+    const char *entry, const char *content)
+{
+    return cl_cfg_set_value(file, block, entry, "%s", content);
+}
+
 /*
  * Search and get a pointer to a specific block from a cl_cfg_file_t object.
  */

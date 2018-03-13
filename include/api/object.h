@@ -127,6 +127,12 @@ enum cl_type cl_object_type(const cl_object_t *object);
  */
 int cl_object_set(cl_object_t *object, ...);
 
+/*
+ * This is just a wrapper to be used on places where variadic functions
+ * aren't supported, such as Go.
+ */
+int cl_object_set_ex(cl_object_t *object, const char *content);
+
 /**
  * @name cl_object_get
  * @brief Gets the content from a cl_object_t object.

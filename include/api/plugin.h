@@ -152,16 +152,6 @@ const char *cl_plugin_author(const cl_plugin_info_t *info);
 const char *cl_plugin_description(const cl_plugin_info_t *info);
 
 /**
- * @name cl_plugin_set_supported_types
- * @brief Enables plugin supported by an application.
- *
- * This function must be called before all cl_plugin_load calls.
- *
- * @param [in] types: A bitfield with all supported plugin types.
- */
-//void cl_plugin_set_supported_types(enum cl_plugin_type types);
-
-/**
  * @name cl_plugin_call_ex
  * @brief Makes a call to a function inside a plugin.
  *
@@ -175,7 +165,7 @@ const char *cl_plugin_description(const cl_plugin_info_t *info);
  * Notice that, every argument must have at least 3 variables, one representing
  * its name, the other its type and the third one its value. These arguments
  * passing should follow the same arguments passing to the function
- * cl_object_set, from the cl_object_t's API.
+ * cl_plugin_set, from the cl_plugin_t's API.
  *
  * It is recomended to use cl_plugin_call macro instead of a direct call
  * to this function, since you need to know the exactly number of arguments
@@ -187,10 +177,10 @@ const char *cl_plugin_description(const cl_plugin_info_t *info);
  * @param [in] return_type: The function return type.
  * @param [in] ...: Function arguments.
  *
- * @return On success returns a cl_object_t with the called function return
+ * @return On success returns a cl_plugin_t with the called function return
  *         object or NULL otherwise.
  */
-cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
+cl_plugin_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
                                const char *function_name,
                                enum cl_type return_type, ...);
 
@@ -203,7 +193,7 @@ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-char cl_plugin_argument_char(const cl_plugin_arg_t *args,
+char cl_plugin_argument_char(cl_plugin_arg_t *args,
                              const char *argument_name);
 
 /**
@@ -215,7 +205,7 @@ char cl_plugin_argument_char(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-unsigned char cl_plugin_argument_uchar(const cl_plugin_arg_t *args,
+unsigned char cl_plugin_argument_uchar(cl_plugin_arg_t *args,
                                        const char *argument_name);
 
 /**
@@ -227,7 +217,7 @@ unsigned char cl_plugin_argument_uchar(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-int cl_plugin_argument_int(const cl_plugin_arg_t *args,
+int cl_plugin_argument_int(cl_plugin_arg_t *args,
                            const char *argument_name);
 
 /**
@@ -239,7 +229,7 @@ int cl_plugin_argument_int(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-unsigned int cl_plugin_argument_uint(const cl_plugin_arg_t *args,
+unsigned int cl_plugin_argument_uint(cl_plugin_arg_t *args,
                                      const char *argument_name);
 
 /**
@@ -251,7 +241,7 @@ unsigned int cl_plugin_argument_uint(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-short int cl_plugin_argument_sint(const cl_plugin_arg_t *args,
+short int cl_plugin_argument_sint(cl_plugin_arg_t *args,
                                   const char *argument_name);
 
 /**
@@ -263,7 +253,7 @@ short int cl_plugin_argument_sint(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-unsigned short int cl_plugin_argument_usint(const cl_plugin_arg_t *args,
+unsigned short int cl_plugin_argument_usint(cl_plugin_arg_t *args,
                                             const char *argument_name);
 
 /**
@@ -275,7 +265,7 @@ unsigned short int cl_plugin_argument_usint(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-long cl_plugin_argument_long(const cl_plugin_arg_t *args,
+long cl_plugin_argument_long(cl_plugin_arg_t *args,
                              const char *argument_name);
 
 /**
@@ -287,7 +277,7 @@ long cl_plugin_argument_long(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-unsigned long cl_plugin_argument_ulong(const cl_plugin_arg_t *args,
+unsigned long cl_plugin_argument_ulong(cl_plugin_arg_t *args,
                                        const char *argument_name);
 
 /**
@@ -299,7 +289,7 @@ unsigned long cl_plugin_argument_ulong(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-long long cl_plugin_argument_llong(const cl_plugin_arg_t *args,
+long long cl_plugin_argument_llong(cl_plugin_arg_t *args,
                                    const char *argument_name);
 
 /**
@@ -311,7 +301,7 @@ long long cl_plugin_argument_llong(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-unsigned long long cl_plugin_argument_ullong(const cl_plugin_arg_t *args,
+unsigned long long cl_plugin_argument_ullong(cl_plugin_arg_t *args,
                                              const char *argument_name);
 
 /**
@@ -323,7 +313,7 @@ unsigned long long cl_plugin_argument_ullong(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-float cl_plugin_argument_float(const cl_plugin_arg_t *args,
+float cl_plugin_argument_float(cl_plugin_arg_t *args,
                                const char *argument_name);
 
 /**
@@ -335,7 +325,7 @@ float cl_plugin_argument_float(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-double cl_plugin_argument_double(const cl_plugin_arg_t *args,
+double cl_plugin_argument_double(cl_plugin_arg_t *args,
                                  const char *argument_name);
 
 /**
@@ -347,7 +337,7 @@ double cl_plugin_argument_double(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-bool cl_plugin_argument_bool(const cl_plugin_arg_t *args,
+bool cl_plugin_argument_bool(cl_plugin_arg_t *args,
                              const char *argument_name);
 
 /**
@@ -359,7 +349,7 @@ bool cl_plugin_argument_bool(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-char *cl_plugin_argument_string(const cl_plugin_arg_t *args,
+char *cl_plugin_argument_string(cl_plugin_arg_t *args,
                                 const char *argument_name);
 
 /**
@@ -371,7 +361,7 @@ char *cl_plugin_argument_string(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-cl_string_t *cl_plugin_argument_cstring(const cl_plugin_arg_t *args,
+cl_string_t *cl_plugin_argument_cstring(cl_plugin_arg_t *args,
                                         const char *argument_name);
 
 /**
@@ -383,8 +373,32 @@ cl_string_t *cl_plugin_argument_cstring(const cl_plugin_arg_t *args,
  *
  * @return On success returns the required argument value or -1 otherwise.
  */
-int cl_plugin_argument_pointer(const cl_plugin_arg_t *args,
+int cl_plugin_argument_pointer(cl_plugin_arg_t *args,
                                const char *argument_name, void **ptr);
+
+/**
+ * @name cl_plugin_ref
+ * @brief Increases the reference count for a cl_plugin_t item.
+ *
+ * @param [in,out] object: The cl_plugin_t item.
+ *
+ * @return On success returns the item itself with its reference count
+ *         increased or NULL otherwise.
+ */
+cl_plugin_t *cl_plugin_ref(cl_plugin_t *cpl);
+
+/**
+ * @name cl_plugin_unref
+ * @brief Decreases the reference count for a cl_plugin_t item.
+ *
+ * When its reference count drops to 0, the item is finalized (its memory is
+ * freed).
+ *
+ * @param [in,out] object: The cl_plugin_t item.
+ *
+ * @return On success returns 0 or -1 otherwise.
+ */
+int cl_plugin_unref(cl_plugin_t *cpl);
 
 #endif
 

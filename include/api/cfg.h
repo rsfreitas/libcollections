@@ -96,6 +96,13 @@ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename);
 int cl_cfg_set_value(cl_cfg_file_t *file, const char *block, const char *entry,
                      const char *fmt, ...) __attribute__((format(printf, 4, 5)));
 
+/*
+ * This is just a wrapper to be used on places where variadic functions
+ * aren't supported, such as Go.
+ */
+int cl_cfg_set_value_ex(cl_cfg_file_t *file, const char *block, const char *entry,
+                        const char *content);
+
 /**
  * @name cl_cfg_block
  * @brief Search and get a pointer to a specific block from a cl_cfg_file_t
