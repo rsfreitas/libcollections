@@ -46,7 +46,7 @@ enum cl_timer_state {
     CL_TIMER_MAX_STATE
 };
 
-/** Timer informations */
+/** Timer information */
 enum cl_timer_info_field {
     CL_TIMER_INFO_NAME = 0,
     CL_TIMER_INFO_INTERVAL,
@@ -116,7 +116,7 @@ int cl_timer_unload_info(cl_timer_info_t *timer_info);
 
 /**
  * @name cl_timer_load_info
- * @brief Gets informations about a specific timer.
+ * @brief Gets information about a specific timer.
  *
  * @param [in] timer: The cl_timer_t object from the timer.
  *
@@ -127,7 +127,7 @@ cl_timer_info_t *cl_timer_load_info(const cl_timer_t *timer);
 
 /**
  * @name cl_timer_load_info_within_timer
- * @brief Gets informations about a specific timer.
+ * @brief Gets information about a specific timer.
  *
  * This function must be called inside the timer function.
  *

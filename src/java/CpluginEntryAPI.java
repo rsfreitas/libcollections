@@ -2,7 +2,7 @@
 package cplugin;
 
 /**
- * An interface to set the plugin informations, so a plugin manager
+ * An interface to set the plugin information, so a plugin manager
  * may known them.
  */
 public interface CpluginEntryAPI {

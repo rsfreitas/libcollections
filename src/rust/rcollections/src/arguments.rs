@@ -3,6 +3,8 @@
 //!
 //! API to retrieve arguments inside plugin functions.
 
+extern crate libc;
+
 // TODO: Correctly the error checking inside functions...
 
 extern {
@@ -21,6 +23,7 @@ extern {
     fn cl_plugin_argument_float(args: *const u8, argument_name: *const u8) -> f32;
     fn cl_plugin_argument_double(args: *const u8, argument_name: *const u8) -> f64;
     fn cl_plugin_argument_bool(args: *const u8, argument_name: *const u8) -> bool;
+    fn cl_plugin_argument_pointer(args: *const u8, argument_name: *const u8, out: *mut *mut libc::c_void) -> i32;
 }
 
 /// Retrieves an argument from a plugin call as an i8 type.
@@ -189,6 +192,22 @@ pub fn retrieve_bool_argument(args: *const u8, argument_name: &[u8]) -> Result<b
         }
 
         Ok(i)
+    }
+}
+
+/// Retrieves an argument from a plugin call as a pointer type.
+pub fn retrieve_pointer_argument<'a>(args: *const u8, argument_name: &[u8]) -> Result<*mut u8, i32> {
+    unsafe {
+        let mut p = 0 as *mut u8;
+
+        cl_plugin_argument_pointer(args, argument_name.as_ptr(),
+                                   (&mut p) as *mut _ as *mut *mut libc::c_void);
+
+        if cl_get_last_error() != 0 {
+            return Err(-1)
+        }
+
+        return Ok(p)
     }
 }
 

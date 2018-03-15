@@ -32,7 +32,7 @@
 #include "collections.h"
 #include "plugin.h"
 
-/* Structure to save custom plugin informations. */
+/* Structure to save custom plugin information. */
 struct elf_info {
     int     (*startup)(void);
     void    (*shutdown)(void);

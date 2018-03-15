@@ -34,7 +34,7 @@
 
 #define DEFAULT_CL_TIMER_FINISH_TIMEOUT                200 /* milliseconds */
 
-/* Structure to constant informations about a timer for the user */
+/* Structure to constant information about a timer for the user */
 #define cl_timer_info_members       \
     cl_struct_member(char **, info) \
     cl_struct_member(void *, data)
@@ -412,7 +412,7 @@ static void destroy_timer(struct cl_timer_s *timer)
 }
 
 /*
- * Sets a few internal timer informations, such as thread attributes, thread
+ * Sets a few internal timer information, such as thread attributes, thread
  * arguments and execution interval.
  */
 static void set_timer_info(struct cl_timer_s *timer, unsigned int exec_interval,
@@ -432,14 +432,14 @@ static void set_timer_info(struct cl_timer_s *timer, unsigned int exec_interval,
     /* Stores the user data to pass to the timer function. */
     timer->tid.data = arg;
 
-    /* Initialize timer informations */
+    /* Initialize timer information */
     timer->sigval.sival_ptr = &timer->tid;
     timer->evp.sigev_notify = SIGEV_THREAD;
     timer->evp.sigev_value = timer->sigval;
     timer->evp.sigev_notify_function = timer_function;
     timer->evp.sigev_notify_attributes = &timer->attr;
 
-    /* Also initialize execution timer informations */
+    /* Also initialize execution timer information */
     timer->its.it_value.tv_sec = 0;
     timer->its.it_value.tv_nsec = 0;
     timer->its.it_interval.tv_sec = exec_interval;
@@ -545,7 +545,7 @@ static int unregister_timer(void *a)
 
             /*
              * XXX: Do not return in this point because whe still need to remove
-             *      some timer informations.
+             *      some timer information.
              */
         }
     }

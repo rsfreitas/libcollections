@@ -5,4 +5,4 @@ authors = ["Rodrigo Freitas"]
 
 [dependencies]
 rustc-serialize = "0.3.22"
-
+libc = "0.2.0"

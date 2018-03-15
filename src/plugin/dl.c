@@ -1,6 +1,6 @@
 
 /*
- * Description: Functions to manipulate internal plugin informations whether
+ * Description: Functions to manipulate internal plugin information whether
  *              are they functions or data.
  *
  * Author: Rodrigo Freitas
@@ -269,7 +269,7 @@ end_block:
 }
 
 /*
- * Load informations from a plugin.
+ * Load information from a plugin.
  */
 cl_plugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle)
 {

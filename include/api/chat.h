@@ -71,7 +71,7 @@ int cl_chat_destroy(cl_chat_t *chat);
 
 /**
  * @name cl_chat_set_info
- * @brief Set up required informations before making the client/server
+ * @brief Set up required information before making the client/server
  *        connection.
  *
  * The variadic arguments changes according \a chat work mode. If it is
@@ -79,7 +79,7 @@ int cl_chat_destroy(cl_chat_t *chat);
  * port number (an int) and the IP (a char *).
  *
  * @param [in] chat: The cl_chat_t object.
- * @param [in] ...: Informations that will be assigned to the object.
+ * @param [in] ...: Information that will be assigned to the object.
  *
  * @return On success returns 0 or -1 otherwise.
  */

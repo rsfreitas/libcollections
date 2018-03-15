@@ -49,16 +49,6 @@
 /* Default number of arguments to functions that calls plugin functions */
 #define CL_PLUGIN_FOREIGN_CALL_DEF_ARGUMENTS    4
 
-/*
- * Number of informations of arguments passed by the user while calling a plugin
- * function.
- *
- *  1 - The argument name
- *  2 - The argument type
- *  3 - The argument value
- */
-#define CL_FOREIGN_CALL_USER_ARGUMENT_INFO      3
-
 enum cl_plugin_info {
     CL_PLUGIN_INFO_NAME,
     CL_PLUGIN_INFO_VERSION,
@@ -100,7 +90,7 @@ struct dl_plugin_driver {
 };
 
 /*
- * A structure to hold informations about a function argument so we use it
+ * A structure to hold information about a function argument so we use it
  * while looking for it on some platforms, such as those which have methods
  * signature.
  */

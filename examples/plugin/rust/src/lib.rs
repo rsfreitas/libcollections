@@ -7,7 +7,7 @@ use rcollections::arguments;
 
 /**
  *
- * Plugin informations...
+ * Plugin information...
  *
  */
 #[no_mangle]
@@ -126,7 +126,7 @@ pub extern "C" fn foo_args(args: *const i8) {
 //    println!("{:?}", jargs);
 //    println!("{}", jargs);
 
-    let arg1 = jargs.as_object().unwrap().get("arg1").unwrap().as_u64().unwrap();
+    let _arg1 = jargs.as_object().unwrap().get("arg1").unwrap().as_u64().unwrap();
 //    println!("{}", arg1);
 }
 
@@ -139,5 +139,15 @@ pub extern "C" fn another_outside_api(args: *const u8) -> i32 {
 
     println!("{:?}", arg1);
     return 421
+}
+
+#[no_mangle]
+pub extern "C" fn foo_pointer(args: *const u8) {
+    let ptr = match arguments::retrieve_pointer_argument(args, b"ptr") {
+        Ok(value) => value,
+        Err(_) => return,
+    };
+
+    println!("{:p}", ptr)
 }
 

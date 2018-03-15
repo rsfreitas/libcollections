@@ -47,7 +47,7 @@ class CpluginEntryAPI(object):
     """
     A class to be inherited by the mandatory plugin class named as
     'CpluginMainEntry', so that a plugin manager may get all plugin
-    informations and its API.
+    information and its API.
     """
     __metaclass__ = ABCMeta
 

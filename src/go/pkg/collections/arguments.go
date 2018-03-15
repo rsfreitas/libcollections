@@ -145,10 +145,10 @@ func (a *ClPluginArguments) String(argumentName string) (string, error) {
 	cs := C.CString(argumentName)
 	defer C.free(unsafe.Pointer(cs))
 
-	s := C.cl_plugin_argument_string(a.data.cs)
+	s := C.cl_plugin_argument_string(a.arguments, cs)
 
 	if C.cl_get_last_error() != 0 {
-		return 0, errors.New(fmt.Sprintf("error loading argument '%s'", argumentName))
+		return "", errors.New(fmt.Sprintf("error loading argument '%s'", argumentName))
 	}
 
 	defer C.free(unsafe.Pointer(s))

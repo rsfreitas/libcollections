@@ -93,7 +93,7 @@
  */
 
 /*
- * Plugin mandatory informations.
+ * Plugin mandatory information.
  */
 #define CL_PLUGIN_SET_INFO(name, version, author, description) \
     CL_PLUGIN_EXTERN_C() const char CL_PLUGIN_FNEXPORT *plugin_name(void) {\

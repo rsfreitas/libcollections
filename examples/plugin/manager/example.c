@@ -45,7 +45,7 @@ static void help(void)
     fprintf(stdout, "\nOptions:\n");
     fprintf(stdout, "  -h\t\t\tShow this help screen.\n");
     fprintf(stdout, "  -f [file name]\tIndicate the plugin to load.\n");
-    fprintf(stdout, "  -I\t\t\tOnly shows the plugin informations.\n");
+    fprintf(stdout, "  -I\t\t\tOnly shows the plugin information.\n");
     fprintf(stdout, "  -r [num. of runs]\tTell how many times the plugin "
                     "functions will run.\n");
 
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    /* Show plugin informations */
+    /* Show plugin information */
     show_plugin_info(cpl);
 
     /* XXX: call test functions */

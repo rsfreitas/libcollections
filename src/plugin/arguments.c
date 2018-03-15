@@ -72,13 +72,16 @@ static int add_argument(struct cplugin_function_s *foo, cl_object_t *argument,
 
 int arguments_parse(struct cplugin_function_s *foo, int argc, va_list ap)
 {
-    int i, arg_type;
+    int i = 0, arg_type;
     char *arg_name = NULL;
     cl_object_t *argument = NULL;
 
-    for (i = 0; i < argc; i += CL_FOREIGN_CALL_USER_ARGUMENT_INFO) {
+    while (i < argc) {
         arg_name = va_arg(ap, char *);
+        i += 1;
+
         arg_type = (enum cl_type)va_arg(ap, int);
+        i += 1;
 
         /*
          * It's important to notice here that if @arg_type is of CL_POINTER,
@@ -91,6 +94,11 @@ int arguments_parse(struct cplugin_function_s *foo, int argc, va_list ap)
         if (argument != NULL)
             if (add_argument(foo, argument, arg_name, arg_type) < 0)
                 return -1;
+
+        if (cl_object_type(argument) == CL_POINTER)
+            i += 4;
+        else
+            i += 1;
 
         cl_object_unref(argument);
     }

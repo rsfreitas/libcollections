@@ -74,7 +74,7 @@ static const char *__cdescriptions[] = {
     cl_tr_noop("Failed to load external module"),
     cl_tr_noop("Failed to unload external module"),
     cl_tr_noop("Value not found"),
-    cl_tr_noop("Plugin informations not found"),
+    cl_tr_noop("Plugin information not found"),
     cl_tr_noop("Plugin startup error"),
     cl_tr_noop("Plugin shutdown error"),
     cl_tr_noop("Failed to load python plugin"),

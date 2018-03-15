@@ -44,9 +44,9 @@ enum cl_plugin_type {
  * @name cl_plugin_load
  * @brief Loads a plugin to the memory.
  *
- * The function will load a plugin to memory, pulling informations from it. If
+ * The function will load a plugin to memory, pulling information from it. If
  * the plugin is a C or C++ plugin, it will use an internal information structure
- * to load some informations, otherwise it will use a specific plugin API (either
+ * to load some information, otherwise it will use a specific plugin API (either
  * Python or Java) to extract these.
  *
  * It will look on some default Linux path to load the plugin. But the full path
@@ -75,25 +75,25 @@ int cl_plugin_unload(cl_plugin_t *cpl);
 
 /**
  * @name cl_plugin_info
- * @brief Gets a pointer to an object representing all informations a plugin
+ * @brief Gets a pointer to an object representing all information a plugin
  *        may have.
  *
  * @param [in] cpl: The loaded plugin object.
  *
  * @return On success returns a cl_plugin_info_t object with all plugin
- *         informations or NULL otherwise.
+ *         information or NULL otherwise.
  */
 cl_plugin_info_t *cl_plugin_info(const cl_plugin_t *cpl);
 
 /**
  * @name cl_plugin_info_from_file
- * @brief Gets a pointer to an object representing all informations a plugin
+ * @brief Gets a pointer to an object representing all information a plugin
  *        may have, directly from its file, without loading it.
  *
  * @param [in] pathname: The complete path and name to the plugin.
  *
  * @return On success returns a cl_plugin_info_t object with all plugin
- *         informations or NULL otherwise.
+ *         information or NULL otherwise.
  */
 cl_plugin_info_t *cl_plugin_info_from_file(const char *pathname);
 

@@ -34,7 +34,7 @@
 #include "collections.h"
 #include "plugin.h"
 
-/* Structure to save custom plugin informations. */
+/* Structure to save custom plugin information. */
 struct py_info {
     char    *startup_name;
     char    *shutdown_name;
@@ -181,7 +181,7 @@ cl_plugin_info_t *py_load_info(void *data __attribute__((unused)), void *ptr)
     if (NULL == instance)
         return NULL;
 
-    /* Call methods from the class so we can get more informations. */
+    /* Call methods from the class so we can get more information. */
     t = sizeof(pyinfo) / sizeof(pyinfo[0]);
 
     for (i = 0; i < t; i++) {
