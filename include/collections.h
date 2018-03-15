@@ -30,7 +30,7 @@
 #ifdef LIBCOLLECTIONS_COMPILE
 # define MAJOR_VERSION          0
 # define MINOR_VERSION          0
-# define RELEASE                45
+# define RELEASE                46
 #endif
 
 #ifdef __cplusplus
@@ -45,7 +45,6 @@ extern "C" {
 #include "api/cstack.h"
 #include "api/datetime.h"
 #include "api/dir.h"
-#include "api/dll.h"
 #include "api/error.h"
 #include "api/event.h"
 #include "api/file.h"

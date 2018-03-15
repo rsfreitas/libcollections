@@ -52,6 +52,7 @@
 #include "glist.h"
 #include "random.h"
 #include "intl.h"
+#include "dll.h"
 
 #endif
 

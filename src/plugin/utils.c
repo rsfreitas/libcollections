@@ -88,6 +88,23 @@ static void release_argument(void *ptr)
     cl_object_unref(arg);
 }
 
+void destroy_cplugin_function_s_list(struct cplugin_function_s *foo)
+{
+    if (NULL == foo)
+        return;
+
+    if (foo->name != NULL)
+        free(foo->name);
+
+    if (foo->arg_types != NULL)
+        cl_list_destroy(foo->arg_types);
+
+    if (foo->arguments != NULL)
+        cl_hashtable_uninit(foo->arguments);
+
+    free(foo);
+}
+
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
     enum cl_type return_value)
 {
@@ -106,11 +123,6 @@ struct cplugin_function_s *new_cplugin_function_s(const char *name,
     f->return_value = return_value;
 
     return f;
-}
-
-void destroy_cplugin_function_s_list(struct cplugin_function_s *flist)
-{
-    cl_dll_free(flist, destroy_cplugin_function_s);
 }
 
 cplugin_s *new_cplugin_s(void)

@@ -74,8 +74,10 @@ int main(int argc, char **argv)
         cl_string_t *tmp = NULL;
         int i;
 
-        s = cl_string_create("one two three four five six seven eight nine ten");
-        l = cl_string_split(s, " ");
+        //s = cl_string_create("one two three four five six seven eight nine ten");
+        //l = cl_string_split(s, " ");
+        s = cl_string_create(":foo");
+        l = cl_string_split(s, ":");
 
         for (i = 0; i < cl_stringlist_size(l); i++) {
             tmp = cl_stringlist_get(l, i);
