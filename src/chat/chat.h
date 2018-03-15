@@ -80,7 +80,7 @@ struct cl_chat_ipc_methods_s {
     ipc_data_t                  *(*accept)(ipc_data_t *, unsigned int);
 };
 
-/* Protocol informations */
+/* Protocol information */
 struct cl_chat_driver_info_s {
     /* Configurations */
     enum cl_chat_driver         driver_id;

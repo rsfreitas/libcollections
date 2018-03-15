@@ -3,10 +3,11 @@ extern crate libc;
 extern crate rcollections;
 
 use rcollections::utils;
+use rcollections::arguments;
 
 /**
  *
- * Plugin informations...
+ * Plugin information...
  *
  */
 #[no_mangle]
@@ -22,42 +23,6 @@ pub extern "C" fn plugin_version() -> *const u8 {
 #[no_mangle]
 pub extern "C" fn plugin_author() -> *const u8 {
     "Rodrigo Freitas\0".as_ptr()
-}
-
-#[no_mangle]
-pub extern "C" fn plugin_api() -> *const u8 {
-    "{\"API\": [\
-        { \"name\": \"foo_int\", \"return_type\": \"int\" },\
-        { \"name\": \"foo_uint\", \"return_type\": \"uint\" },\
-        { \"name\": \"foo_char\", \"return_type\": \"char\" },\
-        { \"name\": \"foo_uchar\", \"return_type\": \"uchar\" },\
-        { \"name\": \"foo_sint\", \"return_type\": \"sint\" },\
-        { \"name\": \"foo_usint\", \"return_type\": \"usint\" },\
-        { \"name\": \"foo_float\", \"return_type\": \"float\" },\
-        { \"name\": \"foo_double\", \"return_type\": \"double\" },\
-        { \"name\": \"foo_long\", \"return_type\": \"long\" },\
-        { \"name\": \"foo_ulong\", \"return_type\": \"ulong\" },\
-        { \"name\": \"foo_llong\", \"return_type\": \"llong\" },\
-        { \"name\": \"foo_ullong\", \"return_type\": \"ullong\" },\
-        { \"name\": \"foo_boolean\", \"return_type\": \"boolean\" },\
-        { \"name\": \"foo_args\", \"return_type\": \"void\", \"arguments\": [\
-            { \"name\": \"arg1\", \"type\": \"int\" },\
-            { \"name\": \"arg2\", \"type\": \"uint\" },\
-            { \"name\": \"arg3\", \"type\": \"sint\" },\
-            { \"name\": \"arg4\", \"type\": \"usint\" },\
-            { \"name\": \"arg5\", \"type\": \"char\" },\
-            { \"name\": \"arg6\", \"type\": \"uchar\" },\
-            { \"name\": \"arg7\", \"type\": \"float\" },\
-            { \"name\": \"arg8\", \"type\": \"double\" },\
-            { \"name\": \"arg9\", \"type\": \"long\" },\
-            { \"name\": \"arg10\", \"type\": \"ulong\" },\
-            { \"name\": \"arg11\", \"type\": \"llong\" },\
-            { \"name\": \"arg12\", \"type\": \"ullong\" },\
-            { \"name\": \"arg13\", \"type\": \"boolean\" },\
-            { \"name\": \"arg14\", \"type\": \"string\" }\
-            ] }\
-    ]\
-    }\0".as_ptr()
 }
 
 #[no_mangle]
@@ -161,7 +126,28 @@ pub extern "C" fn foo_args(args: *const i8) {
 //    println!("{:?}", jargs);
 //    println!("{}", jargs);
 
-    let arg1 = jargs.as_object().unwrap().get("arg1").unwrap().as_u64().unwrap();
+    let _arg1 = jargs.as_object().unwrap().get("arg1").unwrap().as_u64().unwrap();
 //    println!("{}", arg1);
+}
+
+#[no_mangle]
+pub extern "C" fn another_outside_api(args: *const u8) -> i32 {
+    let arg1 = match arguments::retrieve_isize_argument(args, b"arg1") {
+        Ok(value) => value,
+        Err(_) => return -1,
+    };
+
+    println!("{:?}", arg1);
+    return 421
+}
+
+#[no_mangle]
+pub extern "C" fn foo_pointer(args: *const u8) {
+    let ptr = match arguments::retrieve_pointer_argument(args, b"ptr") {
+        Ok(value) => value,
+        Err(_) => return,
+    };
+
+    println!("{:p}", ptr)
 }
 

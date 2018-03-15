@@ -62,7 +62,7 @@ static int raw_load_from_mem(const unsigned char *buffer, cl_image_s *image)
     else {
         /*
          * We can't load a RAW image without its header, since we need to
-         * know a few informations about it.
+         * know a few information about it.
          */
         cset_errno(CL_UNSUPPORTED_RAW_IMAGE);
         return -1;
@@ -390,7 +390,7 @@ int fill_raw_image(cl_image_s *image, const unsigned char *buffer,
         offset = sizeof(struct raw_header);
         memcpy(&image->raw.hdr, buffer, sizeof(struct raw_header));
     } else {
-        /* Sets the RAW header informations */
+        /* Sets the RAW header information */
         image->raw.hdr.id = RAW_ID;
         image->raw.hdr.width = width;
         image->raw.hdr.height = height;

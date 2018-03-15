@@ -29,25 +29,6 @@
 
 #include "collections.h"
 
-#define KEY_SIZE                    16
-#define PRIME_NUMBER                131
-#define hashsize(n)                 ((unsigned short int)1 << (n))
-#define hashmask(n)                 (hashsize(n) - 1)
-
-#define mix(a, b, c)    \
-{   \
-    a -= b; a -= c; a ^= (c >> 13); \
-    b -= c; b -= a; b ^= (a << 8); \
-    c -= a; c -= b; c ^= (b >> 13); \
-    a -= b; a -= c; a ^= (c >> 12);  \
-    b -= c; b -= a; b ^= (a << 16); \
-    c -= a; c -= b; c ^= (b >> 5); \
-    a -= b; a -= c; a ^= (c >> 3);  \
-    b -= c; b -= a; b ^= (a << 10); \
-    c -= a; c -= b; c ^= (b >> 15); \
-}
-
-
 #define cl_hashtable_members                            \
     cl_struct_member(unsigned int, size)                \
     cl_struct_member(bool, replace_data)                \
@@ -259,77 +240,29 @@ static hashtable_s *new_hashtable_s(unsigned int size, bool replace_data,
     return h;
 }
 
-static unsigned short int hash16(unsigned char *k, unsigned int length,
-    unsigned int initval)
+/*
+ * Jenkins one at a time hash function.
+ */
+static unsigned short int hash(const char *key, unsigned int hashtable_size)
 {
-    unsigned int a, b, c, len;
+    unsigned int h = 0, i = 0, length;
 
-    len = length;
-    a = b = 0x9e37; /* "random" value */
-    c = initval;
+    if (NULL == key)
+        return 0;
 
-    /* Handle a part of the key */
-    while (len >= 12) {
-        a += (k[0] + ((unsigned int)k[1] << 8) + ((unsigned int)k[2] << 16) +
-                ((unsigned int)k[3] << 24));
-        b += (k[4] + ((unsigned int)k[5] << 8) + ((unsigned int)k[6] << 16) +
-                ((unsigned int)k[7] << 24));
-        c += (k[8] + ((unsigned int)k[9] << 8) + ((unsigned int)k[10] << 16) +
-                ((unsigned int)k[11] << 24));
+    length = strlen(key);
 
-        mix(a, b, c);
-        k += 12;
-        len -= 12;
+    for (i = 0; i < length; ++i) {
+        h += key[i];
+        h += (h << 10);
+        h ^= (h >> 6);
     }
 
-    /* Handle last 11 bytes */
-    c += length;
+    h += (h << 3);
+    h ^= (h >> 11);
+    h += (h << 15);
 
-    switch (len) {
-        case 11:
-            c += ((unsigned int)k[10] << 24);
-        case 10:
-            c += ((unsigned int)k[9] << 16);
-        case 9:
-            c += ((unsigned int)k[8] << 8);
-
-        /* First c byte is reserved to the length */
-
-        case 8:
-            b += ((unsigned int)k[7] << 24);
-        case 7:
-            b += ((unsigned int)k[6] << 16);
-        case 6:
-            b += ((unsigned int)k[5] << 8);
-        case 5:
-            b += k[4];
-
-        case 4:
-            a += ((unsigned int)k[3] << 24);
-        case 3:
-            a += ((unsigned int)k[2] << 16);
-        case 2:
-            a += ((unsigned int)k[1] << 8);
-        case 1:
-            a += k[0];
-    }
-
-    mix(a, b, c);
-
-    return (unsigned short int)(c & hashmask(16));
-}
-
-static int hashkey(const char *key, unsigned int hashtable_size)
-{
-    unsigned int old_hash = PRIME_NUMBER, rnd, length = KEY_SIZE;
-    size_t l_key = strlen(key);
-
-    if (l_key > KEY_SIZE)
-        length = l_key;
-
-    rnd = hash16((unsigned char *)key, length, old_hash);
-
-    return (rnd % hashtable_size);
+	return h % hashtable_size;
 }
 
 /*
@@ -398,18 +331,10 @@ __PUB_API__ void *cl_hashtable_put(cl_hashtable_t *hashtable, const char *key,
         return NULL;
     }
 
-    if (strlen(key) < KEY_SIZE) {
-        cset_errno(CL_INVALID_VALUE);
-        return NULL;
-    }
-
     h = cl_hashtable_ref(hashtable);
-    idx = hashkey(key, h->size);
+    idx = hash(key, h->size);
 
-    if (idx < 0) {
-        cset_errno(CL_INVALID_VALUE);
-        goto end_block;
-    } else if (h->table[idx] != NULL) {
+    if (h->table[idx] != NULL) {
         if (h->replace_data == false) {
             /* We don't handle collisions */
             cset_errno(CL_HASHTABLE_COLLISION);
@@ -439,23 +364,11 @@ __PUB_API__ void *cl_hashtable_get(cl_hashtable_t *hashtable, const char *key)
         return NULL;
     }
 
-    if (strlen(key) < KEY_SIZE) {
-        cset_errno(CL_INVALID_VALUE);
-        return NULL;
-    }
-
     h = cl_hashtable_ref(hashtable);
-    idx = hashkey(key, h->size);
-
-    if (idx < 0) {
-        cset_errno(CL_INVALID_VALUE);
-        goto end_block;
-    }
-
+    idx = hash(key, h->size);
     ptr = h->table[idx];
-
-end_block:
     cl_hashtable_unref(h);
+
     return ptr;
 }
 
@@ -471,25 +384,13 @@ __PUB_API__ int cl_hashtable_delete(cl_hashtable_t *hashtable, const char *key)
         return -1;
     }
 
-    if (strlen(key) < KEY_SIZE) {
-        cset_errno(CL_INVALID_VALUE);
-        return -1;
-    }
-
     h = cl_hashtable_ref(hashtable);
-    idx = hashkey(key, h->size);
-
-    if (idx < 0) {
-        cset_errno(CL_INVALID_VALUE);
-        goto end_block;
-    }
-
-    ret = 0;
+    idx = hash(key, h->size);
     h->table[idx] = NULL;
     delete_key(h, idx);
-
-end_block:
+    ret = 0;
     cl_hashtable_unref(h);
+
     return ret;
 }
 
@@ -504,11 +405,6 @@ __PUB_API__ bool cl_hashtable_contains_key(cl_hashtable_t *hashtable,
     if (NULL == key) {
         cset_errno(CL_NULL_ARG);
         return false;
-    }
-
-    if (strlen(key) < KEY_SIZE) {
-        cset_errno(CL_INVALID_VALUE);
-        return NULL;
     }
 
     h = cl_hashtable_ref(hashtable);

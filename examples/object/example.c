@@ -30,6 +30,12 @@
 
 #include <collections.h>
 
+struct ptr_data {
+    int x;
+    float p;
+    char c;
+};
+
 static void help(void)
 {
     fprintf(stdout, "Usage: value [OPTIONS]\n");
@@ -52,6 +58,7 @@ static void help(void)
     fprintf(stdout, "  -K\tUnsigned long long test.\n");
     fprintf(stdout, "  -j\tShort int test.\n");
     fprintf(stdout, "  -J\tUnsigned short int test.\n");
+    fprintf(stdout, "  -P\tPointer test\n");
     fprintf(stdout, "  -a\tAll tests.\n");
 
     fprintf(stdout, "\n");
@@ -266,15 +273,37 @@ static void do_test_ullong(void)
     cl_object_unref(v);
 }
 
+static void do_test_pointer(void)
+{
+    cl_object_t *v;
+    int size;
+    void *ptr = NULL;
+    struct ptr_data p = {
+        .x = 42,
+        .p = 3.1415,
+        .c = 'a'
+    }, *pp;
+
+    v = cl_object_create(CL_POINTER, false, &p, sizeof(struct ptr_data), NULL, NULL);
+    printf("%s: x=%d, p=%f, c=%c\n", __FUNCTION__, p.x, p.p, p.c);
+
+    cl_object_get(v, CL_OBJECT_POINTER, &ptr, &size, NULL);
+    pp = (struct ptr_data *)ptr;
+    printf("%s: x=%d, p=%f, c=%c\n", __FUNCTION__, pp->x, pp->p, pp->c);
+
+    cl_object_unref(v);
+}
+
 int main(int argc, char **argv)
 {
-    const char *opt = "hacCiIfdsSlLkKjJ";
+    const char *opt = "hacCiIfdsSlLkKjJP";
     int option;
     bool test_all = false, test_char = false, test_uchar = false,
          test_int = false, test_uint = false, test_float = false,
          test_double = false, test_string = false, test_cstring = false,
          test_long = false, test_ulong = false, test_llong = false,
-         test_ullong = false, test_sint = false, test_usint = false;
+         test_ullong = false, test_sint = false, test_usint = false,
+         test_pointer = false;
 
     do {
         option = getopt(argc, argv, opt);
@@ -344,6 +373,10 @@ int main(int argc, char **argv)
                 test_usint = true;
                 break;
 
+            case 'P':
+                test_pointer = true;
+                break;
+
             case '?':
                 return -1;
         }
@@ -392,6 +425,9 @@ int main(int argc, char **argv)
 
     if (test_all || test_usint)
         do_test_usint();
+
+    if (test_all || test_pointer)
+        do_test_pointer();
 
     cl_uninit();
 

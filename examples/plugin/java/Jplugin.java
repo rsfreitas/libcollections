@@ -166,5 +166,9 @@ public class Jplugin implements CpluginEntryAPI, CpluginModule {
         /* XXX: The arguments are in a JSON format. */
         System.out.println("Arguments: " + args);
     }
+
+    public void outside_api() {
+        System.out.println("I'm outside the API");
+    }
 }
 
