@@ -17,6 +17,7 @@ endif()
 
 if(DEBUG)
     set(CMAKE_BUILD_TYPE Debug)
+    add_definitions("-DDEBUG")
 else(DEBUG)
     set(CMAKE_BUILD_TYPE Release)
 endif(DEBUG)
@@ -64,7 +65,8 @@ else(PYPLUGIN)
 endif(PYPLUGIN)
 
 if(JAVAPLUGIN)
-    #LIBDIR += -L/usr/lib/jvm/default-java/jre/lib/$(ARCH)/server/
+    # FIXME: Change this amd64 if we're on a 32 bits machine.
+    link_directories("/usr/lib/jvm/default-java/jre/lib/amd64/server/")
     include_directories("/usr/lib/jvm/default-java/include")
     include_directories("/usr/lib/jvm/default-java/include/linux")
     add_definitions("-DPLUGIN_JAVA")
@@ -123,11 +125,12 @@ if(SHARED)
         target_link_libraries(${PROJECT_NAME} intl)
     endif()
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-                          LINK_FLAGS "-Wl,-soname,${PROJECT_NAME}.so,--version-script,${VERSION_SCRIPT}")
+    set(LIB_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${RELEASE})
+    set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${LIB_VERSION}
+        SOVERSION ${MAJOR_VERSION})
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
-                          SUFFIX .so.${MAJOR_VERSION}.${MINOR_VERSION}.${RELEASE})
+        LINK_FLAGS "-Wl,--version-script,${VERSION_SCRIPT}")
 else(SHARED)
     add_library(${PROJECT_NAME} STATIC ${SOURCE})
 endif(SHARED)
@@ -135,11 +138,4 @@ endif(SHARED)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${DESTINATION_BIN_DIR})
 install(FILES ${LIBRARY_HEADER} DESTINATION ${DESTINATION_HEADER_DIR}/${PROJECT_NAME})
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/api DESTINATION ${DESTINATION_HEADER_DIR}/${PROJECT_NAME})
-
-# If we're dealing with a shared version, we create its symbolic link
-if(SHARED)
-    set(RELEASE_NAME lib${PROJECT_NAME}.so.${MAJOR_VERSION}.${MINOR_VERSION}.${RELEASE})
-    set(LINK_NAME lib${PROJECT_NAME}.so)
-    install(CODE "execute_process(COMMAND ln -sf ${DESTINATION_BIN_DIR}/${RELEASE_NAME} ${DESTINATION_BIN_DIR}/${LINK_NAME})")
-endif(SHARED)
 

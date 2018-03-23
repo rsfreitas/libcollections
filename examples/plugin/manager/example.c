@@ -275,15 +275,21 @@ int main(int argc, char **argv)
         cl_object_unref(ret);
     }
 
-    struct test_ptr pp = {
-        .x = 1000,
-        .y = 42,
-        .z = 99,
-    };
+    struct test_ptr *pp = calloc(1, sizeof(struct test_ptr));
+    pp->x = 1000;
+    pp->y = 42;
+    pp->z = 99;
 
-    printf("Address in the manager: %p\n", &pp);
+    printf("Address in the manager: %p\n", pp);
     ret = cl_plugin_call(cpl, "foo_pointer", CL_VOID,
-                         "ptr", CL_POINTER, false, &pp, sizeof(struct test_ptr), NULL, NULL);
+                         "ptr", CL_POINTER, false, pp, sizeof(struct test_ptr), NULL,
+                         "ptr1", CL_POINTER, false, pp, sizeof(struct test_ptr), NULL,
+                         "ptr2", CL_POINTER, false, pp, sizeof(struct test_ptr), NULL,
+                         "ptr3", CL_POINTER, false, pp, sizeof(struct test_ptr), NULL,
+                         "ptr4", CL_POINTER, false, pp, sizeof(struct test_ptr), NULL,
+                         "ptr5", CL_POINTER, false, pp, sizeof(struct test_ptr), NULL,
+                         "ptr6", CL_POINTER, false, pp, sizeof(struct test_ptr), NULL,
+                         NULL);
 
     if (NULL == ret) {
         printf("another outside call foo_pointer: %s\n",
@@ -294,7 +300,10 @@ int main(int argc, char **argv)
     }
 
     cl_plugin_unload(cpl);
+    printf("%s: x=%d, y=%d, z=%d\n", __FUNCTION__,
+            pp->x, pp->y, pp->z);
 
+    free(pp);
     if (filename != NULL)
         free(filename);
 

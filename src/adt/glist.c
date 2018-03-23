@@ -527,6 +527,7 @@ int cglist_delete(void *list, enum cl_object object, void *data)
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
+    int ret = 1; // Element not found
 
     __clib_function_init__(true, list, object, -1);
 
@@ -545,11 +546,14 @@ int cglist_delete(void *list, enum cl_object object, void *data)
          */
         destroy_node(node, true);
         l->size--;
+
+        /* And since we removed it, notify the caller about it */
+        ret = 0;
     }
 
     pthread_mutex_unlock(&l->lock);
 
-    return 0;
+    return ret;
 }
 
 int cglist_delete_indexed(void *list, enum cl_object object,
@@ -557,6 +561,7 @@ int cglist_delete_indexed(void *list, enum cl_object object,
 {
     glist_s *l = (glist_s *)list;
     struct gnode_s *node = NULL;
+    int ret = 1; // Element not found
 
     __clib_function_init__(true, list, object, -1);
 
@@ -570,11 +575,14 @@ int cglist_delete_indexed(void *list, enum cl_object object,
          */
         destroy_node(node, true);
         l->size--;
+
+        /* And since we removed it, notify the caller about it */
+        ret = 0;
     }
 
     pthread_mutex_unlock(&l->lock);
 
-    return 0;
+    return ret;
 }
 
 void *cglist_move(void *list, enum cl_object object)

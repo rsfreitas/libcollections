@@ -2,6 +2,7 @@
 name = "rust"
 version = "0.1.0"
 authors = ["Rodrigo Freitas"]
+build = "build.rs"
 
 [lib]
 name = "rplugin"
@@ -10,3 +11,6 @@ crate-type = ["dylib"]
 [dependencies]
 rcollections = { path = "../../../src/rust/rcollections", version = "0.1" }
 libc = "0.2.0"
+
+[build-dependencies]
+cc = "1.0"

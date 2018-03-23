@@ -5,6 +5,10 @@ extern crate rcollections;
 use rcollections::utils;
 use rcollections::arguments;
 
+extern {
+    fn rust_call(ptr: *const u8);
+}
+
 /**
  *
  * Plugin information...
@@ -141,13 +145,30 @@ pub extern "C" fn another_outside_api(args: *const u8) -> i32 {
     return 421
 }
 
+struct Test {
+    data: *const u8,
+}
+
+impl Test {
+    fn call(&self) {
+        unsafe {
+            rust_call(self.data);
+        }
+    }
+
+    fn new(args: *const u8) -> Result<Test, i32> {
+        let ptr = match arguments::retrieve_pointer_argument(args, b"ptr") {
+            Ok(value) => value,
+            Err(_) => return Err(-1),
+        };
+
+        Ok(Test{ data: ptr })
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn foo_pointer(args: *const u8) {
-    let ptr = match arguments::retrieve_pointer_argument(args, b"ptr") {
-        Ok(value) => value,
-        Err(_) => return,
-    };
-
-    println!("{:p}", ptr)
+    let t = Test::new(args).unwrap();
+    t.call()
 }
 

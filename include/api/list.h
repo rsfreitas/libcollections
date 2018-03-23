@@ -311,7 +311,8 @@ cl_list_node_t *cl_list_at(const cl_list_t *list, unsigned int index);
  * @param [in,out] list: The list object.
  * @param [in] data: Some custom data passed to the filter function.
  *
- * @return On success returns 0 or -1 otherwise.
+ * @return On success returns 0 if the element was deleted or 1 otherwise.
+ *         Return -1 on error.
  */
 int cl_list_delete(cl_list_t *list, void *data);
 
@@ -322,7 +323,8 @@ int cl_list_delete(cl_list_t *list, void *data);
  * @param [in,out] list: The list object.
  * @param [in] index: The element position on the list.
  *
- * @return On success returns 0 or -1 otherwise.
+ * @return On success returns 0 if the element was deleted or 1 otherwise.
+ *         Return -1 on error.
  */
 int cl_list_delete_indexed(cl_list_t *list, unsigned int index);
 

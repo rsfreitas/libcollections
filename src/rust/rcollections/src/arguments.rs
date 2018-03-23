@@ -5,10 +5,12 @@
 
 extern crate libc;
 
-// TODO: Correctly the error checking inside functions...
+use std::ffi::CStr;
+use std::ffi::CString;
+use std::os::raw::c_char;
 
 extern {
-    // libcollection function's
+    // libcollection's function
     fn cl_get_last_error() -> i32;
     fn cl_plugin_argument_char(args: *const u8, argument_name: *const u8) -> i8;
     fn cl_plugin_argument_uchar(args: *const u8, argument_name: *const u8) -> u8;
@@ -24,6 +26,7 @@ extern {
     fn cl_plugin_argument_double(args: *const u8, argument_name: *const u8) -> f64;
     fn cl_plugin_argument_bool(args: *const u8, argument_name: *const u8) -> bool;
     fn cl_plugin_argument_pointer(args: *const u8, argument_name: *const u8, out: *mut *mut libc::c_void) -> i32;
+    fn cl_plugin_argument_string(args: *const u8, argument_name: *const c_char) -> *mut c_char;
 }
 
 /// Retrieves an argument from a plugin call as an i8 type.
@@ -196,7 +199,7 @@ pub fn retrieve_bool_argument(args: *const u8, argument_name: &[u8]) -> Result<b
 }
 
 /// Retrieves an argument from a plugin call as a pointer type.
-pub fn retrieve_pointer_argument<'a>(args: *const u8, argument_name: &[u8]) -> Result<*mut u8, i32> {
+pub fn retrieve_pointer_argument(args: *const u8, argument_name: &[u8]) -> Result<*const u8, i32> {
     unsafe {
         let mut p = 0 as *mut u8;
 
@@ -208,6 +211,20 @@ pub fn retrieve_pointer_argument<'a>(args: *const u8, argument_name: &[u8]) -> R
         }
 
         return Ok(p)
+    }
+}
+
+/// Retrieves an argument from a plugin call as a string.
+pub fn retrieve_pointer_str(args: *const u8, argument_name: &str) -> Result<&str, i32> {
+    let aname = CString::new(argument_name).unwrap();
+    let p = unsafe {
+        let s = cl_plugin_argument_string(args, aname.as_ptr());
+        CStr::from_ptr(s)
+    };
+
+    match p.to_str() {
+        Ok(value) => Ok(value),
+        Err(_) => Err(-1),
     }
 }
 
