@@ -53,6 +53,12 @@
  */
 
 /*
+ * The arguments variable name to be accessed inside exported plugin functions.
+ */
+#define CL_PLUGIN_ARGUMENT              \
+    args
+
+/*
  * Macro to make the call to an exported plugin function, so the correct
  * number of arguments is passed to the @argc argument from 'cl_plugin_call_ex'
  * function.
@@ -65,7 +71,7 @@
  * Macro to define exported plugin functions:
  */
 #define CL_PLUGIN_FUNCTION(return_type, name)       \
-    CL_PLUGIN_EXTERN_C() return_type CL_PLUGIN_FNEXPORT name(void *args)
+    CL_PLUGIN_EXTERN_C() return_type CL_PLUGIN_FNEXPORT name(void *CL_PLUGIN_ARGUMENT)
 
 /**
  * Macros to mandatory plugin functions.

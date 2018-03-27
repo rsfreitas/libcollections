@@ -42,6 +42,10 @@
 *.jpg
 *.tar
 *.json
-rust/rcollections/Cargo.lock
 bin/
 build/
+
+# Rust files
+Cargo.lock
+src/rust/rcollections/target
+examples/plugin/rust/target
