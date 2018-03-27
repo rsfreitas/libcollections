@@ -4,6 +4,7 @@ extern crate rcollections;
 
 use rcollections::utils;
 use rcollections::arguments;
+use rcollections::c_void;
 
 extern {
     fn rust_call(ptr: *const u8);
@@ -135,8 +136,8 @@ pub extern "C" fn foo_args(args: *const i8) {
 }
 
 #[no_mangle]
-pub extern "C" fn another_outside_api(args: *const u8) -> i32 {
-    let arg1 = match arguments::retrieve_isize_argument(args, b"arg1") {
+pub extern "C" fn another_outside_api(args: *const c_void) -> i32 {
+    let arg1 = match arguments::retrieve_isize_argument(args, "arg1") {
         Ok(value) => value,
         Err(_) => return -1,
     };
@@ -156,8 +157,8 @@ impl Test {
         }
     }
 
-    fn new(args: *const u8) -> Result<Test, i32> {
-        let ptr = match arguments::retrieve_pointer_argument(args, b"ptr") {
+    fn new(args: *const c_void) -> Result<Test, i32> {
+        let ptr = match arguments::retrieve_pointer_argument(args, "ptr") {
             Ok(value) => value,
             Err(_) => return Err(-1),
         };
@@ -167,7 +168,7 @@ impl Test {
 }
 
 #[no_mangle]
-pub extern "C" fn foo_pointer(args: *const u8) {
+pub extern "C" fn foo_pointer(args: *const c_void) {
     let t = Test::new(args).unwrap();
     t.call()
 }
