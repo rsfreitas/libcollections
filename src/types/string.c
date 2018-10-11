@@ -724,7 +724,7 @@ static char *token_strcpy(const char *string, char token)
 /*
  * Extracts substrings around matches of given tokens.  It separates the
  * original string from a series of tokens. Instead of strtok C function,
- * this one does not changes the original string.
+ * this one does not change the original string.
  *
  * @param [in] string: Original string.
  * @param [in] delim: String containing token list of chars.

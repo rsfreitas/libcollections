@@ -25,3 +25,11 @@ pub fn retrieve_c_arguments_as_json(args: *const i8) -> Result<Json, i32> {
     }
 }
 
+/// Converts a Rust string into a rustc-serialize Json object.
+pub fn retrieve_argument_as_json(args: &str) -> Result<Json, i32> {
+    match Json::from_str(args) {
+        Ok(value) => Ok(value),
+        Err(_) => Err(-1),
+    }
+}
+
