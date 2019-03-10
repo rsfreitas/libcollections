@@ -26,7 +26,13 @@
 
 #include "collections.h"
 
-__PUB_API__ inline void cl_ref_inc(const struct cl_ref_s *ref)
+/*
+ *
+ * API
+ *
+ */
+
+inline void cl_ref_inc(const struct cl_ref_s *ref)
 {
     if (NULL == ref)
         return;
@@ -34,7 +40,7 @@ __PUB_API__ inline void cl_ref_inc(const struct cl_ref_s *ref)
     __sync_add_and_fetch((int *)&ref->count, 1);
 }
 
-__PUB_API__ inline void cl_ref_dec(const struct cl_ref_s *ref)
+inline void cl_ref_dec(const struct cl_ref_s *ref)
 {
     if (NULL == ref)
         return;
@@ -43,7 +49,7 @@ __PUB_API__ inline void cl_ref_dec(const struct cl_ref_s *ref)
         (ref->free)(ref);
 }
 
-__PUB_API__ inline bool cl_ref_bool_compare(const struct cl_ref_s *ref, int old,
+inline bool cl_ref_bool_compare(const struct cl_ref_s *ref, int old,
     int new)
 {
     return __sync_bool_compare_and_swap((int *)&ref->count, old, new);

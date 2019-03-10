@@ -28,6 +28,12 @@
 
 #include "collections.h"
 
+/*
+ *
+ * API
+ *
+ */
+
 unsigned int cl_cseed(void)
 {
     FILE *f;
@@ -52,7 +58,7 @@ unsigned int cl_cseed(void)
     return strtol(tmp, NULL, 16);
 }
 
-__PUB_API__ unsigned int cl_seed(void)
+unsigned int cl_seed(void)
 {
     unsigned int x = 0;
 
@@ -67,7 +73,7 @@ __PUB_API__ unsigned int cl_seed(void)
     return x;
 }
 
-__PUB_API__ unsigned int cl_rand(unsigned int random_max)
+unsigned int cl_rand(unsigned int random_max)
 {
     unsigned int num_bins, num_rand, bin_size, defect, x;
 

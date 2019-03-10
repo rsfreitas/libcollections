@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <libgen.h>
 
 #include <magic.h>
 #include <pthread.h>
@@ -61,6 +62,12 @@ static struct cl_data __cl_data = {
     .package = NULL,
     .locale_dir = NULL,
 };
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static bool load_arg_as_json_string(const char *data)
 {
@@ -93,18 +100,11 @@ static bool load_arg_as_file(const char *pathname)
 
 static char *get_program_name(void)
 {
-    char *tmp, *bname, *real_name;
+    char *n = NULL;
 
-    tmp = strdup(program_invocation_name);
-    bname = basename(tmp);
+    n = (char *)getprogname();
 
-    while (!(isalpha(*bname)))
-        bname++;
-
-    real_name = strdup(bname);
-    free(tmp);
-
-    return real_name;
+    return (n != NULL) ? strdup(n) : NULL;
 }
 
 #define get_configuration(object) \
@@ -211,26 +211,9 @@ static int __init(const char *arg)
     return 0;
 }
 
-__PUB_API__ int cl_init(const char *arg)
-{
-    int old = 0, new = 1, ret = 0;
-
-    if (cl_ref_bool_compare(&__cl_data.ref, old, new) == true)
-        ret = __init(arg);
-    else
-        cl_ref_inc(&__cl_data.ref);
-
-    return ret;
-}
-
-__PUB_API__ void cl_uninit(void)
-{
-    cl_ref_dec(&__cl_data.ref);
-}
-
 /*
  *
- * Internal library API to access configuration or status.
+ * Internal API
  *
  */
 
@@ -238,6 +221,7 @@ __PUB_API__ void cl_uninit(void)
  * We need to call this function inside every exported function from the
  * library to make sure that the library was initialized before.
  */
+CL_INTERNAL_API
 bool library_initialized(void)
 {
     if (__cl_data.initialized == false) {
@@ -250,6 +234,7 @@ bool library_initialized(void)
 }
 
 /* TODO: Remove this? */
+CL_INTERNAL_API
 char *library_file_mime_type(const char *filename)
 {
     char *ptr = NULL;
@@ -262,6 +247,7 @@ char *library_file_mime_type(const char *filename)
 }
 
 /* TODO: Remove this? */
+CL_INTERNAL_API
 char *library_buffer_mime_type(const unsigned char *buffer,
     unsigned int size)
 {
@@ -275,24 +261,51 @@ char *library_buffer_mime_type(const unsigned char *buffer,
 }
 
 #ifdef GNU_LINUX
+CL_INTERNAL_API
 struct random_data *library_random_data(void)
 {
     return &__cl_data.rd_data;
 }
 #endif
 
+CL_INTERNAL_API
 const char *library_package_name(void)
 {
     return __cl_data.package;
 }
 
+CL_INTERNAL_API
 const char *library_locale_dir(void)
 {
     return __cl_data.locale_dir;
 }
 
+CL_INTERNAL_API
 cl_json_t *library_configuration(void)
 {
     return __cl_data.cfg;
+}
+
+/*
+ *
+ * API
+ *
+ */
+
+int cl_init(const char *arg)
+{
+    int old = 0, new = 1, ret = 0;
+
+    if (cl_ref_bool_compare(&__cl_data.ref, old, new) == true)
+        ret = __init(arg);
+    else
+        cl_ref_inc(&__cl_data.ref);
+
+    return ret;
+}
+
+void cl_uninit(void)
+{
+    cl_ref_dec(&__cl_data.ref);
 }
 

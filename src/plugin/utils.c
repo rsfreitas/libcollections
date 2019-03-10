@@ -30,6 +30,39 @@
 #include "collections.h"
 #include "plugin.h"
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
+static void unref_arg_type(void *ptr)
+{
+    struct cl_arg_type *arg = (struct cl_arg_type *)ptr;
+
+    if (NULL == arg)
+        return;
+
+    cl_ref_dec(&arg->ref);
+}
+
+static void release_argument(void *ptr)
+{
+    cl_object_t *arg = (cl_object_t *)ptr;
+
+    if (NULL == ptr)
+        return;
+
+    cl_object_unref(arg);
+}
+
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
 void destroy_arg_type(const struct cl_ref_s *ref)
 {
     struct cl_arg_type *arg = cl_container_of(ref, struct cl_arg_type, ref);
@@ -40,6 +73,7 @@ void destroy_arg_type(const struct cl_ref_s *ref)
     free(arg);
 }
 
+CL_INTERNAL_API
 struct cl_arg_type *new_arg_type(enum cl_type type)
 {
     struct cl_arg_type *arg = NULL;
@@ -56,16 +90,7 @@ struct cl_arg_type *new_arg_type(enum cl_type type)
     return arg;
 }
 
-static void unref_arg_type(void *ptr)
-{
-    struct cl_arg_type *arg = (struct cl_arg_type *)ptr;
-
-    if (NULL == arg)
-        return;
-
-    cl_ref_dec(&arg->ref);
-}
-
+CL_INTERNAL_API
 void destroy_cplugin_function_s(void *a)
 {
     struct cplugin_function_s *f = (struct cplugin_function_s *)a;
@@ -78,16 +103,7 @@ void destroy_cplugin_function_s(void *a)
     free(f);
 }
 
-static void release_argument(void *ptr)
-{
-    cl_object_t *arg = (cl_object_t *)ptr;
-
-    if (NULL == ptr)
-        return;
-
-    cl_object_unref(arg);
-}
-
+CL_INTERNAL_API
 void destroy_cplugin_function_s_list(struct cplugin_function_s *foo)
 {
     if (NULL == foo)
@@ -105,6 +121,7 @@ void destroy_cplugin_function_s_list(struct cplugin_function_s *foo)
     free(foo);
 }
 
+CL_INTERNAL_API
 struct cplugin_function_s *new_cplugin_function_s(const char *name,
     enum cl_type return_value)
 {
@@ -125,6 +142,7 @@ struct cplugin_function_s *new_cplugin_function_s(const char *name,
     return f;
 }
 
+CL_INTERNAL_API
 cplugin_s *new_cplugin_s(void)
 {
     cplugin_s *p = NULL;
@@ -141,6 +159,7 @@ cplugin_s *new_cplugin_s(void)
     return p;
 }
 
+CL_INTERNAL_API
 int destroy_cplugin_s(cplugin_s *cpl)
 {
     if (NULL == cpl) {

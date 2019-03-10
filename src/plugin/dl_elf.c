@@ -62,6 +62,12 @@ typedef void *(*elf_p_ptr)(void *);
 typedef bool (*elf_b_ptr)(void *);
 
 /*
+ *
+ * Internal functions
+ *
+ */
+
+/*
  * Sets the startup and shutdown function pointers to the real functions
  * inside the plugin ELF. If they're not found, they become NULL and we
  * ignore them later.
@@ -96,82 +102,6 @@ static void release_custom_plugin_info(struct elf_info *info)
         return;
 
     free(info);
-}
-
-/*
- *
- * Plugin Driver API
- *
- */
-
-void *elf_library_init(void)
-{
-    /* noop */
-    return NULL;
-}
-
-void elf_library_uninit(void *data __attribute__((unused)))
-{
-    /* noop */
-}
-
-cl_plugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
-{
-    elf_plugin_info foo;
-    cl_plugin_info_t *info = NULL;
-    int i, t;
-    struct plugin_internal_function functions[] = {
-        { "plugin_name",        NULL },
-        { "plugin_version",     NULL },
-        { "plugin_author",      NULL },
-        { "plugin_description", NULL }
-    };
-
-    t = sizeof(functions) / sizeof(functions[0]);
-
-    for (i = 0; i < t; i++) {
-        dlerror();
-        foo = dlsym(handle, functions[i].name);
-
-        if (dlerror() != NULL)
-            return NULL;
-
-        functions[i].return_value = strdup((char *)foo());
-    }
-
-    info = info_create_from_data(functions[0].return_value,
-                                 functions[1].return_value,
-                                 functions[2].return_value,
-                                 functions[3].return_value);
-
-    if (info != NULL)
-        set_custom_plugin_info(info, handle);
-
-    for (i = 0; i < t; i++)
-        free(functions[i].return_value);
-
-    return info;
-}
-
-void *elf_open(void *data __attribute__((unused)), const char *pathname)
-{
-#ifdef DEBUG
-    void *p;
-
-    p = dlopen(pathname, RTLD_LAZY);
-
-    if (NULL == p)
-        printf("%s: %s\n", __FUNCTION__, dlerror());
-
-    return p;
-#else
-    return dlopen(pathname, RTLD_LAZY);
-#endif
-}
-
-int elf_close(void *data __attribute__((unused)), void *handle)
-{
-    return dlclose(handle);
 }
 
 static void elf_call_v(struct cplugin_function_s *foo)
@@ -347,6 +277,94 @@ static void *elf_call_p(struct cplugin_function_s *foo)
     return ptr;
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+/*
+ *
+ * Plugin Driver API
+ *
+ */
+
+CL_INTERNAL_API
+void *elf_library_init(void)
+{
+    /* noop */
+    return NULL;
+}
+
+CL_INTERNAL_API
+void elf_library_uninit(void *data __attribute__((unused)))
+{
+    /* noop */
+}
+
+CL_INTERNAL_API
+cl_plugin_info_t *elf_load_info(void *data __attribute__((unused)), void *handle)
+{
+    elf_plugin_info foo;
+    cl_plugin_info_t *info = NULL;
+    int i, t;
+    struct plugin_internal_function functions[] = {
+        { "plugin_name",        NULL },
+        { "plugin_version",     NULL },
+        { "plugin_author",      NULL },
+        { "plugin_description", NULL }
+    };
+
+    t = sizeof(functions) / sizeof(functions[0]);
+
+    for (i = 0; i < t; i++) {
+        dlerror();
+        foo = dlsym(handle, functions[i].name);
+
+        if (dlerror() != NULL)
+            return NULL;
+
+        functions[i].return_value = strdup((char *)foo());
+    }
+
+    info = info_create_from_data(functions[0].return_value,
+                                 functions[1].return_value,
+                                 functions[2].return_value,
+                                 functions[3].return_value);
+
+    if (info != NULL)
+        set_custom_plugin_info(info, handle);
+
+    for (i = 0; i < t; i++)
+        free(functions[i].return_value);
+
+    return info;
+}
+
+CL_INTERNAL_API
+void *elf_open(void *data __attribute__((unused)), const char *pathname)
+{
+#ifdef DEBUG
+    void *p;
+
+    p = dlopen(pathname, RTLD_LAZY);
+
+    if (NULL == p)
+        printf("%s: %s\n", __FUNCTION__, dlerror());
+
+    return p;
+#else
+    return dlopen(pathname, RTLD_LAZY);
+#endif
+}
+
+CL_INTERNAL_API
+int elf_close(void *data __attribute__((unused)), void *handle)
+{
+    return dlclose(handle);
+}
+
+CL_INTERNAL_API
 cl_object_t *elf_call(void *data __attribute__((unused)),
     struct cplugin_function_s *foo, cl_plugin_t *cpl __attribute__((unused)))
 {
@@ -361,88 +379,89 @@ cl_object_t *elf_call(void *data __attribute__((unused)),
     ret = cl_object_create_empty(foo->return_value);
 
     switch (foo->return_value) {
-        case CL_VOID:
-            elf_call_v(foo);
-            break;
+    case CL_VOID:
+        elf_call_v(foo);
+        break;
 
-        case CL_CHAR:
-            cl_object_set_char(ret, elf_call_c(foo));
-            break;
+    case CL_CHAR:
+        cl_object_set_char(ret, elf_call_c(foo));
+        break;
 
-        case CL_UCHAR:
-            cl_object_set_uchar(ret, elf_call_uc(foo));
-            break;
+    case CL_UCHAR:
+        cl_object_set_uchar(ret, elf_call_uc(foo));
+        break;
 
-        case CL_INT:
-            cl_object_set_int(ret, elf_call_i(foo));
-            break;
+    case CL_INT:
+        cl_object_set_int(ret, elf_call_i(foo));
+        break;
 
-        case CL_UINT:
-            cl_object_set_uint(ret, elf_call_ui(foo));
-            break;
+    case CL_UINT:
+        cl_object_set_uint(ret, elf_call_ui(foo));
+        break;
 
-        case CL_SINT:
-            cl_object_set_sint(ret, elf_call_si(foo));
-            break;
+    case CL_SINT:
+        cl_object_set_sint(ret, elf_call_si(foo));
+        break;
 
-        case CL_USINT:
-            cl_object_set_usint(ret, elf_call_usi(foo));
-            break;
+    case CL_USINT:
+        cl_object_set_usint(ret, elf_call_usi(foo));
+        break;
 
-        case CL_FLOAT:
-            cl_object_set_float(ret, elf_call_f(foo));
-            break;
+    case CL_FLOAT:
+        cl_object_set_float(ret, elf_call_f(foo));
+        break;
 
-        case CL_DOUBLE:
-            cl_object_set_double(ret, elf_call_d(foo));
-            break;
+    case CL_DOUBLE:
+        cl_object_set_double(ret, elf_call_d(foo));
+        break;
 
-        case CL_LONG:
-            cl_object_set_long(ret, elf_call_l(foo));
-            break;
+    case CL_LONG:
+        cl_object_set_long(ret, elf_call_l(foo));
+        break;
 
-        case CL_ULONG:
-            cl_object_set_ulong(ret, elf_call_ul(foo));
-            break;
+    case CL_ULONG:
+        cl_object_set_ulong(ret, elf_call_ul(foo));
+        break;
 
-        case CL_LLONG:
-            cl_object_set_llong(ret, elf_call_ll(foo));
-            break;
+    case CL_LLONG:
+        cl_object_set_llong(ret, elf_call_ll(foo));
+        break;
 
-        case CL_ULLONG:
-            cl_object_set_ullong(ret, elf_call_ull(foo));
-            break;
+    case CL_ULLONG:
+        cl_object_set_ullong(ret, elf_call_ull(foo));
+        break;
 
-        case CL_POINTER:
-            ptr = elf_call_p(foo);
-            cl_object_set(ret, false, ptr, -1, NULL, NULL);
-            break;
+    case CL_POINTER:
+        ptr = elf_call_p(foo);
+        cl_object_set(ret, false, ptr, -1, NULL, NULL);
+        break;
 
-        case CL_STRING:
-            tmp = elf_call_cp(foo);
+    case CL_STRING:
+        tmp = elf_call_cp(foo);
 
-            if (tmp != NULL) {
-                cl_object_set_string(ret, tmp);
-                free(tmp);
-            } else {
-                /* We must destroy the object and return NULL to the caller */
-                cl_object_destroy(ret);
-                ret = NULL;
-            }
+        if (tmp != NULL) {
+            cl_object_set_string(ret, tmp);
+            free(tmp);
+        } else {
+            /* We must destroy the object and return NULL to the caller */
+            cl_object_destroy(ret);
+            ret = NULL;
+        }
 
-            break;
+        break;
 
-        case CL_BOOLEAN:
-            cl_object_set_boolean(ret, elf_call_b(foo));
-            break;
+    case CL_BOOLEAN:
+        cl_object_set_boolean(ret, elf_call_b(foo));
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return ret;
 }
 
+CL_INTERNAL_API
 int elf_plugin_startup(void *data __attribute__((unused)),
     void *handle __attribute__((unused)), cl_plugin_info_t *info)
 {
@@ -463,6 +482,7 @@ int elf_plugin_startup(void *data __attribute__((unused)),
     return 0;
 }
 
+CL_INTERNAL_API
 int elf_plugin_shutdown(void *data __attribute__((unused)),
     void *handle __attribute__((unused)), cl_plugin_info_t *info)
 {
@@ -485,6 +505,7 @@ int elf_plugin_shutdown(void *data __attribute__((unused)),
     return 0;
 }
 
+CL_INTERNAL_API
 bool elf_plugin_test(const cl_string_t *mime)
 {
     cl_string_t *p = NULL;
@@ -500,6 +521,7 @@ bool elf_plugin_test(const cl_string_t *mime)
     return ret;
 }
 
+CL_INTERNAL_API
 int elf_load_function(void *data __attribute__((unused)), void *handle,
     struct cplugin_function_s *foo)
 {

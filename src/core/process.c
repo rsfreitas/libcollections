@@ -34,8 +34,15 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
+#include <libgen.h>
 
 #include "collections.h"
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static int get_maxfd(void)
 {
@@ -64,27 +71,6 @@ static void close_all_opened_files(void)
         close(fd);
 }
 
-__PUB_API__ void cl_daemon_start(void)
-{
-    __clib_function_init_ex2__(false, NULL, -1);
-
-    if (fork())
-        exit(0);
-
-    setsid();
-
-    if (fork())
-        exit(0);
-
-    chdir("/");
-    umask(0);
-    close_all_opened_files();
-
-    open("/dev/null", 0);
-    dup(0);
-    dup(0);
-}
-
 static char **cvt_cmd(const char *cmd)
 {
     cl_string_t *s = NULL, *ref;
@@ -108,80 +94,6 @@ static char **cvt_cmd(const char *cmd)
     cl_stringlist_destroy(l);
 
     return app_argv;
-}
-
-/*
- * TODO: Needs to handle a pipe between commands.
- */
-__PUB_API__ int cl_system(bool close_parent_files, const char *fmt, ...)
-{
-    pid_t p;
-    int child_status, i;
-    char *cmd = NULL, **argv;
-    va_list ap;
-
-    __clib_function_init__(false, NULL, -1, -1);
-    p = fork();
-
-    if (p < 0) {
-        cset_errno(CL_FORK_FAILED);
-        return -1;
-    } else if (p == 0) {
-        if (close_parent_files == true)
-            close_all_opened_files();
-
-        va_start(ap, fmt);
-        vasprintf(&cmd, fmt, ap);
-        va_end(ap);
-
-        argv = cvt_cmd(cmd);
-        free(cmd);
-
-        execvp(argv[0], argv);
-
-        for (i = 0; argv[i] != NULL; i++)
-            free(argv[i]);
-
-        free(argv);
-        _exit(0);
-    } else {
-        waitpid(p, &child_status, WUNTRACED);
-        return child_status;
-    }
-
-    return 0;
-}
-
-__PUB_API__ void cl_msleep(long mseconds)
-{
-    struct timespec tv;
-
-    __clib_function_init_ex2__(false, NULL, -1);
-
-    tv.tv_sec = (time_t)mseconds / 1000;
-    tv.tv_nsec = (long)(mseconds % 1000) * 1000000;
-
-    nanosleep(&tv,&tv);
-}
-
-__PUB_API__ int cl_trap(int signum, void (*f)(int))
-{
-    struct sigaction s;
-
-    /*
-     * TODO: Save oldact for user somehow.
-     *       Validate signumber.
-     */
-
-    __clib_function_init__(false, NULL, -1, -1);
-
-    memset(&s, 0, sizeof(struct sigaction));
-    s.sa_handler = (f != NULL) ? f : SIG_IGN;
-
-    if (sigaction(signum, &s, NULL) != 0)
-        return -1;
-
-    return 0;
 }
 
 /*
@@ -291,7 +203,108 @@ static char *instance_name(pid_t pid)
     return app_name;
 }
 
-__PUB_API__ bool cl_instance_active(const char *filename, const char *instance)
+/*
+ *
+ * API
+ *
+ */
+
+void cl_daemon_start(void)
+{
+    __clib_function_init_ex2__(false, NULL, -1);
+
+    if (fork())
+        exit(0);
+
+    setsid();
+
+    if (fork())
+        exit(0);
+
+    chdir("/");
+    umask(0);
+    close_all_opened_files();
+
+    open("/dev/null", 0);
+    dup(0);
+    dup(0);
+}
+
+/*
+ * TODO: Needs to handle a pipe between commands.
+ */
+int cl_system(bool close_parent_files, const char *fmt, ...)
+{
+    pid_t p;
+    int child_status, i;
+    char *cmd = NULL, **argv;
+    va_list ap;
+
+    __clib_function_init__(false, NULL, -1, -1);
+    p = fork();
+
+    if (p < 0) {
+        cset_errno(CL_FORK_FAILED);
+        return -1;
+    } else if (p == 0) {
+        if (close_parent_files == true)
+            close_all_opened_files();
+
+        va_start(ap, fmt);
+        vasprintf(&cmd, fmt, ap);
+        va_end(ap);
+
+        argv = cvt_cmd(cmd);
+        free(cmd);
+
+        execvp(argv[0], argv);
+
+        for (i = 0; argv[i] != NULL; i++)
+            free(argv[i]);
+
+        free(argv);
+        _exit(0);
+    } else {
+        waitpid(p, &child_status, WUNTRACED);
+        return child_status;
+    }
+
+    return 0;
+}
+
+void cl_msleep(long mseconds)
+{
+    struct timespec tv;
+
+    __clib_function_init_ex2__(false, NULL, -1);
+
+    tv.tv_sec = (time_t)mseconds / 1000;
+    tv.tv_nsec = (long)(mseconds % 1000) * 1000000;
+
+    nanosleep(&tv,&tv);
+}
+
+int cl_trap(int signum, void (*f)(int))
+{
+    struct sigaction s;
+
+    /*
+     * TODO: Save oldact for user somehow.
+     *       Validate signumber.
+     */
+
+    __clib_function_init__(false, NULL, -1, -1);
+
+    memset(&s, 0, sizeof(struct sigaction));
+    s.sa_handler = (f != NULL) ? f : SIG_IGN;
+
+    if (sigaction(signum, &s, NULL) != 0)
+        return -1;
+
+    return 0;
+}
+
+bool cl_instance_active(const char *filename, const char *instance)
 {
     pid_t pid;
     char *we = NULL;
@@ -323,7 +336,7 @@ __PUB_API__ bool cl_instance_active(const char *filename, const char *instance)
     return b;
 }
 
-__PUB_API__ int cl_set_instance_as_active(void)
+int cl_set_instance_as_active(void)
 {
     __clib_function_init__(false, NULL, -1, -1);
 

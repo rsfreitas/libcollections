@@ -26,68 +26,17 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
 
 #include "collections.h"
 
-__PUB_API__ cl_string_t *cl_bool_to_cstring(bool flag)
-{
-    __clib_function_init__(false, NULL, -1, NULL);
+/*
+ *
+ * Internal API
+ *
+ */
 
-    if ((flag != true) && (flag != false)) {
-        cset_errno(CL_INVALID_VALUE);
-        return NULL;
-    }
-
-    return cl_string_create("%s", (flag == true) ? "true" : "false");
-}
-
-__PUB_API__ char *cl_bool_to_string(bool flag)
-{
-    cl_string_t *s = NULL;
-    char *t = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    s = cl_bool_to_cstring(flag);
-
-    if (NULL == s)
-        return NULL;
-
-    t = strdup(cl_string_valueof(s));
-    cl_string_destroy(s);
-
-    return t;
-}
-
-__PUB_API__ char *cl_version(void)
-{
-    char *s = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-
-    if (asprintf(&s, "%d.%d.%d", MAJOR_VERSION, MINOR_VERSION, RELEASE) < 0)
-        return NULL;
-
-    return s;
-}
-
-__PUB_API__ cl_string_t *cl_type_to_cstring(enum cl_type value)
-{
-    const char *value_desc[] = {
-        "void", "char", "unsigned char", "int", "unsigned int", "short int",
-        "unsigned short int", "float", "double", "long", "unsigned long",
-        "long long", "unsigned long long", "pointer", "string", "bool",
-        "cstring" };
-
-    __clib_function_init__(false, NULL, -1, NULL);
-
-    if (cl_object_is_valid(value) == false) {
-        cset_errno(CL_INVALID_VALUE);
-        return NULL;
-    }
-
-    return cl_string_create("%s", value_desc[value]);
-}
-
+CL_INTERNAL_API
 char *value_to_hex(void *p, unsigned int size)
 {
     char *d = NULL, tmp[3] = {0}, *pp = p;
@@ -110,6 +59,7 @@ char *value_to_hex(void *p, unsigned int size)
  * Removes the file name extension, as well as all path, leaving only
  * its name.
  */
+CL_INTERNAL_API
 char *strip_filename(const char *pathname)
 {
     char *ext = NULL, *n = NULL, *tmp = NULL, *bname = NULL;
@@ -139,6 +89,7 @@ char *strip_filename(const char *pathname)
 /*
  * Returns a file name extension.
  */
+CL_INTERNAL_API
 char *file_extension(const char *pathname)
 {
     char *ext = NULL;
@@ -151,6 +102,71 @@ char *file_extension(const char *pathname)
     return strdup(ext + 1);
 }
 
+/*
+ *
+ * API
+ *
+ */
+
+cl_string_t *cl_bool_to_cstring(bool flag)
+{
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if ((flag != true) && (flag != false)) {
+        cset_errno(CL_INVALID_VALUE);
+        return NULL;
+    }
+
+    return cl_string_create("%s", (flag == true) ? "true" : "false");
+}
+
+char *cl_bool_to_string(bool flag)
+{
+    cl_string_t *s = NULL;
+    char *t = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    s = cl_bool_to_cstring(flag);
+
+    if (NULL == s)
+        return NULL;
+
+    t = strdup(cl_string_valueof(s));
+    cl_string_destroy(s);
+
+    return t;
+}
+
+char *cl_version(void)
+{
+    char *s = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (asprintf(&s, "%d.%d.%d", MAJOR_VERSION, MINOR_VERSION, RELEASE) < 0)
+        return NULL;
+
+    return s;
+}
+
+cl_string_t *cl_type_to_cstring(enum cl_type value)
+{
+    const char *value_desc[] = {
+        "void", "char", "unsigned char", "int", "unsigned int", "short int",
+        "unsigned short int", "float", "double", "long", "unsigned long",
+        "long long", "unsigned long long", "pointer", "string", "bool",
+        "cstring" };
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (cl_object_is_valid(value) == false) {
+        cset_errno(CL_INVALID_VALUE);
+        return NULL;
+    }
+
+    return cl_string_create("%s", value_desc[value]);
+}
+
 /**
  * @name cl_exit
  * @brief Terminate calling thread.
@@ -158,7 +174,7 @@ char *file_extension(const char *pathname)
  * This function must be called at the end of main function if the user wants no
  * memory leak errors reported by the valgrind tool.
  */
-__PUB_API__ void cl_exit(void)
+void cl_exit(void)
 {
     if (library_initialized() == false)
         return;

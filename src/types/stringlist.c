@@ -32,8 +32,13 @@
     cl_struct_member(cl_list_t *, data)
 
 cl_struct_declare(cl_stringlist_s, cl_stringlist_members);
-
 #define cl_stringlist_s      cl_struct(cl_stringlist_s)
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static void release_node(void *ptr)
 {
@@ -72,7 +77,13 @@ static int equals_node(cl_list_node_t *a, cl_list_node_t *b)
     return 0;
 }
 
-__PUB_API__ cl_stringlist_t *cl_stringlist_create(void)
+/*
+ *
+ * API
+ *
+ */
+
+cl_stringlist_t *cl_stringlist_create(void)
 {
     cl_stringlist_s *l = NULL;
 
@@ -95,7 +106,7 @@ __PUB_API__ cl_stringlist_t *cl_stringlist_create(void)
     return l;
 }
 
-__PUB_API__ int cl_stringlist_destroy(cl_stringlist_t *l)
+int cl_stringlist_destroy(cl_stringlist_t *l)
 {
     cl_stringlist_s *p = (cl_stringlist_s *)l;
 
@@ -107,7 +118,7 @@ __PUB_API__ int cl_stringlist_destroy(cl_stringlist_t *l)
     return 0;
 }
 
-__PUB_API__ int cl_stringlist_size(const cl_stringlist_t *l)
+int cl_stringlist_size(const cl_stringlist_t *l)
 {
     cl_stringlist_s *p = (cl_stringlist_s *)l;
 
@@ -116,7 +127,7 @@ __PUB_API__ int cl_stringlist_size(const cl_stringlist_t *l)
     return cl_list_size(p->data);
 }
 
-__PUB_API__ int cl_stringlist_add(cl_stringlist_t *l, cl_string_t *s)
+int cl_stringlist_add(cl_stringlist_t *l, cl_string_t *s)
 {
     cl_stringlist_s *p = (cl_stringlist_s *)l;
 
@@ -133,7 +144,7 @@ __PUB_API__ int cl_stringlist_add(cl_stringlist_t *l, cl_string_t *s)
     return 0;
 }
 
-__PUB_API__ cl_string_t *cl_stringlist_get(const cl_stringlist_t *l,
+cl_string_t *cl_stringlist_get(const cl_stringlist_t *l,
     unsigned int index)
 {
     cl_stringlist_s *p = (cl_stringlist_s *)l;
@@ -158,7 +169,7 @@ __PUB_API__ cl_string_t *cl_stringlist_get(const cl_stringlist_t *l,
     return s;
 }
 
-__PUB_API__ cl_string_t *cl_stringlist_flat(const cl_stringlist_t *l,
+cl_string_t *cl_stringlist_flat(const cl_stringlist_t *l,
     const char delimiter)
 {
     cl_stringlist_s *p = (cl_stringlist_s *)l;
@@ -189,7 +200,7 @@ __PUB_API__ cl_string_t *cl_stringlist_flat(const cl_stringlist_t *l,
     return s;
 }
 
-__PUB_API__ cl_stringlist_t *cl_stringlist_dup(const cl_stringlist_t *list)
+cl_stringlist_t *cl_stringlist_dup(const cl_stringlist_t *list)
 {
     int i, t;
     cl_stringlist_t *new = NULL;
@@ -214,7 +225,7 @@ __PUB_API__ cl_stringlist_t *cl_stringlist_dup(const cl_stringlist_t *list)
     return new;
 }
 
-__PUB_API__ bool cl_stringlist_contains(const cl_stringlist_t *list,
+bool cl_stringlist_contains(const cl_stringlist_t *list,
     const cl_string_t *needle)
 {
     int i, t;

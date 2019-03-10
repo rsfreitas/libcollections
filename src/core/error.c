@@ -91,6 +91,44 @@ static const char *__cdescriptions[] = {
 
 static const char *__cunknown_error = cl_tr_noop("Unknown error");
 
+/* Our error storage */
+struct error_storage {
+    int error;
+};
+
+/*
+ *
+ * Internal API
+ *
+ */
+
+cl_error_storage_declare(__storage__, sizeof(struct error_storage))
+#define __cerrno        (cl_errno_storage(&__storage__))
+
+/* TODO: Rename this */
+CL_INTERNAL_API
+void cerrno_clear(void)
+{
+    struct error_storage *e = __cerrno;
+
+    e->error = CL_NO_ERROR;
+}
+
+/* TODO: Rename this */
+CL_INTERNAL_API
+void cset_errno(enum cl_error_code error_code)
+{
+    struct error_storage *e = __cerrno;
+
+    e->error = error_code;
+}
+
+/*
+ *
+ * API
+ *
+ */
+
 /**
  * @name cl_errno_storage
  * @brief Gets a pointer to the global thread specific error variable.
@@ -99,7 +137,7 @@ static const char *__cunknown_error = cl_tr_noop("Unknown error");
  *
  * @return Returns a pointer to the global error variable.
  */
-__PUB_API__ cl_errno *cl_errno_storage(struct cl_error_storage *storage)
+cl_errno *cl_errno_storage(struct cl_error_storage *storage)
 {
     cl_errno *error = NULL;
 
@@ -123,34 +161,10 @@ __PUB_API__ cl_errno *cl_errno_storage(struct cl_error_storage *storage)
     return error;
 }
 
-/* Our error storage */
-struct error_storage {
-    int error;
-};
-
-cl_error_storage_declare(__storage__, sizeof(struct error_storage))
-#define __cerrno        (cl_errno_storage(&__storage__))
-
-/* TODO: Rename this */
-void cerrno_clear(void)
-{
-    struct error_storage *e = __cerrno;
-
-    e->error = CL_NO_ERROR;
-}
-
-/* TODO: Rename this */
-void cset_errno(enum cl_error_code error_code)
-{
-    struct error_storage *e = __cerrno;
-
-    e->error = error_code;
-}
-
 /*
  * Gets the last error code internally occurred.
  */
-__PUB_API__ enum cl_error_code cl_get_last_error(void)
+enum cl_error_code cl_get_last_error(void)
 {
     struct error_storage *e = __cerrno;
 
@@ -160,7 +174,7 @@ __PUB_API__ enum cl_error_code cl_get_last_error(void)
 /*
  * Converts a numeric error code in a text message.
  */
-__PUB_API__ const char *cl_strerror(enum cl_error_code error_code)
+const char *cl_strerror(enum cl_error_code error_code)
 {
     if (error_code >= CL_MAX_ERROR_CODE)
         return __cunknown_error;

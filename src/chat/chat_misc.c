@@ -28,9 +28,20 @@
 #include <signal.h>
 #include <string.h>
 
+#ifdef __APPLE__
+# include <sys/select.h>
+#endif
+
 #include "collections.h"
 #include "chat.h"
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
 struct cl_chat_data_s *new_chat_data_s(unsigned int data_size)
 {
     struct cl_chat_data_s *d = NULL;
@@ -55,6 +66,7 @@ struct cl_chat_data_s *new_chat_data_s(unsigned int data_size)
     return d;
 }
 
+CL_INTERNAL_API
 void destroy_chat_data_s(struct cl_chat_data_s *data)
 {
     if (data->data != NULL)
@@ -70,6 +82,7 @@ void destroy_chat_data_s(struct cl_chat_data_s *data)
  * CL_DATA_TIMEOUT in case the pselect timeout expires or CL_PSELECT_FAILED
  * in case pselect detect any internal error.
  */
+CL_INTERNAL_API
 bool has_data_to_receive(int fd, int seconds)
 {
     struct timespec ts;

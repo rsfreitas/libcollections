@@ -44,6 +44,12 @@ cl_struct_declare(hashtable_s, cl_hashtable_members);
 
 /*
  *
+ * Internal functions
+ *
+ */
+
+/*
+ *
  * Functions to handle elements inside a list of keys exported by cl_hashtable_keys
  * function.
  *
@@ -271,7 +277,7 @@ static unsigned short int hash(const char *key, unsigned int hashtable_size)
  *
  */
 
-__PUB_API__ cl_hashtable_t *cl_hashtable_ref(cl_hashtable_t *hashtable)
+cl_hashtable_t *cl_hashtable_ref(cl_hashtable_t *hashtable)
 {
     hashtable_s *h = (hashtable_s *)hashtable;
 
@@ -281,7 +287,7 @@ __PUB_API__ cl_hashtable_t *cl_hashtable_ref(cl_hashtable_t *hashtable)
     return hashtable;
 }
 
-__PUB_API__ int cl_hashtable_unref(cl_hashtable_t *hashtable)
+int cl_hashtable_unref(cl_hashtable_t *hashtable)
 {
     hashtable_s *h = (hashtable_s *)hashtable;
 
@@ -291,7 +297,7 @@ __PUB_API__ int cl_hashtable_unref(cl_hashtable_t *hashtable)
     return 0;
 }
 
-__PUB_API__ cl_hashtable_t *cl_hashtable_init(unsigned int size,
+cl_hashtable_t *cl_hashtable_init(unsigned int size,
     bool replace_data, bool (*compare)(void *, void *),
     void (*release)(void *))
 {
@@ -312,12 +318,12 @@ __PUB_API__ cl_hashtable_t *cl_hashtable_init(unsigned int size,
     return h;
 }
 
-__PUB_API__ int cl_hashtable_uninit(cl_hashtable_t *hashtable)
+int cl_hashtable_uninit(cl_hashtable_t *hashtable)
 {
     return cl_hashtable_unref(hashtable);
 }
 
-__PUB_API__ void *cl_hashtable_put(cl_hashtable_t *hashtable, const char *key,
+void *cl_hashtable_put(cl_hashtable_t *hashtable, const char *key,
     void *data)
 {
     hashtable_s *h;
@@ -351,7 +357,7 @@ end_block:
     return ret;
 }
 
-__PUB_API__ void *cl_hashtable_get(cl_hashtable_t *hashtable, const char *key)
+void *cl_hashtable_get(cl_hashtable_t *hashtable, const char *key)
 {
     hashtable_s *h;
     int idx = -1;
@@ -372,7 +378,7 @@ __PUB_API__ void *cl_hashtable_get(cl_hashtable_t *hashtable, const char *key)
     return ptr;
 }
 
-__PUB_API__ int cl_hashtable_delete(cl_hashtable_t *hashtable, const char *key)
+int cl_hashtable_delete(cl_hashtable_t *hashtable, const char *key)
 {
     hashtable_s *h;
     int idx = -1, ret = -1;
@@ -394,7 +400,7 @@ __PUB_API__ int cl_hashtable_delete(cl_hashtable_t *hashtable, const char *key)
     return ret;
 }
 
-__PUB_API__ bool cl_hashtable_contains_key(cl_hashtable_t *hashtable,
+bool cl_hashtable_contains_key(cl_hashtable_t *hashtable,
     const char *key)
 {
     hashtable_s *h;
@@ -414,7 +420,7 @@ __PUB_API__ bool cl_hashtable_contains_key(cl_hashtable_t *hashtable,
     return ret;
 }
 
-__PUB_API__ int cl_hashtable_size(cl_hashtable_t *hashtable)
+int cl_hashtable_size(cl_hashtable_t *hashtable)
 {
     hashtable_s *h;
     int size = -1;
@@ -428,7 +434,7 @@ __PUB_API__ int cl_hashtable_size(cl_hashtable_t *hashtable)
     return size;
 }
 
-__PUB_API__ int cl_hashtable_clear(cl_hashtable_t *hashtable)
+int cl_hashtable_clear(cl_hashtable_t *hashtable)
 {
     hashtable_s *h;
 
@@ -441,7 +447,7 @@ __PUB_API__ int cl_hashtable_clear(cl_hashtable_t *hashtable)
     return 0;
 }
 
-__PUB_API__ bool cl_hashtable_contains_value(cl_hashtable_t *hashtable,
+bool cl_hashtable_contains_value(cl_hashtable_t *hashtable,
     void *data)
 {
     hashtable_s *h;
@@ -461,7 +467,7 @@ __PUB_API__ bool cl_hashtable_contains_value(cl_hashtable_t *hashtable,
     return ret;
 }
 
-__PUB_API__ cl_list_t *cl_hashtable_keys(cl_hashtable_t *hashtable, bool dup)
+cl_list_t *cl_hashtable_keys(cl_hashtable_t *hashtable, bool dup)
 {
     hashtable_s *h;
     cl_list_t *keys = NULL;

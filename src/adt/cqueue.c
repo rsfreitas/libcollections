@@ -41,6 +41,12 @@ cl_struct_declare(cl_cqueue_s, cl_cqueue_members);
 
 #define cl_cqueue_s            cl_struct(cl_cqueue_s)
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static void destroy_circular_queue_s(const struct cl_ref_s *ref)
 {
     cl_cqueue_s *q = cl_container_of(ref, cl_cqueue_s, ref);
@@ -83,7 +89,7 @@ static cl_cqueue_s *new_circular_queue_s(unsigned int max_size)
  *
  */
 
-__PUB_API__ cl_cqueue_t *cl_cqueue_ref(cl_cqueue_t *cqueue)
+cl_cqueue_t *cl_cqueue_ref(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = (cl_cqueue_s *)cqueue;
 
@@ -93,7 +99,7 @@ __PUB_API__ cl_cqueue_t *cl_cqueue_ref(cl_cqueue_t *cqueue)
     return cqueue;
 }
 
-__PUB_API__ int cl_cqueue_unref(cl_cqueue_t *cqueue)
+int cl_cqueue_unref(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = (cl_cqueue_s *)cqueue;
 
@@ -103,7 +109,7 @@ __PUB_API__ int cl_cqueue_unref(cl_cqueue_t *cqueue)
     return 0;
 }
 
-__PUB_API__ cl_cqueue_t *cl_cqueue_create(unsigned int size,
+cl_cqueue_t *cl_cqueue_create(unsigned int size,
     void (*unref_node)(void *),
     int (*compare_to)(cl_queue_node_t *, cl_queue_node_t *),
     int (*filter)(cl_queue_node_t *, void *),
@@ -134,12 +140,12 @@ __PUB_API__ cl_cqueue_t *cl_cqueue_create(unsigned int size,
     return q;
 }
 
-__PUB_API__ int cl_cqueue_destroy(cl_cqueue_t *cqueue)
+int cl_cqueue_destroy(cl_cqueue_t *cqueue)
 {
     return cl_cqueue_unref(cqueue);
 }
 
-__PUB_API__ int cl_cqueue_size(cl_cqueue_t *cqueue)
+int cl_cqueue_size(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
     int size;
@@ -151,7 +157,7 @@ __PUB_API__ int cl_cqueue_size(cl_cqueue_t *cqueue)
     return size;
 }
 
-__PUB_API__ int cl_cqueue_enqueue(cl_cqueue_t *cqueue,
+int cl_cqueue_enqueue(cl_cqueue_t *cqueue,
     const void *data, unsigned int data_size)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -175,7 +181,7 @@ __PUB_API__ int cl_cqueue_enqueue(cl_cqueue_t *cqueue,
     return ret;
 }
 
-__PUB_API__ cl_queue_node_t *cl_cqueue_dequeue(cl_cqueue_t *cqueue)
+cl_queue_node_t *cl_cqueue_dequeue(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
     cl_queue_node_t *node = NULL;
@@ -196,7 +202,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_queue_node_t *cl_cqueue_map(cl_cqueue_t *cqueue,
+cl_queue_node_t *cl_cqueue_map(cl_cqueue_t *cqueue,
     int (*foo)(cl_queue_node_t *, void *), void *data)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -216,7 +222,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_queue_node_t *cl_cqueue_map_indexed(cl_cqueue_t *cqueue,
+cl_queue_node_t *cl_cqueue_map_indexed(cl_cqueue_t *cqueue,
     int (*foo)(unsigned int, cl_queue_node_t *, void *), void *data)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -236,7 +242,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_queue_node_t *cl_cqueue_map_reverse(cl_cqueue_t *cqueue,
+cl_queue_node_t *cl_cqueue_map_reverse(cl_cqueue_t *cqueue,
     int (*foo)(cl_queue_node_t *, void *), void *data)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -256,7 +262,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_queue_node_t *cl_cqueue_map_reverse_indexed(cl_cqueue_t *cqueue,
+cl_queue_node_t *cl_cqueue_map_reverse_indexed(cl_cqueue_t *cqueue,
     int (*foo)(unsigned int, cl_queue_node_t *, void *), void *data)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -276,7 +282,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_queue_node_t *cl_cqueue_at(cl_cqueue_t *cqueue,
+cl_queue_node_t *cl_cqueue_at(cl_cqueue_t *cqueue,
     unsigned int index)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -289,7 +295,7 @@ __PUB_API__ cl_queue_node_t *cl_cqueue_at(cl_cqueue_t *cqueue,
     return node;
 }
 
-__PUB_API__ int cl_cqueue_delete(cl_cqueue_t *cqueue, void *data)
+int cl_cqueue_delete(cl_cqueue_t *cqueue, void *data)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
     int ret = -1;
@@ -301,7 +307,7 @@ __PUB_API__ int cl_cqueue_delete(cl_cqueue_t *cqueue, void *data)
     return ret;
 }
 
-__PUB_API__ int cl_cqueue_delete_indexed(cl_cqueue_t *cqueue,
+int cl_cqueue_delete_indexed(cl_cqueue_t *cqueue,
     unsigned int index)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -314,7 +320,7 @@ __PUB_API__ int cl_cqueue_delete_indexed(cl_cqueue_t *cqueue,
     return ret;
 }
 
-__PUB_API__ cl_cqueue_t *cl_cqueue_move(cl_cqueue_t *cqueue)
+cl_cqueue_t *cl_cqueue_move(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
     cl_cqueue_s *n = NULL;
@@ -338,7 +344,7 @@ __PUB_API__ cl_cqueue_t *cl_cqueue_move(cl_cqueue_t *cqueue)
     return n;
 }
 
-__PUB_API__ cl_cqueue_t *cl_cqueue_filter(cl_cqueue_t *cqueue,
+cl_cqueue_t *cl_cqueue_filter(cl_cqueue_t *cqueue,
     void *data)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -363,7 +369,7 @@ __PUB_API__ cl_cqueue_t *cl_cqueue_filter(cl_cqueue_t *cqueue,
     return n;
 }
 
-__PUB_API__ int cl_cqueue_sort(cl_cqueue_t *cqueue)
+int cl_cqueue_sort(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
     int ret = -1;
@@ -375,7 +381,7 @@ __PUB_API__ int cl_cqueue_sort(cl_cqueue_t *cqueue)
     return ret;
 }
 
-__PUB_API__ int cl_cqueue_indexof(cl_cqueue_t *cqueue, void *element,
+int cl_cqueue_indexof(cl_cqueue_t *cqueue, void *element,
     unsigned int size)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -388,7 +394,7 @@ __PUB_API__ int cl_cqueue_indexof(cl_cqueue_t *cqueue, void *element,
     return ret;
 }
 
-__PUB_API__ int cl_cqueue_last_indexof(cl_cqueue_t *cqueue,
+int cl_cqueue_last_indexof(cl_cqueue_t *cqueue,
     void *element, unsigned int size)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -401,7 +407,7 @@ __PUB_API__ int cl_cqueue_last_indexof(cl_cqueue_t *cqueue,
     return ret;
 }
 
-__PUB_API__ bool cl_cqueue_contains(cl_cqueue_t *cqueue,
+bool cl_cqueue_contains(cl_cqueue_t *cqueue,
     void *element, unsigned int size)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -414,7 +420,7 @@ __PUB_API__ bool cl_cqueue_contains(cl_cqueue_t *cqueue,
     return ret;
 }
 
-__PUB_API__ cl_queue_node_t *cl_cqueue_front(cl_cqueue_t *cqueue)
+cl_queue_node_t *cl_cqueue_front(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
     cl_queue_node_t *node = NULL;
@@ -426,7 +432,7 @@ __PUB_API__ cl_queue_node_t *cl_cqueue_front(cl_cqueue_t *cqueue)
     return node;
 }
 
-__PUB_API__ bool cl_cqueue_is_empty(cl_cqueue_t *cqueue)
+bool cl_cqueue_is_empty(cl_cqueue_t *cqueue)
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
     int size;
@@ -438,7 +444,7 @@ __PUB_API__ bool cl_cqueue_is_empty(cl_cqueue_t *cqueue)
     return (size > 0) ? true : false;
 }
 
-__PUB_API__ int cl_cqueue_set_compare_to(cl_cqueue_t *cqueue,
+int cl_cqueue_set_compare_to(cl_cqueue_t *cqueue,
     int (*compare_to)(cl_queue_node_t *, cl_queue_node_t *))
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -451,7 +457,7 @@ __PUB_API__ int cl_cqueue_set_compare_to(cl_cqueue_t *cqueue,
     return ret;
 }
 
-__PUB_API__ int cl_cqueue_set_filter(cl_cqueue_t *cqueue,
+int cl_cqueue_set_filter(cl_cqueue_t *cqueue,
     int (*filter)(cl_queue_node_t *, void *))
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);
@@ -464,7 +470,7 @@ __PUB_API__ int cl_cqueue_set_filter(cl_cqueue_t *cqueue,
     return ret;
 }
 
-__PUB_API__ int cl_cqueue_set_equals(cl_cqueue_t *cqueue,
+int cl_cqueue_set_equals(cl_cqueue_t *cqueue,
     int (*equals)(cl_queue_node_t *, cl_queue_node_t *))
 {
     cl_cqueue_s *q = cl_cqueue_ref(cqueue);

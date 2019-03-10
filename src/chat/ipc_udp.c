@@ -39,6 +39,12 @@ struct udp_data_s {
     struct sockaddr_in  sc_in;
 };
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static struct udp_data_s *new_udp_data_s(void)
 {
     struct udp_data_s *d = NULL;
@@ -61,6 +67,13 @@ static void destroy_udp_data_s(struct udp_data_s *d)
     free(d);
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
 ipc_data_t *udp_init(void)
 {
     struct udp_data_s *d = NULL;
@@ -81,6 +94,7 @@ ipc_data_t *udp_init(void)
     return d;
 }
 
+CL_INTERNAL_API
 int udp_uninit(ipc_data_t *ipc_data)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
@@ -90,6 +104,7 @@ int udp_uninit(ipc_data_t *ipc_data)
     return 0;
 }
 
+CL_INTERNAL_API
 int udp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
@@ -116,6 +131,7 @@ int udp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
     return 0;
 }
 
+CL_INTERNAL_API
 int udp_send(ipc_data_t *ipc_data, struct cl_chat_data_s *dt_send)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
@@ -127,6 +143,7 @@ int udp_send(ipc_data_t *ipc_data, struct cl_chat_data_s *dt_send)
                   (struct sockaddr *)&d->sc_in, sizeof(d->sc_in));
 }
 
+CL_INTERNAL_API
 struct cl_chat_data_s *udp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
@@ -157,6 +174,7 @@ struct cl_chat_data_s *udp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
     return cd;
 }
 
+CL_INTERNAL_API
 int udp_stop(ipc_data_t *ipc_data)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;
@@ -164,6 +182,7 @@ int udp_stop(ipc_data_t *ipc_data)
     return close(d->fd);
 }
 
+CL_INTERNAL_API
 int udp_fd(ipc_data_t *ipc_data)
 {
     struct udp_data_s *d = (struct udp_data_s *)ipc_data;

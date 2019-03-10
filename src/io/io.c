@@ -78,23 +78,11 @@ static char *extended_keys_xterm[] = {
     NULL
 };
 
-__PUB_API__ cl_string_t *cl_stdin_getline(void)
-{
-    char *p;
-    cl_string_t *s;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-
-    p = cl_freadline(stdin);
-
-    if (NULL == p)
-        return NULL;
-
-    s = cl_string_create("%s", p);
-    free(p);
-
-    return s;
-}
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static int __stdin_timeout(void)
 {
@@ -121,11 +109,6 @@ static int __stdin_timeout(void)
     return n;
 }
 
-__PUB_API__ bool cl_stdin_select(void)
-{
-    return (__stdin_timeout() <= 0 ? false : true);
-}
-
 static int __search_ext_key(char *k)
 {
     int i, p=-1;
@@ -145,7 +128,36 @@ static int __search_ext_key(char *k)
     return p;
 }
 
-__PUB_API__ int cl_getkey(bool block)
+/*
+ *
+ * API
+ *
+ */
+
+cl_string_t *cl_stdin_getline(void)
+{
+    char *p;
+    cl_string_t *s;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    p = cl_freadline(stdin);
+
+    if (NULL == p)
+        return NULL;
+
+    s = cl_string_create("%s", p);
+    free(p);
+
+    return s;
+}
+
+bool cl_stdin_select(void)
+{
+    return (__stdin_timeout() <= 0 ? false : true);
+}
+
+int cl_getkey(bool block)
 {
     unsigned char ch;
     char keys[32];
@@ -223,7 +235,7 @@ end_block:
     return retval;
 }
 
-__PUB_API__ int cl_disable_echo(void)
+int cl_disable_echo(void)
 {
     struct termios attr;
 
@@ -249,7 +261,7 @@ __PUB_API__ int cl_disable_echo(void)
     return 0;
 }
 
-__PUB_API__ int cl_enable_echo(void)
+int cl_enable_echo(void)
 {
     struct termios attr;
 

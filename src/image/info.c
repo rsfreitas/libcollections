@@ -27,7 +27,13 @@
 #include "collections.h"
 #include "image.h"
 
-__PUB_API__ int cl_image_size(const cl_image_t *image)
+/*
+ *
+ * API
+ *
+ */
+
+int cl_image_size(const cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
     int s = -1;
@@ -47,7 +53,7 @@ __PUB_API__ int cl_image_size(const cl_image_t *image)
     return s;
 }
 
-__PUB_API__ int cl_image_width(const cl_image_t *image)
+int cl_image_width(const cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
     int w = -1;
@@ -67,7 +73,7 @@ __PUB_API__ int cl_image_width(const cl_image_t *image)
     return w;
 }
 
-__PUB_API__ int cl_image_height(const cl_image_t *image)
+int cl_image_height(const cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
     int h = -1;
@@ -87,7 +93,7 @@ __PUB_API__ int cl_image_height(const cl_image_t *image)
     return h;
 }
 
-__PUB_API__ enum cl_image_type cl_image_type(const cl_image_t *image)
+enum cl_image_type cl_image_type(const cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
 
@@ -101,7 +107,7 @@ __PUB_API__ enum cl_image_type cl_image_type(const cl_image_t *image)
     return i->type;
 }
 
-__PUB_API__ enum cl_image_color_format cl_image_color_format(const cl_image_t *image)
+enum cl_image_color_format cl_image_color_format(const cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
 
@@ -115,7 +121,7 @@ __PUB_API__ enum cl_image_color_format cl_image_color_format(const cl_image_t *i
     return i->format;
 }
 
-__PUB_API__ int cl_image_channels(const cl_image_t *image)
+int cl_image_channels(const cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
 

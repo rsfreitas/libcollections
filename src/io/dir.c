@@ -31,7 +31,13 @@
 
 #include "collections.h"
 
-__PUB_API__ int cl_mkdir(const char *dname)
+/*
+ *
+ * API
+ *
+ */
+
+int cl_mkdir(const char *dname)
 {
     char new_path[512] = {0}, partial_path[64] = {0};
     const char *relative_path;

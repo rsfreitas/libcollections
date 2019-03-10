@@ -58,10 +58,15 @@ struct event_condition_s {
     cl_struct_member(void *, reset_arg)
 
 cl_struct_declare(cl_event_s, cl_event_members);
-
 #define cl_event_s        cl_struct(cl_event_s)
 
-bool validate_execution_type(enum cl_event_execution exec_type)
+/*
+ *
+ * Internal functions
+ *
+ */
+
+static bool validate_execution_type(enum cl_event_execution exec_type)
 {
     if (exec_type > CL_EVENT_EXEC_UNLIMITED)
         return false;
@@ -69,7 +74,7 @@ bool validate_execution_type(enum cl_event_execution exec_type)
     return true;
 }
 
-bool validate_validation_type(enum cl_event_validation val)
+static bool validate_validation_type(enum cl_event_validation val)
 {
     if (val > CL_EVENT_VAL_CUSTOM)
         return false;
@@ -77,7 +82,7 @@ bool validate_validation_type(enum cl_event_validation val)
     return true;
 }
 
-bool validate_comparison_type(enum cl_event_comparison_type cmp_type)
+static bool validate_comparison_type(enum cl_event_comparison_type cmp_type)
 {
     if ((cmp_type != CL_EVENT_CMP_AND) && (cmp_type != CL_EVENT_CMP_OR))
         return false;
@@ -85,7 +90,7 @@ bool validate_comparison_type(enum cl_event_comparison_type cmp_type)
     return true;
 }
 
-bool validate_conditions(cl_event_s *ev)
+static bool validate_conditions(cl_event_s *ev)
 {
     /*
      * If they are being used together, the condition lists must have,
@@ -363,7 +368,13 @@ static int v_le(void *ptr, void *value)
     return CL_EVENT_VAL_RETURN_ERROR;
 }
 
-__PUB_API__ cl_event_t *cl_event_init(enum cl_event_execution exec,
+/*
+ *
+ * API
+ *
+ */
+
+cl_event_t *cl_event_init(enum cl_event_execution exec,
     const char *name, void (*event)(void *), void *arg,
     void (*reset_conditions)(void *), void *reset_arg)
 {
@@ -397,7 +408,7 @@ __PUB_API__ cl_event_t *cl_event_init(enum cl_event_execution exec,
     return ev;
 }
 
-__PUB_API__ int cl_event_condition_register(cl_event_t *e,
+int cl_event_condition_register(cl_event_t *e,
     enum cl_event_validation val, enum cl_event_comparison_type cmp_type,
     unsigned int id, void *ptr, void *value,
     int (*custom_v_function)(void *, void *))
@@ -428,33 +439,33 @@ __PUB_API__ int cl_event_condition_register(cl_event_t *e,
         return -1;
 
     switch (val) {
-        case CL_EVENT_VAL_EQUAL:
-            c->v_function = v_eq;
-            break;
+    case CL_EVENT_VAL_EQUAL:
+        c->v_function = v_eq;
+        break;
 
-        case CL_EVENT_VAL_NOT_EQUAL:
-            c->v_function = v_ne;
-            break;
+    case CL_EVENT_VAL_NOT_EQUAL:
+        c->v_function = v_ne;
+        break;
 
-        case CL_EVENT_VAL_GREATER:
-            c->v_function = v_gt;
-            break;
+    case CL_EVENT_VAL_GREATER:
+        c->v_function = v_gt;
+        break;
 
-        case CL_EVENT_VAL_GREATER_EQUAL:
-            c->v_function = v_ge;
-            break;
+    case CL_EVENT_VAL_GREATER_EQUAL:
+        c->v_function = v_ge;
+        break;
 
-        case CL_EVENT_VAL_LESS:
-            c->v_function = v_lt;
-            break;
+    case CL_EVENT_VAL_LESS:
+        c->v_function = v_lt;
+        break;
 
-        case CL_EVENT_VAL_LESS_EQUAL:
-            c->v_function = v_le;
-            break;
+    case CL_EVENT_VAL_LESS_EQUAL:
+        c->v_function = v_le;
+        break;
 
-        case CL_EVENT_VAL_CUSTOM:
-            c->v_function = custom_v_function;
-            break;
+    case CL_EVENT_VAL_CUSTOM:
+        c->v_function = custom_v_function;
+        break;
     }
 
     c->ptr = ptr;
@@ -475,7 +486,7 @@ __PUB_API__ int cl_event_condition_register(cl_event_t *e,
     return 0;
 }
 
-__PUB_API__ int cl_event_condition_unregister(cl_event_t *e,
+int cl_event_condition_unregister(cl_event_t *e,
     enum cl_event_comparison_type cmp_type, unsigned int cond_id)
 {
     cl_event_s *ev = (cl_event_s *)e;
@@ -509,7 +520,7 @@ __PUB_API__ int cl_event_condition_unregister(cl_event_t *e,
     return 0;
 }
 
-__PUB_API__ int cl_event_install(cl_event_t *e, bool sort_by_id)
+int cl_event_install(cl_event_t *e, bool sort_by_id)
 {
     cl_event_s *ev = (cl_event_s *)e;
     pthread_attr_t t_attr;
@@ -550,7 +561,7 @@ __PUB_API__ int cl_event_install(cl_event_t *e, bool sort_by_id)
     return 0;
 }
 
-__PUB_API__ int cl_event_uninstall(cl_event_t *e)
+int cl_event_uninstall(cl_event_t *e)
 {
     cl_event_s *ev = (cl_event_s *)e;
 

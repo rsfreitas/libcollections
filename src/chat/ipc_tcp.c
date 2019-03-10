@@ -43,6 +43,12 @@ struct tcp_data_s {
     unsigned int    port;
 };
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static struct tcp_data_s *new_tcp_data_s(void)
 {
     struct tcp_data_s *d = NULL;
@@ -70,6 +76,13 @@ static void destroy_tcp_data_s(struct tcp_data_s *d)
     free(d);
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
 ipc_data_t *tcp_init(void)
 {
     struct tcp_data_s *d = NULL;
@@ -91,6 +104,7 @@ ipc_data_t *tcp_init(void)
 
 }
 
+CL_INTERNAL_API
 int tcp_uninit(ipc_data_t *ipc_data)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
@@ -100,6 +114,7 @@ int tcp_uninit(ipc_data_t *ipc_data)
     return 0;
 }
 
+CL_INTERNAL_API
 int tcp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
@@ -134,6 +149,7 @@ int tcp_set_up(ipc_data_t *ipc_data, enum cl_chat_mode mode, va_list ap)
     return 0;
 }
 
+CL_INTERNAL_API
 int tcp_connect(ipc_data_t *ipc_data)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
@@ -155,6 +171,7 @@ int tcp_connect(ipc_data_t *ipc_data)
     return connect(d->fd, (struct sockaddr *)&sc_in, sizeof(struct sockaddr));
 }
 
+CL_INTERNAL_API
 ipc_data_t *tcp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
@@ -187,6 +204,7 @@ ipc_data_t *tcp_accept(ipc_data_t *ipc_data, unsigned int accept_timeout)
     return client_d;
 }
 
+CL_INTERNAL_API
 int tcp_send(ipc_data_t *ipc_data, struct cl_chat_data_s *dt_send)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
@@ -197,6 +215,7 @@ int tcp_send(ipc_data_t *ipc_data, struct cl_chat_data_s *dt_send)
     return send(d->fd, dt_send->data, dt_send->data_size, 0);
 }
 
+CL_INTERNAL_API
 struct cl_chat_data_s *tcp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
@@ -225,6 +244,7 @@ struct cl_chat_data_s *tcp_recv(ipc_data_t *ipc_data, unsigned int recv_timeout)
     return cd;
 }
 
+CL_INTERNAL_API
 int tcp_stop(ipc_data_t *ipc_data)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;
@@ -232,6 +252,7 @@ int tcp_stop(ipc_data_t *ipc_data)
     return close(d->fd);
 }
 
+CL_INTERNAL_API
 int tcp_fd(ipc_data_t *ipc_data)
 {
     struct tcp_data_s *d = (struct tcp_data_s *)ipc_data;

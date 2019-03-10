@@ -48,8 +48,13 @@ struct font_color {
     cl_struct_member(struct cl_ref_s, ref)
 
 cl_struct_declare(caption_s, caption_members);
-
 #define caption_s       cl_struct(caption_s)
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 /*
  * Calculates the maximum top side bearing for horizontal Y from the
@@ -116,40 +121,6 @@ library_error_block:
 }
 
 /*
- * Convert an internal color representation to its hexadecimal color code.
- */
-unsigned int to_hex_color(enum cl_image_color color)
-{
-    switch (color) {
-        case CL_IMAGE_COLOR_BLACK:
-            return 0x000000;
-
-        case CL_IMAGE_COLOR_WHITE:
-            return 0xFFFFFF;
-
-        case CL_IMAGE_COLOR_GREY:
-            return 0x7F7F7F;
-
-        case CL_IMAGE_COLOR_BLUE:
-            return 0x00007F;
-
-        case CL_IMAGE_COLOR_RED:
-            return 0x7F0000;
-
-        case CL_IMAGE_COLOR_GREEN:
-            return 0x007F00;
-
-        case CL_IMAGE_COLOR_YELLOW:
-            return 0xFFFF00;
-
-        default:
-            break;
-    }
-
-    return 0x000000F;
-}
-
-/*
  * Converts an internal color representation to a CvScalar type.
  */
 static CvScalar caption_color_to_CvScalar(enum cl_image_color color,
@@ -164,15 +135,15 @@ static CvScalar caption_color_to_CvScalar(enum cl_image_color color,
     b = c & 0xFF;
 
     switch (format) {
-        case CL_IMAGE_FMT_GRAY:
-            return cvScalar(r * 0.299f + g * 0.587f + b * 0.114f,
-                            0.0f, 0.0f, 0.0f);
+    case CL_IMAGE_FMT_GRAY:
+        return cvScalar(r * 0.299f + g * 0.587f + b * 0.114f,
+                        0.0f, 0.0f, 0.0f);
 
-        case CL_IMAGE_FMT_RGB:
-            return cvScalar(r, g, b, 0.0f);
+    case CL_IMAGE_FMT_RGB:
+        return cvScalar(r, g, b, 0.0f);
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return cvScalar(0.0f, 0.0f, 0.0f, 0.0f);
@@ -386,11 +357,52 @@ static void join_images(cl_image_s *image, cl_image_s *caption, bool append)
 
 /*
  *
- * Public API
+ * Internal API
  *
  */
 
-__PUB_API__ cl_caption_t *cl_caption_ref(cl_caption_t *caption)
+/*
+ * Convert an internal color representation to its hexadecimal color code.
+ */
+CL_INTERNAL_API
+unsigned int to_hex_color(enum cl_image_color color)
+{
+    switch (color) {
+    case CL_IMAGE_COLOR_BLACK:
+        return 0x000000;
+
+    case CL_IMAGE_COLOR_WHITE:
+        return 0xFFFFFF;
+
+    case CL_IMAGE_COLOR_GREY:
+        return 0x7F7F7F;
+
+    case CL_IMAGE_COLOR_BLUE:
+        return 0x00007F;
+
+    case CL_IMAGE_COLOR_RED:
+        return 0x7F0000;
+
+    case CL_IMAGE_COLOR_GREEN:
+        return 0x007F00;
+
+    case CL_IMAGE_COLOR_YELLOW:
+        return 0xFFFF00;
+
+    default:
+        break;
+    }
+
+    return 0x000000F;
+}
+
+/*
+ *
+ * API
+ *
+ */
+
+cl_caption_t *cl_caption_ref(cl_caption_t *caption)
 {
     caption_s *c = (caption_s *)caption;
 
@@ -400,7 +412,7 @@ __PUB_API__ cl_caption_t *cl_caption_ref(cl_caption_t *caption)
     return caption;
 }
 
-__PUB_API__ int cl_caption_unref(cl_caption_t *caption)
+int cl_caption_unref(cl_caption_t *caption)
 {
     caption_s *c = (caption_s *)caption;
 
@@ -410,7 +422,7 @@ __PUB_API__ int cl_caption_unref(cl_caption_t *caption)
     return 0;
 }
 
-__PUB_API__ cl_caption_t *cl_caption_configure(const char *ttf_pathname,
+cl_caption_t *cl_caption_configure(const char *ttf_pathname,
     unsigned int font_size, enum cl_image_color foreground,
     enum cl_image_color background)
 {
@@ -443,12 +455,12 @@ __PUB_API__ cl_caption_t *cl_caption_configure(const char *ttf_pathname,
     return c;
 }
 
-__PUB_API__ int cl_caption_destroy(cl_caption_t *caption)
+int cl_caption_destroy(cl_caption_t *caption)
 {
     return cl_caption_unref(caption);
 }
 
-__PUB_API__ int cl_caption_addvf(cl_caption_t *caption, cl_image_t *image,
+int cl_caption_addvf(cl_caption_t *caption, cl_image_t *image,
     bool append, const char *fmt, va_list ap)
 {
     caption_s *c = (caption_s *)caption;
@@ -487,7 +499,7 @@ __PUB_API__ int cl_caption_addvf(cl_caption_t *caption, cl_image_t *image,
     return ret;
 }
 
-__PUB_API__ int cl_caption_addf(cl_caption_t *caption, cl_image_t *image,
+int cl_caption_addf(cl_caption_t *caption, cl_image_t *image,
     bool append, const char *fmt, ...)
 {
     va_list ap;
@@ -508,7 +520,7 @@ __PUB_API__ int cl_caption_addf(cl_caption_t *caption, cl_image_t *image,
     return ret;
 }
 
-__PUB_API__ int cl_caption_add(cl_caption_t *caption, cl_image_t *image,
+int cl_caption_add(cl_caption_t *caption, cl_image_t *image,
     bool append, const char *text)
 {
     __clib_function_init__(true, caption, CL_OBJ_CAPTION, -1);

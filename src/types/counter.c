@@ -43,8 +43,13 @@
     cl_struct_member(struct cl_ref_s, ref)
 
 cl_struct_declare(cl_counter_s, cl_counter_members);
-
 #define cl_counter_s           cl_struct(cl_counter_s)
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static void adjust_8bit_counter(cl_counter_s *c, long long max)
 {
@@ -82,21 +87,21 @@ static void adjust_counter_limits(cl_counter_s *c, long long min,
     long long max)
 {
     switch (c->precision) {
-        case CL_8BIT_COUNTER:
-            adjust_8bit_counter(c, max);
-            break;
+    case CL_8BIT_COUNTER:
+        adjust_8bit_counter(c, max);
+        break;
 
-        case CL_16BIT_COUNTER:
-            adjust_16bit_counter(c, max);
-            break;
+    case CL_16BIT_COUNTER:
+        adjust_16bit_counter(c, max);
+        break;
 
-        case CL_32BIT_COUNTER:
-            adjust_32bit_counter(c, max);
-            break;
+    case CL_32BIT_COUNTER:
+        adjust_32bit_counter(c, max);
+        break;
 
-        case CL_64BIT_COUNTER:
-            adjust_64bit_counter(c, max);
-            break;
+    case CL_64BIT_COUNTER:
+        adjust_64bit_counter(c, max);
+        break;
     }
 
     if (min == 0)
@@ -160,37 +165,6 @@ static cl_counter_s *new_counter_s(enum cl_counter_precision precision,
     return c;
 }
 
-__PUB_API__ cl_counter_t *cl_counter_ref(cl_counter_t *c)
-{
-    cl_counter_s *p = (cl_counter_s *)c;
-
-    __clib_function_init__(true, c, CL_OBJ_COUNTER, NULL);
-    cl_ref_inc(&p->ref);
-
-    return c;
-}
-
-__PUB_API__ int cl_counter_unref(cl_counter_t *c)
-{
-    cl_counter_s *p = (cl_counter_s *)c;
-
-    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
-    cl_ref_dec(&p->ref);
-
-    return 0;
-}
-
-__PUB_API__ cl_counter_t *cl_counter_create(enum cl_counter_precision precision,
-    long long min, long long max, long long start_value, bool circular)
-{
-    return new_counter_s(precision, min, max, start_value, circular);
-}
-
-__PUB_API__ int cl_counter_destroy(cl_counter_t *c)
-{
-    return cl_counter_unref(c);
-}
-
 static int __counter_increase(cl_counter_t *c, long long gap)
 {
     cl_counter_s *p;
@@ -214,16 +188,6 @@ static int __counter_increase(cl_counter_t *c, long long gap)
     cl_counter_unref(p);
 
     return 0;
-}
-
-__PUB_API__ int cl_counter_increase(cl_counter_t *c)
-{
-    return __counter_increase(c, 1);
-}
-
-__PUB_API__ int cl_counter_increase_by(cl_counter_t *c, long long gap)
-{
-    return __counter_increase(c, gap);
 }
 
 static int __counter_decrease(cl_counter_t *c, long long gap)
@@ -251,17 +215,75 @@ static int __counter_decrease(cl_counter_t *c, long long gap)
     return 0;
 }
 
-__PUB_API__ int cl_counter_decrease(cl_counter_t *c)
+static bool is_between_limits(long long value, const cl_counter_s *c)
+{
+    if ((value >= CL_OBJECT_AS_LLONG(c->min)) &&
+        (value <= CL_OBJECT_AS_LLONG(c->max)))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+/*
+ *
+ * API
+ *
+ */
+
+cl_counter_t *cl_counter_ref(cl_counter_t *c)
+{
+    cl_counter_s *p = (cl_counter_s *)c;
+
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, NULL);
+    cl_ref_inc(&p->ref);
+
+    return c;
+}
+
+int cl_counter_unref(cl_counter_t *c)
+{
+    cl_counter_s *p = (cl_counter_s *)c;
+
+    __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
+    cl_ref_dec(&p->ref);
+
+    return 0;
+}
+
+cl_counter_t *cl_counter_create(enum cl_counter_precision precision,
+    long long min, long long max, long long start_value, bool circular)
+{
+    return new_counter_s(precision, min, max, start_value, circular);
+}
+
+int cl_counter_destroy(cl_counter_t *c)
+{
+    return cl_counter_unref(c);
+}
+
+int cl_counter_increase(cl_counter_t *c)
+{
+    return __counter_increase(c, 1);
+}
+
+int cl_counter_increase_by(cl_counter_t *c, long long gap)
+{
+    return __counter_increase(c, gap);
+}
+
+int cl_counter_decrease(cl_counter_t *c)
 {
     return __counter_decrease(c, 1);
 }
 
-__PUB_API__ int cl_counter_decrease_by(cl_counter_t *c, long long gap)
+int cl_counter_decrease_by(cl_counter_t *c, long long gap)
 {
     return __counter_decrease(c, gap);
 }
 
-__PUB_API__ int cl_counter_reset(cl_counter_t *c)
+int cl_counter_reset(cl_counter_t *c)
 {
     cl_counter_s *p;
 
@@ -277,7 +299,7 @@ __PUB_API__ int cl_counter_reset(cl_counter_t *c)
     return 0;
 }
 
-__PUB_API__ long long cl_counter_get(cl_counter_t *c)
+long long cl_counter_get(cl_counter_t *c)
 {
     cl_counter_s *p = (cl_counter_s *)c;
 
@@ -286,7 +308,7 @@ __PUB_API__ long long cl_counter_get(cl_counter_t *c)
     return CL_OBJECT_AS_LLONG(p->cnt);
 }
 
-__PUB_API__ int cl_counter_set_min(cl_counter_t *c, long long min)
+int cl_counter_set_min(cl_counter_t *c, long long min)
 {
     cl_counter_s *p;
 
@@ -305,7 +327,7 @@ __PUB_API__ int cl_counter_set_min(cl_counter_t *c, long long min)
     return 0;
 }
 
-__PUB_API__ int cl_counter_set_max(cl_counter_t *c, long long max)
+int cl_counter_set_max(cl_counter_t *c, long long max)
 {
     cl_counter_s *p;
 
@@ -324,7 +346,7 @@ __PUB_API__ int cl_counter_set_max(cl_counter_t *c, long long max)
     return 0;
 }
 
-__PUB_API__ int cl_counter_set_range(cl_counter_t *c, long long min,
+int cl_counter_set_range(cl_counter_t *c, long long min,
     long long max)
 {
     __clib_function_init__(true, c, CL_OBJ_COUNTER, -1);
@@ -335,7 +357,7 @@ __PUB_API__ int cl_counter_set_range(cl_counter_t *c, long long min,
     return 0;
 }
 
-__PUB_API__ bool cl_counter_lt(const cl_counter_t *c, long long value)
+bool cl_counter_lt(const cl_counter_t *c, long long value)
 {
     cl_counter_s *p = (cl_counter_s *)c;
     long long v;
@@ -353,7 +375,7 @@ __PUB_API__ bool cl_counter_lt(const cl_counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool cl_counter_le(const cl_counter_t *c, long long value)
+bool cl_counter_le(const cl_counter_t *c, long long value)
 {
     cl_counter_s *p = (cl_counter_s *)c;
     long long v;
@@ -371,7 +393,7 @@ __PUB_API__ bool cl_counter_le(const cl_counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool cl_counter_gt(const cl_counter_t *c, long long value)
+bool cl_counter_gt(const cl_counter_t *c, long long value)
 {
     cl_counter_s *p = (cl_counter_s *)c;
     long long v;
@@ -389,7 +411,7 @@ __PUB_API__ bool cl_counter_gt(const cl_counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool cl_counter_ge(const cl_counter_t *c, long long value)
+bool cl_counter_ge(const cl_counter_t *c, long long value)
 {
     cl_counter_s *p = (cl_counter_s *)c;
     long long v;
@@ -407,7 +429,7 @@ __PUB_API__ bool cl_counter_ge(const cl_counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool cl_counter_eq(const cl_counter_t *c, long long value)
+bool cl_counter_eq(const cl_counter_t *c, long long value)
 {
     cl_counter_s *p = (cl_counter_s *)c;
 
@@ -419,7 +441,7 @@ __PUB_API__ bool cl_counter_eq(const cl_counter_t *c, long long value)
     return false;
 }
 
-__PUB_API__ bool cl_counter_ne(const cl_counter_t *c, long long value)
+bool cl_counter_ne(const cl_counter_t *c, long long value)
 {
     cl_counter_s *p = (cl_counter_s *)c;
 
@@ -431,18 +453,7 @@ __PUB_API__ bool cl_counter_ne(const cl_counter_t *c, long long value)
     return false;
 }
 
-static bool is_between_limits(long long value, const cl_counter_s *c)
-{
-    if ((value >= CL_OBJECT_AS_LLONG(c->min)) &&
-        (value <= CL_OBJECT_AS_LLONG(c->max)))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-__PUB_API__ long long cl_counter_get_and_set(cl_counter_t *c,
+long long cl_counter_get_and_set(cl_counter_t *c,
     long long new_value)
 {
     cl_counter_s *p;
@@ -467,7 +478,7 @@ __PUB_API__ long long cl_counter_get_and_set(cl_counter_t *c,
     return v;
 }
 
-__PUB_API__ int cl_counter_set(cl_counter_t *c, long long new_value)
+int cl_counter_set(cl_counter_t *c, long long new_value)
 {
     cl_counter_s *p;
 

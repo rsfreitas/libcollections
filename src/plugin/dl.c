@@ -119,31 +119,11 @@ static struct dl_plugin_driver __dl_driver[] = {
 #define NDRIVERS            \
     (sizeof(__dl_driver) / sizeof(__dl_driver[0]))
 
-void dl_enable_plugin_types(enum cl_plugin_type types)
-{
-    unsigned int i = 0;
-
-    for (i = 1; i < NDRIVERS; i++) {
-        if (types & (int)pow(2, i))
-            __dl_driver[i].enabled = true;
-        else
-            __dl_driver[i].enabled = false;
-    }
-}
-
-bool dl_is_plugin_enabled(enum cl_plugin_type type)
-{
-    int index = 0, value = type;
-
-    while (value >>= 1)
-        index++;
-
-    if ((unsigned int)index < NDRIVERS)
-        if (__dl_driver[index].enabled == true)
-            return true;
-
-    return false;
-}
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static struct dl_plugin_driver *get_plugin_driver(enum cl_plugin_type type)
 {
@@ -164,27 +144,6 @@ static void __dl_library_uninit(const struct cl_ref_s *ref __attribute__((unused
     for (i = NDRIVERS - 1; i >= 0; i--)
         if (__dl_driver[i].enabled == true)
             (__dl_driver[i].library_uninit)(__dl_driver[i].data);
-}
-
-void dl_library_init(void)
-{
-    int old = 0, new = 1;
-    unsigned int i = 0;
-
-    if (cl_ref_bool_compare(&__dl.ref, old, new) == true) {
-        __dl.ref.free = __dl_library_uninit;
-
-        /* call all drivers init function */
-        for (i = 0; i < NDRIVERS; i++)
-            if (__dl_driver[i].enabled == true)
-                __dl_driver[i].data = (__dl_driver[i].library_init)();
-    } else
-        cl_ref_inc(&__dl.ref);
-}
-
-void dl_library_uninit(void)
-{
-    cl_ref_dec(&__dl.ref);
 }
 
 static cl_string_t *get_file_info(const char *filename)
@@ -213,6 +172,64 @@ static enum cl_plugin_type parse_plugin_type(cl_string_t *s)
     return t;
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
+void dl_enable_plugin_types(enum cl_plugin_type types)
+{
+    unsigned int i = 0;
+
+    for (i = 1; i < NDRIVERS; i++) {
+        if (types & (int)pow(2, i))
+            __dl_driver[i].enabled = true;
+        else
+            __dl_driver[i].enabled = false;
+    }
+}
+
+CL_INTERNAL_API
+bool dl_is_plugin_enabled(enum cl_plugin_type type)
+{
+    int index = 0, value = type;
+
+    while (value >>= 1)
+        index++;
+
+    if ((unsigned int)index < NDRIVERS)
+        if (__dl_driver[index].enabled == true)
+            return true;
+
+    return false;
+}
+
+CL_INTERNAL_API
+void dl_library_init(void)
+{
+    int old = 0, new = 1;
+    unsigned int i = 0;
+
+    if (cl_ref_bool_compare(&__dl.ref, old, new) == true) {
+        __dl.ref.free = __dl_library_uninit;
+
+        /* call all drivers init function */
+        for (i = 0; i < NDRIVERS; i++)
+            if (__dl_driver[i].enabled == true)
+                __dl_driver[i].data = (__dl_driver[i].library_init)();
+    } else
+        cl_ref_inc(&__dl.ref);
+}
+
+CL_INTERNAL_API
+void dl_library_uninit(void)
+{
+    cl_ref_dec(&__dl.ref);
+}
+
+CL_INTERNAL_API
 struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
 {
     cl_string_t *info = NULL;
@@ -233,6 +250,7 @@ struct dl_plugin_driver *dl_get_plugin_driver(const char *pathname)
 /*
  * Load plugin to memory.
  */
+CL_INTERNAL_API
 void *dl_open(struct dl_plugin_driver *drv, const char *pathname)
 {
     void *p = NULL;
@@ -252,6 +270,7 @@ end_block:
 /*
  * Release plugin from memory.
  */
+CL_INTERNAL_API
 int dl_close(struct dl_plugin_driver *drv, void *handle)
 {
     int ret = -1;
@@ -271,6 +290,7 @@ end_block:
 /*
  * Load information from a plugin.
  */
+CL_INTERNAL_API
 cl_plugin_info_t *dl_load_info(struct dl_plugin_driver *drv, void *handle)
 {
     cl_plugin_info_t *info = NULL;
@@ -291,6 +311,7 @@ end_block:
  * Call the plugin startup function. It should return 0 on success or something
  * different otherwise.
  */
+CL_INTERNAL_API
 int dl_plugin_startup(struct dl_plugin_driver *drv, void *handle,
     cl_plugin_info_t *info)
 {
@@ -312,6 +333,7 @@ end_block:
  * Call the plugin shutdown function. It should return 0 on success or
  * something different otherwise.
  */
+CL_INTERNAL_API
 int dl_plugin_shutdown(cplugin_s *cpl)
 {
     int ret = -1;
@@ -330,6 +352,7 @@ end_block:
     return ret;
 }
 
+CL_INTERNAL_API
 cl_object_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo)
 {
     struct dl_plugin_driver *drv = NULL;
@@ -342,6 +365,7 @@ cl_object_t *dl_call(cplugin_s *cpl, struct cplugin_function_s *foo)
     return (drv->call)(drv->data, foo, cpl);
 }
 
+CL_INTERNAL_API
 struct cplugin_function_s *dl_load_function(cplugin_s *cpl,
     const char *name, enum cl_type return_type, int argc, va_list ap)
 {

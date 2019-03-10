@@ -62,6 +62,12 @@ cl_struct_declare(cfg_file_s, cl_cfg_file_members);
 
 /*
  *
+ * Internal functions
+ *
+ */
+
+/*
+ *
  * Objects creation/destruction
  *
  */
@@ -189,12 +195,6 @@ static cfg_file_s *new_cfg_file_s(const char *filename)
 
     return p;
 }
-
-/*
- *
- * Internal functions
- *
- */
 
 static bool is_full_block_name(const char *line)
 {
@@ -484,40 +484,40 @@ static int write_line_to_file(cl_list_node_t *a, void *b)
                 : l->line_type;
 
     switch (type) {
-        case CFG_LINE_EMPTY:
-            cl_string_cat(s, "\n");
-            break;
+    case CFG_LINE_EMPTY:
+        cl_string_cat(s, "\n");
+        break;
 
-        case CFG_LINE_COMMENT:
-            cl_string_cat(s, "%c %s\n", l->delim,
+    case CFG_LINE_COMMENT:
+        cl_string_cat(s, "%c %s\n", l->delim,
+                      cl_string_valueof(l->comment));
+
+        break;
+
+    case CFG_LINE_SECTION:
+        if (l->line_type & CFG_LINE_COMMENT) {
+            cl_string_cat(s, "%s %c %s\n", cl_string_valueof(l->name),
+                          l->delim, cl_string_valueof(l->comment));
+        } else
+            cl_string_cat(s, "%s\n", cl_string_valueof(l->name));
+
+        break;
+
+    case CFG_LINE_KEY:
+        v = cl_object_to_cstring(l->value);
+
+        if (l->line_type & CFG_LINE_COMMENT) {
+            cl_string_cat(s, "%s=%s %c %s\n", cl_string_valueof(l->name),
+                          (NULL == v) ? "" : cl_string_valueof(v), l->delim,
                           cl_string_valueof(l->comment));
+        } else
+            cl_string_cat(s, "%s=%s\n", cl_string_valueof(l->name),
+                          (NULL == v) ? "" : cl_string_valueof(v));
 
-            break;
+        if (v != NULL)
+            cl_string_destroy(v);
 
-        case CFG_LINE_SECTION:
-            if (l->line_type & CFG_LINE_COMMENT) {
-                cl_string_cat(s, "%s %c %s\n", cl_string_valueof(l->name),
-                              l->delim, cl_string_valueof(l->comment));
-            } else
-                cl_string_cat(s, "%s\n", cl_string_valueof(l->name));
-
-            break;
-
-        case CFG_LINE_KEY:
-            v = cl_object_to_cstring(l->value);
-
-            if (l->line_type & CFG_LINE_COMMENT) {
-                cl_string_cat(s, "%s=%s %c %s\n", cl_string_valueof(l->name),
-                              (NULL == v) ? "" : cl_string_valueof(v), l->delim,
-                              cl_string_valueof(l->comment));
-            } else
-                cl_string_cat(s, "%s=%s\n", cl_string_valueof(l->name),
-                              (NULL == v) ? "" : cl_string_valueof(v));
-
-            if (v != NULL)
-                cl_string_destroy(v);
-
-            break;
+        break;
     }
 
     if (l->child != NULL)
@@ -539,10 +539,42 @@ static cl_string_t *print_cfg(const cfg_file_s *file)
     return s;
 }
 
+static int append_entry_name(cl_list_node_t *a, void *b)
+{
+    cfg_line_s *entry = (cfg_line_s *)cl_list_node_content(a);
+    cl_stringlist_t *keys = (cl_stringlist_t *)b;
+
+    cl_stringlist_add(keys, entry->name);
+
+    return 0;
+}
+
+static int append_block_name(cl_list_node_t *a, void *b)
+{
+    cfg_line_s *block = (cfg_line_s *)cl_list_node_content(a);
+    cl_stringlist_t *sections = (cl_stringlist_t *)b;
+    cl_string_t *s = cl_string_dup(block->name);
+
+    /* Remove brackets */
+    cl_string_dchr(s, '[');
+    cl_string_dchr(s, ']');
+
+    cl_stringlist_add(sections, s);
+    cl_string_unref(s);
+
+    return 0;
+}
+
+/*
+ *
+ * API
+ *
+ */
+
 /*
  * Loads a INI configuration file to a cl_cfg_file_t value.
  */
-__PUB_API__ cl_cfg_file_t *cl_cfg_load(const char *filename)
+cl_cfg_file_t *cl_cfg_load(const char *filename)
 {
     cfg_file_s *file = NULL;
 
@@ -558,7 +590,7 @@ __PUB_API__ cl_cfg_file_t *cl_cfg_load(const char *filename)
     return file;
 }
 
-__PUB_API__ cl_cfg_file_t *cl_cfg_create(void)
+cl_cfg_file_t *cl_cfg_create(void)
 {
     __clib_function_init__(false, NULL, -1, NULL);
     return __cfg_load(NULL);
@@ -567,7 +599,7 @@ __PUB_API__ cl_cfg_file_t *cl_cfg_create(void)
 /*
  * Frees all memory previously allocated on a cl_cfg_file_t value.
  */
-__PUB_API__ int cl_cfg_unload(cl_cfg_file_t *file)
+int cl_cfg_unload(cl_cfg_file_t *file)
 {
     return cl_cfg_unref(file);
 }
@@ -576,7 +608,7 @@ __PUB_API__ int cl_cfg_unload(cl_cfg_file_t *file)
  * Write the contents of a cl_cfg_file_t value to a file. All file content will
  * be overwritten.
  */
-__PUB_API__ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename)
+int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename)
 {
     cfg_file_s *f = (cfg_file_s *)file;
     FILE *fp;
@@ -611,7 +643,7 @@ __PUB_API__ int cl_cfg_sync(const cl_cfg_file_t *file, const char *filename)
 /*
  * Sets a value to a specific entry inside a block.
  */
-__PUB_API__ int cl_cfg_set_value(cl_cfg_file_t *file, const char *block,
+int cl_cfg_set_value(cl_cfg_file_t *file, const char *block,
     const char *entry, const char *fmt, ...)
 {
     cfg_file_s *f = (cfg_file_s *)file;
@@ -701,7 +733,7 @@ end_block:
     return 0;
 }
 
-__PUB_API__ int cl_cfg_set_value_ex(cl_cfg_file_t *file, const char *block,
+int cl_cfg_set_value_ex(cl_cfg_file_t *file, const char *block,
     const char *entry, const char *content)
 {
     return cl_cfg_set_value(file, block, entry, "%s", content);
@@ -710,7 +742,7 @@ __PUB_API__ int cl_cfg_set_value_ex(cl_cfg_file_t *file, const char *block,
 /*
  * Search and get a pointer to a specific block from a cl_cfg_file_t object.
  */
-__PUB_API__ cl_cfg_block_t *cl_cfg_block(const cl_cfg_file_t *file,
+cl_cfg_block_t *cl_cfg_block(const cl_cfg_file_t *file,
     const char *block)
 {
     cfg_file_s *f = (cfg_file_s *)file;
@@ -737,7 +769,7 @@ __PUB_API__ cl_cfg_block_t *cl_cfg_block(const cl_cfg_file_t *file,
     return l;
 }
 
-__PUB_API__ cl_cfg_entry_t *cl_cfg_entry(const cl_cfg_file_t *file,
+cl_cfg_entry_t *cl_cfg_entry(const cl_cfg_file_t *file,
     const char *block, const char *entry)
 {
     cl_cfg_block_t *s = NULL;
@@ -753,7 +785,7 @@ __PUB_API__ cl_cfg_entry_t *cl_cfg_entry(const cl_cfg_file_t *file,
 /*
  * Search and get a pointer to a specific entry from a cl_cfg_block_t object.
  */
-__PUB_API__ cl_cfg_entry_t *cl_cfg_block_entry(const cl_cfg_block_t *block,
+cl_cfg_entry_t *cl_cfg_block_entry(const cl_cfg_block_t *block,
     const char *entry)
 {
     cfg_line_s *s = (cfg_line_s *)block;
@@ -783,7 +815,7 @@ __PUB_API__ cl_cfg_entry_t *cl_cfg_block_entry(const cl_cfg_block_t *block,
 /*
  * Gets the block name from a cl_cfg_block_t object.
  */
-__PUB_API__ cl_string_t *cl_cfg_block_name(const cl_cfg_block_t *block)
+cl_string_t *cl_cfg_block_name(const cl_cfg_block_t *block)
 {
     cfg_line_s *s = (cfg_line_s *)block;
 
@@ -795,7 +827,7 @@ __PUB_API__ cl_string_t *cl_cfg_block_name(const cl_cfg_block_t *block)
 /*
  * Gets the entry name from a cl_cfg_entry_t object.
  */
-__PUB_API__ cl_string_t *cl_cfg_entry_name(const cl_cfg_entry_t *entry)
+cl_string_t *cl_cfg_entry_name(const cl_cfg_entry_t *entry)
 {
     cfg_line_s *k = (cfg_line_s *)entry;
 
@@ -807,7 +839,7 @@ __PUB_API__ cl_string_t *cl_cfg_entry_name(const cl_cfg_entry_t *entry)
 /*
  * Gets the actual value from a cl_cfg_entry_t object.
  */
-__PUB_API__ cl_object_t *cl_cfg_entry_value(const cl_cfg_entry_t *entry)
+cl_object_t *cl_cfg_entry_value(const cl_cfg_entry_t *entry)
 {
     cfg_line_s *k = (cfg_line_s *)entry;
 
@@ -816,7 +848,7 @@ __PUB_API__ cl_object_t *cl_cfg_entry_value(const cl_cfg_entry_t *entry)
     return cl_object_ref(k->value);
 }
 
-__PUB_API__ cl_string_t *cl_cfg_entry_comment(const cl_cfg_entry_t *entry)
+cl_string_t *cl_cfg_entry_comment(const cl_cfg_entry_t *entry)
 {
     cfg_line_s *k = (cfg_line_s *)entry;
 
@@ -825,7 +857,7 @@ __PUB_API__ cl_string_t *cl_cfg_entry_comment(const cl_cfg_entry_t *entry)
     return k->comment;
 }
 
-__PUB_API__ cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file)
+cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file)
 {
     cl_string_t *s = NULL;
 
@@ -835,17 +867,7 @@ __PUB_API__ cl_string_t *cl_cfg_to_cstring(const cl_cfg_file_t *file)
     return s;
 }
 
-static int append_entry_name(cl_list_node_t *a, void *b)
-{
-    cfg_line_s *entry = (cfg_line_s *)cl_list_node_content(a);
-    cl_stringlist_t *keys = (cl_stringlist_t *)b;
-
-    cl_stringlist_add(keys, entry->name);
-
-    return 0;
-}
-
-__PUB_API__ cl_stringlist_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
+cl_stringlist_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
     const char *block)
 {
     cfg_line_s *s;
@@ -862,7 +884,7 @@ __PUB_API__ cl_stringlist_t *cl_cfg_all_entry_names(const cl_cfg_file_t *file,
     return keys;
 }
 
-__PUB_API__ cl_stringlist_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block)
+cl_stringlist_t *cl_cfg_block_entry_names(const cl_cfg_block_t *block)
 {
     cfg_line_s *s = (cfg_line_s *)block;
     cl_stringlist_t *keys;
@@ -874,23 +896,7 @@ __PUB_API__ cl_stringlist_t *cl_cfg_block_entry_names(const cl_cfg_block_t *bloc
     return keys;
 }
 
-static int append_block_name(cl_list_node_t *a, void *b)
-{
-    cfg_line_s *block = (cfg_line_s *)cl_list_node_content(a);
-    cl_stringlist_t *sections = (cl_stringlist_t *)b;
-    cl_string_t *s = cl_string_dup(block->name);
-
-    /* Remove brackets */
-    cl_string_dchr(s, '[');
-    cl_string_dchr(s, ']');
-
-    cl_stringlist_add(sections, s);
-    cl_string_unref(s);
-
-    return 0;
-}
-
-__PUB_API__ cl_stringlist_t *cl_cfg_all_block_names(const cl_cfg_file_t *file)
+cl_stringlist_t *cl_cfg_all_block_names(const cl_cfg_file_t *file)
 {
     cfg_file_s *f = (cfg_file_s *)file;
     cl_stringlist_t *sections = NULL;
@@ -902,14 +908,14 @@ __PUB_API__ cl_stringlist_t *cl_cfg_all_block_names(const cl_cfg_file_t *file)
     return sections;
 }
 
-__PUB_API__ cl_cfg_entry_t *cl_cfg_entry_ref(cl_cfg_entry_t *entry)
+cl_cfg_entry_t *cl_cfg_entry_ref(cl_cfg_entry_t *entry)
 {
     __clib_function_init__(true, entry, CL_OBJ_CFG_ENTRY, NULL);
 
     return cl_cfg_line_ref(entry);
 }
 
-__PUB_API__ int cl_cfg_entry_unref(cl_cfg_entry_t *entry)
+int cl_cfg_entry_unref(cl_cfg_entry_t *entry)
 {
     __clib_function_init__(true, entry, CL_OBJ_CFG_ENTRY, -1);
     cl_cfg_line_unref(entry);
@@ -917,14 +923,14 @@ __PUB_API__ int cl_cfg_entry_unref(cl_cfg_entry_t *entry)
     return 0;
 }
 
-__PUB_API__ cl_cfg_block_t *cl_cfg_block_ref(cl_cfg_block_t *block)
+cl_cfg_block_t *cl_cfg_block_ref(cl_cfg_block_t *block)
 {
     __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, NULL);
 
     return cl_cfg_line_ref(block);
 }
 
-__PUB_API__ int cl_cfg_block_unref(cl_cfg_block_t *block)
+int cl_cfg_block_unref(cl_cfg_block_t *block)
 {
     __clib_function_init__(true, block, CL_OBJ_CFG_BLOCK, -1);
     cl_cfg_line_unref(block);
@@ -932,7 +938,7 @@ __PUB_API__ int cl_cfg_block_unref(cl_cfg_block_t *block)
     return 0;
 }
 
-__PUB_API__ cl_cfg_file_t *cl_cfg_ref(cl_cfg_file_t *file)
+cl_cfg_file_t *cl_cfg_ref(cl_cfg_file_t *file)
 {
     cfg_file_s *f = (cfg_file_s *)file;
 
@@ -942,7 +948,7 @@ __PUB_API__ cl_cfg_file_t *cl_cfg_ref(cl_cfg_file_t *file)
     return file;
 }
 
-__PUB_API__ int cl_cfg_unref(cl_cfg_file_t *file)
+int cl_cfg_unref(cl_cfg_file_t *file)
 {
     cfg_file_s *f = (cfg_file_s *)file;
 
@@ -952,7 +958,7 @@ __PUB_API__ int cl_cfg_unref(cl_cfg_file_t *file)
     return 0;
 }
 
-__PUB_API__ int cl_cfg_set_value_comment(cl_cfg_file_t *file,
+int cl_cfg_set_value_comment(cl_cfg_file_t *file,
     const char *block, const char *entry, const char *fmt, ...)
 {
     cfg_line_s *cl_key = NULL;
@@ -980,7 +986,7 @@ __PUB_API__ int cl_cfg_set_value_comment(cl_cfg_file_t *file,
     return 0;
 }
 
-__PUB_API__ cl_object_t *cl_cfg_get_value(const cl_cfg_file_t *file,
+cl_object_t *cl_cfg_get_value(const cl_cfg_file_t *file,
     const char *block, const char *entry)
 {
     cfg_line_s *cl_entry = NULL;

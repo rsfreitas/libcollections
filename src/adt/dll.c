@@ -35,8 +35,67 @@ struct cl_dll_node {
 };
 
 /*
+ *
+ * Internal functions
+ *
+ */
+
+static void *cl_dll_split(void *root)
+{
+    struct cl_dll_node *f, *s, *tmp;
+
+    f = s = root;
+
+    while (f->next && f->next->next) {
+        f = f->next->next;
+        s = s->next;
+    }
+
+    tmp = s->next;
+    s->next = NULL;
+
+    return tmp;
+}
+
+static void *cl_dll_merge(void *p1, void *p2, int (*cmp)(void *, void*))
+{
+    struct cl_dll_node *f = p1, *s = p2, *q;
+    int ret;
+
+    if (NULL == p1)
+        return p2;
+
+    if (NULL == p2)
+        return p1;
+
+    /* The cmp function must return < 0 if @p1 is less than @p2 */
+    ret = cmp(p1, p2);
+
+    if (ret < 0) {
+        f->next = cl_dll_merge(f->next, s, cmp);
+        f->next->prev = f;
+        f->prev = NULL;
+        q = f;
+    } else {
+        s->next = cl_dll_merge(f, s->next, cmp);
+        s->next->prev = s;
+        s->prev = NULL;
+        q = s;
+    }
+
+    return q;
+}
+
+/*
+ *
+ * Internal API
+ *
+ */
+
+/*
  * Pushes a new node onto the list.
  */
+CL_INTERNAL_API
 void *cl_dll_push(void *root, void *node)
 {
     struct cl_dll_node *l = root, *p = node;
@@ -60,6 +119,7 @@ void *cl_dll_push(void *root, void *node)
 /*
  * Pop a node from a list.
  */
+CL_INTERNAL_API
 void *cl_dll_pop(void *root)
 {
     struct cl_dll_node **pp = root;
@@ -84,6 +144,7 @@ void *cl_dll_pop(void *root)
 /*
  * Shifts a node onto the far end of a list.
  */
+CL_INTERNAL_API
 void *cl_dll_unshift(void *root, void *node)
 {
     struct cl_dll_node *l = root;
@@ -115,6 +176,7 @@ void *cl_dll_unshift(void *root, void *node)
 /*
  * Shifts a node from the far end of a list.
  */
+CL_INTERNAL_API
 void *cl_dll_shift(void *root)
 {
     struct cl_dll_node **pp = root;
@@ -145,6 +207,7 @@ void *cl_dll_shift(void *root)
 /*
  * Returns the number of nodes of a list.
  */
+CL_INTERNAL_API
 int cl_dll_size(void *root)
 {
     struct cl_dll_node *p = root;
@@ -164,6 +227,7 @@ int cl_dll_size(void *root)
 /*
  * Maps a function to every node on a list.
  */
+CL_INTERNAL_API
 void *cl_dll_map(void *root, int (*foo)(void *, void *), void *data)
 {
     struct cl_dll_node *p = NULL;
@@ -180,6 +244,7 @@ void *cl_dll_map(void *root, int (*foo)(void *, void *), void *data)
 /*
  * Maps a function to every node on a list.
  */
+CL_INTERNAL_API
 void *cl_dll_map_indexed(void *root,
     int (*foo)(unsigned int, void *, void *), void *data)
 {
@@ -204,6 +269,7 @@ void *cl_dll_map_indexed(void *root,
 /*
  * Maps a function to every node on a list from the end to the top.
  */
+CL_INTERNAL_API
 void *cl_dll_map_reverse(void *root, int (*foo)(void *, void *),
     void *data)
 {
@@ -225,6 +291,7 @@ void *cl_dll_map_reverse(void *root, int (*foo)(void *, void *),
 /*
  * Maps a function to every node on a list from the end to the top.
  */
+CL_INTERNAL_API
 void *cl_dll_map_indexed_reverse(void *root,
     int (*foo)(unsigned int, void *, void *), void *data)
 {
@@ -253,6 +320,7 @@ void *cl_dll_map_indexed_reverse(void *root,
 /*
  * Frees a list of nodes.
  */
+CL_INTERNAL_API
 void cl_dll_free(void *root, void (*foo)(void *))
 {
     struct cl_dll_node *p;
@@ -269,6 +337,7 @@ void cl_dll_free(void *root, void (*foo)(void *))
 /*
  * Gets a pointer to a specific node inside a list.
  */
+CL_INTERNAL_API
 void *cl_dll_at(void *root, unsigned int index)
 {
     struct cl_dll_node *p;
@@ -286,6 +355,7 @@ void *cl_dll_at(void *root, unsigned int index)
 /*
  * Moves all elements from a list to another
  */
+CL_INTERNAL_API
 void *cl_dll_move(void *root)
 {
     struct cl_dll_node *n = NULL, *p;
@@ -301,6 +371,7 @@ void *cl_dll_move(void *root)
 /*
  * Extracts elements from a list according a specific filter.
  */
+CL_INTERNAL_API
 void *cl_dll_filter(void *root, int (*foo)(void *, void *), void *data)
 {
     struct cl_dll_node **pp = root;
@@ -332,6 +403,7 @@ void *cl_dll_filter(void *root, int (*foo)(void *, void *), void *data)
 /*
  * Deletes elements from a list according a specific filter function.
  */
+CL_INTERNAL_API
 void *cl_dll_delete(void *root, int (*filter)(void *, void *),
     void *data, void (*foo)(void *))
 {
@@ -351,6 +423,7 @@ void *cl_dll_delete(void *root, int (*filter)(void *, void *),
 /*
  * Delete an element from a list at a specific position.
  */
+CL_INTERNAL_API
 void *cl_dll_delete_indexed(void *root, unsigned int index,
     void (*foo)(void *))
 {
@@ -413,55 +486,10 @@ end_block:
     return r;
 }
 
-static void *cl_dll_split(void *root)
-{
-    struct cl_dll_node *f, *s, *tmp;
-
-    f = s = root;
-
-    while (f->next && f->next->next) {
-        f = f->next->next;
-        s = s->next;
-    }
-
-    tmp = s->next;
-    s->next = NULL;
-
-    return tmp;
-}
-
-static void *cl_dll_merge(void *p1, void *p2, int (*cmp)(void *, void*))
-{
-    struct cl_dll_node *f = p1, *s = p2, *q;
-    int ret;
-
-    if (NULL == p1)
-        return p2;
-
-    if (NULL == p2)
-        return p1;
-
-    /* The cmp function must return < 0 if @p1 is less than @p2 */
-    ret = cmp(p1, p2);
-
-    if (ret < 0) {
-        f->next = cl_dll_merge(f->next, s, cmp);
-        f->next->prev = f;
-        f->prev = NULL;
-        q = f;
-    } else {
-        s->next = cl_dll_merge(f, s->next, cmp);
-        s->next->prev = s;
-        s->prev = NULL;
-        q = s;
-    }
-
-    return q;
-}
-
 /*
  * Sort all elements from a list using mergesort algorithm.
  */
+CL_INTERNAL_API
 void *cl_dll_mergesort(void *root, int (*cmp)(void *, void *))
 {
     struct cl_dll_node *p = root;
@@ -477,6 +505,7 @@ void *cl_dll_mergesort(void *root, int (*cmp)(void *, void *))
     return root;
 }
 
+CL_INTERNAL_API
 bool cl_dll_contains(void *root, void *p,
     int (*foo)(void *, void *))
 {
@@ -491,6 +520,7 @@ bool cl_dll_contains(void *root, void *p,
     return true;
 }
 
+CL_INTERNAL_API
 int cl_dll_indexof(void *root, void *n, int (*foo)(void *, void *))
 {
     struct cl_dll_node *p = NULL;
@@ -505,6 +535,7 @@ int cl_dll_indexof(void *root, void *n, int (*foo)(void *, void *))
     return -1;
 }
 
+CL_INTERNAL_API
 int cl_dll_last_indexof(void *root, void *n,
     int (*foo)(void *, void *))
 {
@@ -526,6 +557,7 @@ int cl_dll_last_indexof(void *root, void *n,
     return -1;
 }
 
+CL_INTERNAL_API
 void *cl_dll_peek(void *root)
 {
     __clib_function_init__(false, NULL, -1, NULL);
@@ -536,6 +568,7 @@ void *cl_dll_peek(void *root)
     return root;
 }
 
+CL_INTERNAL_API
 void *cl_dll_middle(void *root)
 {
     struct cl_dll_node *l = root, *p = NULL, *fp = NULL;
@@ -552,6 +585,7 @@ void *cl_dll_middle(void *root)
     return p;
 }
 
+CL_INTERNAL_API
 void *cl_dll_rotate(void *root, unsigned int n)
 {
     struct cl_dll_node *p = NULL, *q = NULL, *l = NULL, *r = root;

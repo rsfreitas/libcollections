@@ -53,6 +53,12 @@ struct jtmp_data {
     jclass          cls;
 };
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static void set_custom_plugin_info(cl_plugin_info_t *info, jobject obj)
 {
     struct jinfo *p = NULL;
@@ -73,152 +79,6 @@ static void release_cutom_plugin_info(struct jinfo *info)
         return;
 
     free(info);
-}
-
-/*
- *
- * Plugin Driver API
- *
- */
-
-void *jni_library_init(void)
-{
-    struct jdriver *j = NULL;
-    JavaVMInitArgs vm_args;
-    JavaVMOption options;
-
-    j = calloc(1, sizeof(struct jdriver));
-
-    if (NULL == j)
-        return NULL;
-
-    options.optionString = "-Djava.class.path=" CL_PLUGIN_CLASSPATH;
-    vm_args.version = JNI_VERSION_1_6;
-    vm_args.options = &options;
-    vm_args.nOptions = MAX_JVM_OPTIONS;
-    vm_args.ignoreUnrecognized = JNI_TRUE;
-
-    /* Create the Java VM */
-    if (JNI_CreateJavaVM(&j->jvm, (void **)&j->env, &vm_args) < 0) {
-        /* Error */
-        return NULL;
-    }
-
-    return j;
-}
-
-void jni_library_uninit(void *data)
-{
-    struct jdriver *j = (struct jdriver *)data;
-
-    if (j != NULL)
-        (*j->jvm)->DestroyJavaVM(j->jvm);
-}
-
-cl_plugin_info_t *jni_load_info(void *data, void *handle)
-{
-    struct cplugin_entry_api_methods {
-        char *name;
-        char *signature;
-        char *data;
-    };
-
-    struct jdriver *j = (struct jdriver *)data;
-    cl_plugin_info_t *info = NULL;
-    jclass cls;
-    jmethodID constructor, m;
-    jobject obj;
-    jstring s;
-    int i, t;
-    struct cplugin_entry_api_methods emethods[] = {
-        { "getName",        "()Ljava/lang/String;",  NULL },
-        { "getVersion",     "()Ljava/lang/String;",  NULL },
-        { "getAuthor",      "()Ljava/lang/String;",  NULL },
-        { "getDescription", "()Ljava/lang/String;",  NULL }
-    };
-
-    t = sizeof(emethods) / sizeof(emethods[0]);
-
-    /* call class constructor */
-    cls = (jclass)handle;
-    constructor = (*j->env)->GetMethodID(j->env, cls, "<init>", "()V");
-    obj = (*j->env)->NewObject(j->env, cls, constructor);
-
-    /* TODO: validate if we can cantinue... */
-
-    /* call CpluginEntryAPI methods */
-    for (i = 0; i < t; i++) {
-        m = (*j->env)->GetMethodID(j->env, cls, emethods[i].name,
-                                   emethods[i].signature);
-
-        s = (jstring)(*j->env)->CallObjectMethod(j->env, obj, m);
-        emethods[i].data = (char *)(*j->env)->GetStringUTFChars(j->env,
-                                                                s, 0);
-    }
-
-    info = info_create_from_data(emethods[0].data, emethods[1].data,
-                                 emethods[2].data, emethods[3].data);
-
-    if (info != NULL)
-        set_custom_plugin_info(info, obj);
-
-    return info;
-}
-
-cl_string_t *type_to_jni_type(enum cl_type type)
-{
-    cl_string_t *r = NULL;
-
-    switch (type) {
-        case CL_VOID:
-            r = cl_string_create("V");
-            break;
-
-        case CL_CHAR:
-        case CL_UCHAR:
-            r = cl_string_create("B"); /* byte */
-            break;
-
-        case CL_INT:
-        case CL_UINT:
-        case CL_LONG:
-        case CL_ULONG:
-            r = cl_string_create("I");
-            break;
-
-        case CL_SINT:
-        case CL_USINT:
-            r = cl_string_create("S");
-            break;
-
-        case CL_FLOAT:
-            r = cl_string_create("F");
-            break;
-
-        case CL_DOUBLE:
-            r = cl_string_create("D");
-            break;
-
-        case CL_LLONG:
-        case CL_ULLONG:
-            r = cl_string_create("J");
-            break;
-
-        case CL_POINTER:
-        case CL_CSTRING:
-            r = cl_string_create("Ljava/lang/Object;");
-            break;
-
-        case CL_STRING:
-            r = cl_string_create("Ljava/lang/String;");
-            break;
-
-        case CL_BOOLEAN:
-            r = cl_string_create("Z");
-            break;
-    }
-
-    return r;
 }
 
 static void add_arguments_signature(cl_string_t *jargs,
@@ -278,49 +138,6 @@ static int jni_load_function(void *a, void *b)
 
     cl_string_unref(signature);
     foo->symbol = m;
-
-    return 0;
-}
-
-int jni_load_functions(void *data, struct cplugin_function_s *flist,
-    void *handle)
-{
-    struct jdriver *j = (struct jdriver *)data;
-    jclass cls = (jclass)handle;
-    struct jtmp_data jtmp;
-
-    jtmp.jdriver = j;
-    jtmp.cls = cls;
-
-    if (cl_dll_map(flist, jni_load_function, &jtmp) != NULL)
-        return -1;
-
-    return 0;
-}
-
-void *jni_open(void *data, const char *pathname)
-{
-    struct jdriver *j = (struct jdriver *)data;
-    jclass cls;
-    char *classname;
-
-    classname = strip_filename(pathname);
-    cls = (*j->env)->FindClass(j->env, classname);
-    free(classname);
-
-    if (NULL == cls) {
-        /* Class not found */
-        return NULL;
-    }
-
-    return cls;
-}
-
-int jni_close(void *data, void *handle __attribute__((unused)))
-{
-    struct jdriver *j = (struct jdriver *)data;
-
-    (*j->jvm)->DestroyJavaVM(j->jvm);
 
     return 0;
 }
@@ -598,6 +415,209 @@ static void *jni_call_p(struct jdriver *j, struct jinfo *jinfo,
     return jret;
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+/*
+ *
+ * Plugin Driver API
+ *
+ */
+
+CL_INTERNAL_API
+void *jni_library_init(void)
+{
+    struct jdriver *j = NULL;
+    JavaVMInitArgs vm_args;
+    JavaVMOption options;
+
+    j = calloc(1, sizeof(struct jdriver));
+
+    if (NULL == j)
+        return NULL;
+
+    options.optionString = "-Djava.class.path=" CL_PLUGIN_CLASSPATH;
+    vm_args.version = JNI_VERSION_1_6;
+    vm_args.options = &options;
+    vm_args.nOptions = MAX_JVM_OPTIONS;
+    vm_args.ignoreUnrecognized = JNI_TRUE;
+
+    /* Create the Java VM */
+    if (JNI_CreateJavaVM(&j->jvm, (void **)&j->env, &vm_args) < 0) {
+        /* Error */
+        return NULL;
+    }
+
+    return j;
+}
+
+CL_INTERNAL_API
+void jni_library_uninit(void *data)
+{
+    struct jdriver *j = (struct jdriver *)data;
+
+    if (j != NULL)
+        (*j->jvm)->DestroyJavaVM(j->jvm);
+}
+
+CL_INTERNAL_API
+cl_plugin_info_t *jni_load_info(void *data, void *handle)
+{
+    struct cplugin_entry_api_methods {
+        char *name;
+        char *signature;
+        char *data;
+    };
+
+    struct jdriver *j = (struct jdriver *)data;
+    cl_plugin_info_t *info = NULL;
+    jclass cls;
+    jmethodID constructor, m;
+    jobject obj;
+    jstring s;
+    int i, t;
+    struct cplugin_entry_api_methods emethods[] = {
+        { "getName",        "()Ljava/lang/String;",  NULL },
+        { "getVersion",     "()Ljava/lang/String;",  NULL },
+        { "getAuthor",      "()Ljava/lang/String;",  NULL },
+        { "getDescription", "()Ljava/lang/String;",  NULL }
+    };
+
+    t = sizeof(emethods) / sizeof(emethods[0]);
+
+    /* call class constructor */
+    cls = (jclass)handle;
+    constructor = (*j->env)->GetMethodID(j->env, cls, "<init>", "()V");
+    obj = (*j->env)->NewObject(j->env, cls, constructor);
+
+    /* TODO: validate if we can cantinue... */
+
+    /* call CpluginEntryAPI methods */
+    for (i = 0; i < t; i++) {
+        m = (*j->env)->GetMethodID(j->env, cls, emethods[i].name,
+                                   emethods[i].signature);
+
+        s = (jstring)(*j->env)->CallObjectMethod(j->env, obj, m);
+        emethods[i].data = (char *)(*j->env)->GetStringUTFChars(j->env,
+                                                                s, 0);
+    }
+
+    info = info_create_from_data(emethods[0].data, emethods[1].data,
+                                 emethods[2].data, emethods[3].data);
+
+    if (info != NULL)
+        set_custom_plugin_info(info, obj);
+
+    return info;
+}
+
+CL_INTERNAL_API
+cl_string_t *type_to_jni_type(enum cl_type type)
+{
+    cl_string_t *r = NULL;
+
+    switch (type) {
+    case CL_VOID:
+        r = cl_string_create("V");
+        break;
+
+    case CL_CHAR:
+    case CL_UCHAR:
+        r = cl_string_create("B"); /* byte */
+        break;
+
+    case CL_INT:
+    case CL_UINT:
+    case CL_LONG:
+    case CL_ULONG:
+        r = cl_string_create("I");
+        break;
+
+    case CL_SINT:
+    case CL_USINT:
+        r = cl_string_create("S");
+        break;
+
+    case CL_FLOAT:
+        r = cl_string_create("F");
+        break;
+
+    case CL_DOUBLE:
+        r = cl_string_create("D");
+        break;
+
+    case CL_LLONG:
+    case CL_ULLONG:
+        r = cl_string_create("J");
+        break;
+
+    case CL_POINTER:
+    case CL_CSTRING:
+        r = cl_string_create("Ljava/lang/Object;");
+        break;
+
+    case CL_STRING:
+        r = cl_string_create("Ljava/lang/String;");
+        break;
+
+    case CL_BOOLEAN:
+        r = cl_string_create("Z");
+        break;
+    }
+
+    return r;
+}
+
+CL_INTERNAL_API
+int jni_load_functions(void *data, struct cplugin_function_s *flist,
+    void *handle)
+{
+    struct jdriver *j = (struct jdriver *)data;
+    jclass cls = (jclass)handle;
+    struct jtmp_data jtmp;
+
+    jtmp.jdriver = j;
+    jtmp.cls = cls;
+
+    if (cl_dll_map(flist, jni_load_function, &jtmp) != NULL)
+        return -1;
+
+    return 0;
+}
+
+CL_INTERNAL_API
+void *jni_open(void *data, const char *pathname)
+{
+    struct jdriver *j = (struct jdriver *)data;
+    jclass cls;
+    char *classname;
+
+    classname = strip_filename(pathname);
+    cls = (*j->env)->FindClass(j->env, classname);
+    free(classname);
+
+    if (NULL == cls) {
+        /* Class not found */
+        return NULL;
+    }
+
+    return cls;
+}
+
+CL_INTERNAL_API
+int jni_close(void *data, void *handle __attribute__((unused)))
+{
+    struct jdriver *j = (struct jdriver *)data;
+
+    (*j->jvm)->DestroyJavaVM(j->jvm);
+
+    return 0;
+}
+
+CL_INTERNAL_API
 cl_object_t *jni_call(void *data, struct cplugin_function_s *foo,
     cl_plugin_t *cpl, struct function_argument *args)
 {
@@ -625,122 +645,123 @@ cl_object_t *jni_call(void *data, struct cplugin_function_s *foo,
     }
 
     switch (foo->return_value) {
-        case CL_VOID:
-            jni_call_v(j, jinfo, foo, jargs, args->ptr);
-            break;
+    case CL_VOID:
+        jni_call_v(j, jinfo, foo, jargs, args->ptr);
+        break;
 
-        case CL_CHAR:
-            cl_object_set_char(ret,
-                               jni_call_c(j, jinfo, foo, jargs, args->ptr));
+    case CL_CHAR:
+        cl_object_set_char(ret,
+                           jni_call_c(j, jinfo, foo, jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_UCHAR:
-            cl_object_set_uchar(ret,
-                                (unsigned char)jni_call_c(j, jinfo, foo,
-                                                          jargs, args->ptr));
+    case CL_UCHAR:
+        cl_object_set_uchar(ret,
+                            (unsigned char)jni_call_c(j, jinfo, foo,
+                                                      jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_INT:
-            cl_object_set_int(ret,
-                              jni_call_i(j, jinfo, foo, jargs, args->ptr));
+    case CL_INT:
+        cl_object_set_int(ret,
+                          jni_call_i(j, jinfo, foo, jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_UINT:
-            cl_object_set_uint(ret,
-                               (unsigned int)jni_call_i(j, jinfo, foo,
-                                                        jargs, args->ptr));
+    case CL_UINT:
+        cl_object_set_uint(ret,
+                           (unsigned int)jni_call_i(j, jinfo, foo,
+                                                    jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_SINT:
-            cl_object_set_sint(ret,
-                               jni_call_si(j, jinfo, foo, jargs, args->ptr));
+    case CL_SINT:
+        cl_object_set_sint(ret,
+                           jni_call_si(j, jinfo, foo, jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_USINT:
-            cl_object_set_usint(ret,
-                                (unsigned short int)jni_call_si(j, jinfo, foo,
-                                                                jargs,
-                                                                args->ptr));
+    case CL_USINT:
+        cl_object_set_usint(ret,
+                            (unsigned short int)jni_call_si(j, jinfo, foo,
+                                                            jargs,
+                                                            args->ptr));
 
-            break;
+        break;
 
-        case CL_FLOAT:
-            cl_object_set_float(ret,
-                                jni_call_f(j, jinfo, foo, jargs, args->ptr));
+    case CL_FLOAT:
+        cl_object_set_float(ret,
+                            jni_call_f(j, jinfo, foo, jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_DOUBLE:
-            cl_object_set_double(ret,
-                                 jni_call_d(j, jinfo, foo, jargs, args->ptr));
+    case CL_DOUBLE:
+        cl_object_set_double(ret,
+                             jni_call_d(j, jinfo, foo, jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_LONG:
-            cl_object_set_long(ret,
-                               (long)jni_call_i(j, jinfo, foo, jargs,
-                                                args->ptr));
+    case CL_LONG:
+        cl_object_set_long(ret,
+                           (long)jni_call_i(j, jinfo, foo, jargs,
+                                            args->ptr));
 
-            break;
+        break;
 
-        case CL_ULONG:
-            cl_object_set_ulong(ret,
-                                (unsigned long)jni_call_i(j, jinfo, foo,
-                                                          jargs, args->ptr));
+    case CL_ULONG:
+        cl_object_set_ulong(ret,
+                            (unsigned long)jni_call_i(j, jinfo, foo,
+                                                      jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_LLONG:
-            cl_object_set_llong(ret,
-                                jni_call_ll(j, jinfo, foo, jargs, args->ptr));
+    case CL_LLONG:
+        cl_object_set_llong(ret,
+                            jni_call_ll(j, jinfo, foo, jargs, args->ptr));
 
-            break;
+        break;
 
-        case CL_ULLONG:
-            cl_object_set_ullong(ret,
-                                 (unsigned long long)jni_call_ll(j, jinfo, foo,
-                                                                 jargs,
-                                                                 args->ptr));
+    case CL_ULLONG:
+        cl_object_set_ullong(ret,
+                             (unsigned long long)jni_call_ll(j, jinfo, foo,
+                                                             jargs,
+                                                             args->ptr));
 
-            break;
+        break;
 
-        case CL_POINTER:
-            ptr = jni_call_p(j, jinfo, foo, jargs, args->ptr);
-            cl_object_set(ret, false, ptr, -1);
-            break;
+    case CL_POINTER:
+        ptr = jni_call_p(j, jinfo, foo, jargs, args->ptr);
+        cl_object_set(ret, false, ptr, -1);
+        break;
 
-        case CL_STRING:
-            tmp = jni_call_cp(j, jinfo, foo, jargs, args->ptr);
+    case CL_STRING:
+        tmp = jni_call_cp(j, jinfo, foo, jargs, args->ptr);
 
-            if (tmp != NULL) {
-                cl_object_set_string(ret, tmp);
-                free(tmp);
-            } else {
-                /* We must destroy the object and return NULL to the caller */
-                cl_object_destroy(ret);
-                ret = NULL;
-            }
+        if (tmp != NULL) {
+            cl_object_set_string(ret, tmp);
+            free(tmp);
+        } else {
+            /* We must destroy the object and return NULL to the caller */
+            cl_object_destroy(ret);
+            ret = NULL;
+        }
 
-            break;
+        break;
 
-        case CL_BOOLEAN:
-            cl_object_set_boolean(ret,
-                                  jni_call_b(j, jinfo, foo, jargs, args->ptr));
+    case CL_BOOLEAN:
+        cl_object_set_boolean(ret,
+                              jni_call_b(j, jinfo, foo, jargs, args->ptr));
 
-            break;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return ret;
 }
 
+CL_INTERNAL_API
 int jni_plugin_startup(void *data, void *handle, cl_plugin_info_t *info)
 {
     struct jdriver *j = (struct jdriver *)data;
@@ -761,6 +782,7 @@ int jni_plugin_startup(void *data, void *handle, cl_plugin_info_t *info)
     return ret;
 }
 
+CL_INTERNAL_API
 int jni_plugin_shutdown(void *data, void *handle, cl_plugin_info_t *info)
 {
     struct jdriver *j = (struct jdriver *)data;
@@ -781,6 +803,7 @@ int jni_plugin_shutdown(void *data, void *handle, cl_plugin_info_t *info)
     return 0;
 }
 
+CL_INTERNAL_API
 bool jni_plugin_test(const cl_string_t *mime)
 {
     cl_string_t *p = NULL;
@@ -796,6 +819,7 @@ bool jni_plugin_test(const cl_string_t *mime)
     return ret;
 }
 
+CL_INTERNAL_API
 int jni_load_foreign_function(void *data, void *handle,
     struct cplugin_function_s *foo)
 {

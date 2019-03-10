@@ -96,6 +96,12 @@ static struct cl_chat_driver_info_s __drv_info[] = {
 
 /*
  *
+ * Internal functions
+ *
+ */
+
+/*
+ *
  * IPC functions
  *
  */
@@ -593,11 +599,11 @@ static cl_chat_s *dup_chat_s(cl_chat_s *c)
 
 /*
  *
- * Exported chat API functions.
+ * API
  *
  */
 
-__PUB_API__ cl_chat_t *cl_chat_create(enum cl_chat_driver cd,
+cl_chat_t *cl_chat_create(enum cl_chat_driver cd,
     enum cl_chat_mode mode, bool sigpipe_block)
 {
     cl_chat_s *c = NULL;
@@ -658,18 +664,18 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ int cl_chat_destroy(cl_chat_t *chat)
+int cl_chat_destroy(cl_chat_t *chat)
 {
     return cl_chat_unref(chat);
 }
 
-__PUB_API__ int cl_chat_set_info(cl_chat_t *chat, ...)
+int cl_chat_set_info(cl_chat_t *chat, ...)
 {
     cl_chat_s *c = (cl_chat_s *)chat;
     va_list ap;
 
     __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
-    va_start(ap, NULL);
+    va_start(ap, chat);
 
     /* Call function to set up some socket details */
     if (cl_chat_ipc_set_up(c, c->mode, ap) < 0)
@@ -680,7 +686,7 @@ __PUB_API__ int cl_chat_set_info(cl_chat_t *chat, ...)
     return 0;
 }
 
-__PUB_API__ int cl_chat_client_start(cl_chat_t *chat)
+int cl_chat_client_start(cl_chat_t *chat)
 {
     cl_chat_s *c = (cl_chat_s *)chat;
 
@@ -700,7 +706,7 @@ __PUB_API__ int cl_chat_client_start(cl_chat_t *chat)
     return 0;
 }
 
-__PUB_API__ cl_chat_t *cl_chat_server_start(cl_chat_t *chat,
+cl_chat_t *cl_chat_server_start(cl_chat_t *chat,
     unsigned int accept_timeout)
 {
     cl_chat_s *c = (cl_chat_s *)chat;
@@ -737,7 +743,7 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ int cl_chat_send(cl_chat_t *chat, void *data,
+int cl_chat_send(cl_chat_t *chat, void *data,
     unsigned int data_size)
 {
     cl_chat_s *c = (cl_chat_s *)chat;
@@ -765,7 +771,7 @@ end_block:
     return ret;
 }
 
-__PUB_API__ void *cl_chat_recv(cl_chat_t *chat, unsigned int recv_timeout,
+void *cl_chat_recv(cl_chat_t *chat, unsigned int recv_timeout,
     unsigned int *data_size)
 {
     cl_chat_s *c = (cl_chat_s *)chat;
@@ -791,7 +797,7 @@ end_block:
     return data;
 }
 
-__PUB_API__ int cl_chat_stop(cl_chat_t *chat)
+int cl_chat_stop(cl_chat_t *chat)
 {
     __clib_function_init__(true, chat, CL_OBJ_CHAT, -1);
 
@@ -806,7 +812,7 @@ __PUB_API__ int cl_chat_stop(cl_chat_t *chat)
     return 0;
 }
 
-__PUB_API__ int cl_chat_fd(cl_chat_t *chat)
+int cl_chat_fd(cl_chat_t *chat)
 {
     int fd;
 
@@ -819,7 +825,7 @@ __PUB_API__ int cl_chat_fd(cl_chat_t *chat)
     return fd;
 }
 
-__PUB_API__ cl_chat_t *cl_chat_ref(cl_chat_t *chat)
+cl_chat_t *cl_chat_ref(cl_chat_t *chat)
 {
     cl_chat_s *c = (cl_chat_s *)chat;
 
@@ -829,7 +835,7 @@ __PUB_API__ cl_chat_t *cl_chat_ref(cl_chat_t *chat)
     return chat;
 }
 
-__PUB_API__ int cl_chat_unref(cl_chat_t *chat)
+int cl_chat_unref(cl_chat_t *chat)
 {
     cl_chat_s *c = (cl_chat_s *)chat;
 

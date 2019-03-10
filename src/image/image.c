@@ -33,6 +33,12 @@
 #include "image.h"
 
 /*
+ *
+ * Internal functions
+ *
+ */
+
+/*
  * Destroy a cl_image_t object.
  */
 static void destroy_cimage(const struct cl_ref_s *ref)
@@ -194,14 +200,14 @@ static int fill_buffer_to_cimage(cl_image_s *image, const unsigned char *buffer,
 static enum cl_image_color_format cl_image_detect_format_by_image(IplImage *image)
 {
     switch (image->nChannels) {
-        case 1:
-            return CL_IMAGE_FMT_GRAY;
+    case 1:
+        return CL_IMAGE_FMT_GRAY;
 
-        case 2:
-            return CL_IMAGE_FMT_YUV422;
+    case 2:
+        return CL_IMAGE_FMT_YUV422;
 
-        case 3:
-            return CL_IMAGE_FMT_RGB;
+    case 3:
+        return CL_IMAGE_FMT_RGB;
     }
 
     return CL_IMAGE_FMT_UNKNOWN;
@@ -263,11 +269,11 @@ static void save_image_to_file(const char *filename, cl_image_s *image,
 
 /*
  *
- * Public API
+ * API
  *
  */
 
-__PUB_API__ cl_image_t *cl_image_ref(cl_image_t *image)
+cl_image_t *cl_image_ref(cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
 
@@ -277,7 +283,7 @@ __PUB_API__ cl_image_t *cl_image_ref(cl_image_t *image)
     return image;
 }
 
-__PUB_API__ int cl_image_unref(cl_image_t *image)
+int cl_image_unref(cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
 
@@ -287,12 +293,12 @@ __PUB_API__ int cl_image_unref(cl_image_t *image)
     return 0;
 }
 
-__PUB_API__ int cl_image_destroy(cl_image_t *image)
+int cl_image_destroy(cl_image_t *image)
 {
     return cl_image_unref(image);
 }
 
-__PUB_API__ cl_image_t *cl_image_create(void)
+cl_image_t *cl_image_create(void)
 {
     cl_image_s *i = NULL;
 
@@ -305,7 +311,7 @@ __PUB_API__ cl_image_t *cl_image_create(void)
     return i;
 }
 
-__PUB_API__ int cl_image_fill(cl_image_t *image, const unsigned char *buffer,
+int cl_image_fill(cl_image_t *image, const unsigned char *buffer,
     unsigned int bsize, enum cl_image_color_format format, unsigned int width,
     unsigned int height, enum cl_image_fill_format fill_format)
 {
@@ -329,7 +335,7 @@ __PUB_API__ int cl_image_fill(cl_image_t *image, const unsigned char *buffer,
                                  fill_format);
 }
 
-__PUB_API__ cl_image_t *cl_image_load(const unsigned char *buffer,
+cl_image_t *cl_image_load(const unsigned char *buffer,
     unsigned int bsize, enum cl_image_color_format format, unsigned int width,
     unsigned int height, enum cl_image_fill_format fill_format)
 {
@@ -364,7 +370,7 @@ __PUB_API__ cl_image_t *cl_image_load(const unsigned char *buffer,
     return i;
 }
 
-__PUB_API__ cl_image_t *cl_image_load_from_file(const char *filename)
+cl_image_t *cl_image_load_from_file(const char *filename)
 {
     cl_image_s *i = NULL;
     enum cl_image_type type;
@@ -436,7 +442,7 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ int cl_image_save(const cl_image_t *image, unsigned char **buffer,
+int cl_image_save(const cl_image_t *image, unsigned char **buffer,
     unsigned int *bsize)
 {
     cl_image_s *i = (cl_image_s *)image;
@@ -454,7 +460,7 @@ __PUB_API__ int cl_image_save(const cl_image_t *image, unsigned char **buffer,
     return 0;
 }
 
-__PUB_API__ int cl_image_save_to_file(const cl_image_t *image,
+int cl_image_save_to_file(const cl_image_t *image,
     const char *filename, enum cl_image_type file_type)
 {
     char *disc_filename = NULL;
@@ -496,14 +502,14 @@ __PUB_API__ int cl_image_save_to_file(const cl_image_t *image,
     return 0;
 }
 
-__PUB_API__ cl_image_t *cl_image_dup(const cl_image_t *image)
+cl_image_t *cl_image_dup(const cl_image_t *image)
 {
     __clib_function_init__(true, image, CL_OBJ_IMAGE, NULL);
 
     return duplicate_image((cl_image_s *)image);
 }
 
-__PUB_API__ cl_image_t *cl_image_resize(const cl_image_t *image,
+cl_image_t *cl_image_resize(const cl_image_t *image,
     unsigned int width, unsigned int height)
 {
     cl_image_s *i = (cl_image_s *)image, *p = NULL;
@@ -543,7 +549,7 @@ __PUB_API__ cl_image_t *cl_image_resize(const cl_image_t *image,
     return p;
 }
 
-__PUB_API__ cl_image_t *cl_image_extract(const cl_image_t *image,
+cl_image_t *cl_image_extract(const cl_image_t *image,
     unsigned int x, unsigned int y, unsigned int w, unsigned int h)
 {
     cl_image_s *i = (cl_image_s *)image, *p;
@@ -585,7 +591,7 @@ void cl_image_cat(void)
     /* TODO */
 }
 
-__PUB_API__ unsigned char *cl_image_bin_export(const cl_image_t *image,
+unsigned char *cl_image_bin_export(const cl_image_t *image,
     enum cl_image_type type, enum cl_image_color_format format,
     unsigned int *bsize, unsigned int *width, unsigned int *height)
 {
@@ -619,7 +625,7 @@ __PUB_API__ unsigned char *cl_image_bin_export(const cl_image_t *image,
     return buffer;
 }
 
-__PUB_API__ const unsigned char *cl_image_bin_content(const cl_image_t *image,
+const unsigned char *cl_image_bin_content(const cl_image_t *image,
     unsigned int *bsize, unsigned int *width, unsigned int *height,
     enum cl_image_color_format *format)
 {
@@ -651,7 +657,7 @@ __PUB_API__ const unsigned char *cl_image_bin_content(const cl_image_t *image,
     return ptr;
 }
 
-__PUB_API__ IplImage *cl_image_cv_export(const cl_image_t *image)
+IplImage *cl_image_cv_export(const cl_image_t *image)
 {
     cl_image_s *i = (cl_image_s *)image;
 
@@ -674,7 +680,7 @@ __PUB_API__ IplImage *cl_image_cv_export(const cl_image_t *image)
     return i->image;
 }
 
-__PUB_API__ int cl_image_cv_import(cl_image_t *image, IplImage *cv_image,
+int cl_image_cv_import(cl_image_t *image, IplImage *cv_image,
     enum cl_image_type type)
 {
     cl_image_s *i = (cl_image_s *)image;

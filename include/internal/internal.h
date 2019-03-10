@@ -28,19 +28,17 @@
 #define _COLLECTIONS_INTERNAL_H         1
 
 /*
- * An internal representation of a public function. It does not affect the code
- * or the function visibility. Its objective is only to let it clear what is and
- * what is not being exported from the library by looking at the code.
+ * A prefix that MUST be included at the beginning of an internal library
+ * function, i.e., one that can be accessed from other source file.
  *
- * Every exported function must have this at the beginning of its declaration.
  * Example:
- *
- * __PUB_API__ const char *function(int arg)
+ * CL_INTERNAL_API
+ * const char *function(int arg)
  * {
  *      // Body
  * }
  */
-#define __PUB_API__
+#define CL_INTERNAL_API     __attribute__((visibility("hidden")))
 
 /* Internal includes */
 #include "typeof.h"

@@ -31,7 +31,39 @@
 #include "collections.h"
 #include "plugin.h"
 
-__PUB_API__ cl_plugin_info_t *cl_plugin_info(const cl_plugin_t *cpl)
+/*
+ *
+ * Internal functions
+ *
+ */
+
+static cl_object_t *plugin_call(cplugin_s *pl, struct cplugin_function_s *foo)
+{
+    cl_object_t *cplv = NULL;
+
+    /* Call the function */
+    cplv = dl_call(pl, foo);
+
+    if ((NULL == cplv) && (foo->return_value != CL_VOID))
+        /* It's an error? */
+        return NULL;
+
+    /* Release the returned object if we're a void function */
+    if (foo->return_value == CL_VOID) {
+        cl_object_destroy(cplv);
+        cplv = NULL;
+    }
+
+    return cplv;
+}
+
+/*
+ *
+ * API
+ *
+ */
+
+cl_plugin_info_t *cl_plugin_info(const cl_plugin_t *cpl)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
 
@@ -40,7 +72,7 @@ __PUB_API__ cl_plugin_info_t *cl_plugin_info(const cl_plugin_t *cpl)
     return info_ref(pl->info);
 }
 
-__PUB_API__ cl_plugin_info_t *cl_plugin_info_from_file(const char *pathname)
+cl_plugin_info_t *cl_plugin_info_from_file(const char *pathname)
 {
     void *handle = NULL;
     cl_plugin_info_t *info = NULL;
@@ -74,7 +106,7 @@ __PUB_API__ cl_plugin_info_t *cl_plugin_info_from_file(const char *pathname)
     return info;
 }
 
-__PUB_API__ int cl_plugin_info_unref(cl_plugin_info_t *info)
+int cl_plugin_info_unref(cl_plugin_info_t *info)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, -1);
     info_unref(info);
@@ -82,55 +114,35 @@ __PUB_API__ int cl_plugin_info_unref(cl_plugin_info_t *info)
     return 0;
 }
 
-__PUB_API__ const char *cl_plugin_name(const cl_plugin_info_t *info)
+const char *cl_plugin_name(const cl_plugin_info_t *info)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
 
     return info_get_name(info);
 }
 
-__PUB_API__ const char *cl_plugin_version(const cl_plugin_info_t *info)
+const char *cl_plugin_version(const cl_plugin_info_t *info)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
 
     return info_get_version(info);
 }
 
-__PUB_API__ const char *cl_plugin_author(const cl_plugin_info_t *info)
+const char *cl_plugin_author(const cl_plugin_info_t *info)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
 
     return info_get_author(info);
 }
 
-__PUB_API__ const char *cl_plugin_description(const cl_plugin_info_t *info)
+const char *cl_plugin_description(const cl_plugin_info_t *info)
 {
     __clib_function_init__(true, info, CL_OBJ_PLUGIN_INFO, NULL);
 
     return info_get_description(info);
 }
 
-static cl_object_t *plugin_call(cplugin_s *pl, struct cplugin_function_s *foo)
-{
-    cl_object_t *cplv = NULL;
-
-    /* Call the function */
-    cplv = dl_call(pl, foo);
-
-    if ((NULL == cplv) && (foo->return_value != CL_VOID))
-        /* It's an error? */
-        return NULL;
-
-    /* Release the returned object if we're a void function */
-    if (foo->return_value == CL_VOID) {
-        cl_object_destroy(cplv);
-        cplv = NULL;
-    }
-
-    return cplv;
-}
-
-__PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
+cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
     const char *function_name, enum cl_type return_type, ...)
 {
     struct cplugin_function_s *foo = NULL;
@@ -138,7 +150,7 @@ __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
     va_list ap;
 
     __clib_function_init__(true, cpl, CL_OBJ_PLUGIN, NULL);
-    va_start(ap, NULL);
+    va_start(ap, return_type);
 
     /* We remove our permanent arguments here */
     argc -= CL_PLUGIN_FOREIGN_CALL_DEF_ARGUMENTS;
@@ -159,7 +171,7 @@ __PUB_API__ cl_object_t *cl_plugin_call_ex(int argc, cl_plugin_t *cpl,
     return cplv;
 }
 
-__PUB_API__ cl_plugin_t *cl_plugin_load(const char *pathname)
+cl_plugin_t *cl_plugin_load(const char *pathname)
 {
     cplugin_s *cpl = NULL;
     cl_plugin_info_t *info = NULL;
@@ -226,7 +238,7 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ int cl_plugin_unload(cl_plugin_t *cpl)
+int cl_plugin_unload(cl_plugin_t *cpl)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
 
@@ -247,7 +259,7 @@ __PUB_API__ int cl_plugin_unload(cl_plugin_t *cpl)
     return 0;
 }
 
-__PUB_API__ char cl_plugin_argument_char(cl_plugin_arg_t *args,
+char cl_plugin_argument_char(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -261,7 +273,7 @@ __PUB_API__ char cl_plugin_argument_char(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_CHAR(value);
 }
 
-__PUB_API__ unsigned char cl_plugin_argument_uchar(cl_plugin_arg_t *args,
+unsigned char cl_plugin_argument_uchar(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -275,7 +287,7 @@ __PUB_API__ unsigned char cl_plugin_argument_uchar(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_UCHAR(value);
 }
 
-__PUB_API__ int cl_plugin_argument_int(cl_plugin_arg_t *args,
+int cl_plugin_argument_int(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -289,7 +301,7 @@ __PUB_API__ int cl_plugin_argument_int(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_INT(value);
 }
 
-__PUB_API__ unsigned int cl_plugin_argument_uint(cl_plugin_arg_t *args,
+unsigned int cl_plugin_argument_uint(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -303,7 +315,7 @@ __PUB_API__ unsigned int cl_plugin_argument_uint(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_UINT(value);
 }
 
-__PUB_API__ short int cl_plugin_argument_sint(cl_plugin_arg_t *args,
+short int cl_plugin_argument_sint(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -317,7 +329,7 @@ __PUB_API__ short int cl_plugin_argument_sint(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_SINT(value);
 }
 
-__PUB_API__ unsigned short int cl_plugin_argument_usint(cl_plugin_arg_t *args,
+unsigned short int cl_plugin_argument_usint(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -331,7 +343,7 @@ __PUB_API__ unsigned short int cl_plugin_argument_usint(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_USINT(value);
 }
 
-__PUB_API__ long cl_plugin_argument_long(cl_plugin_arg_t *args,
+long cl_plugin_argument_long(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -345,7 +357,7 @@ __PUB_API__ long cl_plugin_argument_long(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_LONG(value);
 }
 
-__PUB_API__ unsigned long cl_plugin_argument_ulong(cl_plugin_arg_t *args,
+unsigned long cl_plugin_argument_ulong(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -359,7 +371,7 @@ __PUB_API__ unsigned long cl_plugin_argument_ulong(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_ULONG(value);
 }
 
-__PUB_API__ long long cl_plugin_argument_llong(cl_plugin_arg_t *args,
+long long cl_plugin_argument_llong(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -373,7 +385,7 @@ __PUB_API__ long long cl_plugin_argument_llong(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_LLONG(value);
 }
 
-__PUB_API__ unsigned long long cl_plugin_argument_ullong(cl_plugin_arg_t *args,
+unsigned long long cl_plugin_argument_ullong(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -387,7 +399,7 @@ __PUB_API__ unsigned long long cl_plugin_argument_ullong(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_ULLONG(value);
 }
 
-__PUB_API__ float cl_plugin_argument_float(cl_plugin_arg_t *args,
+float cl_plugin_argument_float(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -401,7 +413,7 @@ __PUB_API__ float cl_plugin_argument_float(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_FLOAT(value);
 }
 
-__PUB_API__ double cl_plugin_argument_double(cl_plugin_arg_t *args,
+double cl_plugin_argument_double(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -415,7 +427,7 @@ __PUB_API__ double cl_plugin_argument_double(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_DOUBLE(value);
 }
 
-__PUB_API__ bool cl_plugin_argument_bool(cl_plugin_arg_t *args,
+bool cl_plugin_argument_bool(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -429,7 +441,7 @@ __PUB_API__ bool cl_plugin_argument_bool(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_BOOLEAN(value);
 }
 
-__PUB_API__ char *cl_plugin_argument_string(cl_plugin_arg_t *args,
+char *cl_plugin_argument_string(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -443,7 +455,7 @@ __PUB_API__ char *cl_plugin_argument_string(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_STRING(value);
 }
 
-__PUB_API__ cl_string_t *cl_plugin_argument_cstring(cl_plugin_arg_t *args,
+cl_string_t *cl_plugin_argument_cstring(cl_plugin_arg_t *args,
     const char *argument_name)
 {
     cl_object_t *value = NULL;
@@ -457,7 +469,7 @@ __PUB_API__ cl_string_t *cl_plugin_argument_cstring(cl_plugin_arg_t *args,
     return CL_OBJECT_AS_CSTRING(value);
 }
 
-__PUB_API__ int cl_plugin_argument_pointer(cl_plugin_arg_t *args,
+int cl_plugin_argument_pointer(cl_plugin_arg_t *args,
     const char *argument_name, void **ptr)
 {
     cl_object_t *value = NULL;
@@ -475,7 +487,7 @@ __PUB_API__ int cl_plugin_argument_pointer(cl_plugin_arg_t *args,
     return 0;
 }
 
-__PUB_API__ cl_plugin_t *cl_plugin_ref(cl_plugin_t *cpl)
+cl_plugin_t *cl_plugin_ref(cl_plugin_t *cpl)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
 
@@ -485,7 +497,7 @@ __PUB_API__ cl_plugin_t *cl_plugin_ref(cl_plugin_t *cpl)
     return cpl;
 }
 
-__PUB_API__ int cl_plugin_unref(cl_plugin_t *cpl)
+int cl_plugin_unref(cl_plugin_t *cpl)
 {
     cplugin_s *pl = (cplugin_s *)cpl;
 

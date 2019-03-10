@@ -40,8 +40,13 @@
     cl_struct_member(struct cl_ref_s, ref)
 
 cl_struct_declare(cinfo_s, cinfo_members);
-
 #define cinfo_s         cl_struct(cinfo_s)
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static void __destroy_info_s(const struct cl_ref_s *ref)
 {
@@ -83,6 +88,13 @@ static cinfo_s *new_info_s(const char *name, const char *version,
     return i;
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
 cl_plugin_info_t *info_ref(cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
@@ -95,6 +107,7 @@ cl_plugin_info_t *info_ref(cl_plugin_info_t *info)
     return info;
 }
 
+CL_INTERNAL_API
 void info_unref(cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
@@ -105,6 +118,7 @@ void info_unref(cl_plugin_info_t *info)
     cl_ref_dec(&i->ref);
 }
 
+CL_INTERNAL_API
 cl_plugin_info_t *info_create_from_data(const char *name,
     const char *version, const char *author, const char *description)
 {
@@ -118,6 +132,7 @@ cl_plugin_info_t *info_create_from_data(const char *name,
     return (cl_plugin_info_t *)info;
 }
 
+CL_INTERNAL_API
 char *info_get_name(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
@@ -128,6 +143,7 @@ char *info_get_name(const cl_plugin_info_t *info)
     return i->name;
 }
 
+CL_INTERNAL_API
 char *info_get_version(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
@@ -138,6 +154,7 @@ char *info_get_version(const cl_plugin_info_t *info)
     return i->version;
 }
 
+CL_INTERNAL_API
 char *info_get_description(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
@@ -148,6 +165,7 @@ char *info_get_description(const cl_plugin_info_t *info)
     return i->description;
 }
 
+CL_INTERNAL_API
 char *info_get_author(const cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;
@@ -158,6 +176,7 @@ char *info_get_author(const cl_plugin_info_t *info)
     return i->author;
 }
 
+CL_INTERNAL_API
 void info_set_custom_data(cl_plugin_info_t *info, void *ptr)
 {
     cinfo_s *i = (cinfo_s *)info;
@@ -168,6 +187,7 @@ void info_set_custom_data(cl_plugin_info_t *info, void *ptr)
     i->data = ptr;
 }
 
+CL_INTERNAL_API
 void *info_get_custom_data(cl_plugin_info_t *info)
 {
     cinfo_s *i = (cinfo_s *)info;

@@ -56,20 +56,25 @@ struct last_msg {
     cl_struct_member(struct cl_ref_s, ref)
 
 cl_struct_declare(cl_log_s, cl_log_members);
-
 #define cl_log_s          cl_struct(cl_log_s)
 
 static void close_log_file(cl_log_s *log);
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static bool is_mode_valid(enum cl_log_mode mode)
 {
     switch (mode) {
-        case CL_LOG_SYNC_ALL_MSGS:
-        case CL_LOG_KEEP_FILE_OPEN:
-            return true;
+    case CL_LOG_SYNC_ALL_MSGS:
+    case CL_LOG_KEEP_FILE_OPEN:
+        return true;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return false;
@@ -78,16 +83,16 @@ static bool is_mode_valid(enum cl_log_mode mode)
 static bool is_level_valid(enum cl_log_level level)
 {
     switch (level) {
-        case CL_LOG_OFF:
-        case CL_LOG_EMERG:
-        case CL_LOG_ALERT:
-        case CL_LOG_CRITI:
-        case CL_LOG_ERROR:
-        case CL_LOG_WARNG:
-        case CL_LOG_NOTICE:
-        case CL_LOG_INFO:
-        case CL_LOG_DEBUG:
-            return true;
+    case CL_LOG_OFF:
+    case CL_LOG_EMERG:
+    case CL_LOG_ALERT:
+    case CL_LOG_CRITI:
+    case CL_LOG_ERROR:
+    case CL_LOG_WARNG:
+    case CL_LOG_NOTICE:
+    case CL_LOG_INFO:
+    case CL_LOG_DEBUG:
+        return true;
     }
 
     return false;
@@ -96,32 +101,32 @@ static bool is_level_valid(enum cl_log_level level)
 static const char *level_to_string(enum cl_log_level level)
 {
     switch (level) {
-        case CL_LOG_OFF:
-            return NULL;
+    case CL_LOG_OFF:
+        return NULL;
 
-        case CL_LOG_EMERG:
-            return "EMERG";
+    case CL_LOG_EMERG:
+        return "EMERG";
 
-        case CL_LOG_ALERT:
-            return "ALERT";
+    case CL_LOG_ALERT:
+        return "ALERT";
 
-        case CL_LOG_CRITI:
-            return "CRITI";
+    case CL_LOG_CRITI:
+        return "CRITI";
 
-        case CL_LOG_ERROR:
-            return "ERROR";
+    case CL_LOG_ERROR:
+        return "ERROR";
 
-        case CL_LOG_WARNG:
-            return "WARNG";
+    case CL_LOG_WARNG:
+        return "WARNG";
 
-        case CL_LOG_NOTICE:
-            return "NOTIC";
+    case CL_LOG_NOTICE:
+        return "NOTIC";
 
-        case CL_LOG_INFO:
-            return "INFOM";
+    case CL_LOG_INFO:
+        return "INFOM";
 
-        case CL_LOG_DEBUG:
-            return "DEBUG";
+    case CL_LOG_DEBUG:
+        return "DEBUG";
     }
 
     return NULL;
@@ -415,11 +420,11 @@ static bool check_log_mode(cl_log_s *log, enum cl_log_mode mode)
 
 /*
  *
- * Log messages API
+ * API
  *
  */
 
-__PUB_API__ cl_log_t *cl_log_open_ex(const char *pathname, enum cl_log_mode mode,
+cl_log_t *cl_log_open_ex(const char *pathname, enum cl_log_mode mode,
     enum cl_log_level start_level, unsigned int max_repeat, char separator,
     enum cl_log_prefix_field prefixes)
 {
@@ -460,7 +465,7 @@ error_block:
     return NULL;
 }
 
-__PUB_API__ cl_log_t *cl_log_open(const char *pathname, enum cl_log_mode mode,
+cl_log_t *cl_log_open(const char *pathname, enum cl_log_mode mode,
     enum cl_log_level start_level, unsigned int max_repeat)
 {
     /* Creates the default log format: DATE; TIME; PID; LEVEL; msg */
@@ -470,7 +475,7 @@ __PUB_API__ cl_log_t *cl_log_open(const char *pathname, enum cl_log_mode mode,
                           CL_LOG_FIELD_PID | CL_LOG_FIELD_LEVEL);
 }
 
-__PUB_API__ int cl_log_close(cl_log_t *log)
+int cl_log_close(cl_log_t *log)
 {
     cl_log_s *l = (cl_log_s *)log;
 
@@ -480,7 +485,7 @@ __PUB_API__ int cl_log_close(cl_log_t *log)
     return 0;
 }
 
-__PUB_API__ int cl_log_vprintf(cl_log_t *log, enum cl_log_level level,
+int cl_log_vprintf(cl_log_t *log, enum cl_log_level level,
     const char *fmt, va_list args)
 {
     char *msg = NULL;
@@ -519,7 +524,7 @@ __PUB_API__ int cl_log_vprintf(cl_log_t *log, enum cl_log_level level,
     return 0;
 }
 
-__PUB_API__ int cl_log_printf(cl_log_t *log, enum cl_log_level level,
+int cl_log_printf(cl_log_t *log, enum cl_log_level level,
     const char *fmt, ...)
 {
     va_list ap;
@@ -534,7 +539,7 @@ __PUB_API__ int cl_log_printf(cl_log_t *log, enum cl_log_level level,
     return ret;
 }
 
-__PUB_API__ int cl_log_bprint(cl_log_t *log, enum cl_log_level level,
+int cl_log_bprint(cl_log_t *log, enum cl_log_level level,
     const void *data, unsigned int dsize)
 {
     __clib_function_init__(true, log, CL_OBJ_LOG, -1);
@@ -573,12 +578,7 @@ __PUB_API__ int cl_log_bprint(cl_log_t *log, enum cl_log_level level,
     return 0;
 }
 
-/* XXX: rprint? */
-void cl_log_rprint(void)
-{
-}
-
-__PUB_API__ int cl_log_set_log_level(cl_log_t *log, enum cl_log_level level)
+int cl_log_set_log_level(cl_log_t *log, enum cl_log_level level)
 {
     cl_log_s *l = (cl_log_s *)log;
 
@@ -594,7 +594,7 @@ __PUB_API__ int cl_log_set_log_level(cl_log_t *log, enum cl_log_level level)
     return 0;
 }
 
-__PUB_API__ int cl_log_set_separator(cl_log_t *log, char separator)
+int cl_log_set_separator(cl_log_t *log, char separator)
 {
     cl_log_s *l = (cl_log_s *)log;
 

@@ -43,6 +43,12 @@ union file_header {
     } header;
 };
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static bool header_from_BMP(union file_header hdr)
 {
     bool valid = false;
@@ -161,8 +167,15 @@ static bool header_from_JPG(union file_header hdr)
 }
 
 /*
+ *
+ * Internal API
+ *
+ */
+
+/*
  * Uses libmagic to return the image type from a image buffer.
  */
+CL_INTERNAL_API
 enum cl_image_type cl_image_detect_type(const unsigned char *buffer,
     unsigned int bsize __attribute__((unused)))
 {
@@ -190,6 +203,7 @@ enum cl_image_type cl_image_detect_type(const unsigned char *buffer,
 /*
  * This function tries to detect the image file type from the file itself.
  */
+CL_INTERNAL_API
 enum cl_image_type cl_image_detect_type_from_file(const char *filename)
 {
     enum cl_image_type type = CL_IMAGE_RAW;
@@ -221,39 +235,41 @@ end_block:
     return type;
 }
 
+CL_INTERNAL_API
 enum PixelFormat cl_image_format_to_PixelFormat(enum cl_image_color_format fmt)
 {
     enum PixelFormat px_fmt = PIX_FMT_GRAY8;
 
     switch (fmt) {
-        case CL_IMAGE_FMT_BGR:
-            px_fmt = PIX_FMT_BGR24;
-            break;
+    case CL_IMAGE_FMT_BGR:
+        px_fmt = PIX_FMT_BGR24;
+        break;
 
-        case CL_IMAGE_FMT_RGB:
-            px_fmt = PIX_FMT_RGB24;
-            break;
+    case CL_IMAGE_FMT_RGB:
+        px_fmt = PIX_FMT_RGB24;
+        break;
 
-        case CL_IMAGE_FMT_YUV422:
-            px_fmt = PIX_FMT_YUV422P;
-            break;
+    case CL_IMAGE_FMT_YUV422:
+        px_fmt = PIX_FMT_YUV422P;
+        break;
 
-        case CL_IMAGE_FMT_YUV420:
-            px_fmt = PIX_FMT_YUV420P;
-            break;
+    case CL_IMAGE_FMT_YUV420:
+        px_fmt = PIX_FMT_YUV420P;
+        break;
 
-        case CL_IMAGE_FMT_YUYV:
-            px_fmt = PIX_FMT_YUYV422;
-            break;
+    case CL_IMAGE_FMT_YUYV:
+        px_fmt = PIX_FMT_YUYV422;
+        break;
 
-        case CL_IMAGE_FMT_GRAY:
-        default:
-            break;
+    case CL_IMAGE_FMT_GRAY:
+    default:
+        break;
     }
 
     return px_fmt;
 }
 
+CL_INTERNAL_API
 bool has_internal_image(cl_image_s *image)
 {
     if (((image->type == CL_IMAGE_RAW) && (image->raw.original != NULL)) ||
@@ -265,62 +281,65 @@ bool has_internal_image(cl_image_s *image)
     return false;
 }
 
+CL_INTERNAL_API
 int get_channels_by_format(enum cl_image_color_format format)
 {
     int channels = 0;
 
     switch (format) {
-        case CL_IMAGE_FMT_UNKNOWN:
-        case CL_IMAGE_FMT_GRAY:
-            channels = 1;
-            break;
+    case CL_IMAGE_FMT_UNKNOWN:
+    case CL_IMAGE_FMT_GRAY:
+        channels = 1;
+        break;
 
-        case CL_IMAGE_FMT_BGR:
-        case CL_IMAGE_FMT_RGB:
-            channels = 3;
-            break;
+    case CL_IMAGE_FMT_BGR:
+    case CL_IMAGE_FMT_RGB:
+        channels = 3;
+        break;
 
-        case CL_IMAGE_FMT_YUV422:
-        case CL_IMAGE_FMT_YUV420:
-        case CL_IMAGE_FMT_YUYV:
-            channels = 2;
-            break;
+    case CL_IMAGE_FMT_YUV422:
+    case CL_IMAGE_FMT_YUV420:
+    case CL_IMAGE_FMT_YUYV:
+        channels = 2;
+        break;
     }
 
     return channels;
 }
 
+CL_INTERNAL_API
 char *cl_image_type_to_extension(enum cl_image_type type)
 {
     switch (type) {
-        case CL_IMAGE_JPG:
-            return strdup(EXT_JPG);
+    case CL_IMAGE_JPG:
+        return strdup(EXT_JPG);
 
-        case CL_IMAGE_BMP:
-            return strdup(EXT_BMP);
+    case CL_IMAGE_BMP:
+        return strdup(EXT_BMP);
 
-        case CL_IMAGE_PNG:
-            return strdup(EXT_PNG);
+    case CL_IMAGE_PNG:
+        return strdup(EXT_PNG);
 
-        case CL_IMAGE_JPG2K:
-            return strdup(EXT_JPG2K);
+    case CL_IMAGE_JPG2K:
+        return strdup(EXT_JPG2K);
 
-        case CL_IMAGE_TIFF:
-            return strdup(EXT_TIFF);
+    case CL_IMAGE_TIFF:
+        return strdup(EXT_TIFF);
 
-        case CL_IMAGE_PPM:
-            return strdup(EXT_PPM);
+    case CL_IMAGE_PPM:
+        return strdup(EXT_PPM);
 
-        case CL_IMAGE_RAW:
-            return strdup(EXT_RAW);
+    case CL_IMAGE_RAW:
+        return strdup(EXT_RAW);
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return NULL;
 }
 
+CL_INTERNAL_API
 bool is_known_extension(const char *filename)
 {
     char *ext = NULL;
@@ -348,53 +367,56 @@ bool is_known_extension(const char *filename)
     return known;
 }
 
+CL_INTERNAL_API
 bool is_supported_image_type(enum cl_image_type type)
 {
     switch (type) {
-        case CL_IMAGE_RAW:
-        case CL_IMAGE_JPG:
-        case CL_IMAGE_BMP:
-        case CL_IMAGE_PNG:
-        case CL_IMAGE_JPG2K:
-        case CL_IMAGE_TIFF:
-        case CL_IMAGE_PPM:
-            return true;
+    case CL_IMAGE_RAW:
+    case CL_IMAGE_JPG:
+    case CL_IMAGE_BMP:
+    case CL_IMAGE_PNG:
+    case CL_IMAGE_JPG2K:
+    case CL_IMAGE_TIFF:
+    case CL_IMAGE_PPM:
+        return true;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return false;
 }
 
+CL_INTERNAL_API
 bool is_supported_color_format(enum cl_image_color_format fmt)
 {
     switch (fmt) {
-        case CL_IMAGE_FMT_GRAY:
-        case CL_IMAGE_FMT_BGR:
-        case CL_IMAGE_FMT_RGB:
-        case CL_IMAGE_FMT_YUV422:
-        case CL_IMAGE_FMT_YUV420:
-        case CL_IMAGE_FMT_YUYV:
-            return true;
+    case CL_IMAGE_FMT_GRAY:
+    case CL_IMAGE_FMT_BGR:
+    case CL_IMAGE_FMT_RGB:
+    case CL_IMAGE_FMT_YUV422:
+    case CL_IMAGE_FMT_YUV420:
+    case CL_IMAGE_FMT_YUYV:
+        return true;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return false;
 }
 
+CL_INTERNAL_API
 bool is_supported_fill_format(enum cl_image_fill_format fmt)
 {
     switch (fmt) {
-        case CL_IMAGE_FILL_REFERENCE:
-        case CL_IMAGE_FILL_OWNER:
-        case CL_IMAGE_FILL_COPY:
-            return true;
+    case CL_IMAGE_FILL_REFERENCE:
+    case CL_IMAGE_FILL_OWNER:
+    case CL_IMAGE_FILL_COPY:
+        return true;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return false;

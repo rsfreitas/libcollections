@@ -41,8 +41,10 @@
 # include <stdbool.h>
 #endif
 
-#ifndef _ASM_X86_TYPES_H
-# include <asm/types.h>
+#ifndef __APPLE__
+# ifndef _ASM_X86_TYPES_H
+#  include <asm/types.h>
+# endif
 #endif
 
 #define cl_fourcc(a, b, c, d)           \

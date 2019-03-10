@@ -30,9 +30,15 @@
 #include "collections.h"
 
 /*
+ *
+ * API
+ *
+ */
+
+/*
  * Duplicates a specific buffer.
  */
-__PUB_API__ void *cl_memdup(const void *src, unsigned int len)
+void *cl_memdup(const void *src, unsigned int len)
 {
     void *p;
 

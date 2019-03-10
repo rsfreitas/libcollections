@@ -41,6 +41,12 @@ struct my_error_mgr {
 
 typedef struct my_error_mgr *my_error_ptr;
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static bool is_header_from_raw_image(const unsigned char *buffer)
 {
     struct raw_header hdr;
@@ -78,152 +84,6 @@ static int raw_load_from_mem(const unsigned char *buffer, cl_image_s *image)
     image->fill_format = CL_IMAGE_FILL_OWNER;
 
     return 0;
-}
-
-int raw_load(const char *filename, cl_image_s *image)
-{
-    unsigned char *buffer = NULL;
-    unsigned int bsize = 0;
-    int ret;
-
-    buffer = cl_fload(filename, &bsize);
-
-    if (NULL == buffer)
-        return -1;
-
-    ret = raw_load_from_mem(buffer, image);
-
-    if (ret < 0)
-        if (buffer != NULL)
-            free(buffer);
-
-    return ret;
-}
-
-int raw_save_to_mem(const cl_image_s *image, unsigned char **buffer,
-    unsigned int *bsize)
-{
-    struct raw_header hdr;
-    unsigned char *b = NULL;
-
-    /* Create the RAW image header, so we can save it correctly */
-    hdr.id = RAW_ID;
-    hdr.width = image->raw.hdr.width;
-    hdr.height = image->raw.hdr.height;
-    hdr.size = image->raw.hdr.size;
-    hdr.format = image->format;
-
-    *bsize = hdr.size + sizeof(struct raw_header);
-    b = calloc(*bsize, sizeof(unsigned char));
-
-    if (NULL == b) {
-        cset_errno(CL_NO_MEM);
-        return -1;
-    }
-
-    memcpy(b, &hdr, sizeof(struct raw_header));
-    memcpy(b + sizeof(struct raw_header), image->raw.headless,
-           hdr.size);
-
-    *buffer = b;
-
-    return 0;
-}
-
-int raw_save(const cl_image_s *image, const char *filename)
-{
-    unsigned char *buffer = NULL;
-    unsigned int bsize = 0;
-
-    if (raw_save_to_mem(image, &buffer, &bsize) < 0)
-        return -1;
-
-    cl_fsave(filename, buffer, bsize);
-    free(buffer);
-
-    return 0;
-}
-
-/*
- *
- * Conversion between RAW and JPG images.
- *
- */
-
-METHODDEF(void) my_error_exit(j_common_ptr cinfo)
-{
-    my_error_ptr myerr = (my_error_ptr)cinfo->err;
-    (*cinfo->err->output_message)(cinfo);
-    longjmp(myerr->setjmp_buffer, 1);
-}
-
-METHODDEF(void)comp_init(j_compress_ptr cinfo __attribute((unused)))
-{
-}
-
-METHODDEF(int)comp_empty(j_compress_ptr cinfo __attribute((unused)))
-{
-    return 1;
-}
-
-METHODDEF(void)comp_term(j_compress_ptr cinfo __attribute((unused)))
-{
-}
-
-unsigned char *RAW_to_jpg_mem(const unsigned char *buffer, int width,
-    int height, bool color, int quality, unsigned int *jsize)
-{
-    struct jpeg_compress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    JSAMPROW row_ptr[1];
-    int row_stride;
-    unsigned char *bjpg = NULL;
-
-    cinfo.err = jpeg_std_error(&jerr);
-    jpeg_create_compress(&cinfo);
-
-    cinfo.dest = malloc(sizeof(struct jpeg_destination_mgr));
-    cinfo.image_width = width;
-    cinfo.image_height = height;
-
-    if (color == true) {
-        cinfo.input_components = 3;
-        cinfo.in_color_space = JCS_RGB;
-    } else {
-        cinfo.input_components = 1;
-        cinfo.in_color_space = JCS_GRAYSCALE;
-    }
-
-    /*
-     * FIXME: we need to change this to a real allocation, this size is much
-     *        bigger than we need.
-     */
-    bjpg = calloc(width * height, sizeof(char));
-
-    cinfo.dest->next_output_byte = bjpg;
-    cinfo.dest->free_in_buffer = width * height;
-    cinfo.dest->init_destination = comp_init;
-    cinfo.dest->empty_output_buffer = comp_empty;
-    cinfo.dest->term_destination = comp_term;
-
-    jpeg_set_defaults(&cinfo);
-    jpeg_set_quality(&cinfo, quality, TRUE);
-    jpeg_start_compress(&cinfo, TRUE);
-    row_stride = cinfo.image_width * cinfo.input_components;
-
-    while (cinfo.next_scanline < cinfo.image_height) {
-        row_ptr[0] = (unsigned char *)buffer + (cinfo.next_scanline *
-            row_stride);
-
-        jpeg_write_scanlines(&cinfo, row_ptr, 1);
-    }
-
-    jpeg_finish_compress(&cinfo);
-    *jsize = (width * height) - cinfo.dest->free_in_buffer;
-    free(cinfo.dest);
-    jpeg_destroy_compress(&cinfo);
-
-    return bjpg;
 }
 
 static void init_source(j_decompress_ptr cinfo __attribute__((unused)))
@@ -288,6 +148,191 @@ static void __jpeg_mem_src(j_decompress_ptr cinfo, JOCTET *pData, int FileSize)
     src->next_input_byte = pData;
 }
 
+static int get_raw_size(enum cl_image_color_format format, unsigned int width,
+    unsigned int height)
+{
+    int size = -1;
+
+    switch (format) {
+    case CL_IMAGE_FMT_BGR:
+    case CL_IMAGE_FMT_RGB:
+        size = width * height * 3;
+        break;
+
+    case CL_IMAGE_FMT_YUV422:
+    case CL_IMAGE_FMT_YUV420:
+    case CL_IMAGE_FMT_YUYV:
+        size = width * height * 2;
+        break;
+
+    case CL_IMAGE_FMT_GRAY:
+        size = width * height;
+        break;
+
+    default:
+        break;
+    }
+
+    return size;
+}
+
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
+int raw_load(const char *filename, cl_image_s *image)
+{
+    unsigned char *buffer = NULL;
+    unsigned int bsize = 0;
+    int ret;
+
+    buffer = cl_fload(filename, &bsize);
+
+    if (NULL == buffer)
+        return -1;
+
+    ret = raw_load_from_mem(buffer, image);
+
+    if (ret < 0)
+        if (buffer != NULL)
+            free(buffer);
+
+    return ret;
+}
+
+CL_INTERNAL_API
+int raw_save_to_mem(const cl_image_s *image, unsigned char **buffer,
+    unsigned int *bsize)
+{
+    struct raw_header hdr;
+    unsigned char *b = NULL;
+
+    /* Create the RAW image header, so we can save it correctly */
+    hdr.id = RAW_ID;
+    hdr.width = image->raw.hdr.width;
+    hdr.height = image->raw.hdr.height;
+    hdr.size = image->raw.hdr.size;
+    hdr.format = image->format;
+
+    *bsize = hdr.size + sizeof(struct raw_header);
+    b = calloc(*bsize, sizeof(unsigned char));
+
+    if (NULL == b) {
+        cset_errno(CL_NO_MEM);
+        return -1;
+    }
+
+    memcpy(b, &hdr, sizeof(struct raw_header));
+    memcpy(b + sizeof(struct raw_header), image->raw.headless,
+           hdr.size);
+
+    *buffer = b;
+
+    return 0;
+}
+
+CL_INTERNAL_API
+int raw_save(const cl_image_s *image, const char *filename)
+{
+    unsigned char *buffer = NULL;
+    unsigned int bsize = 0;
+
+    if (raw_save_to_mem(image, &buffer, &bsize) < 0)
+        return -1;
+
+    cl_fsave(filename, buffer, bsize);
+    free(buffer);
+
+    return 0;
+}
+
+/*
+ *
+ * Conversion between RAW and JPG images.
+ *
+ */
+
+METHODDEF(void) my_error_exit(j_common_ptr cinfo)
+{
+    my_error_ptr myerr = (my_error_ptr)cinfo->err;
+    (*cinfo->err->output_message)(cinfo);
+    longjmp(myerr->setjmp_buffer, 1);
+}
+
+METHODDEF(void)comp_init(j_compress_ptr cinfo __attribute((unused)))
+{
+}
+
+METHODDEF(int)comp_empty(j_compress_ptr cinfo __attribute((unused)))
+{
+    return 1;
+}
+
+METHODDEF(void)comp_term(j_compress_ptr cinfo __attribute((unused)))
+{
+}
+
+CL_INTERNAL_API
+unsigned char *RAW_to_jpg_mem(const unsigned char *buffer, int width,
+    int height, bool color, int quality, unsigned int *jsize)
+{
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    JSAMPROW row_ptr[1];
+    int row_stride;
+    unsigned char *bjpg = NULL;
+
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&cinfo);
+
+    cinfo.dest = malloc(sizeof(struct jpeg_destination_mgr));
+    cinfo.image_width = width;
+    cinfo.image_height = height;
+
+    if (color == true) {
+        cinfo.input_components = 3;
+        cinfo.in_color_space = JCS_RGB;
+    } else {
+        cinfo.input_components = 1;
+        cinfo.in_color_space = JCS_GRAYSCALE;
+    }
+
+    /*
+     * FIXME: we need to change this to a real allocation, this size is much
+     *        bigger than we need.
+     */
+    bjpg = calloc(width * height, sizeof(char));
+
+    cinfo.dest->next_output_byte = bjpg;
+    cinfo.dest->free_in_buffer = width * height;
+    cinfo.dest->init_destination = comp_init;
+    cinfo.dest->empty_output_buffer = comp_empty;
+    cinfo.dest->term_destination = comp_term;
+
+    jpeg_set_defaults(&cinfo);
+    jpeg_set_quality(&cinfo, quality, TRUE);
+    jpeg_start_compress(&cinfo, TRUE);
+    row_stride = cinfo.image_width * cinfo.input_components;
+
+    while (cinfo.next_scanline < cinfo.image_height) {
+        row_ptr[0] = (unsigned char *)buffer + (cinfo.next_scanline *
+            row_stride);
+
+        jpeg_write_scanlines(&cinfo, row_ptr, 1);
+    }
+
+    jpeg_finish_compress(&cinfo);
+    *jsize = (width * height) - cinfo.dest->free_in_buffer;
+    free(cinfo.dest);
+    jpeg_destroy_compress(&cinfo);
+
+    return bjpg;
+}
+
+CL_INTERNAL_API
 unsigned char *jpg_to_RAW_mem(const unsigned char *buffer, unsigned int jsize,
     int *width, int *height, bool *color)
 {
@@ -348,37 +393,10 @@ unsigned char *jpg_to_RAW_mem(const unsigned char *buffer, unsigned int jsize,
     return bout;
 }
 
-static int get_raw_size(enum cl_image_color_format format, unsigned int width,
-    unsigned int height)
-{
-    int size = -1;
-
-    switch (format) {
-        case CL_IMAGE_FMT_BGR:
-        case CL_IMAGE_FMT_RGB:
-            size = width * height * 3;
-            break;
-
-        case CL_IMAGE_FMT_YUV422:
-        case CL_IMAGE_FMT_YUV420:
-        case CL_IMAGE_FMT_YUYV:
-            size = width * height * 2;
-            break;
-
-        case CL_IMAGE_FMT_GRAY:
-            size = width * height;
-            break;
-
-        default:
-            break;
-    }
-
-    return size;
-}
-
 /*
  * Fills the cl_image_t object with a raw image buffer.
  */
+CL_INTERNAL_API
 int fill_raw_image(cl_image_s *image, const unsigned char *buffer,
     enum cl_image_color_format format, unsigned int width, unsigned int height,
     enum cl_image_fill_format fill_format)
@@ -403,16 +421,16 @@ int fill_raw_image(cl_image_s *image, const unsigned char *buffer,
      * saved RAW header.
      */
     switch (fill_format) {
-        case CL_IMAGE_FILL_REFERENCE:
-        case CL_IMAGE_FILL_OWNER:
-            image->raw.original = (unsigned char *)buffer;
-            break;
+    case CL_IMAGE_FILL_REFERENCE:
+    case CL_IMAGE_FILL_OWNER:
+        image->raw.original = (unsigned char *)buffer;
+        break;
 
-        case CL_IMAGE_FILL_COPY:
-            image->raw.original = cl_memdup((unsigned char *)buffer,
-                                            image->raw.hdr.size);
+    case CL_IMAGE_FILL_COPY:
+        image->raw.original = cl_memdup((unsigned char *)buffer,
+                                        image->raw.hdr.size);
 
-            break;
+        break;
     }
 
     image->fill_format = fill_format;
@@ -421,6 +439,7 @@ int fill_raw_image(cl_image_s *image, const unsigned char *buffer,
     return 0;
 }
 
+CL_INTERNAL_API
 int raw_resize(cl_image_s *out, cl_image_s *in, unsigned int new_width,
     unsigned int new_height)
 {
@@ -468,6 +487,7 @@ int raw_resize(cl_image_s *out, cl_image_s *in, unsigned int new_width,
     return 0;
 }
 
+CL_INTERNAL_API
 int raw_extract(cl_image_s *out, cl_image_s *in, int x, int y, int w, int h)
 {
     unsigned char *b = NULL;
@@ -487,14 +507,14 @@ int raw_extract(cl_image_s *out, cl_image_s *in, int x, int y, int w, int h)
 
 /*
  *
- * Public API
+ * API
  *
  */
 
 /*
  * Our "real" image format conversion routine. ;-)
  */
-__PUB_API__ unsigned char *cl_raw_cvt_format(const unsigned char *buffer,
+unsigned char *cl_raw_cvt_format(const unsigned char *buffer,
     enum cl_image_color_format fmt_in, unsigned int width, unsigned int height,
     enum cl_image_color_format fmt_out, unsigned int *bsize)
 {

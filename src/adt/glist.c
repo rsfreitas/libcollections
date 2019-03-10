@@ -64,6 +64,12 @@ cl_struct_declare(glist_s, clist_members);
 #define glist_s     cl_struct(glist_s)
 
 /*
+ *
+ * Internal functions
+ *
+ */
+
+/*
  * Duplicate internal glist_s members to another one.
  */
 static void dup_internal_data(glist_s *orig, glist_s *dest)
@@ -256,423 +262,6 @@ static glist_s *new_clist(enum cl_object object)
     return l;
 }
 
-void *cglist_node_ref(void *node, enum cl_object object)
-{
-    struct gnode_s *n = (struct gnode_s *)node;
-
-    __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
-    cl_ref_inc(&n->ref);
-
-    return node;
-}
-
-int cglist_node_unref(void *node, enum cl_object object)
-{
-    struct gnode_s *n = (struct gnode_s *)node;
-
-    __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, -1);
-    cl_ref_dec(&n->ref);
-
-    return 0;
-}
-
-void *cglist_ref(void *list, enum cl_object object)
-{
-    glist_s *l = (glist_s *)list;
-
-    __clib_function_init__(true, list, object, NULL);
-    cl_ref_inc(&l->ref);
-
-    return list;
-}
-
-int cglist_unref(void *list, enum cl_object object)
-{
-    glist_s *l = (glist_s *)list;
-
-    __clib_function_init__(true, list, object, -1);
-    cl_ref_dec(&l->ref);
-
-    return 0;
-}
-
-void *cglist_create(enum cl_object object, void (*free_data)(void *),
-    int (*compare_to)(void *, void *), int (*filter)(void *, void *),
-    int (*equals)(void *, void *))
-{
-    glist_s *l = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    l = new_clist(object);
-
-    if (NULL == l)
-        return NULL;
-
-    if (free_data != NULL)
-        l->free_data = free_data;
-
-    if (compare_to != NULL)
-        l->compare_to = compare_to;
-
-    if (filter != NULL)
-        l->filter = filter;
-
-    if (equals != NULL)
-        l->equals = equals;
-
-    return l;
-}
-
-int cglist_destroy(void *list, enum cl_object object)
-{
-    return cglist_unref(list, object);
-}
-
-int cglist_size(const void *list, enum cl_object object)
-{
-    glist_s *l = (glist_s *)list;
-
-    __clib_function_init__(true, list, object, -1);
-
-    return l->size;
-}
-
-int cglist_push(void *list, enum cl_object object,
-    const void *node_content, unsigned int size, enum cl_object node_object)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, -1);
-    node = new_node(node_content, size, l, node_object);
-
-    if (NULL == node)
-        return -1;
-
-    pthread_mutex_lock(&l->lock);
-    l->list = cl_dll_push(l->list, node);
-    l->size++;
-    pthread_mutex_unlock(&l->lock);
-
-    return 0;
-}
-
-void *cglist_pop(void *list, enum cl_object object)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-
-    pthread_mutex_lock(&l->lock);
-    node = cl_dll_pop(&l->list);
-
-    if (node)
-        l->size--;
-
-    pthread_mutex_unlock(&l->lock);
-
-    if (NULL == node)
-        return NULL;
-
-    return node;
-}
-
-void *cglist_shift(void *list, enum cl_object object)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-
-    pthread_mutex_lock(&l->lock);
-    node = cl_dll_shift(&l->list);
-
-    if (node)
-        l->size--;
-
-    pthread_mutex_unlock(&l->lock);
-
-    if (NULL == node)
-        return NULL;
-
-    return node;
-}
-
-int cglist_unshift(void *list, enum cl_object object,
-    const void *node_content, unsigned int size, enum cl_object node_object)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, -1);
-    node = new_node(node_content, size, l, node_object);
-
-    if (NULL == node)
-        return -1;
-
-    pthread_mutex_lock(&l->lock);
-    l->list = cl_dll_unshift(l->list, node);
-    l->size++;
-    pthread_mutex_unlock(&l->lock);
-
-    return 0;
-}
-
-void *cglist_map(const void *list, enum cl_object object,
-    enum cl_object node_object, int (*foo)(void *, void *), void *data)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-
-    if (NULL == foo) {
-        cset_errno(CL_NULL_DATA);
-        return NULL;
-    }
-
-    node = cl_dll_map(l->list, foo, data);
-
-    if (NULL == node)
-        return NULL;
-
-    return cglist_node_ref(node, node_object);
-}
-
-void *cglist_map_indexed(const void *list, enum cl_object object,
-    enum cl_object node_object, int (*foo)(unsigned int, void *, void *),
-    void *data)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-
-    if (NULL == foo) {
-        cset_errno(CL_NULL_DATA);
-        return NULL;
-    }
-
-    node = cl_dll_map_indexed(l->list, foo, data);
-
-    if (NULL == node)
-        return NULL;
-
-    return cglist_node_ref(node, node_object);
-}
-
-void *cglist_map_reverse(const void *list, enum cl_object object,
-    enum cl_object node_object, int (*foo)(void *, void *), void *data)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-
-    if (NULL == foo) {
-        cset_errno(CL_NULL_DATA);
-        return NULL;
-    }
-
-    node = cl_dll_map_reverse(l->list, foo, data);
-
-    if (NULL == node)
-        return NULL;
-
-    return cglist_node_ref(node, node_object);
-}
-
-void *cglist_map_reverse_indexed(const void *list,
-    enum cl_object object, enum cl_object node_object,
-    int (*foo)(unsigned int, void *, void *), void *data)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-
-    if (NULL == foo) {
-        cset_errno(CL_NULL_DATA);
-        return NULL;
-    }
-
-    node = cl_dll_map_indexed_reverse(l->list, foo, data);
-
-    if (NULL == node)
-        return NULL;
-
-    return cglist_node_ref(node, node_object);
-}
-
-void *cglist_at(const void *list, enum cl_object object,
-    enum cl_object node_object, unsigned int index)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-    pthread_mutex_lock(&l->lock);
-    node = cl_dll_at(l->list, index);
-    pthread_mutex_unlock(&l->lock);
-
-    if (NULL == node)
-        return NULL;
-
-    return cglist_node_ref(node, node_object);
-}
-
-/* TODO: Maybe return the number of deleted elements */
-int cglist_delete(void *list, enum cl_object object, void *data)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-    int ret = 1; // Element not found
-
-    __clib_function_init__(true, list, object, -1);
-
-    if (NULL == l->filter) {
-        cset_errno(CL_NULL_DATA);
-        return -1;
-    }
-
-    pthread_mutex_lock(&l->lock);
-    node = cl_dll_delete(&l->list, l->filter, data, NULL);
-
-    if (node) {
-        /*
-         * Since the node is removed from the list we need to really remove it
-         * from the memory.
-         */
-        destroy_node(node, true);
-        l->size--;
-
-        /* And since we removed it, notify the caller about it */
-        ret = 0;
-    }
-
-    pthread_mutex_unlock(&l->lock);
-
-    return ret;
-}
-
-int cglist_delete_indexed(void *list, enum cl_object object,
-    unsigned int index)
-{
-    glist_s *l = (glist_s *)list;
-    struct gnode_s *node = NULL;
-    int ret = 1; // Element not found
-
-    __clib_function_init__(true, list, object, -1);
-
-    pthread_mutex_lock(&l->lock);
-    node = cl_dll_delete_indexed(&l->list, index, NULL);
-
-    if (node) {
-        /*
-         * Since the node is removed from the list we need to really remove it
-         * from the memory.
-         */
-        destroy_node(node, true);
-        l->size--;
-
-        /* And since we removed it, notify the caller about it */
-        ret = 0;
-    }
-
-    pthread_mutex_unlock(&l->lock);
-
-    return ret;
-}
-
-void *cglist_move(void *list, enum cl_object object)
-{
-    glist_s *l = (glist_s *)list, *n = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-    n = new_clist(object);
-
-    if (NULL == n)
-        return NULL;
-
-    pthread_mutex_lock(&l->lock);
-    dup_internal_data(l, n);
-    n->list = cl_dll_move(l->list);
-
-    /*
-     * Since we just move all nodes to another list, we mark its size as
-     * zero.
-     */
-    l->size = 0;
-    pthread_mutex_unlock(&l->lock);
-
-    return n;
-}
-
-void *cglist_filter(void *list, enum cl_object object, void *data)
-{
-    glist_s *l = (glist_s *)list, *n = NULL;
-
-    __clib_function_init__(true, list, object, NULL);
-
-    if (NULL == l->filter) {
-        cset_errno(CL_NULL_DATA);
-        return NULL;
-    }
-
-    n = new_clist(object);
-
-    if (NULL == n)
-        return NULL;
-
-    pthread_mutex_lock(&l->lock);
-    dup_internal_data(l, n);
-    n->list = cl_dll_filter(&l->list, l->filter, data);
-    n->size = cl_dll_size(n->list);
-    l->size -= n->size;
-    pthread_mutex_unlock(&l->lock);
-
-    return n;
-}
-
-/*
- * This function must be used by the user to get a reference to its own
- * object from within events function, like compare_to, filter, equals and
- * functions passed to _map_ functions.
- */
-void *cglist_node_content(const void *node, enum cl_object object)
-{
-    struct gnode_s *n = (struct gnode_s *)node;
-
-    __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
-
-    return (is_cl_object(n) == true) ? cl_object_ref(n->content)
-                                     : n->content;
-}
-
-int cglist_sort(void *list, enum cl_object object)
-{
-    glist_s *l = (glist_s *)list;
-    bool list_of_cobjects;
-
-    __clib_function_init__(true, list, object, -1);
-    list_of_cobjects = is_list_of_cobjects(l);
-
-    if ((list_of_cobjects == false) && (NULL == l->compare_to)) {
-        cset_errno(CL_NULL_DATA);
-        return -1;
-    }
-
-    pthread_mutex_lock(&l->lock);
-    l->list = cl_dll_mergesort(l->list,
-                               (list_of_cobjects == true) ? compare_cobjects
-                                                          : l->compare_to);
-
-    pthread_mutex_unlock(&l->lock);
-
-    return 0;
-}
-
 static int get_indexof(const void *list, enum cl_object object, void *content,
     unsigned int size, enum cl_object node_content, bool bottom_up)
 {
@@ -708,18 +297,466 @@ static int get_indexof(const void *list, enum cl_object object, void *content,
     return idx;
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
+void *cglist_node_ref(void *node, enum cl_object object)
+{
+    struct gnode_s *n = (struct gnode_s *)node;
+
+    __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
+    cl_ref_inc(&n->ref);
+
+    return node;
+}
+
+CL_INTERNAL_API
+int cglist_node_unref(void *node, enum cl_object object)
+{
+    struct gnode_s *n = (struct gnode_s *)node;
+
+    __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, -1);
+    cl_ref_dec(&n->ref);
+
+    return 0;
+}
+
+CL_INTERNAL_API
+void *cglist_ref(void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, NULL);
+    cl_ref_inc(&l->ref);
+
+    return list;
+}
+
+CL_INTERNAL_API
+int cglist_unref(void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, -1);
+    cl_ref_dec(&l->ref);
+
+    return 0;
+}
+
+CL_INTERNAL_API
+void *cglist_create(enum cl_object object, void (*free_data)(void *),
+    int (*compare_to)(void *, void *), int (*filter)(void *, void *),
+    int (*equals)(void *, void *))
+{
+    glist_s *l = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    l = new_clist(object);
+
+    if (NULL == l)
+        return NULL;
+
+    if (free_data != NULL)
+        l->free_data = free_data;
+
+    if (compare_to != NULL)
+        l->compare_to = compare_to;
+
+    if (filter != NULL)
+        l->filter = filter;
+
+    if (equals != NULL)
+        l->equals = equals;
+
+    return l;
+}
+
+CL_INTERNAL_API
+int cglist_destroy(void *list, enum cl_object object)
+{
+    return cglist_unref(list, object);
+}
+
+CL_INTERNAL_API
+int cglist_size(const void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list;
+
+    __clib_function_init__(true, list, object, -1);
+
+    return l->size;
+}
+
+CL_INTERNAL_API
+int cglist_push(void *list, enum cl_object object,
+    const void *node_content, unsigned int size, enum cl_object node_object)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, -1);
+    node = new_node(node_content, size, l, node_object);
+
+    if (NULL == node)
+        return -1;
+
+    pthread_mutex_lock(&l->lock);
+    l->list = cl_dll_push(l->list, node);
+    l->size++;
+    pthread_mutex_unlock(&l->lock);
+
+    return 0;
+}
+
+CL_INTERNAL_API
+void *cglist_pop(void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    pthread_mutex_lock(&l->lock);
+    node = cl_dll_pop(&l->list);
+
+    if (node)
+        l->size--;
+
+    pthread_mutex_unlock(&l->lock);
+
+    if (NULL == node)
+        return NULL;
+
+    return node;
+}
+
+CL_INTERNAL_API
+void *cglist_shift(void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    pthread_mutex_lock(&l->lock);
+    node = cl_dll_shift(&l->list);
+
+    if (node)
+        l->size--;
+
+    pthread_mutex_unlock(&l->lock);
+
+    if (NULL == node)
+        return NULL;
+
+    return node;
+}
+
+CL_INTERNAL_API
+int cglist_unshift(void *list, enum cl_object object,
+    const void *node_content, unsigned int size, enum cl_object node_object)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, -1);
+    node = new_node(node_content, size, l, node_object);
+
+    if (NULL == node)
+        return -1;
+
+    pthread_mutex_lock(&l->lock);
+    l->list = cl_dll_unshift(l->list, node);
+    l->size++;
+    pthread_mutex_unlock(&l->lock);
+
+    return 0;
+}
+
+CL_INTERNAL_API
+void *cglist_map(const void *list, enum cl_object object,
+    enum cl_object node_object, int (*foo)(void *, void *), void *data)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    if (NULL == foo) {
+        cset_errno(CL_NULL_DATA);
+        return NULL;
+    }
+
+    node = cl_dll_map(l->list, foo, data);
+
+    if (NULL == node)
+        return NULL;
+
+    return cglist_node_ref(node, node_object);
+}
+
+CL_INTERNAL_API
+void *cglist_map_indexed(const void *list, enum cl_object object,
+    enum cl_object node_object, int (*foo)(unsigned int, void *, void *),
+    void *data)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    if (NULL == foo) {
+        cset_errno(CL_NULL_DATA);
+        return NULL;
+    }
+
+    node = cl_dll_map_indexed(l->list, foo, data);
+
+    if (NULL == node)
+        return NULL;
+
+    return cglist_node_ref(node, node_object);
+}
+
+CL_INTERNAL_API
+void *cglist_map_reverse(const void *list, enum cl_object object,
+    enum cl_object node_object, int (*foo)(void *, void *), void *data)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    if (NULL == foo) {
+        cset_errno(CL_NULL_DATA);
+        return NULL;
+    }
+
+    node = cl_dll_map_reverse(l->list, foo, data);
+
+    if (NULL == node)
+        return NULL;
+
+    return cglist_node_ref(node, node_object);
+}
+
+CL_INTERNAL_API
+void *cglist_map_reverse_indexed(const void *list,
+    enum cl_object object, enum cl_object node_object,
+    int (*foo)(unsigned int, void *, void *), void *data)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    if (NULL == foo) {
+        cset_errno(CL_NULL_DATA);
+        return NULL;
+    }
+
+    node = cl_dll_map_indexed_reverse(l->list, foo, data);
+
+    if (NULL == node)
+        return NULL;
+
+    return cglist_node_ref(node, node_object);
+}
+
+CL_INTERNAL_API
+void *cglist_at(const void *list, enum cl_object object,
+    enum cl_object node_object, unsigned int index)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+    pthread_mutex_lock(&l->lock);
+    node = cl_dll_at(l->list, index);
+    pthread_mutex_unlock(&l->lock);
+
+    if (NULL == node)
+        return NULL;
+
+    return cglist_node_ref(node, node_object);
+}
+
+/* TODO: Maybe return the number of deleted elements */
+CL_INTERNAL_API
+int cglist_delete(void *list, enum cl_object object, void *data)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+    int ret = 1; // Element not found
+
+    __clib_function_init__(true, list, object, -1);
+
+    if (NULL == l->filter) {
+        cset_errno(CL_NULL_DATA);
+        return -1;
+    }
+
+    pthread_mutex_lock(&l->lock);
+    node = cl_dll_delete(&l->list, l->filter, data, NULL);
+
+    if (node) {
+        /*
+         * Since the node is removed from the list we need to really remove it
+         * from the memory.
+         */
+        destroy_node(node, true);
+        l->size--;
+
+        /* And since we removed it, notify the caller about it */
+        ret = 0;
+    }
+
+    pthread_mutex_unlock(&l->lock);
+
+    return ret;
+}
+
+CL_INTERNAL_API
+int cglist_delete_indexed(void *list, enum cl_object object,
+    unsigned int index)
+{
+    glist_s *l = (glist_s *)list;
+    struct gnode_s *node = NULL;
+    int ret = 1; // Element not found
+
+    __clib_function_init__(true, list, object, -1);
+
+    pthread_mutex_lock(&l->lock);
+    node = cl_dll_delete_indexed(&l->list, index, NULL);
+
+    if (node) {
+        /*
+         * Since the node is removed from the list we need to really remove it
+         * from the memory.
+         */
+        destroy_node(node, true);
+        l->size--;
+
+        /* And since we removed it, notify the caller about it */
+        ret = 0;
+    }
+
+    pthread_mutex_unlock(&l->lock);
+
+    return ret;
+}
+
+CL_INTERNAL_API
+void *cglist_move(void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list, *n = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+    n = new_clist(object);
+
+    if (NULL == n)
+        return NULL;
+
+    pthread_mutex_lock(&l->lock);
+    dup_internal_data(l, n);
+    n->list = cl_dll_move(l->list);
+
+    /*
+     * Since we just move all nodes to another list, we mark its size as
+     * zero.
+     */
+    l->size = 0;
+    pthread_mutex_unlock(&l->lock);
+
+    return n;
+}
+
+CL_INTERNAL_API
+void *cglist_filter(void *list, enum cl_object object, void *data)
+{
+    glist_s *l = (glist_s *)list, *n = NULL;
+
+    __clib_function_init__(true, list, object, NULL);
+
+    if (NULL == l->filter) {
+        cset_errno(CL_NULL_DATA);
+        return NULL;
+    }
+
+    n = new_clist(object);
+
+    if (NULL == n)
+        return NULL;
+
+    pthread_mutex_lock(&l->lock);
+    dup_internal_data(l, n);
+    n->list = cl_dll_filter(&l->list, l->filter, data);
+    n->size = cl_dll_size(n->list);
+    l->size -= n->size;
+    pthread_mutex_unlock(&l->lock);
+
+    return n;
+}
+
+/*
+ * This function must be used by the user to get a reference to its own
+ * object from within events function, like compare_to, filter, equals and
+ * functions passed to _map_ functions.
+ */
+CL_INTERNAL_API
+void *cglist_node_content(const void *node, enum cl_object object)
+{
+    struct gnode_s *n = (struct gnode_s *)node;
+
+    __clib_function_init_ex__(true, node, object, CLIST_NODE_OFFSET, NULL);
+
+    return (is_cl_object(n) == true) ? cl_object_ref(n->content)
+                                     : n->content;
+}
+
+CL_INTERNAL_API
+int cglist_sort(void *list, enum cl_object object)
+{
+    glist_s *l = (glist_s *)list;
+    bool list_of_cobjects;
+
+    __clib_function_init__(true, list, object, -1);
+    list_of_cobjects = is_list_of_cobjects(l);
+
+    if ((list_of_cobjects == false) && (NULL == l->compare_to)) {
+        cset_errno(CL_NULL_DATA);
+        return -1;
+    }
+
+    pthread_mutex_lock(&l->lock);
+    l->list = cl_dll_mergesort(l->list,
+                               (list_of_cobjects == true) ? compare_cobjects
+                                                          : l->compare_to);
+
+    pthread_mutex_unlock(&l->lock);
+
+    return 0;
+}
+
+CL_INTERNAL_API
 int cglist_indexof(const void *list, enum cl_object object,
     void *content, unsigned int size, enum cl_object node_object)
 {
     return get_indexof(list, object, content, size, node_object, false);
 }
 
+CL_INTERNAL_API
 int cglist_last_indexof(const void *list, enum cl_object object,
     void *content, unsigned int size, enum cl_object node_object)
 {
     return get_indexof(list, object, content, size, node_object, true);
 }
 
+CL_INTERNAL_API
 bool cglist_contains(const void *list, enum cl_object object,
     void *content, unsigned int size, enum cl_object node_object)
 {
@@ -750,6 +787,7 @@ bool cglist_contains(const void *list, enum cl_object object,
     return st;
 }
 
+CL_INTERNAL_API
 void *cglist_peek(const void *list, enum cl_object object,
     enum cl_object node_object)
 {
@@ -765,6 +803,7 @@ void *cglist_peek(const void *list, enum cl_object object,
     return cglist_node_ref(node, node_object);
 }
 
+CL_INTERNAL_API
 bool cglist_is_empty(const void *list, enum cl_object object)
 {
     __clib_function_init__(true, list, object, false);
@@ -772,6 +811,7 @@ bool cglist_is_empty(const void *list, enum cl_object object)
     return (NULL == list) ? true : false;
 }
 
+CL_INTERNAL_API
 int cglist_set_compare_to(const void *list, enum cl_object object,
     int (*compare_to)(void *, void *))
 {
@@ -783,6 +823,7 @@ int cglist_set_compare_to(const void *list, enum cl_object object,
     return 0;
 }
 
+CL_INTERNAL_API
 int cglist_set_filter(const void *list, enum cl_object object,
     int (*filter)(void *, void *))
 {
@@ -794,6 +835,7 @@ int cglist_set_filter(const void *list, enum cl_object object,
     return 0;
 }
 
+CL_INTERNAL_API
 int cglist_set_equals(const void *list, enum cl_object object,
     int (*equals)(void *, void *))
 {
@@ -805,6 +847,7 @@ int cglist_set_equals(const void *list, enum cl_object object,
     return 0;
 }
 
+CL_INTERNAL_API
 void *cglist_middle(const void *list, enum cl_object object)
 {
     glist_s *l = (glist_s *)list;
@@ -814,6 +857,7 @@ void *cglist_middle(const void *list, enum cl_object object)
     return cl_dll_middle(l->list);
 }
 
+CL_INTERNAL_API
 int cglist_rotate(void *list, enum cl_object object, unsigned int n)
 {
     glist_s *l = (glist_s *)list;

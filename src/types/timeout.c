@@ -35,8 +35,13 @@
     cl_struct_member(unsigned int, interval)
 
 cl_struct_declare(cl_timeout_s, cl_timeout_members);
-
 #define cl_timeout_s          cl_struct(cl_timeout_s)
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static cl_timeout_s *new_cl_timeout_s(unsigned int interval,
     enum cl_timeout precision)
@@ -76,7 +81,13 @@ static void destroy_cl_timeout_s(cl_timeout_s *t)
     free(t);
 }
 
-__PUB_API__ cl_timeout_t *cl_timeout_create(unsigned int interval,
+/*
+ *
+ * API
+ *
+ */
+
+cl_timeout_t *cl_timeout_create(unsigned int interval,
    enum cl_timeout precision)
 {
     cl_timeout_s *t;
@@ -90,7 +101,7 @@ __PUB_API__ cl_timeout_t *cl_timeout_create(unsigned int interval,
     return t;
 }
 
-__PUB_API__ int cl_timeout_destroy(cl_timeout_t *t)
+int cl_timeout_destroy(cl_timeout_t *t)
 {
     cl_timeout_s *ct = (cl_timeout_s *)t;
 
@@ -100,7 +111,7 @@ __PUB_API__ int cl_timeout_destroy(cl_timeout_t *t)
     return 0;
 }
 
-__PUB_API__ int cl_timeout_reset(cl_timeout_t *t, unsigned int interval,
+int cl_timeout_reset(cl_timeout_t *t, unsigned int interval,
     enum cl_timeout precision)
 {
     cl_timeout_s *ct = (cl_timeout_s *)t;
@@ -121,7 +132,7 @@ __PUB_API__ int cl_timeout_reset(cl_timeout_t *t, unsigned int interval,
     return 0;
 }
 
-__PUB_API__ bool cl_timeout_expired(const cl_timeout_t *t)
+bool cl_timeout_expired(const cl_timeout_t *t)
 {
     cl_timeout_s *ct = (cl_timeout_s *)t;
     struct timeval tv;
@@ -132,29 +143,29 @@ __PUB_API__ bool cl_timeout_expired(const cl_timeout_t *t)
     gettimeofday(&tv, NULL);
 
     switch (ct->precision) {
-        case CL_TM_SECONDS:
-            i = cl_dt_get_seconds(ct->dt) + ct->interval;
+    case CL_TM_SECONDS:
+        i = cl_dt_get_seconds(ct->dt) + ct->interval;
 
-            if (tv.tv_sec > (time_t)i)
-                return true;
+        if (tv.tv_sec > (time_t)i)
+            return true;
 
-            break;
+        break;
 
-        case CL_TM_MSECONDS:
-            i = cl_dt_get_mseconds(ct->dt) + ct->interval;
+    case CL_TM_MSECONDS:
+        i = cl_dt_get_mseconds(ct->dt) + ct->interval;
 
-            if ((unsigned int)((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) > i)
-                return true;
+        if ((unsigned int)((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) > i)
+            return true;
 
-            break;
+        break;
 
-        case CL_TM_USECONDS:
-            l = cl_dt_get_useconds(ct->dt) + ct->interval;
+    case CL_TM_USECONDS:
+        l = cl_dt_get_useconds(ct->dt) + ct->interval;
 
-            if ((unsigned long long)((tv.tv_sec * 1000000) + tv.tv_usec) > l)
-                return true;
+        if ((unsigned long long)((tv.tv_sec * 1000000) + tv.tv_usec) > l)
+            return true;
 
-            break;
+        break;
     }
 
     return false;

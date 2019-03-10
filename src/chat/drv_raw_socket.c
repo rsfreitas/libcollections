@@ -30,13 +30,19 @@
 #include "chat.h"
 
 /*
+ *
+ * Internal API
+ *
+ */
+
+/*
  * Makes the insertion of raw data from arguments @data (and @data_size) in
  * a 'struct cl_chat_data_s' structure, for sending it through an internal IPC
  * protocol.
  */
-struct cl_chat_data_s
-    *raw_socket_prepare_to_send(drv_data_t *drv_data __attribute__((unused)),
-                void *data, unsigned int data_size)
+CL_INTERNAL_API
+struct cl_chat_data_s *raw_socket_prepare_to_send(drv_data_t *drv_data __attribute__((unused)),
+    void *data, unsigned int data_size)
 {
     struct cl_chat_data_s *scd = NULL;
 
@@ -54,6 +60,7 @@ struct cl_chat_data_s
  * Breaks an information received from an IPC protocol in a
  * 'struct cl_chat_data_s' structure (raw data).
  */
+CL_INTERNAL_API
 void *raw_socket_process_recv_data(drv_data_t *drv_data __attribute__((unused)),
     struct cl_chat_data_s *scd, unsigned int *data_size)
 {

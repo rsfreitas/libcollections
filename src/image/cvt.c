@@ -27,6 +27,11 @@
 #include "collections.h"
 #include "image.h"
 
+/*
+ *
+ * Internal functions
+ *
+ */
 static unsigned char *raw_to_jpg(cl_image_s *image, unsigned int *bsize)
 {
     unsigned char *data = NULL, *jpg = NULL;
@@ -37,20 +42,20 @@ static unsigned char *raw_to_jpg(cl_image_s *image, unsigned int *bsize)
      * need to convert.
      */
     switch (image->raw.hdr.format) {
-        case CL_IMAGE_FMT_YUV422:
-        case CL_IMAGE_FMT_YUV420:
-        case CL_IMAGE_FMT_YUYV:
-            free_data = true;
-            data = cl_raw_cvt_format((const unsigned char *)image->raw.headless,
-                                     image->raw.hdr.format, image->raw.hdr.width,
-                                     image->raw.hdr.height, CL_IMAGE_FMT_RGB,
-                                     bsize);
+    case CL_IMAGE_FMT_YUV422:
+    case CL_IMAGE_FMT_YUV420:
+    case CL_IMAGE_FMT_YUYV:
+        free_data = true;
+        data = cl_raw_cvt_format((const unsigned char *)image->raw.headless,
+                                 image->raw.hdr.format, image->raw.hdr.width,
+                                 image->raw.hdr.height, CL_IMAGE_FMT_RGB,
+                                 bsize);
 
-            break;
+        break;
 
-        default:
-            data = (unsigned char *)image->raw.headless;
-            break;
+    default:
+        data = (unsigned char *)image->raw.headless;
+        break;
     }
 
     if (image->raw.hdr.format == CL_IMAGE_FMT_GRAY)
@@ -66,46 +71,6 @@ static unsigned char *raw_to_jpg(cl_image_s *image, unsigned int *bsize)
         free(data);
 
     return jpg;
-}
-
-IplImage *jpg_buffer_to_ocv(const unsigned char *buffer, unsigned int width,
-    unsigned int height, int color)
-{
-    CvMat mat;
-
-    mat = cvMat(width, height, CV_8UC1, (void *)buffer);
-
-    return cvDecodeImage(&mat, color);
-}
-
-IplImage *cl_image_to_ocv(cl_image_s *image)
-{
-    unsigned char *bjpg = NULL;
-    unsigned int bjpg_size = 0;
-    int color = 0;
-    IplImage *ipl;
-    CvMat mat;
-
-    if (image->type != CL_IMAGE_RAW)
-        return image->image;
-
-    bjpg = raw_to_jpg(image, &bjpg_size);
-
-    if (NULL == bjpg)
-        return NULL;
-
-    if (image->format != CL_IMAGE_FMT_GRAY)
-        color = 1;
-
-    mat = cvMat(image->raw.hdr.width, image->raw.hdr.height, CV_8UC1,
-                (void *)bjpg);
-
-    ipl = cvDecodeImage(&mat, color);
-
-    if (bjpg != NULL)
-        free(bjpg);
-
-    return ipl;
 }
 
 static unsigned char *raw_to_other(cl_image_s *image, unsigned int *bsize,
@@ -150,32 +115,32 @@ static unsigned char *convert_raw_image(cl_image_s *image,
     unsigned char *b;
 
     switch (type) {
-        case CL_IMAGE_JPG:
-            b = raw_to_jpg(image, bsize);
-            break;
+    case CL_IMAGE_JPG:
+        b = raw_to_jpg(image, bsize);
+        break;
 
-        case CL_IMAGE_BMP:
-            b = raw_to_other(image, bsize, "."EXT_BMP);
-            break;
+    case CL_IMAGE_BMP:
+        b = raw_to_other(image, bsize, "."EXT_BMP);
+        break;
 
-        case CL_IMAGE_PNG:
-            b = raw_to_other(image, bsize, "."EXT_PNG);
-            break;
+    case CL_IMAGE_PNG:
+        b = raw_to_other(image, bsize, "."EXT_PNG);
+        break;
 
-        case CL_IMAGE_JPG2K:
-            b = raw_to_other(image, bsize, "."EXT_JPG2K);
-            break;
+    case CL_IMAGE_JPG2K:
+        b = raw_to_other(image, bsize, "."EXT_JPG2K);
+        break;
 
-        case CL_IMAGE_TIFF:
-            b = raw_to_other(image, bsize, "."EXT_TIFF);
-            break;
+    case CL_IMAGE_TIFF:
+        b = raw_to_other(image, bsize, "."EXT_TIFF);
+        break;
 
-        case CL_IMAGE_PPM:
-            b = raw_to_other(image, bsize, "."EXT_PPM);
-            break;
+    case CL_IMAGE_PPM:
+        b = raw_to_other(image, bsize, "."EXT_PPM);
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return b;
@@ -257,25 +222,74 @@ static unsigned char *convert_image_to_raw(cl_image_s *image,
     unsigned char *b = NULL;
 
     switch (image->type) {
-        case CL_IMAGE_JPG:
-            b = jpg_to_raw(image, bsize);
-            break;
+    case CL_IMAGE_JPG:
+        b = jpg_to_raw(image, bsize);
+        break;
 
-        case CL_IMAGE_BMP:
-        case CL_IMAGE_PNG:
-        case CL_IMAGE_JPG2K:
-        case CL_IMAGE_TIFF:
-        case CL_IMAGE_PPM:
-            b = other_to_raw(image, bsize);
-            break;
+    case CL_IMAGE_BMP:
+    case CL_IMAGE_PNG:
+    case CL_IMAGE_JPG2K:
+    case CL_IMAGE_TIFF:
+    case CL_IMAGE_PPM:
+        b = other_to_raw(image, bsize);
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     return b;
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
+IplImage *jpg_buffer_to_ocv(const unsigned char *buffer, unsigned int width,
+    unsigned int height, int color)
+{
+    CvMat mat;
+
+    mat = cvMat(width, height, CV_8UC1, (void *)buffer);
+
+    return cvDecodeImage(&mat, color);
+}
+
+CL_INTERNAL_API
+IplImage *cl_image_to_ocv(cl_image_s *image)
+{
+    unsigned char *bjpg = NULL;
+    unsigned int bjpg_size = 0;
+    int color = 0;
+    IplImage *ipl;
+    CvMat mat;
+
+    if (image->type != CL_IMAGE_RAW)
+        return image->image;
+
+    bjpg = raw_to_jpg(image, &bjpg_size);
+
+    if (NULL == bjpg)
+        return NULL;
+
+    if (image->format != CL_IMAGE_FMT_GRAY)
+        color = 1;
+
+    mat = cvMat(image->raw.hdr.width, image->raw.hdr.height, CV_8UC1,
+                (void *)bjpg);
+
+    ipl = cvDecodeImage(&mat, color);
+
+    if (bjpg != NULL)
+        free(bjpg);
+
+    return ipl;
+}
+
+CL_INTERNAL_API
 IplImage *convert_image_to_cv_image(cl_image_s *image)
 {
     if (image->type != CL_IMAGE_RAW)
@@ -284,6 +298,7 @@ IplImage *convert_image_to_cv_image(cl_image_s *image)
     return NULL;
 }
 
+CL_INTERNAL_API
 unsigned char *convert_image_formats(cl_image_s *image, enum cl_image_type type,
     enum cl_image_color_format format __attribute__((unused)),
     unsigned int *bsize)
@@ -325,6 +340,7 @@ unsigned char *convert_image_formats(cl_image_s *image, enum cl_image_type type,
     return buffer;
 }
 
+CL_INTERNAL_API
 unsigned char *convert_raw_formats(cl_image_s *image,
     enum cl_image_color_format format, unsigned int *bsize)
 {

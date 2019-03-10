@@ -72,6 +72,12 @@ static const unsigned char __first_byte_mark[7] = {
     0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC
 };
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static const char *get_jvalue_value(enum cl_json_type type)
 {
     unsigned int i;
@@ -210,81 +216,81 @@ static const char *parse_string(cl_json_s *n, const char *s)
             ptr++;
 
             switch (*ptr) {
-                case 'b':
-                    *ptr2++ = '\b';
+            case 'b':
+                *ptr2++ = '\b';
+                break;
+
+            case 'f':
+                *ptr2++ = '\f';
+                break;
+
+            case 'n':
+                *ptr2++ = '\n';
+                break;
+
+            case 'r':
+                *ptr2++ = '\r';
+                break;
+
+            case 't':
+                *ptr2++ = '\t';
+                break;
+
+            case 'u': /* transcode utf16 to utf8. */
+                sscanf(ptr + 1, "%4x", &uc);
+                ptr += 4; /* get unicode char */
+
+                /* checks for invalid chars */
+                if (((uc >= 0xDC00) && (uc <= 0xDFFF)) || (uc == 0))
                     break;
 
-                case 'f':
-                    *ptr2++ = '\f';
-                    break;
-
-                case 'n':
-                    *ptr2++ = '\n';
-                    break;
-
-                case 'r':
-                    *ptr2++ = '\r';
-                    break;
-
-                case 't':
-                    *ptr2++ = '\t';
-                    break;
-
-                case 'u': /* transcode utf16 to utf8. */
-                    sscanf(ptr + 1, "%4x", &uc);
-                    ptr += 4; /* get unicode char */
-
-                    /* checks for invalid chars */
-                    if (((uc >= 0xDC00) && (uc <= 0xDFFF)) || (uc == 0))
+                if ((uc >= 0xD800) && (uc <= 0xDBFF)) {
+                    if ((ptr[1] != '\\') || (ptr[2] != 'u'))
                         break;
 
-                    if ((uc >= 0xD800) && (uc <= 0xDBFF)) {
-                        if ((ptr[1] != '\\') || (ptr[2] != 'u'))
-                            break;
+                    sscanf(ptr + 3, "%4x", &uc2);
+                    ptr += 6;
 
-                        sscanf(ptr + 3, "%4x", &uc2);
-                        ptr += 6;
+                    if ((uc2 < 0xDC00) || (uc2 > 0xDFFF))
+                        break;
 
-                        if ((uc2 < 0xDC00) || (uc2 > 0xDFFF))
-                            break;
+                    uc = 0x10000 | ((uc & 0x3FF) << 10) | (uc2 & 0x3FF);
+                }
 
-                        uc = 0x10000 | ((uc & 0x3FF) << 10) | (uc2 & 0x3FF);
-                    }
+                len = 4;
 
-                    len = 4;
+                if (uc < 0x80)
+                    len = 1;
+                else if (uc < 0x800)
+                    len = 2;
+                else if (uc < 0x10000)
+                    len = 3;
 
-                    if (uc < 0x80)
-                        len = 1;
-                    else if (uc < 0x800)
-                        len = 2;
-                    else if (uc < 0x10000)
-                        len = 3;
+                ptr2 += len;
 
-                    ptr2 += len;
+                switch (len) {
+                case 4:
+                    *--ptr2 = ((uc | 0x80) & 0xBF);
+                    uc >>= 6;
 
-                    switch (len) {
-                        case 4:
-                            *--ptr2 = ((uc | 0x80) & 0xBF);
-                            uc >>= 6;
+                case 3:
+                    *--ptr2 = ((uc | 0x80) & 0xBF);
+                    uc >>= 6;
 
-                        case 3:
-                            *--ptr2 = ((uc | 0x80) & 0xBF);
-                            uc >>= 6;
+                case 2:
+                    *--ptr2 = ((uc | 0x80) & 0xBF);
+                    uc >>= 6;
 
-                        case 2:
-                            *--ptr2 = ((uc | 0x80) & 0xBF);
-                            uc >>= 6;
+                case 1:
+                    *--ptr2 = (uc | __first_byte_mark[len]);
+                }
 
-                        case 1:
-                            *--ptr2 = (uc | __first_byte_mark[len]);
-                    }
+                ptr2 += len;
+                break;
 
-                    ptr2 += len;
-                    break;
-
-                default:
-                    *ptr2++ = *ptr;
-                    break;
+            default:
+                *ptr2++ = *ptr;
+                break;
             }
 
             ptr++;
@@ -554,177 +560,30 @@ static const char *parse(cl_json_s *n, const char *s)
         s = skip_chars(skip_comment(s));
 
     switch (*s) {
-        case '\"':
-            return parse_string(n, s);
+    case '\"':
+        return parse_string(n, s);
 
-        case '-':
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            return parse_number(n, s);
+    case '-':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        return parse_number(n, s);
 
-        case '[':
-            return parse_array(n, s);
+    case '[':
+        return parse_array(n, s);
 
-        case '{':
-            return parse_object(n, s);
+    case '{':
+        return parse_object(n, s);
     }
 
     return NULL;
-}
-
-__PUB_API__ cl_json_t *cl_json_parse_string(const char *string)
-{
-    cl_json_s *c = NULL;
-    int error;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-
-    if (strlen(string) == 0) {
-        cset_errno(CL_INVALID_VALUE);
-        return NULL;
-    }
-
-    c = cl_json_new();
-
-    if (NULL == c)
-        return NULL;
-
-    /* parse */
-    if (parse(c, skip_chars(string)) == NULL) {
-        error = cl_get_last_error();
-        cl_json_delete(c);
-        cset_errno(error);
-        return NULL;
-    }
-
-    return c;
-}
-
-__PUB_API__ cl_json_t *cl_json_parse(const cl_string_t *string)
-{
-    __clib_function_init__(true, string, CL_OBJ_STRING, NULL);
-
-    return cl_json_parse_string(cl_string_valueof(string));
-}
-
-__PUB_API__ cl_json_t *cl_json_read_file(const char *filename)
-{
-    unsigned char *b;
-    unsigned int bsize;
-    cl_json_t *j = NULL;
-    cl_string_t *s = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-
-    if (NULL == filename) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    b = cl_fload(filename, &bsize);
-
-    if (NULL == b)
-        return NULL;
-
-    s = cl_string_create("%s", b);
-    cl_funload(b);
-    j = cl_json_parse(s);
-    cl_string_destroy(s);
-
-    return j;
-}
-
-__PUB_API__ int cl_json_write_file(const cl_json_t *j, const char *filename)
-{
-    cl_string_t *s;
-    int ret;
-
-    __clib_function_init_ex__(true, j, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET, -1);
-
-    if (NULL == filename) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    s = cl_json_to_cstring(j, false);
-
-    if (NULL == s)
-        return -1;
-
-    ret = cl_fsave(filename, (unsigned char *)cl_string_valueof(s),
-                   cl_string_length(s));
-
-    cl_string_destroy(s);
-
-    return ret;
-}
-
-__PUB_API__ void cl_json_delete(cl_json_t *j)
-{
-    cl_json_s *c = (cl_json_s *)j;
-
-    if (library_initialized() == false)
-        return;
-
-    if (typeof_validate_object_with_offset(j, CL_OBJ_JSON,
-                                    CL_JSON_OBJECT_OFFSET) == false)
-    {
-        return;
-    }
-
-    cl_dll_free(c->child, __cl_json_delete);
-
-    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value) {
-        cl_string_destroy(c->value);
-        c->value = NULL;
-    }
-
-    if (c->name) {
-        cl_string_destroy(c->name);
-        c->name = NULL;
-    }
-
-    free(c);
-}
-
-__PUB_API__ int cl_json_get_array_size(const cl_json_t *array)
-{
-    cl_json_s *p = (cl_json_s *)array;
-
-    __clib_function_init_ex__(true, array, CL_OBJ_JSON,
-                              CL_JSON_OBJECT_OFFSET, -1);
-
-    if (p->type != CL_JSON_ARRAY)
-        return -1;
-
-    return cl_dll_size(p->child);
-}
-
-__PUB_API__ cl_json_t *cl_json_get_array_item(const cl_json_t *array,
-    unsigned int item)
-{
-    cl_json_s *p = (cl_json_s *)array, *n;
-    int size;
-
-    __clib_function_init_ex__(true, array, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
-                              NULL);
-
-    size = cl_json_get_array_size(array);
-
-    if ((size < 0) || ((int)item >= size))
-        return NULL;
-
-    n = cl_dll_at(p->child, item);
-
-    return n;
 }
 
 static int find_object(void *a, void *b)
@@ -736,72 +595,6 @@ static int find_object(void *a, void *b)
         return 1;
 
     return 0;
-}
-
-__PUB_API__ cl_json_t *cl_json_get_array_item_by_name(const cl_json_t *array,
-    const char *name)
-{
-    cl_json_s *p = (cl_json_s *)array, *n;
-    int size;
-
-    __clib_function_init_ex__(true, array, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
-                              NULL);
-
-    size = cl_json_get_array_size(array);
-
-    if (size <= 0)
-        return NULL;
-
-    n = cl_dll_map(p->child, find_object, (char *)name);
-
-    return n;
-}
-
-__PUB_API__ cl_json_t *cl_json_get_object_item(const cl_json_t *json,
-    const char *name)
-{
-    cl_json_s *p = NULL, *root = (cl_json_s *)json;
-
-    __clib_function_init_ex__(true, json, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
-                              NULL);
-
-    if (NULL == name) {
-        cset_errno(CL_NULL_ARG);
-        return NULL;
-    }
-
-    p = cl_dll_map(root->child, find_object, (char *)name);
-
-    return p;
-}
-
-__PUB_API__ cl_string_t *cl_json_get_object_name(const cl_json_t *o)
-{
-    cl_json_s *p = (cl_json_s *)o;
-
-    __clib_function_init_ex__(true, o, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
-                              NULL);
-
-    return p->name;
-}
-
-__PUB_API__ cl_string_t *cl_json_get_object_value(const cl_json_t *o)
-{
-    cl_json_s *p = (cl_json_s *)o;
-
-    __clib_function_init_ex__(true, o, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
-                              NULL);
-
-    return p->value;
-}
-
-__PUB_API__ enum cl_json_type cl_json_get_object_type(const cl_json_t *o)
-{
-    cl_json_s *p = (cl_json_s *)o;
-
-    __clib_function_init_ex__(true, o, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET, -1);
-
-    return p->type;
 }
 
 static int __cl_json_dup(void *a, void *b)
@@ -821,298 +614,6 @@ static int __cl_json_dup(void *a, void *b)
     return 0;
 }
 
-__PUB_API__ cl_json_t *cl_json_dup(const cl_json_t *root)
-{
-    cl_json_s *r = (cl_json_s *)root;
-    cl_json_s *l = NULL;
-
-    __clib_function_init_ex__(true, root, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
-                              NULL);
-
-    l = __dup(r);
-    l->type = r->type & (~CL_JSON_IS_REFERENCE);
-    cl_dll_map(r->child, __cl_json_dup, l);
-
-    return l;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_array(void)
-{
-    cl_json_s *p = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    p->type = CL_JSON_ARRAY;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_object(void)
-{
-    cl_json_s *p = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    p->type = CL_JSON_OBJECT;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_null(void)
-{
-    cl_json_s *p = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    p->type = CL_JSON_NULL;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_false(void)
-{
-    cl_json_s *p = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    p->type = CL_JSON_FALSE;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_true(void)
-{
-    cl_json_s *p = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    p->type = CL_JSON_TRUE;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_number(int n)
-{
-    cl_json_s *p = NULL;
-    cl_string_t *s = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    s = cl_string_create("%d", n);
-    p->type = CL_JSON_NUMBER;
-    p->value = s;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_number_float(float n)
-{
-    cl_json_s *p = NULL;
-    cl_string_t *s = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    s = cl_string_create("%f", n);
-    p->type = CL_JSON_NUMBER;
-    p->value = s;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_string(const char *string)
-{
-    cl_json_s *p = NULL;
-    cl_string_t *s = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    s = cl_string_create("%s", string);
-    p->type = CL_JSON_STRING;
-    p->value = s;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_node(enum cl_json_type type,
-    const char *fmt, ...)
-{
-    cl_json_s *p = NULL;
-    va_list ap;
-    char *buff;
-    cl_string_t *s = NULL;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    p = cl_json_new();
-
-    if (NULL == p)
-        return NULL;
-
-    va_start(ap, fmt);
-    vasprintf(&buff, fmt, ap);
-    va_end(ap);
-
-    s = cl_string_create_empty(0);
-    cl_string_set_content(s, buff);
-    p->type = type;
-    p->value = s;
-
-    return p;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_int_array(const int *values, int size)
-{
-    int i;
-    cl_json_s *a = NULL, *n;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    a = cl_json_create_array();
-
-    if (NULL == a)
-        return NULL;
-
-    for (i = 0; i < size; i++) {
-        n = cl_json_create_number(values[i]);
-
-        if (NULL == n)
-            return NULL;
-
-        a->child = cl_dll_unshift(a->child, n);
-    }
-
-    return a;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_float_array(const float *values, int size)
-{
-    int i;
-    cl_json_s *a = NULL, *n;
-
-    __clib_function_init__(false, NULL, -1, NULL);
-    a = cl_json_create_array();
-
-    if (NULL == a)
-        return NULL;
-
-    for (i = 0; i < size; i++) {
-        n = cl_json_create_number_float(values[i]);
-
-        if (NULL == n)
-            return NULL;
-
-        a->child = cl_dll_unshift(a->child, n);
-    }
-
-    return a;
-}
-
-__PUB_API__ cl_json_t *cl_json_create_string_array(const cl_stringlist_t *values)
-{
-    int i, size;
-    cl_json_s *a = NULL, *n;
-
-    __clib_function_init__(true, values, CL_OBJ_STRINGLIST, NULL);
-    a = cl_json_create_array();
-
-    if (NULL == a)
-        return NULL;
-
-    size = cl_stringlist_size(values);
-
-    for (i = 0; i < size; i++) {
-        n = cl_json_create_string(cl_string_valueof(cl_stringlist_get(values,
-                                                                       i)));
-
-        if (NULL == n)
-            return NULL;
-
-        a->child = cl_dll_unshift(a->child, n);
-    }
-
-    return a;
-}
-
-__PUB_API__ int cl_json_add_item_to_array(cl_json_t *array, const cl_json_t *item)
-{
-    cl_json_s *a = (cl_json_s *)array;
-    cl_json_s *n = (cl_json_s *)item;
-
-    __clib_function_init__(false, NULL, -1, -1);
-
-    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false) ||
-        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false))
-    {
-        return -1;
-    }
-
-    a->child = cl_dll_unshift(a->child, n);
-
-    return 0;
-}
-
-__PUB_API__ int cl_json_add_item_to_object(cl_json_t *root, const char *name,
-    cl_json_t *item)
-{
-    cl_json_s *r = (cl_json_s *)root;
-    cl_json_s *n = (cl_json_s *)item;
-
-    __clib_function_init__(false, NULL, -1, -1);
-
-    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false) ||
-        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false))
-    {
-        return -1;
-    }
-
-    if (NULL == name) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    if (n->name != NULL)
-        cl_string_destroy(n->name);
-
-    n->name = cl_string_create("%s", name);
-    r->child = cl_dll_unshift(r->child, n);
-
-    return 0;
-}
-
 static cl_json_t *create_reference(cl_json_s *item)
 {
     cl_json_s *ref = NULL;
@@ -1124,195 +625,6 @@ static cl_json_t *create_reference(cl_json_s *item)
     ref->next = ref->prev = 0;
 
     return ref;
-}
-
-__PUB_API__ int cl_json_add_item_reference_to_array(cl_json_t *array,
-    cl_json_t *item)
-{
-    __clib_function_init__(false, NULL, -1, -1);
-
-    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false) ||
-        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false))
-    {
-        return -1;
-    }
-
-    return cl_json_add_item_to_array(array, create_reference(item));
-}
-
-__PUB_API__ int cl_json_add_item_reference_to_object(cl_json_t *root,
-    const char *name, cl_json_t *item)
-{
-    __clib_function_init__(false, NULL, -1, -1);
-
-    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false) ||
-        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false))
-    {
-        return -1;
-    }
-
-    if (NULL == name) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    return cl_json_add_item_to_object(root, name, create_reference(item));
-}
-
-__PUB_API__ int cl_json_delete_item_from_array(cl_json_t *array,
-    unsigned int index)
-{
-    cl_json_s *p, *root = (cl_json_s *)array;
-    int size;
-
-    __clib_function_init_ex__(true, array, CL_OBJ_JSON,
-                              CL_JSON_OBJECT_OFFSET, -1);
-
-    size = cl_json_get_array_size(array);
-
-    if ((size < 0) || ((int)index >= size))
-        return -1;
-
-    p = cl_dll_delete_indexed(&root, index, NULL);
-
-    if (NULL == p)
-        return -1;
-
-    cl_json_delete(p);
-
-    return 0;
-}
-
-__PUB_API__ int cl_json_delete_item_from_array_by_name(const cl_json_t *array,
-    const char *name)
-{
-    cl_json_s *p = (cl_json_s *)array, *n;
-    int size;
-
-    __clib_function_init_ex__(true, array, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
-                              -1);
-
-    size = cl_json_get_array_size(array);
-
-    if (size <= 0)
-        return -1;
-
-    n = cl_dll_filter(p->child, find_object, (char *)name);
-
-    if (n != NULL) {
-        cl_json_delete(n);
-        return 0;
-    }
-
-    return -1;
-}
-
-__PUB_API__ int cl_json_delete_item_from_object(cl_json_t *json,
-    const char *name)
-{
-    cl_json_s *p = NULL, *root = (cl_json_s *)json;
-
-    __clib_function_init_ex__(true, json, CL_OBJ_JSON,
-                              CL_JSON_OBJECT_OFFSET, -1);
-
-    if (NULL == name) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    p = cl_dll_filter(&root->child, find_object, (char *)name);
-
-    if (NULL == p)
-        return -1;
-
-    cl_json_delete(p);
-
-    return 0;
-}
-
-__PUB_API__ int cl_json_replace_item_in_array(cl_json_t *array,
-    unsigned int index, cl_json_t *new_item)
-{
-    cl_json_s *a = (cl_json_s *)array;
-    cl_json_s *p = NULL, *n;
-    unsigned int i = 0;
-
-    __clib_function_init__(false, NULL, -1, -1);
-
-    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false) ||
-        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
-                                     CL_JSON_OBJECT_OFFSET) == false))
-    {
-        return -1;
-    }
-
-    if (index >= (unsigned int)cl_dll_size(a->child)) {
-        return -1;
-    }
-
-    while (a->child) {
-        n = cl_dll_pop(&a->child);
-
-        if (i == index) {
-            cl_json_delete(n);
-            n = new_item;
-        }
-
-        p = cl_dll_unshift(p, n);
-        i++;
-    }
-
-    if (p != NULL)
-        a->child = p;
-
-    return 0;
-}
-
-__PUB_API__ int cl_json_replace_item_in_object(cl_json_t *root,
-    const char *name, cl_json_t *new_item)
-{
-    cl_string_t *tmp = NULL;
-    cl_json_s *a = (cl_json_s *)root;
-    cl_json_s *p = NULL, *n;
-
-    __clib_function_init__(false, NULL, -1, -1);
-
-    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
-                                            CL_JSON_OBJECT_OFFSET) == false) ||
-        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
-                                            CL_JSON_OBJECT_OFFSET) == false))
-    {
-        return -1;
-    }
-
-    if (NULL == name) {
-        cset_errno(CL_NULL_ARG);
-        return -1;
-    }
-
-    tmp = cl_string_create("%s", name);
-
-    while (a->child) {
-        n = cl_dll_pop(&a->child);
-
-        if (cl_string_cmp(n->name, tmp) == 0) {
-            cl_json_delete(n);
-            n = new_item;
-            n->name = tmp;
-        }
-
-        p = cl_dll_unshift(p, n);
-    }
-
-    if (p != NULL)
-        a->child = p;
-
-    return 0;
 }
 
 static char *print_number(cl_json_s *item)
@@ -1385,38 +697,38 @@ static char *print_string(const cl_string_t *value)
             *ptr2++ = '\\';
 
             switch (token = *ptr++) {
-                case '\\':
-                    *ptr2++ = '\\';
-                    break;
+            case '\\':
+                *ptr2++ = '\\';
+                break;
 
-                case '\"':
-                    *ptr2++ = '\"';
-                    break;
+            case '\"':
+                *ptr2++ = '\"';
+                break;
 
-                case '\b':
-                    *ptr2++ = 'b';
-                    break;
+            case '\b':
+                *ptr2++ = 'b';
+                break;
 
-                case '\f':
-                    *ptr2++ = 'f';
-                    break;
+            case '\f':
+                *ptr2++ = 'f';
+                break;
 
-                case '\n':
-                    *ptr2++ = 'n';
-                    break;
+            case '\n':
+                *ptr2++ = 'n';
+                break;
 
-                case '\r':
-                    *ptr2++ = 'r';
-                    break;
+            case '\r':
+                *ptr2++ = 'r';
+                break;
 
-                case '\t':
-                    *ptr2++ = 't';
-                    break;
+            case '\t':
+                *ptr2++ = 't';
+                break;
 
-                default:
-                    sprintf(ptr2, "u%04x", token);
-                    ptr2 += 5;
-                    break;
+            default:
+                sprintf(ptr2, "u%04x", token);
+                ptr2 += 5;
+                break;
             }
         }
     }
@@ -1575,7 +887,6 @@ end_block:
     cl_stringlist_destroy(sl_values);
 
     return ptr;
-
 }
 
 static char *print_value(cl_json_s *j, int depth, bool fmt)
@@ -1586,34 +897,734 @@ static char *print_value(cl_json_s *j, int depth, bool fmt)
     type = (j->type) & 255;
 
     switch (type) {
-        case CL_JSON_NULL:
-        case CL_JSON_FALSE:
-        case CL_JSON_TRUE:
-            p = strdup(get_jvalue_value(type));
-            break;
+    case CL_JSON_NULL:
+    case CL_JSON_FALSE:
+    case CL_JSON_TRUE:
+        p = strdup(get_jvalue_value(type));
+        break;
 
-        case CL_JSON_NUMBER:
-        case CL_JSON_NUMBER_FLOAT:
-            p = print_number(j);
-            break;
+    case CL_JSON_NUMBER:
+    case CL_JSON_NUMBER_FLOAT:
+        p = print_number(j);
+        break;
 
-        case CL_JSON_STRING:
-            p = print_string(j->value);
-            break;
+    case CL_JSON_STRING:
+        p = print_string(j->value);
+        break;
 
-        case CL_JSON_ARRAY:
-            p = print_array(j, depth, fmt);
-            break;
+    case CL_JSON_ARRAY:
+        p = print_array(j, depth, fmt);
+        break;
 
-        case CL_JSON_OBJECT:
-            p = print_object(j, depth, fmt);
-            break;
+    case CL_JSON_OBJECT:
+        p = print_object(j, depth, fmt);
+        break;
     }
 
     return p;
 }
 
-__PUB_API__ cl_string_t *cl_json_to_cstring(const cl_json_t *j,
+/*
+ *
+ * API
+ *
+ */
+
+cl_json_t *cl_json_parse_string(const char *string)
+{
+    cl_json_s *c = NULL;
+    int error;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (strlen(string) == 0) {
+        cset_errno(CL_INVALID_VALUE);
+        return NULL;
+    }
+
+    c = cl_json_new();
+
+    if (NULL == c)
+        return NULL;
+
+    /* parse */
+    if (parse(c, skip_chars(string)) == NULL) {
+        error = cl_get_last_error();
+        cl_json_delete(c);
+        cset_errno(error);
+        return NULL;
+    }
+
+    return c;
+}
+
+cl_json_t *cl_json_parse(const cl_string_t *string)
+{
+    __clib_function_init__(true, string, CL_OBJ_STRING, NULL);
+
+    return cl_json_parse_string(cl_string_valueof(string));
+}
+
+cl_json_t *cl_json_read_file(const char *filename)
+{
+    unsigned char *b;
+    unsigned int bsize;
+    cl_json_t *j = NULL;
+    cl_string_t *s = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if (NULL == filename) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    b = cl_fload(filename, &bsize);
+
+    if (NULL == b)
+        return NULL;
+
+    s = cl_string_create("%s", b);
+    cl_funload(b);
+    j = cl_json_parse(s);
+    cl_string_destroy(s);
+
+    return j;
+}
+
+int cl_json_write_file(const cl_json_t *j, const char *filename)
+{
+    cl_string_t *s;
+    int ret;
+
+    __clib_function_init_ex__(true, j, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET, -1);
+
+    if (NULL == filename) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    s = cl_json_to_cstring(j, false);
+
+    if (NULL == s)
+        return -1;
+
+    ret = cl_fsave(filename, (unsigned char *)cl_string_valueof(s),
+                   cl_string_length(s));
+
+    cl_string_destroy(s);
+
+    return ret;
+}
+
+void cl_json_delete(cl_json_t *j)
+{
+    cl_json_s *c = (cl_json_s *)j;
+
+    if (library_initialized() == false)
+        return;
+
+    if (typeof_validate_object_with_offset(j, CL_OBJ_JSON,
+                                    CL_JSON_OBJECT_OFFSET) == false)
+    {
+        return;
+    }
+
+    cl_dll_free(c->child, __cl_json_delete);
+
+    if (!(c->type & CL_JSON_IS_REFERENCE) && c->value) {
+        cl_string_destroy(c->value);
+        c->value = NULL;
+    }
+
+    if (c->name) {
+        cl_string_destroy(c->name);
+        c->name = NULL;
+    }
+
+    free(c);
+}
+
+int cl_json_get_array_size(const cl_json_t *array)
+{
+    cl_json_s *p = (cl_json_s *)array;
+
+    __clib_function_init_ex__(true, array, CL_OBJ_JSON,
+                              CL_JSON_OBJECT_OFFSET, -1);
+
+    if (p->type != CL_JSON_ARRAY)
+        return -1;
+
+    return cl_dll_size(p->child);
+}
+
+cl_json_t *cl_json_get_array_item(const cl_json_t *array,
+    unsigned int item)
+{
+    cl_json_s *p = (cl_json_s *)array, *n;
+    int size;
+
+    __clib_function_init_ex__(true, array, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              NULL);
+
+    size = cl_json_get_array_size(array);
+
+    if ((size < 0) || ((int)item >= size))
+        return NULL;
+
+    n = cl_dll_at(p->child, item);
+
+    return n;
+}
+
+cl_json_t *cl_json_get_array_item_by_name(const cl_json_t *array,
+    const char *name)
+{
+    cl_json_s *p = (cl_json_s *)array, *n;
+    int size;
+
+    __clib_function_init_ex__(true, array, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              NULL);
+
+    size = cl_json_get_array_size(array);
+
+    if (size <= 0)
+        return NULL;
+
+    n = cl_dll_map(p->child, find_object, (char *)name);
+
+    return n;
+}
+
+cl_json_t *cl_json_get_object_item(const cl_json_t *json,
+    const char *name)
+{
+    cl_json_s *p = NULL, *root = (cl_json_s *)json;
+
+    __clib_function_init_ex__(true, json, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              NULL);
+
+    if (NULL == name) {
+        cset_errno(CL_NULL_ARG);
+        return NULL;
+    }
+
+    p = cl_dll_map(root->child, find_object, (char *)name);
+
+    return p;
+}
+
+cl_string_t *cl_json_get_object_name(const cl_json_t *o)
+{
+    cl_json_s *p = (cl_json_s *)o;
+
+    __clib_function_init_ex__(true, o, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              NULL);
+
+    return p->name;
+}
+
+cl_string_t *cl_json_get_object_value(const cl_json_t *o)
+{
+    cl_json_s *p = (cl_json_s *)o;
+
+    __clib_function_init_ex__(true, o, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              NULL);
+
+    return p->value;
+}
+
+enum cl_json_type cl_json_get_object_type(const cl_json_t *o)
+{
+    cl_json_s *p = (cl_json_s *)o;
+
+    __clib_function_init_ex__(true, o, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET, -1);
+
+    return p->type;
+}
+
+cl_json_t *cl_json_dup(const cl_json_t *root)
+{
+    cl_json_s *r = (cl_json_s *)root;
+    cl_json_s *l = NULL;
+
+    __clib_function_init_ex__(true, root, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              NULL);
+
+    l = __dup(r);
+    l->type = r->type & (~CL_JSON_IS_REFERENCE);
+    cl_dll_map(r->child, __cl_json_dup, l);
+
+    return l;
+}
+
+cl_json_t *cl_json_create_array(void)
+{
+    cl_json_s *p = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    p->type = CL_JSON_ARRAY;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_object(void)
+{
+    cl_json_s *p = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    p->type = CL_JSON_OBJECT;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_null(void)
+{
+    cl_json_s *p = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    p->type = CL_JSON_NULL;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_false(void)
+{
+    cl_json_s *p = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    p->type = CL_JSON_FALSE;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_true(void)
+{
+    cl_json_s *p = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    p->type = CL_JSON_TRUE;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_number(int n)
+{
+    cl_json_s *p = NULL;
+    cl_string_t *s = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    s = cl_string_create("%d", n);
+    p->type = CL_JSON_NUMBER;
+    p->value = s;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_number_float(float n)
+{
+    cl_json_s *p = NULL;
+    cl_string_t *s = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    s = cl_string_create("%f", n);
+    p->type = CL_JSON_NUMBER;
+    p->value = s;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_string(const char *string)
+{
+    cl_json_s *p = NULL;
+    cl_string_t *s = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    s = cl_string_create("%s", string);
+    p->type = CL_JSON_STRING;
+    p->value = s;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_node(enum cl_json_type type,
+    const char *fmt, ...)
+{
+    cl_json_s *p = NULL;
+    va_list ap;
+    char *buff;
+    cl_string_t *s = NULL;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    p = cl_json_new();
+
+    if (NULL == p)
+        return NULL;
+
+    va_start(ap, fmt);
+    vasprintf(&buff, fmt, ap);
+    va_end(ap);
+
+    s = cl_string_create_empty(0);
+    cl_string_set_content(s, buff);
+    p->type = type;
+    p->value = s;
+
+    return p;
+}
+
+cl_json_t *cl_json_create_int_array(const int *values, int size)
+{
+    int i;
+    cl_json_s *a = NULL, *n;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    a = cl_json_create_array();
+
+    if (NULL == a)
+        return NULL;
+
+    for (i = 0; i < size; i++) {
+        n = cl_json_create_number(values[i]);
+
+        if (NULL == n)
+            return NULL;
+
+        a->child = cl_dll_unshift(a->child, n);
+    }
+
+    return a;
+}
+
+cl_json_t *cl_json_create_float_array(const float *values, int size)
+{
+    int i;
+    cl_json_s *a = NULL, *n;
+
+    __clib_function_init__(false, NULL, -1, NULL);
+    a = cl_json_create_array();
+
+    if (NULL == a)
+        return NULL;
+
+    for (i = 0; i < size; i++) {
+        n = cl_json_create_number_float(values[i]);
+
+        if (NULL == n)
+            return NULL;
+
+        a->child = cl_dll_unshift(a->child, n);
+    }
+
+    return a;
+}
+
+cl_json_t *cl_json_create_string_array(const cl_stringlist_t *values)
+{
+    int i, size;
+    cl_json_s *a = NULL, *n;
+
+    __clib_function_init__(true, values, CL_OBJ_STRINGLIST, NULL);
+    a = cl_json_create_array();
+
+    if (NULL == a)
+        return NULL;
+
+    size = cl_stringlist_size(values);
+
+    for (i = 0; i < size; i++) {
+        n = cl_json_create_string(cl_string_valueof(cl_stringlist_get(values,
+                                                                       i)));
+
+        if (NULL == n)
+            return NULL;
+
+        a->child = cl_dll_unshift(a->child, n);
+    }
+
+    return a;
+}
+
+int cl_json_add_item_to_array(cl_json_t *array, const cl_json_t *item)
+{
+    cl_json_s *a = (cl_json_s *)array;
+    cl_json_s *n = (cl_json_s *)item;
+
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false))
+    {
+        return -1;
+    }
+
+    a->child = cl_dll_unshift(a->child, n);
+
+    return 0;
+}
+
+int cl_json_add_item_to_object(cl_json_t *root, const char *name,
+    cl_json_t *item)
+{
+    cl_json_s *r = (cl_json_s *)root;
+    cl_json_s *n = (cl_json_s *)item;
+
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == name) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    if (n->name != NULL)
+        cl_string_destroy(n->name);
+
+    n->name = cl_string_create("%s", name);
+    r->child = cl_dll_unshift(r->child, n);
+
+    return 0;
+}
+
+int cl_json_add_item_reference_to_array(cl_json_t *array,
+    cl_json_t *item)
+{
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false))
+    {
+        return -1;
+    }
+
+    return cl_json_add_item_to_array(array, create_reference(item));
+}
+
+int cl_json_add_item_reference_to_object(cl_json_t *root,
+    const char *name, cl_json_t *item)
+{
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(item, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == name) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    return cl_json_add_item_to_object(root, name, create_reference(item));
+}
+
+int cl_json_delete_item_from_array(cl_json_t *array,
+    unsigned int index)
+{
+    cl_json_s *p, *root = (cl_json_s *)array;
+    int size;
+
+    __clib_function_init_ex__(true, array, CL_OBJ_JSON,
+                              CL_JSON_OBJECT_OFFSET, -1);
+
+    size = cl_json_get_array_size(array);
+
+    if ((size < 0) || ((int)index >= size))
+        return -1;
+
+    p = cl_dll_delete_indexed(&root, index, NULL);
+
+    if (NULL == p)
+        return -1;
+
+    cl_json_delete(p);
+
+    return 0;
+}
+
+int cl_json_delete_item_from_array_by_name(const cl_json_t *array,
+    const char *name)
+{
+    cl_json_s *p = (cl_json_s *)array, *n;
+    int size;
+
+    __clib_function_init_ex__(true, array, CL_OBJ_JSON, CL_JSON_OBJECT_OFFSET,
+                              -1);
+
+    size = cl_json_get_array_size(array);
+
+    if (size <= 0)
+        return -1;
+
+    n = cl_dll_filter(p->child, find_object, (char *)name);
+
+    if (n != NULL) {
+        cl_json_delete(n);
+        return 0;
+    }
+
+    return -1;
+}
+
+int cl_json_delete_item_from_object(cl_json_t *json,
+    const char *name)
+{
+    cl_json_s *p = NULL, *root = (cl_json_s *)json;
+
+    __clib_function_init_ex__(true, json, CL_OBJ_JSON,
+                              CL_JSON_OBJECT_OFFSET, -1);
+
+    if (NULL == name) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    p = cl_dll_filter(&root->child, find_object, (char *)name);
+
+    if (NULL == p)
+        return -1;
+
+    cl_json_delete(p);
+
+    return 0;
+}
+
+int cl_json_replace_item_in_array(cl_json_t *array,
+    unsigned int index, cl_json_t *new_item)
+{
+    cl_json_s *a = (cl_json_s *)array;
+    cl_json_s *p = NULL, *n;
+    unsigned int i = 0;
+
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if ((typeof_validate_object_with_offset(array, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
+                                     CL_JSON_OBJECT_OFFSET) == false))
+    {
+        return -1;
+    }
+
+    if (index >= (unsigned int)cl_dll_size(a->child)) {
+        return -1;
+    }
+
+    while (a->child) {
+        n = cl_dll_pop(&a->child);
+
+        if (i == index) {
+            cl_json_delete(n);
+            n = new_item;
+        }
+
+        p = cl_dll_unshift(p, n);
+        i++;
+    }
+
+    if (p != NULL)
+        a->child = p;
+
+    return 0;
+}
+
+int cl_json_replace_item_in_object(cl_json_t *root,
+    const char *name, cl_json_t *new_item)
+{
+    cl_string_t *tmp = NULL;
+    cl_json_s *a = (cl_json_s *)root;
+    cl_json_s *p = NULL, *n;
+
+    __clib_function_init__(false, NULL, -1, -1);
+
+    if ((typeof_validate_object_with_offset(root, CL_OBJ_JSON,
+                                            CL_JSON_OBJECT_OFFSET) == false) ||
+        (typeof_validate_object_with_offset(new_item, CL_OBJ_JSON,
+                                            CL_JSON_OBJECT_OFFSET) == false))
+    {
+        return -1;
+    }
+
+    if (NULL == name) {
+        cset_errno(CL_NULL_ARG);
+        return -1;
+    }
+
+    tmp = cl_string_create("%s", name);
+
+    while (a->child) {
+        n = cl_dll_pop(&a->child);
+
+        if (cl_string_cmp(n->name, tmp) == 0) {
+            cl_json_delete(n);
+            n = new_item;
+            n->name = tmp;
+        }
+
+        p = cl_dll_unshift(p, n);
+    }
+
+    if (p != NULL)
+        a->child = p;
+
+    return 0;
+}
+
+cl_string_t *cl_json_to_cstring(const cl_json_t *j,
     bool friendly_output)
 {
     char *p = NULL;
@@ -1631,7 +1642,7 @@ __PUB_API__ cl_string_t *cl_json_to_cstring(const cl_json_t *j,
     return out;
 }
 
-__PUB_API__ char *cl_json_to_string(const cl_json_t *j, bool friendly_output)
+char *cl_json_to_string(const cl_json_t *j, bool friendly_output)
 {
     char *p = NULL;
 
@@ -1646,32 +1657,32 @@ __PUB_API__ char *cl_json_to_string(const cl_json_t *j, bool friendly_output)
     return p;
 }
 
-__PUB_API__ const char *cl_json_type_to_string(enum cl_json_type type)
+const char *cl_json_type_to_string(enum cl_json_type type)
 {
     __clib_function_init__(false, NULL, -1, NULL);
 
     switch (type) {
-        case CL_JSON_STRING:
-            return "string";
+    case CL_JSON_STRING:
+        return "string";
 
-        case CL_JSON_NUMBER:
-            return "number";
+    case CL_JSON_NUMBER:
+        return "number";
 
-        case CL_JSON_NUMBER_FLOAT:
-            return "number-float";
+    case CL_JSON_NUMBER_FLOAT:
+        return "number-float";
 
-        case CL_JSON_OBJECT:
-            return "object";
+    case CL_JSON_OBJECT:
+        return "object";
 
-        case CL_JSON_ARRAY:
-            return "array";
+    case CL_JSON_ARRAY:
+        return "array";
 
-        case CL_JSON_TRUE:
-        case CL_JSON_FALSE:
-            return "boolean";
+    case CL_JSON_TRUE:
+    case CL_JSON_FALSE:
+        return "boolean";
 
-        case CL_JSON_NULL:
-            return "null";
+    case CL_JSON_NULL:
+        return "null";
     }
 
     return NULL;

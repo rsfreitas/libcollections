@@ -37,8 +37,13 @@
     cl_struct_member(unsigned int, max_length)
 
 cl_struct_declare(cl_spec_s, cl_spec_members);
-
 #define cl_spec_s             cl_struct(cl_spec_s)
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static cl_spec_s *new_spec_s(enum cl_spec_attrib properties,
     cl_object_t *min, cl_object_t *max, unsigned int max_length)
@@ -75,28 +80,6 @@ static void destroy_spec_s(cl_spec_s *spec)
     free(spec);
 }
 
-__PUB_API__ cl_spec_t *cl_spec_create(enum cl_spec_attrib properties,
-    cl_object_t *min, cl_object_t *max, unsigned int max_length)
-{
-    __clib_function_init__(false, NULL, -1, NULL);
-
-    if ((typeof_validate_object(min, CL_OBJ_OBJECT) == false) ||
-        (typeof_validate_object(max, CL_OBJ_OBJECT) == false))
-    {
-        return NULL;
-    }
-
-    return new_spec_s(properties, min, max, max_length);
-}
-
-__PUB_API__ int cl_spec_destroy(cl_spec_t *spec)
-{
-    __clib_function_init__(true, spec, CL_OBJ_SPEC, -1);
-    destroy_spec_s(spec);
-
-    return 0;
-}
-
 static bool validate_accessibility(const cl_spec_s *spec, bool set)
 {
     /* May write? */
@@ -119,87 +102,87 @@ static bool validate_char(const cl_spec_s *spec, char value,
     cl_object_get(spec->max, CL_OBJECT_CHAR, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -214,65 +197,65 @@ static bool validate_uchar(const cl_spec_s *spec, unsigned char value,
     cl_object_get(spec->max, CL_OBJECT_UCHAR, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+    default:
+        return true;
     }
 
     return false;
@@ -287,85 +270,85 @@ static bool validate_int(const cl_spec_s *spec, int value,
     cl_object_get(spec->max, CL_OBJECT_INT, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -380,87 +363,87 @@ static bool validate_uint(const cl_spec_s *spec, unsigned int value,
     cl_object_get(spec->max, CL_OBJECT_UINT, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -475,87 +458,87 @@ static bool validate_sint(const cl_spec_s *spec, short int value,
     cl_object_get(spec->max, CL_OBJECT_SINT, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -570,87 +553,87 @@ static bool validate_usint(const cl_spec_s *spec,
     cl_object_get(spec->max, CL_OBJECT_USINT, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-             break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+         break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+         break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+         break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+         break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+         break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+         break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+         break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+         break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -665,87 +648,87 @@ static bool validate_long(const cl_spec_s *spec, long value,
     cl_object_get(spec->max, CL_OBJECT_LONG, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-             break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+         break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -760,87 +743,87 @@ static bool validate_ulong(const cl_spec_s *spec, unsigned long value,
     cl_object_get(spec->max, CL_OBJECT_ULONG, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -855,87 +838,87 @@ static bool validate_llong(const cl_spec_s *spec, long long value,
     cl_object_get(spec->max, CL_OBJECT_LLONG, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -950,87 +933,87 @@ static bool validate_ullong(const cl_spec_s *spec,
     cl_object_get(spec->max, CL_OBJECT_ULLONG, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -1045,87 +1028,87 @@ static bool validate_float(const cl_spec_s *spec, float value,
     cl_object_get(spec->max, CL_OBJECT_FLOAT, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -1140,87 +1123,87 @@ static bool validate_double(const cl_spec_s *spec, double value,
     cl_object_get(spec->max, CL_OBJECT_DOUBLE, &max);
 
     switch (validation) {
-        case CL_VALIDATE_IGNORED:
-        case CL_VALIDATE_RANGE:
-            if ((value >= min) && (value <= max))
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_EQ:
-            if (value == min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_NE:
-            if (value != min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LE:
-            if (value <= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_LT:
-            if (value < min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GE:
-            if (value >= min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MIN_GT:
-            if (value > min)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_EQ:
-            if (value == max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_NE:
-            if (value != max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LE:
-            if (value <= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_LT:
-            if (value < max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GE:
-            if (value >= max)
-                return true;
-
-            break;
-
-        case CL_VALIDATE_MAX_GT:
-            if (value > max)
-                return true;
-
-            break;
-
-        default:
+    case CL_VALIDATE_IGNORED:
+    case CL_VALIDATE_RANGE:
+        if ((value >= min) && (value <= max))
             return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_EQ:
+        if (value == min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_NE:
+        if (value != min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LE:
+        if (value <= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_LT:
+        if (value < min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GE:
+        if (value >= min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MIN_GT:
+        if (value > min)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_EQ:
+        if (value == max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_NE:
+        if (value != max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LE:
+        if (value <= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_LT:
+        if (value < max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GE:
+        if (value >= max)
+            return true;
+
+        break;
+
+    case CL_VALIDATE_MAX_GT:
+        if (value > max)
+            return true;
+
+        break;
+
+    default:
+        return true;
     }
 
     return false;
@@ -1269,196 +1252,224 @@ static bool validate_value(const cl_spec_s *spec, cl_object_t *value,
     void *p;
 
     switch (cl_object_type(value)) {
-        case CL_VOID:
-        case CL_POINTER:
-            /* noop */
-            break;
+    case CL_VOID:
+    case CL_POINTER:
+        /* noop */
+        break;
 
-        case CL_CHAR:
-            c = (char)va_arg(ap, int);
+    case CL_CHAR:
+        c = (char)va_arg(ap, int);
 
-            if (validate_char(spec, c, validation) == true) {
-                if (set_value)
-                    cl_object_set_char(value, c);
+        if (validate_char(spec, c, validation) == true) {
+            if (set_value)
+                cl_object_set_char(value, c);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_UCHAR:
-            uc = (unsigned char)va_arg(ap, int);
+    case CL_UCHAR:
+        uc = (unsigned char)va_arg(ap, int);
 
-            if (validate_uchar(spec, uc, validation) == true) {
-                if (set_value)
-                    cl_object_set_uchar(value, uc);
+        if (validate_uchar(spec, uc, validation) == true) {
+            if (set_value)
+                cl_object_set_uchar(value, uc);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_INT:
-            i = va_arg(ap, int);
+    case CL_INT:
+        i = va_arg(ap, int);
 
-            if (validate_int(spec, i, validation) == true) {
-                if (set_value)
-                    cl_object_set_int(value, i);
+        if (validate_int(spec, i, validation) == true) {
+            if (set_value)
+                cl_object_set_int(value, i);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_UINT:
-            ui = va_arg(ap, unsigned int);
+    case CL_UINT:
+        ui = va_arg(ap, unsigned int);
 
-            if (validate_uint(spec, ui, validation) == true) {
-                if (set_value)
-                    cl_object_set_uint(value, ui);
+        if (validate_uint(spec, ui, validation) == true) {
+            if (set_value)
+                cl_object_set_uint(value, ui);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_SINT:
-            si = (short int)va_arg(ap, int);
+    case CL_SINT:
+        si = (short int)va_arg(ap, int);
 
-            if (validate_sint(spec, si, validation) == true) {
-                if (set_value)
-                    cl_object_set_int(value, si);
+        if (validate_sint(spec, si, validation) == true) {
+            if (set_value)
+                cl_object_set_int(value, si);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_USINT:
-            usi = (unsigned short int)va_arg(ap, unsigned int);
+    case CL_USINT:
+        usi = (unsigned short int)va_arg(ap, unsigned int);
 
-            if (validate_usint(spec, usi, validation) == true) {
-                if (set_value)
-                    cl_object_set_uint(value, usi);
+        if (validate_usint(spec, usi, validation) == true) {
+            if (set_value)
+                cl_object_set_uint(value, usi);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_FLOAT:
-            f = (float)va_arg(ap, double);
+    case CL_FLOAT:
+        f = (float)va_arg(ap, double);
 
-            if (validate_float(spec, f, validation) == true) {
-                if (set_value)
-                    cl_object_set_float(value, f);
+        if (validate_float(spec, f, validation) == true) {
+            if (set_value)
+                cl_object_set_float(value, f);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_DOUBLE:
-            d = va_arg(ap, double);
+    case CL_DOUBLE:
+        d = va_arg(ap, double);
 
-            if (validate_double(spec, d, validation) == true) {
-                if (set_value)
-                    cl_object_set_double(value, d);
+        if (validate_double(spec, d, validation) == true) {
+            if (set_value)
+                cl_object_set_double(value, d);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_LONG:
-            l = va_arg(ap, long);
+    case CL_LONG:
+        l = va_arg(ap, long);
 
-            if (validate_long(spec, l, validation) == true) {
-                if (set_value)
-                    cl_object_set_long(value, l);
+        if (validate_long(spec, l, validation) == true) {
+            if (set_value)
+                cl_object_set_long(value, l);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_ULONG:
-            ul = va_arg(ap, unsigned long);
+    case CL_ULONG:
+        ul = va_arg(ap, unsigned long);
 
-            if (validate_ulong(spec, ul, validation) == true) {
-                if (set_value)
-                    cl_object_set_ulong(value, ul);
+        if (validate_ulong(spec, ul, validation) == true) {
+            if (set_value)
+                cl_object_set_ulong(value, ul);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_LLONG:
-            ll = va_arg(ap, long long);
+    case CL_LLONG:
+        ll = va_arg(ap, long long);
 
-            if (validate_llong(spec, ll, validation) == true) {
-                if (set_value)
-                    cl_object_set_llong(value, ll);
+        if (validate_llong(spec, ll, validation) == true) {
+            if (set_value)
+                cl_object_set_llong(value, ll);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_ULLONG:
-            ull = va_arg(ap, unsigned long long);
+    case CL_ULLONG:
+        ull = va_arg(ap, unsigned long long);
 
-            if (validate_ullong(spec, ull, validation) == true) {
-                if (set_value)
-                    cl_object_set_ullong(value, ull);
+        if (validate_ullong(spec, ull, validation) == true) {
+            if (set_value)
+                cl_object_set_ullong(value, ull);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_CSTRING:
-            p = va_arg(ap, void *);
+    case CL_CSTRING:
+        p = va_arg(ap, void *);
 
-            if (validate_cstring(spec, p) == true) {
-                if (set_value)
-                    cl_object_set_cstring(value, p);
+        if (validate_cstring(spec, p) == true) {
+            if (set_value)
+                cl_object_set_cstring(value, p);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_STRING:
-            cp = va_arg(ap, char *);
+    case CL_STRING:
+        cp = va_arg(ap, char *);
 
-            if (validate_string(spec, cp) == true) {
-                if (set_value)
-                    cl_object_set_string(value, cp);
+        if (validate_string(spec, cp) == true) {
+            if (set_value)
+                cl_object_set_string(value, cp);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
 
-        case CL_BOOLEAN:
-            b = va_arg(ap, int);
+    case CL_BOOLEAN:
+        b = va_arg(ap, int);
 
-            if (validate_boolean(b) == true) {
-                if (set_value)
-                    cl_object_set_boolean(value, b);
+        if (validate_boolean(b) == true) {
+            if (set_value)
+                cl_object_set_boolean(value, b);
 
-                ret = true;
-            }
+            ret = true;
+        }
 
-            break;
+        break;
     }
 
     return ret;
 }
 
-__PUB_API__ bool cl_spec_validate_va(const cl_spec_t *spec, cl_object_t *value,
+/*
+ *
+ * API
+ *
+ */
+
+cl_spec_t *cl_spec_create(enum cl_spec_attrib properties,
+    cl_object_t *min, cl_object_t *max, unsigned int max_length)
+{
+    __clib_function_init__(false, NULL, -1, NULL);
+
+    if ((typeof_validate_object(min, CL_OBJ_OBJECT) == false) ||
+        (typeof_validate_object(max, CL_OBJ_OBJECT) == false))
+    {
+        return NULL;
+    }
+
+    return new_spec_s(properties, min, max, max_length);
+}
+
+int cl_spec_destroy(cl_spec_t *spec)
+{
+    __clib_function_init__(true, spec, CL_OBJ_SPEC, -1);
+    destroy_spec_s(spec);
+
+    return 0;
+}
+
+bool cl_spec_validate_va(const cl_spec_t *spec, cl_object_t *value,
     bool set_value, enum cl_spec_validation_fmt validation, va_list ap)
 {
     cl_object_t *ref;
@@ -1486,20 +1497,20 @@ __PUB_API__ bool cl_spec_validate_va(const cl_spec_t *spec, cl_object_t *value,
     return ret;
 }
 
-__PUB_API__ bool cl_spec_validate(const cl_spec_t *spec, cl_object_t *value,
+bool cl_spec_validate(const cl_spec_t *spec, cl_object_t *value,
     bool set_value, enum cl_spec_validation_fmt validation, ...)
 {
     va_list ap;
     bool status;
 
-    va_start(ap, NULL);
+    va_start(ap, validation);
     status = cl_spec_validate_va(spec, value, set_value, validation, ap);
     va_end(ap);
 
     return status;
 }
 
-__PUB_API__ int cl_spec_set_min(cl_spec_t *spec, cl_object_t *min)
+int cl_spec_set_min(cl_spec_t *spec, cl_object_t *min)
 {
     cl_spec_s *s = (cl_spec_s *)spec;
 
@@ -1517,7 +1528,7 @@ __PUB_API__ int cl_spec_set_min(cl_spec_t *spec, cl_object_t *min)
     return 0;
 }
 
-__PUB_API__ int cl_spec_set_max(cl_spec_t *spec, cl_object_t *max)
+int cl_spec_set_max(cl_spec_t *spec, cl_object_t *max)
 {
     cl_spec_s *s = (cl_spec_s *)spec;
 
@@ -1535,7 +1546,7 @@ __PUB_API__ int cl_spec_set_max(cl_spec_t *spec, cl_object_t *max)
     return 0;
 }
 
-__PUB_API__ int cl_spec_set_max_length(cl_spec_t *spec, unsigned int max_length)
+int cl_spec_set_max_length(cl_spec_t *spec, unsigned int max_length)
 {
     cl_spec_s *s = (cl_spec_s *)spec;
 
@@ -1545,7 +1556,7 @@ __PUB_API__ int cl_spec_set_max_length(cl_spec_t *spec, unsigned int max_length)
     return 0;
 }
 
-__PUB_API__ int cl_spec_set_accessibility(cl_spec_t *spec,
+int cl_spec_set_accessibility(cl_spec_t *spec,
     enum cl_spec_attrib attrib)
 {
     cl_spec_s *s = (cl_spec_s *)spec;

@@ -29,6 +29,12 @@
 #include "collections.h"
 #include "plugin.h"
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static int add_argument_type(struct cplugin_function_s *foo, enum cl_type type)
 {
     struct cl_arg_type *arg = NULL;
@@ -70,6 +76,13 @@ static int add_argument(struct cplugin_function_s *foo, cl_object_t *argument,
     return 0;
 }
 
+/*
+ *
+ * Internal API
+ *
+ */
+
+CL_INTERNAL_API
 int arguments_parse(struct cplugin_function_s *foo, int argc, va_list ap)
 {
     int i = 0, arg_type;

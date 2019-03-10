@@ -42,8 +42,13 @@ struct sync_data_s {
     cl_struct_member(void *, user_data)
 
 cl_struct_declare(cl_thread_s, cl_thread_members);
-
 #define cl_thread_s               cl_struct(cl_thread_s)
+
+/*
+ *
+ * Internal functions
+ *
+ */
 
 static cl_thread_s *new_thread_data(void *user_data)
 {
@@ -78,7 +83,13 @@ static bool validate_thread_state(enum cl_thread_state state)
     return true;
 }
 
-__PUB_API__ void *cl_thread_get_user_data(cl_thread_t *arg)
+/*
+ *
+ * API
+ *
+ */
+
+void *cl_thread_get_user_data(cl_thread_t *arg)
 {
     cl_thread_s *td;
 
@@ -88,7 +99,7 @@ __PUB_API__ void *cl_thread_get_user_data(cl_thread_t *arg)
     return td->user_data;
 }
 
-__PUB_API__ int cl_thread_set_state(cl_thread_t *t, enum cl_thread_state state)
+int cl_thread_set_state(cl_thread_t *t, enum cl_thread_state state)
 {
     cl_thread_s *td = (cl_thread_s *)t;
 
@@ -111,7 +122,7 @@ __PUB_API__ int cl_thread_set_state(cl_thread_t *t, enum cl_thread_state state)
     return 0;
 }
 
-__PUB_API__ int cl_thread_wait_startup(const cl_thread_t *t)
+int cl_thread_wait_startup(const cl_thread_t *t)
 {
     cl_thread_s *td = (cl_thread_s *)t;
 
@@ -126,7 +137,7 @@ __PUB_API__ int cl_thread_wait_startup(const cl_thread_t *t)
     return 0;
 }
 
-__PUB_API__ int cl_thread_destroy(cl_thread_t *t)
+int cl_thread_destroy(cl_thread_t *t)
 {
     cl_thread_s *td = (cl_thread_s *)t;
 
@@ -140,7 +151,7 @@ __PUB_API__ int cl_thread_destroy(cl_thread_t *t)
     return 0;
 }
 
-__PUB_API__ cl_thread_t *cl_thread_spawn(enum cl_thread_type type,
+cl_thread_t *cl_thread_spawn(enum cl_thread_type type,
     void *(*start_routine)(cl_thread_t *), void *user_data)
 {
     cl_thread_s *td = NULL;
@@ -168,7 +179,7 @@ __PUB_API__ cl_thread_t *cl_thread_spawn(enum cl_thread_type type,
     return td;
 }
 
-__PUB_API__ int cl_thread_force_finish(cl_thread_t *t)
+int cl_thread_force_finish(cl_thread_t *t)
 {
     cl_thread_s *td = (cl_thread_s *)t;
 

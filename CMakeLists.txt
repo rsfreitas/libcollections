@@ -2,12 +2,17 @@ cmake_minimum_required(VERSION 2.8)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 project(collections)
 
+if(APPLE)
+    cmake_policy(SET CMP0042 NEW)
+endif(APPLE)
+
 # Options
 option(DEBUG "Enable/Disable debug library" ON)
 option(SHARED "Enable/Disable the shared library version" ON)
 option(IMAGE "Enable/Disable image support" OFF)
 option(PYPLUGIN "Enable/Disable python plugins" OFF)
 option(JAVAPLUGIN "Enable/Disable java plugins" OFF)
+option(UNITTEST "Enable/Disable unit testing" OFF)
 
 include_directories(include)
 
@@ -32,6 +37,18 @@ execute_process(COMMAND uname -o
     OUTPUT_VARIABLE OS)
 
 add_definitions("-D${OS}")
+
+if(UNITTEST)
+    find_package(PkgConfig)
+    pkg_check_modules(LIBCUTTER libcutter)
+
+    if(LIBCUTTER_FOUND)
+        set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+        include_directories(${LIBCUTTER_INCLUDE_DIRS})
+        add_subdirectory(tests)
+        add_definitions("-D__UNIT_TEST__")
+    endif(LIBCUTTER_FOUND)
+endif(UNITTEST)
 
 file(GLOB CORE "src/core/*.c")
 file(GLOB ADT "src/adt/*.c")
@@ -84,18 +101,21 @@ execute_process(COMMAND grep MAJOR_VERSION ${LIBRARY_HEADER}
     COMMAND awk "{print $4}"
     COMMAND tr "\n" " "
     COMMAND sed "s/ //"
+    COMMAND tr -d "\n"
     OUTPUT_VARIABLE MAJOR_VERSION)
 
 execute_process(COMMAND grep MINOR_VERSION ${LIBRARY_HEADER}
     COMMAND awk "{print $4}"
     COMMAND tr "\n" " "
     COMMAND sed "s/ //"
+    COMMAND tr -d "\n"
     OUTPUT_VARIABLE MINOR_VERSION)
 
 execute_process(COMMAND grep RELEASE ${LIBRARY_HEADER}
     COMMAND awk "{print $4}"
     COMMAND tr "\n" " "
     COMMAND sed "s/ //"
+    COMMAND tr -d "\n"
     OUTPUT_VARIABLE RELEASE)
 
 set(DESTINATION_BIN_DIR "/usr/local/lib")
@@ -105,7 +125,11 @@ link_directories(${DESTINATION_BIN_DIR})
 
 if(SHARED)
     add_library(${PROJECT_NAME} SHARED ${SOURCE})
-    target_link_libraries(${PROJECT_NAME} pthread m rt dl magic ${IMAGELIBS})
+    target_link_libraries(${PROJECT_NAME} pthread m dl magic ${IMAGELIBS})
+
+    if(NOT APPLE)
+        target_link_libraries(${PROJECT_NAME} rt)
+    endif(NOT APPLE)
 
     # Additional libraries
     if(IMAGE)
@@ -128,9 +152,6 @@ if(SHARED)
     set(LIB_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${RELEASE})
     set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${LIB_VERSION}
         SOVERSION ${MAJOR_VERSION})
-
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        LINK_FLAGS "-Wl,--version-script,${VERSION_SCRIPT}")
 else(SHARED)
     add_library(${PROJECT_NAME} STATIC ${SOURCE})
 endif(SHARED)

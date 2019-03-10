@@ -26,32 +26,38 @@
 
 #include "collections.h"
 
-__PUB_API__ void *cl_list_node_content(cl_list_node_t *node)
+/*
+ *
+ * API
+ *
+ */
+
+void *cl_list_node_content(cl_list_node_t *node)
 {
     return cglist_node_content(node, CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_node_ref(cl_list_node_t *node)
+cl_list_node_t *cl_list_node_ref(cl_list_node_t *node)
 {
     return (cl_list_node_t *)cglist_node_ref(node, CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ int cl_list_node_unref(cl_list_node_t *node)
+int cl_list_node_unref(cl_list_node_t *node)
 {
     return cglist_node_unref(node, CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ cl_list_t *cl_list_ref(cl_list_t *list)
+cl_list_t *cl_list_ref(cl_list_t *list)
 {
     return (cl_list_t *)cglist_ref((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int cl_list_unref(cl_list_t *list)
+int cl_list_unref(cl_list_t *list)
 {
     return cglist_unref((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ cl_list_t *cl_list_create(void (*free_data)(void *),
+cl_list_t *cl_list_create(void (*free_data)(void *),
     int (*compare_to)(cl_list_node_t *, cl_list_node_t *),
     int (*filter)(cl_list_node_t *, void *),
     int (*equals)(cl_list_node_t *, cl_list_node_t *))
@@ -60,62 +66,62 @@ __PUB_API__ cl_list_t *cl_list_create(void (*free_data)(void *),
                                       filter, equals);
 }
 
-__PUB_API__ int cl_list_destroy(cl_list_t *list)
+int cl_list_destroy(cl_list_t *list)
 {
     return cglist_destroy((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int cl_list_size(const cl_list_t *list)
+int cl_list_size(const cl_list_t *list)
 {
     return cglist_size((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int cl_list_push(cl_list_t *list, const void *node_content,
+int cl_list_push(cl_list_t *list, const void *node_content,
     unsigned int size)
 {
     return cglist_push((cl_list_t *)list, CL_OBJ_LIST, node_content, size,
                        CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_pop(cl_list_t *list)
+cl_list_node_t *cl_list_pop(cl_list_t *list)
 {
     return (cl_list_node_t *)cglist_pop((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_shift(cl_list_t *list)
+cl_list_node_t *cl_list_shift(cl_list_t *list)
 {
     return (cl_list_node_t *)cglist_shift((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int cl_list_unshift(cl_list_t *list, const void *node_content,
+int cl_list_unshift(cl_list_t *list, const void *node_content,
     unsigned int size)
 {
     return cglist_unshift((cl_list_t *)list, CL_OBJ_LIST, node_content, size,
                           CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_map(const cl_list_t *list,
+cl_list_node_t *cl_list_map(const cl_list_t *list,
     int (*foo)(cl_list_node_t *, void *), void *data)
 {
     return (cl_list_node_t *)cglist_map((cl_list_t *)list, CL_OBJ_LIST,
                                         CL_OBJ_LIST_NODE, foo, data);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_map_indexed(const cl_list_t *list,
+cl_list_node_t *cl_list_map_indexed(const cl_list_t *list,
     int (*foo)(unsigned int, cl_list_node_t *, void *), void *data)
 {
     return (cl_list_node_t *)cglist_map_indexed((cl_list_t *)list, CL_OBJ_LIST,
                                                 CL_OBJ_LIST_NODE, foo, data);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_map_reverse(const cl_list_t *list,
+cl_list_node_t *cl_list_map_reverse(const cl_list_t *list,
     int (*foo)(cl_list_node_t *, void *), void *data)
 {
     return (cl_list_node_t *)cglist_map_reverse((cl_list_t *)list, CL_OBJ_LIST,
                                                 CL_OBJ_LIST_NODE, foo, data);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_map_reverse_indexed(const cl_list_t *list,
+cl_list_node_t *cl_list_map_reverse_indexed(const cl_list_t *list,
     int (*foo)(unsigned int, cl_list_node_t *, void *), void *data)
 {
     return (cl_list_node_t *)cglist_map_reverse_indexed((cl_list_t *)list,
@@ -124,93 +130,93 @@ __PUB_API__ cl_list_node_t *cl_list_map_reverse_indexed(const cl_list_t *list,
                                                         data);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_at(const cl_list_t *list, unsigned int index)
+cl_list_node_t *cl_list_at(const cl_list_t *list, unsigned int index)
 {
     return (cl_list_node_t *)cglist_at((cl_list_t *)list, CL_OBJ_LIST,
                                        CL_OBJ_LIST_NODE, index);
 }
 
-__PUB_API__ int cl_list_delete(cl_list_t *list, void *data)
+int cl_list_delete(cl_list_t *list, void *data)
 {
     return cglist_delete((cl_list_t *)list, CL_OBJ_LIST, data);
 }
 
-__PUB_API__ int cl_list_delete_indexed(cl_list_t *list, unsigned int index)
+int cl_list_delete_indexed(cl_list_t *list, unsigned int index)
 {
     return cglist_delete_indexed((cl_list_t *)list, CL_OBJ_LIST, index);
 }
 
-__PUB_API__ cl_list_t *cl_list_move(cl_list_t *list)
+cl_list_t *cl_list_move(cl_list_t *list)
 {
     return (cl_list_t *)cglist_move((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ cl_list_t *cl_list_filter(cl_list_t *list, void *data)
+cl_list_t *cl_list_filter(cl_list_t *list, void *data)
 {
     return (cl_list_t *)cglist_filter((cl_list_t *)list, CL_OBJ_LIST, data);
 }
 
-__PUB_API__ int cl_list_sort(cl_list_t *list)
+int cl_list_sort(cl_list_t *list)
 {
     return cglist_sort((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int cl_list_indexof(const cl_list_t *list, void *element,
+int cl_list_indexof(const cl_list_t *list, void *element,
     unsigned int size)
 {
     return cglist_indexof((cl_list_t *)list, CL_OBJ_LIST, element, size,
                           CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ int cl_list_last_indexof(const cl_list_t *list, void *element,
+int cl_list_last_indexof(const cl_list_t *list, void *element,
     unsigned int size)
 {
     return cglist_last_indexof((cl_list_t *)list, CL_OBJ_LIST, element, size,
                                CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ bool cl_list_contains(const cl_list_t *list, void *element,
+bool cl_list_contains(const cl_list_t *list, void *element,
     unsigned int size)
 {
     return cglist_contains((cl_list_t *)list, CL_OBJ_LIST, element, size,
                            CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_peek(const cl_list_t *list)
+cl_list_node_t *cl_list_peek(const cl_list_t *list)
 {
     return (cl_list_node_t *)cglist_peek((cl_list_t *)list, CL_OBJ_LIST,
                                          CL_OBJ_LIST_NODE);
 }
 
-__PUB_API__ bool cl_list_is_empty(const cl_list_t *list)
+bool cl_list_is_empty(const cl_list_t *list)
 {
     return cglist_is_empty((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int cl_list_set_compare_to(const cl_list_t *list,
+int cl_list_set_compare_to(const cl_list_t *list,
     int (*compare_to)(cl_list_node_t *, cl_list_node_t *))
 {
     return cglist_set_compare_to((cl_list_t *)list, CL_OBJ_LIST, compare_to);
 }
 
-__PUB_API__ int cl_list_set_filter(const cl_list_t *list,
+int cl_list_set_filter(const cl_list_t *list,
     int (*filter)(cl_list_node_t *, void *))
 {
     return cglist_set_filter((cl_list_t *)list, CL_OBJ_LIST, filter);
 }
 
-__PUB_API__ int cl_list_set_equals(const cl_list_t *list,
+int cl_list_set_equals(const cl_list_t *list,
     int (*equals)(cl_list_node_t *, cl_list_node_t *))
 {
     return cglist_set_equals((cl_list_t *)list, CL_OBJ_LIST, equals);
 }
 
-__PUB_API__ cl_list_node_t *cl_list_middle(const cl_list_t *list)
+cl_list_node_t *cl_list_middle(const cl_list_t *list)
 {
     return (cl_list_node_t *)cglist_middle((cl_list_t *)list, CL_OBJ_LIST);
 }
 
-__PUB_API__ int cl_list_rotate(cl_list_t *list, unsigned int n)
+int cl_list_rotate(cl_list_t *list, unsigned int n)
 {
     return cglist_rotate(list, CL_OBJ_LIST, n);
 }

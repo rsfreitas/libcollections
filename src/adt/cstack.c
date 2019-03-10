@@ -41,6 +41,12 @@ cl_struct_declare(cl_cstack_s, cl_cstack_members);
 
 #define cl_cstack_s            cl_struct(cl_cstack_s)
 
+/*
+ *
+ * Internal functions
+ *
+ */
+
 static void destroy_circular_stack_s(const struct cl_ref_s *ref)
 {
     cl_cstack_s *q = cl_container_of(ref, cl_cstack_s, ref);
@@ -83,7 +89,7 @@ static cl_cstack_s *new_circular_stack_s(unsigned int max_size)
  *
  */
 
-__PUB_API__ cl_cstack_t *cl_cstack_ref(cl_cstack_t *cstack)
+cl_cstack_t *cl_cstack_ref(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = (cl_cstack_s *)cstack;
 
@@ -93,7 +99,7 @@ __PUB_API__ cl_cstack_t *cl_cstack_ref(cl_cstack_t *cstack)
     return cstack;
 }
 
-__PUB_API__ int cl_cstack_unref(cl_cstack_t *cstack)
+int cl_cstack_unref(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = (cl_cstack_s *)cstack;
 
@@ -103,7 +109,7 @@ __PUB_API__ int cl_cstack_unref(cl_cstack_t *cstack)
     return 0;
 }
 
-__PUB_API__ cl_cstack_t *cl_cstack_create(unsigned int size,
+cl_cstack_t *cl_cstack_create(unsigned int size,
     void (*unref_node)(void *),
     int (*compare_to)(cl_stack_node_t *, cl_stack_node_t *),
     int (*filter)(cl_stack_node_t *, void *),
@@ -134,12 +140,12 @@ __PUB_API__ cl_cstack_t *cl_cstack_create(unsigned int size,
     return q;
 }
 
-__PUB_API__ int cl_cstack_destroy(cl_cstack_t *cstack)
+int cl_cstack_destroy(cl_cstack_t *cstack)
 {
     return cl_cstack_unref(cstack);
 }
 
-__PUB_API__ int cl_cstack_size(cl_cstack_t *cstack)
+int cl_cstack_size(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
     int size;
@@ -151,7 +157,7 @@ __PUB_API__ int cl_cstack_size(cl_cstack_t *cstack)
     return size;
 }
 
-__PUB_API__ int cl_cstack_push(cl_cstack_t *cstack,
+int cl_cstack_push(cl_cstack_t *cstack,
     const void *data, unsigned int data_size)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -175,7 +181,7 @@ __PUB_API__ int cl_cstack_push(cl_cstack_t *cstack,
     return ret;
 }
 
-__PUB_API__ cl_stack_node_t *cl_cstack_pop(cl_cstack_t *cstack)
+cl_stack_node_t *cl_cstack_pop(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
     cl_stack_node_t *node = NULL;
@@ -196,7 +202,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_stack_node_t *cl_cstack_map(cl_cstack_t *cstack,
+cl_stack_node_t *cl_cstack_map(cl_cstack_t *cstack,
     int (*foo)(cl_stack_node_t *, void *), void *data)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -216,7 +222,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_stack_node_t *cl_cstack_map_indexed(cl_cstack_t *cstack,
+cl_stack_node_t *cl_cstack_map_indexed(cl_cstack_t *cstack,
     int (*foo)(unsigned int, cl_stack_node_t *, void *), void *data)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -236,7 +242,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_stack_node_t *cl_cstack_map_reverse(cl_cstack_t *cstack,
+cl_stack_node_t *cl_cstack_map_reverse(cl_cstack_t *cstack,
     int (*foo)(cl_stack_node_t *, void *), void *data)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -256,7 +262,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_stack_node_t *cl_cstack_map_reverse_indexed(cl_cstack_t *cstack,
+cl_stack_node_t *cl_cstack_map_reverse_indexed(cl_cstack_t *cstack,
     int (*foo)(unsigned int, cl_stack_node_t *, void *), void *data)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -276,7 +282,7 @@ end_block:
     return node;
 }
 
-__PUB_API__ cl_stack_node_t *cl_cstack_at(cl_cstack_t *cstack,
+cl_stack_node_t *cl_cstack_at(cl_cstack_t *cstack,
     unsigned int index)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -289,7 +295,7 @@ __PUB_API__ cl_stack_node_t *cl_cstack_at(cl_cstack_t *cstack,
     return node;
 }
 
-__PUB_API__ int cl_cstack_delete(cl_cstack_t *cstack, void *data)
+int cl_cstack_delete(cl_cstack_t *cstack, void *data)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
     int ret = -1;
@@ -301,7 +307,7 @@ __PUB_API__ int cl_cstack_delete(cl_cstack_t *cstack, void *data)
     return ret;
 }
 
-__PUB_API__ int cl_cstack_delete_indexed(cl_cstack_t *cstack,
+int cl_cstack_delete_indexed(cl_cstack_t *cstack,
     unsigned int index)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -314,7 +320,7 @@ __PUB_API__ int cl_cstack_delete_indexed(cl_cstack_t *cstack,
     return ret;
 }
 
-__PUB_API__ cl_cstack_t *cl_cstack_move(cl_cstack_t *cstack)
+cl_cstack_t *cl_cstack_move(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
     cl_cstack_s *n = NULL;
@@ -338,7 +344,7 @@ __PUB_API__ cl_cstack_t *cl_cstack_move(cl_cstack_t *cstack)
     return n;
 }
 
-__PUB_API__ cl_cstack_t *cl_cstack_filter(cl_cstack_t *cstack,
+cl_cstack_t *cl_cstack_filter(cl_cstack_t *cstack,
     void *data)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -363,7 +369,7 @@ __PUB_API__ cl_cstack_t *cl_cstack_filter(cl_cstack_t *cstack,
     return n;
 }
 
-__PUB_API__ int cl_cstack_sort(cl_cstack_t *cstack)
+int cl_cstack_sort(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
     int ret = -1;
@@ -375,7 +381,7 @@ __PUB_API__ int cl_cstack_sort(cl_cstack_t *cstack)
     return ret;
 }
 
-__PUB_API__ int cl_cstack_indexof(cl_cstack_t *cstack, void *element,
+int cl_cstack_indexof(cl_cstack_t *cstack, void *element,
     unsigned int size)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -388,7 +394,7 @@ __PUB_API__ int cl_cstack_indexof(cl_cstack_t *cstack, void *element,
     return ret;
 }
 
-__PUB_API__ int cl_cstack_last_indexof(cl_cstack_t *cstack,
+int cl_cstack_last_indexof(cl_cstack_t *cstack,
     void *element, unsigned int size)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -401,7 +407,7 @@ __PUB_API__ int cl_cstack_last_indexof(cl_cstack_t *cstack,
     return ret;
 }
 
-__PUB_API__ bool cl_cstack_contains(cl_cstack_t *cstack,
+bool cl_cstack_contains(cl_cstack_t *cstack,
     void *element, unsigned int size)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -414,7 +420,7 @@ __PUB_API__ bool cl_cstack_contains(cl_cstack_t *cstack,
     return ret;
 }
 
-__PUB_API__ cl_stack_node_t *cl_cstack_peek(cl_cstack_t *cstack)
+cl_stack_node_t *cl_cstack_peek(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
     cl_stack_node_t *node = NULL;
@@ -426,7 +432,7 @@ __PUB_API__ cl_stack_node_t *cl_cstack_peek(cl_cstack_t *cstack)
     return node;
 }
 
-__PUB_API__ bool cl_cstack_is_empty(cl_cstack_t *cstack)
+bool cl_cstack_is_empty(cl_cstack_t *cstack)
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
     int size;
@@ -438,7 +444,7 @@ __PUB_API__ bool cl_cstack_is_empty(cl_cstack_t *cstack)
     return (size > 0) ? true : false;
 }
 
-__PUB_API__ int cl_cstack_set_compare_to(cl_cstack_t *cstack,
+int cl_cstack_set_compare_to(cl_cstack_t *cstack,
     int (*compare_to)(cl_stack_node_t *, cl_stack_node_t *))
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -451,7 +457,7 @@ __PUB_API__ int cl_cstack_set_compare_to(cl_cstack_t *cstack,
     return ret;
 }
 
-__PUB_API__ int cl_cstack_set_filter(cl_cstack_t *cstack,
+int cl_cstack_set_filter(cl_cstack_t *cstack,
     int (*filter)(cl_stack_node_t *, void *))
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
@@ -464,7 +470,7 @@ __PUB_API__ int cl_cstack_set_filter(cl_cstack_t *cstack,
     return ret;
 }
 
-__PUB_API__ int cl_cstack_set_equals(cl_cstack_t *cstack,
+int cl_cstack_set_equals(cl_cstack_t *cstack,
     int (*equals)(cl_stack_node_t *, cl_stack_node_t *))
 {
     cl_cstack_s *q = cl_cstack_ref(cstack);
